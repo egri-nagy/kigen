@@ -1,8 +1,8 @@
 (defproject kigen "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "Computing with diagram semigroups based on partitioned binary relations"
+  :url "https://github.com/egri-nagy/kigen"
+  :license {:name "GNU GENERAL PUBLIC LICENSE"
+            :url "http://www.gnu.org/copyleft/gpl.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
