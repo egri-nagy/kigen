@@ -7,3 +7,7 @@
   (println "Hello, World!")
   (println {1 #{1 2}, 2 #{2}} )
   (println (pbr/cod-cod [] 0)))
+
+; another way, with keywords
+(def kw  (keyword (str 12)))
+(read-string (name kw))
