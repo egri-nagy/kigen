@@ -1,5 +1,5 @@
 (ns kigen.core
-  (:require [kigen.pbr :as pbr])(:gen-class))
+  (:require [kigen.pbr :as pbr]) (:gen-class))
 
 (defn -main
   "I don't do a whole lot ... yet."
