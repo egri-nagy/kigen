@@ -15,7 +15,10 @@
 (defn rand-pbr
   "a random (n,m) paritioned binary relation"
   [m n]
-  (let [ pbr {:dom (set (range 1 (inc m)))
-              :cod (set (range (inc m) (+ m n 1)))}]
-    (reduce conj pbr (take 5 (repeat [1 #{1}])))
-    ))
+  (let [N (+ m n 1)
+        X (range 1 N) ;the full set of points, union of cod, dom
+        pbr {:dom (set (range 1 (inc m)))
+             :cod (set (range (inc m) N ))}] ; intial map contains dom, cod
+    (into pbr (zipmap
+               X
+               (take (dec N) (repeatedly (partial rand-subset X)))))))
