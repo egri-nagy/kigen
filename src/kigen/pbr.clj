@@ -12,6 +12,7 @@
   (let [bits (take (count coll) (repeatedly (partial rand-nth [true false])))]
     (set (map second (filter first (map list  bits coll))))))
 
+; not a good sampling at the moment
 (defn rand-pbr
   "a random (n,m) paritioned binary relation"
   [m n]
@@ -22,3 +23,8 @@
     (into pbr (zipmap
                X
                (take (dec N) (repeatedly (partial rand-subset X)))))))
+
+(defn mul
+  "multiply two partitioned binary relations"
+  [alpha beta]
+  )
