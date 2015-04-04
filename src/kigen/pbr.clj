@@ -27,7 +27,7 @@
 
 (defn sharp-pbr
   [pbr n]
-  (let [f (fn [X] (set (map #(+ n %) X)))]
+  (let [f (fn [X] (set (map #(+ n %) X)))] ; shifting sets
     (reduce (fn [m [k v]]
                (if (keyword? k)
                  (conj m [k (f v)])
