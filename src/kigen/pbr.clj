@@ -1,4 +1,5 @@
-(ns kigen.pbr)
+(ns kigen.pbr
+  (:require [clojure.set :as set]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}
@@ -24,7 +25,18 @@
                X
                (take (dec N) (repeatedly (partial rand-subset X)))))))
 
+(defn sharp-pbr
+  [pbr n]
+  (let [f (fn [X] (set (map #(+ n %) X)))]
+    (reduce (fn [m [k v]]
+               (if (keyword? k)
+                 (conj m [k (f v)])
+                 (conj m [ (+ k n) (f v)])))
+            {} pbr)))
+
 (defn mul
   "multiply two partitioned binary relations"
-  [alpha beta]
+  [a b]
+  (let [bsharp (sharp-pbr b (count (:dom a)))]
+   )
   )
