@@ -39,17 +39,21 @@
   [pbr n]
   pbr)
 
-(defn foo
-  [i ll] ;lazy list of pbrs
-  (last (take-while #(not ( empty? (last (:orbit %))))
-                    (reductions (fn [m pbr]
-                                  (let [diff (set/difference (reduce set/union (map pbr (last (:orbit m)))) (:visited m))]
-                                        ; (println diff)
-                                    {:visited (into (:visited m) diff)
-                                     :orbit (conj (:orbit m) diff)}))
-                                {:visited ((first ll) i) :orbit [((first ll) i)]}
-                                ll)))
-  )
+(defn foo [i pbrs]
+  (let [A ((first pbrs) i)] ; the 1-paths in the first pbr
+    (take-while #(not (empty? (last (:orbit %))))
+                (reductions
+                 (fn [m pbr]
+                   (println pbr)
+                   (let [diff (set/difference
+                               (reduce
+                                set/union
+                                (map pbr (last (:orbit m))))
+                               (:total m))]
+                     {:total (into (:total m) diff)
+                      :orbit (conj (:orbit m) diff)}))
+                 {:total A :orbit [A]}
+                 (rest pbrs)))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -58,5 +62,9 @@
         b# (sharp-pbr b offset)
         ab# {:dom (:dom a) :cod (:cod b#)}]
     (foo 1 (cycle [a b#]))
-    ;(flat-cod-pbr ab#  offset)
+                                        ;(flat-cod-pbr ab#  offset)
     ))
+
+(def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
+(def b {:dom #{1 2} :cod #{3 4} 1 #{4} 2 #{3} 3 #{} 4 #{1}})
+(def b# ( sharp-pbr b 2))
