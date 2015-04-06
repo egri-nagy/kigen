@@ -25,6 +25,7 @@
                X
                (take (dec N) (repeatedly (partial rand-subset X)))))))
 
+;; shifting up the integer points by a given value (needed by multiplication)
 (defn sharp-pbr
   [pbr n]
   (let [f (fn [X] (set (map #(+ n %) X)))] ; shifting sets
@@ -34,9 +35,15 @@
                  (conj m [ (+ k n) (f v)])))
             {} pbr)))
 
+(defn flat-cod-pbr ; just identity for now
+  [pbr n]
+  pbr)
+
 (defn mul
   "multiply two partitioned binary relations"
   [a b]
-  (let [bsharp (sharp-pbr b (count (:dom a)))]
-   )
-  )
+  (let [offset (count (:dom a))
+        b# (sharp-pbr b offset)
+        ab# {:dom (:dom a) :cod (:cod b#)}]
+
+    (flat-cod-pbr ab#  offset)))
