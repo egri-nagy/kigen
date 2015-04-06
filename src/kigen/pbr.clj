@@ -39,11 +39,24 @@
   [pbr n]
   pbr)
 
+(defn foo
+  [i ll] ;lazy list of pbrs
+  (last (take-while #(not ( empty? (last (:orbit %))))
+                    (reductions (fn [m pbr]
+                                  (let [diff (set/difference (reduce set/union (map pbr (last (:orbit m)))) (:visited m))]
+                                        ; (println diff)
+                                    {:visited (into (:visited m) diff)
+                                     :orbit (conj (:orbit m) diff)}))
+                                {:visited ((first ll) i) :orbit [((first ll) i)]}
+                                ll)))
+  )
+
 (defn mul
   "multiply two partitioned binary relations"
   [a b]
   (let [offset (count (:dom a))
         b# (sharp-pbr b offset)
         ab# {:dom (:dom a) :cod (:cod b#)}]
-
-    (flat-cod-pbr ab#  offset)))
+    (foo 1 (cycle [a b#]))
+    ;(flat-cod-pbr ab#  offset)
+    ))
