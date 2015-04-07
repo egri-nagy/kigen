@@ -26,14 +26,15 @@
                (take (dec N) (repeatedly (partial rand-subset X)))))))
 
 ;; shifting up the integer points by a given value (needed by multiplication)
+(defn shift-set [X n]  (set (map #(+ n %) X)))
+
 (defn sharp-pbr
   [pbr n]
-  (let [f (fn [X] (set (map #(+ n %) X)))] ; shifting sets
-    (reduce (fn [m [k v]]
-               (if (keyword? k)
-                 (conj m [k (f v)])
-                 (conj m [ (+ k n) (f v)])))
-            {} pbr)))
+  (reduce (fn [m [k v]]
+            (if (keyword? k)
+              (conj m [k (shift-set v n)])
+              (conj m [ (+ k n) (shift-set v n)])))
+          {} pbr))
 
 (defn flat-cod-pbr ; just identity for now
   [pbr n]
