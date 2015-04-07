@@ -41,19 +41,20 @@
 
 (defn foo [i pbrs]
   (let [A ((first pbrs) i)] ; the 1-paths in the first pbr
-    (take-while #(not (empty? (last (:orbit %))))
-                (reductions
-                 (fn [m pbr]
-                   (println pbr)
-                   (let [diff (set/difference
-                               (reduce
-                                set/union
-                                (map pbr (last (:orbit m))))
-                               (:total m))]
-                     {:total (into (:total m) diff)
-                      :orbit (conj (:orbit m) diff)}))
-                 {:total A :orbit [A]}
-                 (rest pbrs)))))
+    (:total
+     (last
+      (take-while #(not (empty? (last (:orbit %))))
+                  (reductions
+                   (fn [m pbr]
+                     (let [diff (set/difference
+                                 (reduce
+                                  set/union
+                                  (map pbr (last (:orbit m))))
+                                 (:total m))]
+                       {:total (into (:total m) diff)
+                        :orbit (conj (:orbit m) diff)}))
+                   {:total A :orbit [A]}
+                   (rest pbrs)))))))
 
 (defn mul
   "multiply two partitioned binary relations"
