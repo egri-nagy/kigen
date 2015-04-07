@@ -36,9 +36,14 @@
               (conj m [ (+ k n) (shift-set v n)])))
           {} pbr))
 
+(defn cond-shift-set [X n]  (set (map #(if (<= % n) % (- % n)) X)))
+
 (defn flat-cod-pbr ; just identity for now
   [pbr n]
-  pbr)
+  (map (fn [[k v]] (if (or (keyword? k) (<= k n))
+                    [k (cond-shift-set v n)]
+                    [(- k n) (cond-shift-set v n)]))
+       pbr))
 
 (defn foo [i pbrs]
   (let [A ((first pbrs) i)] ; the 1-paths in the first pbr
@@ -64,10 +69,10 @@
         b# (sharp-pbr b offset)
         ab# {:dom (:dom a) :cod (:cod b#)}
         endpoints ( set/union (:dom ab#) (:cod ab#)) ]
-    (into ab#
-          (into  (map #(vector % (set (filter endpoints (foo % (cycle [a b#]))))) (:dom ab#))
-                 (map #(vector % (set (filter endpoints (foo % (cycle [b# a]))))) (:cod ab#))))
-                                        ;(flat-cod-pbr ab#  offset)
+    (flat-cod-pbr
+     (into ab#
+           (into  (map #(vector % (set (filter endpoints (foo % (cycle [a b#]))))) (:dom ab#))
+                  (map #(vector % (set (filter endpoints (foo % (cycle [b# a]))))) (:cod ab#)))) offset)
     ))
 
 (def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
