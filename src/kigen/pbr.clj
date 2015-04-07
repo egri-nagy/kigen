@@ -60,7 +60,8 @@
   [a b]
   (let [offset (count (:dom a))
         b# (sharp-pbr b offset)
-        ab# {:dom (:dom a) :cod (:cod b#)}]
+        ab# {:dom (:dom a) :cod (:cod b#)}
+        endpoints ( set/union (:dom ab#) (:cod ab#)) ]
     (foo 1 (cycle [a b#]))
                                         ;(flat-cod-pbr ab#  offset)
     ))
