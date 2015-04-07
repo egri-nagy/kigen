@@ -64,8 +64,8 @@
         ab# {:dom (:dom a) :cod (:cod b#)}
         endpoints ( set/union (:dom ab#) (:cod ab#)) ]
     (into ab#
-          (into  (map #(vector % (foo % (cycle [a b#]))) (:dom ab#))
-                 (map #(vector % (foo % (cycle [b# a]))) (:cod ab#))))
+          (into  (map #(vector % (set (filter endpoints (foo % (cycle [a b#]))))) (:dom ab#))
+                 (map #(vector % (set (filter endpoints (foo % (cycle [b# a]))))) (:cod ab#))))
                                         ;(flat-cod-pbr ab#  offset)
     ))
 
