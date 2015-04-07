@@ -54,7 +54,7 @@
                        {:total (into (:total m) diff)
                         :orbit (conj (:orbit m) diff)}))
                    {:total A :orbit [A]}
-                   (rest pbrs)))))))
+                   (rest pbrs)))) #{})))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -63,7 +63,9 @@
         b# (sharp-pbr b offset)
         ab# {:dom (:dom a) :cod (:cod b#)}
         endpoints ( set/union (:dom ab#) (:cod ab#)) ]
-    (foo 1 (cycle [a b#]))
+    (into ab#
+          (into  (map #(vector % (foo % (cycle [a b#]))) (:dom ab#))
+                 (map #(vector % (foo % (cycle [b# a]))) (:cod ab#))))
                                         ;(flat-cod-pbr ab#  offset)
     ))
 
