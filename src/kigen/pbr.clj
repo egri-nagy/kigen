@@ -40,10 +40,10 @@
 
 (defn flat-cod-pbr ; just identity for now
   [pbr n]
-  (map (fn [[k v]] (if (or (keyword? k) (<= k n))
-                    [k (cond-shift-set v n)]
-                    [(- k n) (cond-shift-set v n)]))
-       pbr))
+  (into {} (map (fn [[k v]] (if (or (keyword? k) (<= k n))
+                             [k (cond-shift-set v n)]
+                             [(- k n) (cond-shift-set v n)]))
+                pbr)))
 
 (defn foo [i pbrs]
   (let [A ((first pbrs) i)] ; the 1-paths in the first pbr
@@ -87,3 +87,6 @@
 (def beta {:dom #{1 2 3 4 5 6 7 8 9} :cod #{10 11 12 13}
            1 #{} 2 #{10} 3 #{3} 4 #{5} 5 #{4 11} 6 #{6} 7 #{} 8 #{12} 9 #{}
            10 #{2} 11 #{} 12 #{8} 13 #{9}})
+(def alphabeta {:dom #{1 2 3 4 5 6 7} :cod #{8 9 10 11}
+                1 #{8} 2 #{} 3 #{4} 4 #{4} 5 #{} 6 #{6} 7 #{}
+                8 #{1 9} 9 #{} 10 #{} 11 #{10}})
