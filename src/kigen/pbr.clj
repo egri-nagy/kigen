@@ -55,21 +55,21 @@
   (apply set/union (map #(edges-from-node % pbr) nodes)))
 
 (defn foo [i pbrs]
-  (let [A (map #(vector i %) ((first pbrs) i))] ; the 1-paths in the first pbr
+  (let [A (edges-from-node i (first pbrs))] ; the 1-paths in the first pbr
     (:total
      (last
       (take-while #(not (empty? (last (:orbit %))))
                   (reductions
                    (fn [m pbr]
                      (let [diff (set/difference
-                                 (reduce
-                                  set/union
-                                  (map pbr (last (:orbit m))))
+                                 (edges-from-nodes (map #(last %) (last (:orbit m))) pbr)
                                  (:total m))]
                        {:total (into (:total m) diff)
                         :orbit (conj (:orbit m) diff)}))
                    {:total A :orbit [A]}
                    (rest pbrs)))) #{})))
+
+(defn bar [i pbrs] (set (map #(last %) (foo i pbrs))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -80,8 +80,8 @@
         endpoints ( set/union (:dom ab#) (:cod ab#)) ]
     (flat-cod-pbr
      (into ab#
-           (into  (map #(vector % (set (filter endpoints (foo % (cycle [a b#]))))) (:dom ab#))
-                  (map #(vector % (set (filter endpoints (foo % (cycle [b# a]))))) (:cod ab#))))  (count (:dom b)))
+           (into  (map #(vector % (set (filter endpoints (bar % (cycle [a b#]))))) (:dom ab#))
+                  (map #(vector % (set (filter endpoints (bar % (cycle [b# a]))))) (:cod ab#))))  (count (:dom b)))
     ))
 
 (def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
@@ -99,4 +99,4 @@
 (def beta# (sharp-pbr beta (count (:dom alpha))))
 (def alphabeta {:dom #{1 2 3 4 5 6 7} :cod #{8 9 10 11}
                 1 #{8} 2 #{} 3 #{4} 4 #{4} 5 #{} 6 #{6} 7 #{}
-                8 #{1 9} 9 #{} 10 #{} 11 #{10}})
+                8 #{1 2 9} 9 #{} 10 #{} 11 #{10}})
