@@ -72,7 +72,7 @@
     (flat-cod-pbr
      (into ab#
            (into  (map #(vector % (set (filter endpoints (foo % (cycle [a b#]))))) (:dom ab#))
-                  (map #(vector % (set (filter endpoints (foo % (cycle [b# a]))))) (:cod ab#)))) offset)
+                  (map #(vector % (set (filter endpoints (foo % (cycle [b# a]))))) (:cod ab#))))  (count (:dom b)))
     ))
 
 (def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
