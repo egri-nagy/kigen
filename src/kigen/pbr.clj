@@ -45,8 +45,17 @@
                              [(- k n) (cond-shift-set v n)]))
                 pbr)))
 
+(defn edges-from-node
+  [node pbr]
+  (set
+   (map #(vector node %) (pbr node))))
+
+(defn edges-from-nodes
+  [nodes pbr]
+  (apply set/union (map #(edges-from-node % pbr) nodes)))
+
 (defn foo [i pbrs]
-  (let [A ((first pbrs) i)] ; the 1-paths in the first pbr
+  (let [A (map #(vector i %) ((first pbrs) i))] ; the 1-paths in the first pbr
     (:total
      (last
       (take-while #(not (empty? (last (:orbit %))))
