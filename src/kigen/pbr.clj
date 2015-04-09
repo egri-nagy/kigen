@@ -57,11 +57,18 @@
   [nodes pbr]
   (apply set/union (map #(edges-from-node % pbr) nodes)))
 
+;; extracting the set of target nodes from a coll of edges
+(defn targets
+  [edges]
+  (set (map #(last %) edges)))
+
 (defn orbit-seq
-  [orbit]
-  ( cons orbit
-         (lazy-seq (orbit-seq orbit)))
-  )
+  [orbit pbrs]
+  (cons orbit
+        (lazy-seq (orbit-seq
+                   ({:all {}
+                     :graded {}} (first pbrs))
+                   (rest pbrs)))))
 
 (defn foo [i pbrs]
   (let [A (edges-from-node i (first pbrs))] ; the 1-paths in the first pbr
@@ -71,7 +78,7 @@
                   (reductions
                    (fn [m pbr]
                      (let [diff (set/difference
-                                 (edges-from-nodes (map #(last %) (last (:orbit m))) pbr)
+                                 (edges-from-nodes (targets (last (:orbit m))) pbr)
                                  (:total m))]
                        {:total (into (:total m) diff)
                         :orbit (conj (:orbit m) diff)}))
