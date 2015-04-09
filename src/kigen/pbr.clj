@@ -69,7 +69,9 @@
                    {:total A :orbit [A]}
                    (rest pbrs)))) #{})))
 
-(defn bar [i pbrs] (set (map #(last %) (foo i pbrs))))
+(defn bar
+  [i pbrs endpoints]
+  (set (filter endpoints (map #(last %) (foo i pbrs)))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -77,11 +79,16 @@
   (let [offset (count (:dom a))
         b# (sharp-pbr b offset)
         ab# {:dom (:dom a) :cod (:cod b#)}
-        endpoints ( set/union (:dom ab#) (:cod ab#)) ]
+        endpoints (set/union (:dom ab#) (:cod ab#)) ]
     (flat-cod-pbr
      (into ab#
-           (into  (map #(vector % (set (filter endpoints (bar % (cycle [a b#]))))) (:dom ab#))
-                  (map #(vector % (set (filter endpoints (bar % (cycle [b# a]))))) (:cod ab#))))  (count (:dom b)))
+           (into (map
+                  #(vector % (bar % (cycle [a b#]) endpoints))
+                  (:dom ab#))
+                 (map
+                  #(vector % (bar % (cycle [b# a]) endpoints))
+                  (:cod ab#))))
+     (count (:dom b)))
     ))
 
 (def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
