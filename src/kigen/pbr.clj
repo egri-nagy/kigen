@@ -45,14 +45,19 @@
                              [(- k n) (cond-shift-set v n)]))
                 pbr)))
 
+;; the edges of the given pbr from the given node
+;; simple lookup in the map
 (defn edges-from-node
   [node pbr]
   (set
    (map #(vector node %) (pbr node))))
 
+;; the union of all edges in the pbr starting from the given nodes
 (defn edges-from-nodes
   [nodes pbr]
   (apply set/union (map #(edges-from-node % pbr) nodes)))
+
+
 
 (defn foo [i pbrs]
   (let [A (edges-from-node i (first pbrs))] ; the 1-paths in the first pbr
