@@ -57,7 +57,11 @@
   [nodes pbr]
   (apply set/union (map #(edges-from-node % pbr) nodes)))
 
-
+(defn orbit-seq
+  [orbit]
+  ( cons orbit
+         (lazy-seq (orbit-seq orbit)))
+  )
 
 (defn foo [i pbrs]
   (let [A (edges-from-node i (first pbrs))] ; the 1-paths in the first pbr
