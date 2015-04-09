@@ -87,7 +87,7 @@
 
 (defn bar
   [i pbrs endpoints]
-  (set (filter endpoints (map #(last %) (foo i pbrs)))))
+  (set (filter endpoints (targets (foo i pbrs)))))
 
 (defn mul
   "multiply two partitioned binary relations"
