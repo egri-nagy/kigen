@@ -66,8 +66,13 @@
   [orbit pbrs]
   (cons orbit
         (lazy-seq (orbit-seq
-                   ({:all {}
-                     :graded {}} (first pbrs))
+                   (let [{:keys [all graded]} orbit
+                         diff (set/difference
+                               (edges-from-nodes
+                                (targets (last graded))
+                                (first pbrs))
+                               all)]
+                     {:all (into all diff) :graded (conj graded diff)})
                    (rest pbrs)))))
 
 (defn foo [i pbrs]
