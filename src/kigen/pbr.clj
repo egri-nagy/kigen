@@ -100,14 +100,14 @@
         endpoints (set/union (:dom ab#) (:cod ab#)) ]
     (flat-cod-pbr
      (into ab#
-           (into (map
-                  #(vector % (image-set % (cycle [a b#]) endpoints))
-                  (:dom ab#))
-                 (map
-                  #(vector % (image-set % (cycle [b# a]) endpoints))
-                  (:cod ab#))))
-     (count (:dom b)))
-    ))
+           (mapcat
+            (fn [points pbrs]
+              (map
+               #(vector % (image-set % pbrs  endpoints))
+               points))
+            [ (:dom ab#) (:cod ab#)]
+            [(cycle [a b#]) (cycle [b# a])]))
+     (count (:dom b)))))
 
 (def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
 (def b {:dom #{1 2} :cod #{3 4} 1 #{4} 2 #{3} 3 #{} 4 #{1}})
