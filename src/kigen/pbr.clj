@@ -75,6 +75,11 @@
                      {:all (into all diff) :graded (conj graded diff)})
                    (rest pbrs)))))
 
+(defn orbit
+  [i pbrs]
+  (let [A (edges-from-node i (first pbrs))]
+    (orbit-seq {:all A :graded [A]} (rest pbrs)) ))
+
 (defn foo [i pbrs]
   (let [A (edges-from-node i (first pbrs))] ; the 1-paths in the first pbr
     (:total
