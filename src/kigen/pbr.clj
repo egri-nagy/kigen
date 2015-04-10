@@ -6,21 +6,25 @@
 ;; for degree n, domain is 1..n, codomain is n+1..2n
 ;; e.g. degree 3, domain is {1,2,3}, codomain is {4,5,6}
 
-; generating a vector of booleans as a characteristic function
+;; generating a vector of booleans as a characteristic function
+;; 1. generate a random bitlist of length of the size of the collection
+;; 2. pair the bits with the collection elements and filter the 'true pairs
+;; 3. return the set of the element parts of the filtered pairs
 (defn rand-subset
   "returns a random subset of the given collection"
   [coll]
   (let [bits (take (count coll) (repeatedly (partial rand-nth [true false])))]
-    (set (map second (filter first (map list  bits coll))))))
+    (set (map second (filter first (map list bits coll))))))
 
-; not a good sampling at the moment
+;; just zipping the nodes with random subsets
+;; not a good sampling at the moment
 (defn rand-pbr
   "a random (n,m) paritioned binary relation"
   [m n]
-  (let [N (+ m n 1)
-        X (range 1 N) ;the full set of points, union of cod, dom
-        pbr {:dom (set (range 1 (inc m)))
-             :cod (set (range (inc m) N ))}] ; intial map contains dom, cod
+  (let [N (+ m n 1) ;the number of points/nodes
+        X (range 1 N) ;the full set of points, union of dom, cod
+        pbr {:dom (set (range 1 (inc m))) ; intial map contains dom, cod
+             :cod (set (range (inc m) N ))}]
     (into pbr (zipmap
                X
                (take (dec N) (repeatedly (partial rand-subset X)))))))
