@@ -82,10 +82,10 @@
 
 (defn image-set
   [node pbrs endpoints]
-  (filter endpoints
-          (targets  (:all (last (take-while
-                                 #(not (empty?(last (:graded %))))
-                                 (orbit node pbrs)))))))
+  ((comp (partial filter endpoints) targets :all last)
+   (take-while
+    #(not (empty?(last (:graded %))))
+    (orbit node pbrs))))
 
 (defn mul
   "multiply two partitioned binary relations"
