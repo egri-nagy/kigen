@@ -80,24 +80,12 @@
   (let [A (edges-from-node i (first pbrs))]
     (orbit-seq {:all A :graded [A]} (rest pbrs)) ))
 
-(defn foo [i pbrs]
-  (let [A (edges-from-node i (first pbrs))] ; the 1-paths in the first pbr
-    (:total
-     (last
-      (take-while #(not (empty? (last (:orbit %))))
-                  (reductions
-                   (fn [m pbr]
-                     (let [diff (set/difference
-                                 (edges-from-nodes (targets (last (:orbit m))) pbr)
-                                 (:total m))]
-                       {:total (into (:total m) diff)
-                        :orbit (conj (:orbit m) diff)}))
-                   {:total A :orbit [A]}
-                   (rest pbrs)))) #{})))
-
-(defn bar
-  [i pbrs endpoints]
-  (set (filter endpoints (targets (foo i pbrs)))))
+(defn image-set
+  [node pbrs endpoints]
+  (filter endpoints
+          (targets  (:all (last (take-while
+                                 #(not (empty?(last (:graded %))))
+                                 (orbit node pbrs)))))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -109,10 +97,10 @@
     (flat-cod-pbr
      (into ab#
            (into (map
-                  #(vector % (bar % (cycle [a b#]) endpoints))
+                  #(vector % (image-set % (cycle [a b#]) endpoints))
                   (:dom ab#))
                  (map
-                  #(vector % (bar % (cycle [b# a]) endpoints))
+                  #(vector % (image-set % (cycle [b# a]) endpoints))
                   (:cod ab#))))
      (count (:dom b)))
     ))
