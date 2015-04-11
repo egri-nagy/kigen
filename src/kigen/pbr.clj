@@ -108,7 +108,3 @@
             [ (:dom ab#) (:cod ab#)]
             [(cycle [a b#]) (cycle [b# a])]))
      (count (:dom b)))))
-
-(def a {:dom #{1 2} :cod #{3 4} 1 #{2 3} 2 #{} 3 #{2} 4 #{}})
-(def b {:dom #{1 2} :cod #{3 4} 1 #{4} 2 #{3} 3 #{} 4 #{1}})
-(def b# ( sharp-pbr b 2))
