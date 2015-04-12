@@ -43,16 +43,15 @@
     (reduce (fn [m [k v]] (conj m [(shift-point k) (shift-set v)])) {} pbr)) )
 
 ;; the edges of the given pbr from the given node
-;; simple lookup in the map
+;; simple lookup in the map and putting the edges in 2-vectors
 (defn edges-from-node
   [node pbr]
-  (set
-   (map #(vector node %) (pbr node))))
+  (set (map #(vector node %) (pbr node))))
 
 ;; the union of all edges in the pbr starting from the given nodes
 (defn edges-from-nodes
   [nodes pbr]
-  (apply set/union (map #(edges-from-node % pbr) nodes)))
+  (reduce into #{} (map #(edges-from-node % pbr) nodes)))
 
 ;; extracting the set of target nodes from a coll of edges
 (defn targets
@@ -75,7 +74,7 @@
 (defn orbit
   [i pbrs]
   (let [A (edges-from-node i (first pbrs))]
-    (orbit-seq {:all A :graded [A]} (rest pbrs)) ))
+    (orbit-seq {:all A :graded [A]} (rest pbrs))))
 
 (defn image-set
   [node pbrs endpoints]
@@ -90,7 +89,7 @@
   (let [offset (count (:dom a))
         b# (shift-pbr b {:dom offset :cod offset})
         ab# {:dom (:dom a) :cod (:cod b#)}
-        endpoints (set/union (:dom ab#) (:cod ab#)) ]
+        endpoints (into (:dom ab#) (:cod ab#))]
     (shift-pbr
      (into ab#
            (mapcat
