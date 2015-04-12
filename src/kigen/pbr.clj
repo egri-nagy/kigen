@@ -30,24 +30,17 @@
                (take (dec N) (repeatedly (partial rand-subset X)))))))
 
 ;; shifting up the integer points by a given value (needed by multiplication)
-(defn shift-set [X n]  (set (map #(+ n %) X)))
-
-(defn sharp-pbr
-  [pbr n]
-  (reduce (fn [m [k v]]
-            (if (keyword? k)
-              (conj m [k (shift-set v n)])
-              (conj m [ (+ k n) (shift-set v n)])))
-          {} pbr))
-
-(defn cond-shift-set [X n]  (set (map #(if (<= % n) % (- % n)) X)))
-
-(defn flat-cod-pbr ; just identity for now
-  [pbr n]
-  (into {} (map (fn [[k v]] (if (or (keyword? k) (<= k n))
-                             [k (cond-shift-set v n)]
-                             [(- k n) (cond-shift-set v n)]))
-                pbr)))
+;; the shifting is specified by a map, e.g.  {:dom 0 :cod 2} means not to
+;; touch the domain but shift the codomain by 2
+(defn shift-pbr
+  [pbr offsets]
+  (let [shift-point (fn [point] (cond ((:dom pbr) point)
+                                     (+ point (:dom offsets))
+                                     ((:cod pbr) point)
+                                     (+ point (:cod offsets))
+                                     :else point))
+        shift-set (fn [X] (set (map shift-point X)))]
+    (reduce (fn [m [k v]] (conj m [(shift-point k) (shift-set v)])) {} pbr)) )
 
 ;; the edges of the given pbr from the given node
 ;; simple lookup in the map
@@ -95,10 +88,10 @@
   "multiply two partitioned binary relations"
   [a b]
   (let [offset (count (:dom a))
-        b# (sharp-pbr b offset)
+        b# (shift-pbr b {:dom offset :cod offset})
         ab# {:dom (:dom a) :cod (:cod b#)}
         endpoints (set/union (:dom ab#) (:cod ab#)) ]
-    (flat-cod-pbr
+    (shift-pbr
      (into ab#
            (mapcat
             (fn [points pbrs]
@@ -107,4 +100,4 @@
                points))
             [ (:dom ab#) (:cod ab#)]
             [(cycle [a b#]) (cycle [b# a])]))
-     (count (:dom b)))))
+     {:dom 0 :cod (- (count (:dom b)))})))
