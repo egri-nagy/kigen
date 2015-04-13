@@ -54,10 +54,13 @@
   (reduce into #{} (map #(edges-from-node % pbr) nodes)))
 
 ;; extracting the set of target nodes from a coll of edges
+;; i.e. getting the second elements of the pairs
 (defn targets
   [edges]
   (set (map #(last %) edges)))
 
+;; orbit is a map with :all edges discovered and a vector containing
+;; sets of edges :graded by the number of steps after they got collected
 (defn orbit-seq
   [orbit pbrs]
   (cons orbit
