@@ -4,5 +4,7 @@
 ;; gens - generator elements
 ;; leftmul - left multiplication
 (defn sgp-by-gens
-  [gens leftmul]
-)
+  [elts leftmul]
+  (let [funcs ]
+    (loop []
+         )))
