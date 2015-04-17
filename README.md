@@ -1,5 +1,5 @@
 # kigen
-General implementation of diagram semigroups based on partitioned binary relations.
+General implementation of diagram semigroups based on partitioned binary relations (as defined in http://arxiv.org/abs/1102.0862).
 
 Goals:
 
