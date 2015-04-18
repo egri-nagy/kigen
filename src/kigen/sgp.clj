@@ -7,11 +7,9 @@
 (defn sgp-by-gens
   [gens rightmul]
   (let [funcs (for [x gens] #(rightmul % x))]
-    (loop [orbit [(set gens)]
-           total #{}]
-      (let [frontline (last orbit)
-            newelts (set (for [x frontline f funcs] (f x)))]
-        (if (empty? frontline)
+    (loop [orbit [(set gens)] total #{}]
+      (let [newelts (set (for [x (last orbit) f funcs] (f x)))
+            diff (set/difference newelts total)]
+        (if (empty? diff)
           (reduce into #{} orbit)
-          (recur (conj orbit (set/difference newelts total))
-                 (into total newelts)))))))
+          (recur (conj orbit diff) (into total diff)))))))
