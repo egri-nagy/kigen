@@ -6,6 +6,9 @@
 ;; for degree n, domain is 1..n, codomain is n+1..2n
 ;; e.g. degree 3, domain is {1,2,3}, codomain is {4,5,6}
 
+;; RANDOM PARTITIONED BINARY RELATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Returns a random subset of the given collection.
 ;; generating a vector of booleans as a characteristic function
 ;; 1. generate a random bitlist of length of the size of the collection
 ;; 2. pair the bits with the collection elements and filter the 'true pairs
@@ -16,6 +19,7 @@
   (let [bits (take (count coll) (repeatedly (partial rand-nth [true false])))]
     (set (map second (filter first (map list bits coll))))))
 
+;; Fabricates an m,n partitioned binary relation.
 ;; just zipping the nodes with random subsets
 ;; not a good sampling at the moment
 (defn rand-pbr
@@ -28,6 +32,8 @@
     (into pbr (zipmap
                X
                (take (dec N) (repeatedly (partial rand-subset X)))))))
+
+;; MULTIPLICATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; shifting up the integer points by a given value (needed by multiplication)
 ;; the shifting is specified by a map, e.g.  {:dom 0 :cod 2} means not to
