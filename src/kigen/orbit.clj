@@ -8,7 +8,7 @@
   [seed funcs]
   ;; o - vector of sets containing semigroup elements in production order
   ;; total - cumulative union of orbit element
-  (loop [o [(set gens)] total (first o)]
+  (loop [o [(set seed)] total (first o)]
     (let [newelts (set (for [x (last o) f funcs] (f x)))
           diff (set/difference newelts total)]
       (if (empty? diff)
