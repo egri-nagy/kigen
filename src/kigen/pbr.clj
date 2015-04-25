@@ -65,6 +65,7 @@
 
 ;; orbit is a map with :all edges discovered and a vector containing
 ;; sets of edges :graded by the number of steps after they got collected
+;; TODO this one is not suitable for a generic orbit algorithm due to pbrs
 (defn orbit-seq
   [orbit pbrs]
   (cons orbit
