@@ -1,5 +1,5 @@
 (ns kigen.pbr
-  (:require [clojure.set :as set]))
+  (:use [clojure.set :only [difference]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}
@@ -73,7 +73,7 @@
   (cons orbit
         (lazy-seq (orbit-seq
                    (let [{:keys [all graded]} orbit
-                         diff (set/difference
+                         diff (difference
                                (edges-from-nodes
                                 (targets (last graded))
                                 (first pbrs))

@@ -1,5 +1,5 @@
 (ns kigen.sgp
-  (:use kigen.orbit))
+  (:use [kigen.orbit :only [orbit]]))
 
 ;; semigroup by generators
 ;; gens - generator elements
