@@ -7,17 +7,8 @@
 ;; e.g. degree 3, domain is {1,2,3}, codomain is {4,5,6}
 
 ;; RANDOM PARTITIONED BINARY RELATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Returns a random subset of the given collection.
-;; generating a vector of booleans as a characteristic function
-;; 1. generate a random bitlist of length of the size of the collection
-;; 2. pair the bits with the collection elements and filter the 'true pairs
-;; 3. return the set of the element parts of the filtered pairs
-(defn rand-subset
-  "returns a random subset of the given collection"
-  [coll]
-  (let [bits (take (count coll) (repeatedly (partial rand-nth [true false])))]
-    (set (map second (filter first (map list bits coll))))))
+(declare rand-pbr
+         rand-subset)
 
 ;; Fabricates an m,n partitioned binary relation.
 ;; just zipping the nodes with random subsets
@@ -32,6 +23,17 @@
     (into pbr (zipmap
                X
                (take (dec N) (repeatedly (partial rand-subset X)))))))
+
+;; Returns a random subset of the given collection.
+;; generating a vector of booleans as a characteristic function
+;; 1. generate a random bitlist of length of the size of the collection
+;; 2. pair the bits with the collection elements and filter the 'true pairs
+;; 3. return the set of the element parts of the filtered pairs
+(defn rand-subset
+  "returns a random subset of the given collection"
+  [coll]
+  (let [bits (take (count coll) (repeatedly (partial rand-nth [true false])))]
+    (set (map second (filter first (map list bits coll))))))
 
 ;; MULTIPLICATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
