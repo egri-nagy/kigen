@@ -3,7 +3,7 @@
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"
             :url "http://www.gnu.org/copyleft/gpl.html"}
-  :dependencies [[org.clojure/clojure "1.6.0"]]
+  :dependencies [[org.clojure/clojure "1.7.0-beta2"]]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
