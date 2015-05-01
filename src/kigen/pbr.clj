@@ -69,29 +69,29 @@
 ;; sets of edges :graded by the number of steps after they got collected
 ;; TODO this one is not suitable for a generic orbit algorithm due to pbrs
 (defn orbit-seq
-  [orbit pbrs]
+  [orbit pbr flip]
   (cons orbit
         (lazy-seq (orbit-seq
                    (let [{:keys [all graded]} orbit
                          diff (difference
                                (edges-from-nodes
                                 (targets (last graded))
-                                (first pbrs))
+                                pbr)
                                all)]
                      {:all (into all diff) :graded (conj graded diff)})
-                   (rest pbrs)))))
+                   (flip pbr) flip))))
 
 (defn orbit
-  [i pbrs]
-  (let [A (edges-from-node i (first pbrs))]
-    (orbit-seq {:all A :graded [A]} (rest pbrs))))
+  [i pbr flip]
+  (let [A (edges-from-node i pbr)]
+    (orbit-seq {:all A :graded [A]} (flip pbr) flip)))
 
 (defn image-set
-  [node pbrs endpoints]
+  [node pbr flip endpoints]
   ((comp (partial filter endpoints) targets :all last)
    (take-while
     #(not (empty?(last (:graded %))))
-    (orbit node pbrs))))
+    (orbit node pbr flip))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -99,14 +99,15 @@
   (let [offset (count (:dom a))
         b# (shift-pbr b {:dom offset :cod offset})
         ab# {:dom (:dom a) :cod (:cod b#)}
-        endpoints (into (:dom ab#) (:cod ab#))]
+        endpoints (into (:dom ab#) (:cod ab#))
+        flip {a b#, b# a}] ;map for switching between pbrs
     (shift-pbr
      (into ab#
            (mapcat
-            (fn [points pbrs]
+            (fn [points pbr]
               (map
-               #(vector % (image-set % pbrs  endpoints))
+               #(vector % (image-set % pbr flip  endpoints))
                points))
-            [ (:dom ab#) (:cod ab#)]
-            [(cycle [a b#]) (cycle [b# a])]))
+            [(:dom ab#),(:cod ab#)]
+            [a,b#]))
      {:dom 0 :cod (- (count (:dom b)))})))
