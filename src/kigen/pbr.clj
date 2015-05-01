@@ -1,5 +1,6 @@
 (ns kigen.pbr
-  (:use [clojure.set :only [difference]]))
+  (:use [clojure.set :only [difference]]
+        [kigen.orbit :only [alternating-orbit]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}
@@ -54,44 +55,18 @@
 ;; simple lookup in the map and putting the edges in 2-vectors
 (defn edges-from-node
   [node pbr]
-  (set (map #(vector node %) (pbr node))))
-
-;; the union of all edges in the pbr starting from the given nodes
-(defn edges-from-nodes
-  [nodes pbr]
-  (reduce into #{} (map #(edges-from-node % pbr) nodes)))
+  (map #(vector node %) (pbr node)))
 
 ;; extracting the set of target nodes from a coll of edges
 ;; i.e. getting the second elements of the pairs
 (defn targets [edges] (set (map #(last %) edges)))
 
-;; orbit is a map with :all edges discovered and a vector containing
-;; sets of edges :graded by the number of steps after they got collected
-;; TODO this one is not suitable for a generic orbit algorithm due to pbrs
-(defn orbit-seq
-  [orbit pbr flip]
-  (cons orbit
-        (lazy-seq (orbit-seq
-                   (let [{:keys [all graded]} orbit
-                         diff (difference
-                               (edges-from-nodes
-                                (targets (last graded))
-                                pbr)
-                               all)]
-                     {:all (into all diff) :graded (conj graded diff)})
-                   (flip pbr) flip))))
-
-(defn orbit
-  [i pbr flip]
-  (let [A (edges-from-node i pbr)]
-    (orbit-seq {:all A :graded [A]} (flip pbr) flip)))
-
 (defn image-set
-  [node pbr flip endpoints]
-  ((comp (partial filter endpoints) targets :all last)
-   (take-while
-    #(not (empty?(last (:graded %))))
-    (orbit node pbr flip))))
+  [node pbrs endpoints]
+  (let [seed (edges-from-node node (first pbrs))
+        func-seq (cycle (for [pbr pbrs]  #(edges-from-node (last %) pbr)))]
+    (when-not (zero? (count seed))
+      (filter endpoints (targets (alternating-orbit seed (rest func-seq)))))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -99,15 +74,14 @@
   (let [offset (count (:dom a))
         b# (shift-pbr b {:dom offset :cod offset})
         ab# {:dom (:dom a) :cod (:cod b#)}
-        endpoints (into (:dom ab#) (:cod ab#))
-        flip {a b#, b# a}] ;map for switching between pbrs
+        endpoints (into (:dom ab#) (:cod ab#))]
     (shift-pbr
      (into ab#
            (mapcat
-            (fn [points pbr]
+            (fn [points pbrs]
               (map
-               #(vector % (image-set % pbr flip  endpoints))
+               #(vector % (image-set % pbrs endpoints))
                points))
             [(:dom ab#),(:cod ab#)]
-            [a,b#]))
+            [ [a,b#] [b#,a]]))
      {:dom 0 :cod (- (count (:dom b)))})))
