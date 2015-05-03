@@ -17,3 +17,11 @@
                           #(vector % emptyset)
                           (:cod pbr)))]
   (reduce into pbr (concat [edges non-edges]))))
+
+(defn full-ts-gens
+  "Generators of the full transformation semigroup of degree n."
+  [n]
+  (let [transposition (concat [2 1] (range 3 (inc n)))
+        cycle (concat (range 2 (inc n)) [1])
+        collapse (concat [1 1] (range 3 (inc n)))]
+    (map transformation->pbr [transposition cycle collapse])))
