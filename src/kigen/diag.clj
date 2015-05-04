@@ -1,5 +1,5 @@
 ;; Various diagram semigroup elements constructed as partitioned binary relations.
-(ns diag)
+(ns kigen.diag)
 
 (defn transformation->pbr
 "Creates a partitioned binary relation from a transformation
