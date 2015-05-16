@@ -7,4 +7,4 @@
 (defn sgp-by-gens
   [gens mul]
   (orbit gens ;generators are already known elements
-         (for [x gens] #(mul % x)))) ;right multiplication functions
+         [#(for [x gens] (mul % x))])) ;right multiplication functions

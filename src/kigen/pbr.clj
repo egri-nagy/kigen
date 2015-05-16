@@ -64,7 +64,7 @@
 (defn image-set
   [node pbrs endpoints]
   (let [seed (edges-from-node node (first pbrs))
-        func-seq (cycle (for [pbr pbrs]  #(edges-from-node (last %) pbr)))]
+        func-seq (cycle (for [pbr pbrs] [#(edges-from-node (last %) pbr)]))]
     (when-not (zero? (count seed))
       (filter endpoints (targets (alternating-orbit seed (rest func-seq)))))))
 

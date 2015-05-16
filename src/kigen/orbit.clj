@@ -1,28 +1,29 @@
 (ns kigen.orbit
   (:use [clojure.set :only [difference]]))
 
+(declare alternating-orbit)
+
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
 (defn orbit
   [seed funcs]
-  ;; o - vector of sets containing orbit elements in production order
-  ;; total - cumulative union of orbit element
-  (loop [o [(set seed)] total (first o)]
-    (let [newelts (set (for [x (last o) f funcs] (f x)))
-          diff (difference newelts total)]
-      (if (empty? diff)
-        total
-        (recur (conj o diff) (into total diff))))))
+  (alternating-orbit seed (cycle [funcs])))
 
 ;; seed - elements to act on
-;; func-seq - sequence of functions
+;; funcs-seq - sequence of function colls
+;; in each step we may apply different set of functions
 (defn alternating-orbit
-  [seed func-seq]
+  [seed funcs-seq]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit element
-  (loop [o [(set  seed)] total (first o) func-seq func-seq]
-    (let [newelts (reduce into #{} (for [x (last o)] ((first func-seq) x)))
-          diff (difference newelts total)]
+  (loop [o [(set  seed)]
+         total (first o)
+         funcs-seq funcs-seq]
+    (let [newelts  (for [x (last o) f (first funcs-seq)] (f x))
+          newset (reduce into #{} newelts)
+          diff (difference newset total)]
       (if (empty? diff)
         total
-        (recur (conj o diff) (into total diff) (rest func-seq))))))
+        (recur (conj o diff)
+               (into total diff)
+               (rest funcs-seq))))))
