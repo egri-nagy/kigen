@@ -1,6 +1,12 @@
 (ns kigen.transf
-  (:require [kigen.pbr :as pbr])
-  (:use [kigen.perm] :only [symmetric-gens]))
+  (:require [kigen.pbr :as pbr]))
+
+(defn singleton? [coll] (= 1 (count coll)))
+
+(defn transf?
+  [pbr]
+  (and (empty? (reduce into (for [key (:cod pbr)] (pbr key))))
+       (every?  singleton? (for [key (:dom pbr)] (pbr key)))))
 
 (defn transf->pbr
   "Creates a partitioned binary relation from a transformation
@@ -18,6 +24,13 @@
                             #(vector % emptyset)
                             (:cod pbr)))]
     (reduce into pbr (concat [edges non-edges]))))
+
+(defn symmetric-gens
+  "Generators of the symmetric group of degree n."
+  [n]
+  (let [transposition (concat [2 1] (range 3 (inc n)))
+        cycle (concat (range 2 (inc n)) [1])]
+    (map transf->pbr [transposition cycle])))
 
 (defn full-ts-gens
   "Generators of the full transformation semigroup of degree n."
