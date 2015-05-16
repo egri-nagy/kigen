@@ -85,3 +85,11 @@
             [(:dom ab#),(:cod ab#)]
             [ [a,b#] [b#,a]]))
      {:dom 0 :cod (- (count (:dom b)))})))
+
+(defn act
+  [set pbr]
+  (reduce into #{} (for [x set] (pbr x))))
+
+(defn img
+  [pbr]
+  (act (into (:dom pbr) (:cod pbr)) pbr))
