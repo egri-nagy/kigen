@@ -2,7 +2,8 @@
   (:require [kigen.pbr :as pbr]) (:gen-class)
   (:require [kigen.orbit :as orbit]) (:gen-class)
   (:require [kigen.sgp :as sgp]) (:gen-class)
-  (:require [kigen.diag :as diag]) (:gen-class))
+  (:require [kigen.diag :as diag]) (:gen-class)
+  (:require [kigen.diag :as transf]) (:gen-class))
 
 (defn -main
   "just a main"
