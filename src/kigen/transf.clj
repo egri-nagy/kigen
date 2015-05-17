@@ -28,15 +28,19 @@
 (defn symmetric-gens
   "Generators of the symmetric group of degree n."
   [n]
-  (let [transposition (concat [2 1] (range 3 (inc n)))
-        cycle (concat (range 2 (inc n)) [1])]
-    (map transf->pbr [transposition cycle])))
+  (if (= 1 n)
+    (map transf->pbr [[1]])
+    (let [transposition (concat [2 1] (range 3 (inc n)))
+          cycle (concat (range 2 (inc n)) [1])]
+      (map transf->pbr (set [transposition cycle])))))
 
 (defn full-ts-gens
   "Generators of the full transformation semigroup of degree n."
   [n]
-  (let [collapse (concat [1 1] (range 3 (inc n)))]
-    (concat (symmetric-gens n) [(transf->pbr collapse)])))
+  (if (= 1 n)
+    (symmetric-gens n)
+    (let [collapse (concat [1 1] (range 3 (inc n)))]
+      (concat (symmetric-gens n) [(transf->pbr collapse)]))))
 
 ;;acting as pbr, then shift back the resulting set
 (defn act
