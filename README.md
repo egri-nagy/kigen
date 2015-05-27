@@ -7,6 +7,7 @@ Goals:
 2. To be minimalistic by implementing only the most general diagram representation, the partitioned binary relations.
 3. Establish more transparent correctness of semigroup algorithms.
 4. Have fun with a great programming language: Clojure.
+5. Incidentally, once in Clojure, we can use parallelism tools.
 
 Non-Goals:
 
