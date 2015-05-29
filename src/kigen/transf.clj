@@ -42,7 +42,8 @@
     (let [collapse (concat [1 1] (range 3 (inc n)))]
       (concat (symmetric-gens n) [(transf->pbr collapse)]))))
 
-;;acting as pbr, then shift back the resulting set
+;;acting as pbr, then shift back the resulting set to have a transformation of
+;;the canonical set 1..n
 (defn act
   [points t]
   (set (map #(- % (count (:dom t))) (pbr/act points t))))
