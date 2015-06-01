@@ -25,6 +25,13 @@
                             (:cod pbr)))]
     (reduce into pbr (concat [edges non-edges]))))
 
+(defn pbr->transf
+  "Returns the image list of a transformation represented as a pbr.
+  Indexing is 1-based."
+  [pbr]
+  (let [n (count (:dom pbr))]
+    (map #(- (first (pbr %)) n) (-> (:dom pbr) seq sort))))
+
 (defn symmetric-gens
   "Generators of the symmetric group of degree n."
   [n]
