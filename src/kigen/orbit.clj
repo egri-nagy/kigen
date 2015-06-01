@@ -31,22 +31,23 @@
                (rest funcs-seq))))))
 
 (defn orbit-graph
-  [seed funcs]
+  [seed gens action]
   (let [og {:seed (set seed)
-            :gens (vec funcs)
-            :graph #{seed #{}}
+            :gens gens
+            :graph {seed {}}
             :orbit #{seed}}
+        funcs (for [g gens] #(action % g))
         indxs (range 0 (count funcs))]
     (loop [frontier [seed]
            og og]
-      (let [frontier (for [x frontier i indxs] [((nth funcs i) x) i])
+      (let [frontier (for [x frontier i indxs] [((nth funcs i) x) {i x}])
             diff (filter (fn [[x]] (not (contains? (:orbit og) x))) frontier)
             nodes (map first diff)]
-        (println og)
+        (println diff)
         (if (empty? nodes)
           og
           (recur nodes
                  {:seed seed
                   :gens (:gens og)
-                  :orbit  (into (:orbit og) nodes)
-                  :graph (reduce into (:graph og) diff)}))))))
+                  :orbit (into (:orbit og) nodes)
+                  :graph (into (:graph og) diff)}))))))
