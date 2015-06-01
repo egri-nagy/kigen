@@ -38,12 +38,10 @@
             :orbit #{seed}}
         funcs (for [g gens] #(action % g))
         indxs (range 0 (count funcs))]
-    (loop [frontier [seed]
-           og og]
+    (loop [frontier [seed] og og]
       (let [frontier (for [x frontier i indxs] [((nth funcs i) x) {i x}])
             diff (filter (fn [[x]] (not (contains? (:orbit og) x))) frontier)
             nodes (map first diff)]
-        (println diff)
         (if (empty? nodes)
           og
           (recur nodes
