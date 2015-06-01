@@ -51,3 +51,12 @@
                   :gens (:gens og)
                   :orbit (into (:orbit og) nodes)
                   :graph (into (:graph og) diff)}))))))
+
+(defn trace
+  "Tracing a path to an element in the orbit graph"
+  [e og]
+  (drop 1 (rseq (loop [e e r []]
+                  (if (nil? e)
+                    r
+                    (let [[[k v]] (seq (og e))]
+                      (recur v (conj r k))))))))
