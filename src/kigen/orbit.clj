@@ -1,7 +1,9 @@
 (ns kigen.orbit
   (:use [clojure.set :only [difference]]))
 
-(declare alternating-orbit)
+(declare orbit
+         alternating-orbit
+         orbit-graph)
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
@@ -27,3 +29,24 @@
         (recur (conj o diff)
                (into total diff)
                (rest funcs-seq))))))
+
+(defn orbit-graph
+  [seed funcs]
+  (let [og {:seed (set seed)
+            :gens (vec funcs)
+            :graph #{seed #{}}
+            :orbit #{seed}}
+        indxs (range 0 (count funcs))]
+    (loop [frontier [seed]
+           og og]
+      (let [frontier (for [x frontier i indxs] [((nth funcs i) x) i])
+            diff (filter (fn [[x]] (not (contains? (:orbit og) x))) frontier)
+            nodes (map first diff)]
+        (println og)
+        (if (empty? nodes)
+          og
+          (recur nodes
+                 {:seed seed
+                  :gens (:gens og)
+                  :orbit  (into (:orbit og) nodes)
+                  :graph (reduce into (:graph og) diff)}))))))
