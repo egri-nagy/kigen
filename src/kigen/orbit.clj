@@ -58,3 +58,16 @@
                     r
                     (let [[[k v]] (seq (og e))]
                       (recur v (conj r k))))))))
+
+(defn dfs
+  [start ops]
+  (loop [stack (into [] (for [op ops] [start op]))
+         coll #{}]
+    (if (empty? stack)
+      coll
+      (let [[e op] (peek stack)
+            ne (op e)
+            nstack (pop stack)]
+        (if (contains? coll ne)
+          (recur nstack coll)
+          (recur (into nstack (for [op ops] [ne op])) (conj coll ne)))))))
