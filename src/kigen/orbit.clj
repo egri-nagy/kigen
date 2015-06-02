@@ -74,6 +74,25 @@
             (recur nstack coll)
             (recur (into nstack (opf ne)) (conj coll ne))))))))
 
+(defn dfs2
+  [start ops]
+  (letfn [(opf [t] (for [op ops] [t op])) ;generating node-op pairs to be pushed
+          (f [env]
+            (let [stack (::stack env)
+                  orbit (::orbit env)]
+              (if (empty? stack)
+                orbit
+                (let [[e op] (peek stack)
+                      ne (op e)
+                      nstack (pop stack)]
+                  (if (contains? orbit ne)
+                    (recur (assoc env ::stack nstack))
+                    (recur (assoc env
+                                  ::stack (into nstack (opf ne))
+                                  ::orbit (conj orbit ne))))))))]
+    (f {::stack (into [] (opf start))
+        ::orbit #{}})))
+
 (defn digraph
   [nodes ops]
   (into {} (for [n nodes]
