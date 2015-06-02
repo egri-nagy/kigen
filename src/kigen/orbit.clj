@@ -61,13 +61,13 @@
 
 (defn dfs
   [start ops]
-  (loop [stack (into [] (for [op ops] [start op]))
-         coll #{}]
-    (if (empty? stack)
-      coll
-      (let [[e op] (peek stack)
-            ne (op e)
-            nstack (pop stack)]
-        (if (contains? coll ne)
-          (recur nstack coll)
-          (recur (into nstack (for [op ops] [ne op])) (conj coll ne)))))))
+  (let [load #(for [op ops] [% op])]
+    (loop [stack (into [] (load start))  coll #{}]
+      (if (empty? stack)
+        coll
+        (let [[e op] (peek stack)
+              ne (op e)
+              nstack (pop stack)]
+          (if (contains? coll ne)
+            (recur nstack coll)
+            (recur (into nstack (load ne)) (conj coll ne))))))))
