@@ -59,6 +59,11 @@
                     (let [[[k v]] (seq (og e))]
                       (recur v (conj r k))))))))
 
+;;immensely wasteful, but will do the job in the beginning
+(defn geodesic
+  [source target gens action]
+  (trace target (:graph (orbit-graph source gens action))))
+
 ;; stack: node and operation pairs, the work that still needs to be done
 (defn dfs
   [start ops]
