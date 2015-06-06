@@ -69,7 +69,7 @@
   [start ops]
   (let [opf #(for [op ops] [% op])] ;generating node-op pairs to be pushed
     (loop [stack (into [] (opf start))
-           coll #{}]
+           coll #{start}]
       (if (empty? stack)
         coll
         (let [[e op] (peek stack)
@@ -96,7 +96,7 @@
                                   ::stack (into nstack (opf ne))
                                   ::orbit (conj orbit ne))))))))]
     (f {::stack (into [] (opf start))
-        ::orbit #{}})))
+        ::orbit #{start}})))
 
 (defn digraph
   [nodes ops]
