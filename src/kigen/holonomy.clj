@@ -23,8 +23,13 @@
             (into {} (for [e elts] [e #{}]))
             elts)))
 
+(defn chain-extensions
+  [chain hd]
+  (map #(conj chain %) (hd (last chain))))
+
 ;; set
 ;; hd Hasse-diagram
-(defn tile-chain
-  [set hd]
-  )
+(defn all-chains
+  [e hd]
+  (letfn [(f [x] (apply concat (map #(chain-extensions % hd) x)))]
+    (last (take-while #(not (empty? %)) (iterate f [[e]])))))
