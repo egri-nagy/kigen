@@ -4,17 +4,24 @@
 ;; elts - set of elements
 ;; rel - a partial order relation pred on elts
 (defn hasse-diagram
+  "Creates the Hasse-diagram of a partial order as a graph
+  (map: element -> set of covers), given by the elements and a predicate."
   [elts rel]
-  (letfn [(recalc-covers [covers newval]
-            (if (some #(rel newval %) covers)
+  (letfn [(recalc-covers [covers newval] ;recalculate the set of covers
+            (if (some #(rel newval %) covers) ;nothing to do newval is below
               covers
               (conj (set (filter #(not (rel % newval)) covers)) newval)))
-          (insert [hd e]
+          (insert [hd e] ;insert an element into the graph by updating covers
             (let [candidates (filter #(and (not (= e %))
                                            (rel e %))
                                      (keys hd))]
-              (reduce #(assoc % %2 (recalc-covers (%  %2) e)) hd candidates)))]
-    (reduce insert (into {} (for [e elts] [e #{}])) elts)))
+              (reduce #(assoc % %2 (recalc-covers (%  %2) e))
+                      hd
+                      candidates)))]
+    ;starting with the empty covering sets we insert all elements
+    (reduce insert
+            (into {} (for [e elts] [e #{}]))
+            elts)))
 
 ;; set
 ;; hd Hasse-diagram
