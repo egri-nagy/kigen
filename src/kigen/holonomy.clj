@@ -5,11 +5,16 @@
 ;; rel - a partial order relation pred on elts
 (defn hasse-diagram
   [elts rel]
-  (letfn [(insert [hd key newval]
-            (assoc hd key (conj (hd key) newval)))
-          (g [hd e]
-            (reduce #(insert % %2 e) hd  (filter #(rel e %) (keys hd))))]
-    (reduce g (into {} (for [e elts] [e #{}])) elts)))
+  (letfn [(recalc-covers [covers newval]
+            (if (some #(rel newval %) covers)
+              covers
+              (conj (set (filter #(not (rel % newval)) covers)) newval)))
+          (insert [hd e]
+            (let [candidates (filter #(and (not (= e %))
+                                           (rel e %))
+                                     (keys hd))]
+              (reduce #(assoc % %2 (recalc-covers (%  %2) e)) hd candidates)))]
+    (reduce insert (into {} (for [e elts] [e #{}])) elts)))
 
 ;; set
 ;; hd Hasse-diagram
