@@ -1,5 +1,4 @@
-(ns kigen.partialorder
-  (:use [kigen.orbit :as o]))
+(ns kigen.poset)
 
 ;; elts - set of elements
 ;; rel - a partial order relation predicate

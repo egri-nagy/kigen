@@ -7,9 +7,10 @@
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
+;; TODO temporarily dispatching to different functions
 (defn orbit
-  [seed funcs]
-  (alternating-orbit seed (cycle [funcs])))
+  ([seed funcs] (alternating-orbit seed (cycle [funcs])))
+  ([seed action gens] (:orbit (orbit-graph seed action gens))))
 
 ;; seed - elements to act on
 ;; funcs-seq - sequence of function colls
