@@ -15,7 +15,7 @@
 ;; just zipping the nodes with random subsets
 ;; not a good sampling at the moment
 (defn rand-pbr
-  "a random (n,m) paritioned binary relation"
+  "a random (n,m) partitioned binary relation"
   [m n]
   (let [N (+ m n 1) ;the number of points/nodes
         X (range 1 N) ;the full set of points, union of dom, cod
