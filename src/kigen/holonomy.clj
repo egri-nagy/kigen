@@ -1,7 +1,7 @@
 (ns kigen.holonomy
   (:use [kigen.orbit :as o]
-        [clojure.set :as set]
-        [kigen.transf :as t]))
+        [kigen.transf :as t]
+        [clojure.set :as set]))
 
 (defn finite-set
   [n]
@@ -26,4 +26,5 @@
 (defn class-subduction
   [gens]
   (fn [clA clB]
-    (some #(subduction (first %) (second %) gens) (for [P clA Q clB] [P Q]))))
+    (some #(subduction (second %) (first %) gens)
+          (for [P clA Q clB] [P Q]))))
