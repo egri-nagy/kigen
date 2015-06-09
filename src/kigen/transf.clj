@@ -25,6 +25,13 @@
                             (:cod pbr)))]
     (reduce into pbr (concat [edges non-edges]))))
 
+(defn pbr->transf
+  "Returns the image list of a transformation represented as a pbr.
+  Indexing is 1-based."
+  [pbr]
+  (let [n (count (:dom pbr))]
+    (map #(- (first (pbr %)) n) (-> (:dom pbr) seq sort))))
+
 (defn symmetric-gens
   "Generators of the symmetric group of degree n."
   [n]
@@ -42,7 +49,8 @@
     (let [collapse (concat [1 1] (range 3 (inc n)))]
       (concat (symmetric-gens n) [(transf->pbr collapse)]))))
 
-;;acting as pbr, then shift back the resulting set
+;;acting as pbr, then shift back the resulting set to have a transformation of
+;;the canonical set 1..n
 (defn act
   [points t]
   (set (map #(- % (count (:dom t))) (pbr/act points t))))
