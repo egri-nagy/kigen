@@ -10,7 +10,7 @@
 ;; TODO temporarily dispatching to different functions
 (defn orbit
   ([seed funcs] (alternating-orbit seed (cycle [funcs])))
-  ([seed action gens] (:orbit (orbit-graph seed action gens))))
+  ([seed gens action] (:orbit (orbit-graph seed gens action))))
 
 ;; seed - elements to act on
 ;; funcs-seq - sequence of function colls
