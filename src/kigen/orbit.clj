@@ -99,10 +99,11 @@
     (f {::stack (into [] (opf start))
         ::orbit #{start}})))
 
-(defn digraph
-  [nodes ops]
-  (into {} (for [n nodes]
-           [n (vec (for [o ops] (o n)))])))
+;; the operations should be supplied (can be left or right action)
+(defn cayley-graph
+  [elts ops]
+  (into {} (for [x elts]
+           [x (vec (for [o ops] (o x)))])))
 
 ;;clj-me.cgrand.net/2013/03/18/tarjans-strongly-connected-components-algorithm/
 ;;en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm

@@ -16,3 +16,9 @@
   [P Q gens]
   (and (subduction P Q gens t/act)
        (subduction Q P gens t/act)))
+
+(defn equivalence-classes
+  [base gens]
+  (let [images (o/orbit base gens t/act)
+        c-g (o/cayley-graph images (for [x gens] #(t/act % x)))]
+    (o/scc images c-g)))
