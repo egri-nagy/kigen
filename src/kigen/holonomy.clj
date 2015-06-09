@@ -22,3 +22,8 @@
   (let [images (o/orbit base gens t/act)
         c-g (o/cayley-graph images (for [x gens] #(t/act % x)))]
     (o/scc images c-g)))
+
+(defn class-subduction
+  [gens]
+  (fn [clA clB]
+    (some #(subduction (first %) (second %) gens) (for [P clA Q clB] [P Q]))))

@@ -103,7 +103,7 @@
 (defn cayley-graph
   [elts ops]
   (into {} (for [x elts]
-           [x (vec (for [o ops] (o x)))])))
+           [x (set (for [o ops] (o x)))])))
 
 ;;clj-me.cgrand.net/2013/03/18/tarjans-strongly-connected-components-algorithm/
 ;;en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
