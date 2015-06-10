@@ -1,4 +1,7 @@
+;; partially ordered sets
 (ns kigen.poset)
+
+(declare hasse-diagram)
 
 ;; elts - set of elements
 ;; rel - a partial order relation predicate
@@ -22,6 +25,7 @@
             (into {} (for [e elts] [e #{}]))
             elts)))
 
+;;TODO chain is not a fortunate name here
 (defn chain-extensions
   [chain hd]
   (map #(conj chain %) (hd (last chain))))
