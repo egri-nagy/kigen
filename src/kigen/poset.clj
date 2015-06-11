@@ -1,5 +1,6 @@
 ;; partially ordered sets
-(ns kigen.poset)
+(ns kigen.poset
+  (:use [clojure.set :only [union]]))
 
 (declare hasse-diagram)
 
@@ -36,3 +37,15 @@
   [e hd]
   (letfn [(f [x] (apply concat (map #(chain-extensions % hd) x)))]
     (last (take-while #(not (empty? %)) (iterate f [[e]])))))
+
+;; maximal distances from an element in a Hasse-diagram (longest chain)
+(defn max-distances-from
+  [e hd]
+  (loop [d 0
+         dists {}
+         frontier #{e}]
+    (if (empty? frontier)
+      dists
+      (recur (inc d)
+             (reduce #(assoc % %2 d) dists frontier)
+             (apply union (map hd frontier))))))
