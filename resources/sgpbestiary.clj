@@ -1,3 +1,4 @@
+;; from SGPDEC/examples/namedsemigroups.g
 (def becks
   [[1,2,3,1,1,1], ;creates the image {1,2,3}
    [4,4,4,5,4,6], ;transposition in {4,5,6}

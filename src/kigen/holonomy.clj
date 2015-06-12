@@ -3,20 +3,20 @@
         [kigen.transf :as t]
         [clojure.set :as set]))
 
-(defn finite-set
-  [n]
-  (set (range 1 (inc n))))
+;;finite sets represented as 1..n
+(defn finite-set [n] (set (range 1 (inc n))))
 
-(defn subduction
+(defn subduction?
   [P Q gens]
   (or (set/subset? P Q)
       (contains? (o/orbit Q gens t/act) P)))
 
 (defn equivalent?
   [P Q gens]
-  (and (subduction P Q gens t/act)
-       (subduction Q P gens t/act)))
+  (and (subduction? P Q gens t/act)
+       (subduction? Q P gens t/act)))
 
+;; here we don't need full subduction since being proper subset is not mutual
 (defn equivalence-classes
   [base gens]
   (let [images (o/orbit base gens t/act)
@@ -26,12 +26,12 @@
 (defn class-subduction
   [gens]
   (fn [clA clB]
-    (some #(subduction (second %) (first %) gens)
+    (some #(subduction? (second %) (first %) gens)
           (for [P clA Q clB] [P Q]))))
 
-;;surduction subduction the other way around
+;;surduction is subduction the other way around
 (defn class-surduction
   [gens]
   (fn [clA clB]
-    (some #(subduction (first %) (second %) gens)
+    (some #(subduction? (first %) (second %) gens)
           (for [P clA Q clB] [P Q]))))
