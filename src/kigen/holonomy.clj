@@ -28,3 +28,10 @@
   (fn [clA clB]
     (some #(subduction (second %) (first %) gens)
           (for [P clA Q clB] [P Q]))))
+
+;;surduction subduction the other way around
+(defn class-surduction
+  [gens]
+  (fn [clA clB]
+    (some #(subduction (first %) (second %) gens)
+          (for [P clA Q clB] [P Q]))))
