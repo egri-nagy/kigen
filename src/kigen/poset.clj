@@ -29,17 +29,23 @@
             elts)))
 
 ;; adding all successors of the last element of the chain
-;; returns a seq of these extended chains
+;; returns a seq of these extended chains, nil if no possible extensions exist
 (defn chain-extensions
   [chain hd]
   (map (partial conj chain) (hd (last chain))))
 
-;; set
+;; e element
 ;; hd Hasse-diagram
 (defn all-chains
   [e hd]
-  (letfn [(f [x] (mapcat #(chain-extensions % hd) x))]
-    (last (take-while #(not (empty? %)) (iterate f [[e]])))))
+  (loop [stack [[e]] chains #{}]
+    (if (empty? stack)
+      chains
+      (let [chain (peek stack)
+            exts (chain-extensions chain hd)]
+        (if (empty? exts)
+          (recur (pop stack) (conj chains chain))
+          (recur (into (pop stack) exts) chains))))))
 
 ;; maximal distances from an element in a Hasse-diagram (longest chain)
 (defn max-distances-from
