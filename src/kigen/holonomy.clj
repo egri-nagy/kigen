@@ -34,6 +34,9 @@
     (some #(subduction? (first %) (second %) gens)
           (for [P clA Q clB] [P Q]))))
 
+;; due to the rule that singleton sets should have height zero
+;; we have to be a bit tricky and find the minimal classes of non-singletons
+;; this is done by doing surduction and find the maximum
 (defn calc-heights
   [eqvcls gens]
   (let [nonsingl-eqvcls (remove #(t/singleton? (first %)) eqvcls)
