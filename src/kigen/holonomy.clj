@@ -48,9 +48,11 @@
         images (o/orbit stateset gens t/act)
         c-g (o/cayley-graph images (for [x gens] #(t/act % x)))
         sccs (o/scc images c-g)
-        heights (calc-heights sccs gens)]
+        heights (calc-heights sccs gens)
+        extd (into images (for [x stateset] #{x}))]
     {:stateset stateset
      :images images
      :equivclasses sccs
      :heights heights
+     :subsethd (p/hasse-diagram images set/subset?)
      }))
