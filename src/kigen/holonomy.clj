@@ -55,4 +55,5 @@
      :equivclasses sccs
      :heights heights
      :subsethd (p/hasse-diagram images set/subset?)
+     :supsethd (p/hasse-diagram images set/superset?)
      }))
