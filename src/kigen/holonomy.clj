@@ -5,13 +5,16 @@
         [clojure.set :as set]))
 
 ;;finite sets represented as 1..n
-(defn finite-set [n] (set (range 1 (inc n))))
+(defn finite-set
+  "Returns the set of integers 1..n, the canonical representation of finite sets."
+  [n] (set (range 1 (inc n))))
 
 (defn subduction?
   [P Q gens]
   (or (set/subset? P Q)
       (contains? (o/orbit Q gens t/act) P)))
 
+;;TODO extract the pattern for any preorder
 (defn equivalent?
   [P Q gens]
   (and (subduction? P Q gens t/act)
@@ -38,8 +41,8 @@
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         sub-hd (p/hasse-diagram nonsingl-eqvcls (class-subduction gens))
         height-tabs (map #(p/max-distances % sub-hd) minimals)]
-    (map (fn [k] [k (inc (apply max (map #(% k) height-tabs)))])
-         (keys sur-hd))))
+    (into {} (map (fn [k] [k (inc (apply max (map #(% k) height-tabs)))])
+                  (keys sur-hd)))))
 
 ;; creates a big map of holding all the skeleton information
 (defn skeleton
