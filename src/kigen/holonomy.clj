@@ -16,13 +16,6 @@
   (and (subduction? P Q gens t/act)
        (subduction? Q P gens t/act)))
 
-;; here we don't need full subduction since being proper subset is not mutual
-(defn equivalence-classes
-  [base gens]
-  (let [images (o/orbit base gens t/act)
-        c-g (o/cayley-graph images (for [x gens] #(t/act % x)))]
-    (o/scc images c-g)))
-
 (defn class-subduction
   [gens]
   (fn [clA clB]
@@ -35,3 +28,15 @@
   (fn [clA clB]
     (some #(subduction? (first %) (second %) gens)
           (for [P clA Q clB] [P Q]))))
+
+;; creates a big map of holding all the skeleton information
+(defn skeleton
+  [gens]
+  (let [stateset (finite-set (t/transf-degree (first gens)))
+        images (o/orbit stateset gens t/act)
+        c-g (o/cayley-graph images (for [x gens] #(t/act % x)))
+        sccs (o/scc images c-g)]
+    {:stateset stateset
+     :images images
+     :equivclasses sccs
+     }))
