@@ -38,7 +38,7 @@
 ;; hd Hasse-diagram
 (defn all-chains
   [e hd]
-  (letfn [(f [x] (apply concat (map #(chain-extensions % hd) x)))]
+  (letfn [(f [x] (mapcat #(chain-extensions % hd) x))]
     (last (take-while #(not (empty? %)) (iterate f [[e]])))))
 
 ;; maximal distances from an element in a Hasse-diagram (longest chain)
