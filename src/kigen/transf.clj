@@ -1,6 +1,8 @@
 (ns kigen.transf
   (:require [kigen.pbr :as pbr]))
 
+(defn transf-degree [pbr] (count (:dom pbr)))
+
 (defn singleton? [coll] (= 1 (count coll)))
 
 (defn transf?
