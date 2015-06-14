@@ -2,8 +2,10 @@
 (ns kigen.poset
   (:use [clojure.set :only [union]]))
 
-(declare hasse-diagram)
+(declare hasse-diagram) ; calculates the Hasse-diagram graph of a relation
 
+;; Not the most clever algorithm: it assumes that anything related is a cover
+;; then gets rid of it if proven not to be a cover
 ;; elts - set of elements
 ;; rel - a partial order relation predicate
 (defn hasse-diagram
@@ -26,10 +28,11 @@
             (into {} (for [e elts] [e #{}]))
             elts)))
 
-;;TODO chain is not a fortunate name here
+;; adding all successors of the last element of the chain
+;; returns a seq of these extended chains
 (defn chain-extensions
   [chain hd]
-  (map #(conj chain %) (hd (last chain))))
+  (map (partial conj chain) (hd (last chain))))
 
 ;; set
 ;; hd Hasse-diagram
