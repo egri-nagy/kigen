@@ -1,6 +1,7 @@
 (ns kigen.holonomy
   (:use [kigen.orbit :as o]
         [kigen.transf :as t]
+        [kigen.poset :as p]
         [clojure.set :as set]))
 
 ;;finite sets represented as 1..n
@@ -16,6 +17,7 @@
   (and (subduction? P Q gens t/act)
        (subduction? Q P gens t/act)))
 
+;; returns a predicate that decides subduction between equivalence classes
 (defn class-subduction
   [gens]
   (fn [clA clB]
@@ -35,7 +37,11 @@
   (let [stateset (finite-set (t/transf-degree (first gens)))
         images (o/orbit stateset gens t/act)
         c-g (o/cayley-graph images (for [x gens] #(t/act % x)))
-        sccs (o/scc images c-g)]
+        sccs (o/scc images c-g)
+        nonsingleton-sccs (remove #(t/singleton? (first %)) sccs)
+        surduction-hd (p/hasse-diagram nonsingleton-sccs class-surduction)
+        minimals (filter #()  nonsingleton-sccs)
+        heights ()]
     {:stateset stateset
      :images images
      :equivclasses sccs
