@@ -2,7 +2,10 @@
 (ns kigen.poset
   (:use [clojure.set :only [union]]))
 
-(declare hasse-diagram) ; calculates the Hasse-diagram graph of a relation
+(declare hasse-diagram ;calculates the Hasse-diagram graph of a relation
+         chain-extensions ;extends chain by one more element
+         all-chains ;all chains from an element
+         max-distances) ;maximal distances from an element
 
 ;; Not the most clever algorithm: it assumes that anything related is a cover
 ;; then gets rid of it if proven not to be a cover
@@ -28,15 +31,13 @@
             (into {} (for [e elts] [e #{}]))
             elts)))
 
-;; adding all successors of the last element of the chain
-;; returns a seq of these extended chains, nil if no possible extensions exist
 (defn chain-extensions
+  "Returns all chains extending chain by one more element in Hasse-diagram hd."
   [chain hd]
   (map (partial conj chain) (hd (last chain))))
 
-;; e element
-;; hd Hasse-diagram
 (defn all-chains
+  "All chains from element e in the Hasse-diagram hd."
   [e hd]
   (loop [stack [[e]] chains #{}]
     (if (empty? stack)
@@ -47,8 +48,9 @@
           (recur (pop stack) (conj chains chain))
           (recur (into (pop stack) exts) chains))))))
 
-;; maximal distances from an element in a Hasse-diagram (longest chain)
-(defn max-distances-from
+(defn max-distances
+  "Returns a map of elements to their maximal distance (length of longest chain)
+  from element e."
   [e hd]
   (loop [d 0
          dists {}

@@ -37,7 +37,7 @@
         sur-hd (p/hasse-diagram nonsingl-eqvcls (class-surduction gens))
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         sub-hd (p/hasse-diagram nonsingl-eqvcls (class-subduction gens))
-        height-tabs (map #(p/max-distances-from % sub-hd) minimals)]
+        height-tabs (map #(p/max-distances % sub-hd) minimals)]
     (map (fn [k] [k (inc (apply max (map #(% k) height-tabs)))])
          (keys sur-hd))))
 
