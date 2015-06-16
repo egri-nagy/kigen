@@ -47,9 +47,14 @@
     (into {} (map (fn [k] [k (inc (apply max (map #(% k) height-tabs)))])
                   (keys sur-hd)))))
 
-(defn invert-set-keyed-map
+(defn expand-set-keyed-map
+  "Takes a map whose keys are sets and returns another map where each element
+  of key set maps to the value of the original key."
   [m]
-  (into {} (apply concat (for [k (keys m)] (for [p k] [p (m k)])))))
+  (into {} (apply concat (for [k (keys m)]
+                           (for [e k]
+                             [e (m k)])))))
+
 ;; creates a big map of holding all the skeleton information
 (defn skeleton
   [gens]
@@ -62,7 +67,7 @@
     {:stateset stateset
      :images images
      :equivclasses sccs
-     :heights (invert-set-keyed-map heights)
+     :heights (expand-set-keyed-map heights)
      :subsethd (p/hasse-diagram images set/subset?)
      :supsethd (p/hasse-diagram images set/superset?)
      }))
