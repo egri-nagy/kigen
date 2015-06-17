@@ -34,7 +34,6 @@
 (defn orbit-graph
   [seed gens action]
   (let [og {:seed (set seed)
-            :gens gens
             :graph {seed {}}
             :orbit #{seed}}
         funcs (for [g gens] #(action % g))
@@ -44,10 +43,9 @@
             diff (filter (fn [[x]] (not (contains? (:orbit og) x))) frontier)
             nodes (map first diff)]
         (if (empty? nodes)
-          og
+          (conj og [:gens gens])
           (recur nodes
                  {:seed seed
-                  :gens (:gens og)
                   :orbit (into (:orbit og) nodes)
                   :graph (into (:graph og) diff)}))))))
 
