@@ -33,9 +33,7 @@
 
 (defn orbit-graph
   [seed gens action]
-  (let [og {:seed (set seed)
-            :graph {seed {}}
-            :orbit #{seed}}
+  (let [og {:seed (set seed) :graph {seed {}} :orbit #{seed}}
         funcs (for [g gens] #(action % g))
         indxs (range 0 (count funcs))]
     (loop [frontier [seed] og og]
@@ -44,10 +42,9 @@
             nodes (map first diff)]
         (if (empty? nodes)
           (conj og [:gens gens])
-          (recur nodes
-                 {:seed seed
-                  :orbit (into (:orbit og) nodes)
-                  :graph (into (:graph og) diff)}))))))
+          (recur nodes {:seed seed
+                        :orbit (into (:orbit og) nodes)
+                        :graph (into (:graph og) diff)}))))))
 
 (defn trace
   "Tracing a path to an element in the orbit graph"
