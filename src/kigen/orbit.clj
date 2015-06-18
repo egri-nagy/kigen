@@ -98,7 +98,10 @@
         ::orbit #{start}})))
 
 ;; the operations should be supplied (can be left or right action)
+;; elts - a set of elements
+;; ops - operations that act on elts, i.e. functions: elts -> elts
 (defn cayley-graph
+  ;;  TODO the graph is not labelled
   [elts ops]
   (into {} (for [x elts]
            [x (set (for [o ops] (o x)))])))
