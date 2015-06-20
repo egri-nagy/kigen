@@ -31,10 +31,17 @@
                (into total diff)
                (rest funcs-seq))))))
 
+
+(defn actions
+  "just creating actions (as functions) from operators and a function for
+  describing how an operator acts"
+  [operators action]
+  (for [o operators] #(action % o)))
+
 (defn orbit-graph
   [seed gens action]
   (let [og {:seed (set seed) :graph {seed {}} :orbit #{seed}}
-        funcs (for [g gens] #(action % g))
+        funcs (actions gens action)
         indxs (range 0 (count funcs))]
     (loop [frontier [seed] og og]
       (let [frontier (for [x frontier i indxs] [((nth funcs i) x) {i x}])
