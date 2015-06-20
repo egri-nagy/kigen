@@ -43,13 +43,12 @@
 ;; touch the domain but shift the codomain by 2
 (defn shift-pbr
   [pbr offsets]
-  (let [shift-point (fn [point] (cond ((:dom pbr) point)
-                                     (+ point (:dom offsets))
-                                     ((:cod pbr) point)
-                                     (+ point (:cod offsets))
-                                     :else point))
-        shift-set (fn [X] (set (map shift-point X)))]
-    (reduce (fn [m [k v]] (conj m [(shift-point k) (shift-set v)])) {} pbr)) )
+  (letfn [(shift-point [point]
+            (cond ((:dom pbr) point) (+ point (:dom offsets))
+                  ((:cod pbr) point) (+ point (:cod offsets))
+                  :else point))
+          (shift-set [X] (set (map shift-point X)))]
+    (reduce (fn [m [k v]] (conj m [(shift-point k) (shift-set v)])) {} pbr)))
 
 ;; the edges of the given pbr from the given node
 ;; simple lookup in the map and putting the edges in 2-vectors
