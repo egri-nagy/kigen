@@ -19,7 +19,7 @@
   [m n]
   (let [N (+ m n 1) ;the number of points/nodes
         X (range 1 N) ;the full set of points, union of dom, cod
-        pbr {:dom (set (range 1 (inc m))) ; intial map contains dom, cod
+        pbr {:dom (set (range 1 (inc m))) ; initial map contains dom, cod
              :cod (set (range (inc m) N ))}]
     (into pbr (zipmap
                X
