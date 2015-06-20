@@ -3,14 +3,15 @@
 
 (declare orbit
          alternating-orbit
-         orbit-graph)
+         orbit-graph
+         actions)
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
 ;; TODO temporarily dispatching to different functions
 (defn orbit
   ([seed funcs] (alternating-orbit seed (cycle [funcs])))
-  ([seed gens action] (:orbit (orbit-graph seed gens action))))
+  ([seed gens action] (:orbit (orbit-graph seed (actions gens action)))))
 
 ;; seed - elements to act on
 ;; funcs-seq - sequence of function colls
@@ -33,25 +34,22 @@
 
 
 (defn actions
-  "just creating actions (as functions) from operators and a function for
+  "Creating actions (as functions) from operators and a function for
   describing how an operator acts"
   [operators action]
   (for [o operators] #(action % o)))
 
 (defn orbit-graph
-  [seed gens action]
-  (let [og {:seed (set seed) :graph {seed {}} :orbit #{seed}}
-        funcs (actions gens action)
-        indxs (range 0 (count funcs))]
-    (loop [frontier [seed] og og]
-      (let [frontier (for [x frontier i indxs] [((nth funcs i) x) {i x}])
-            diff (filter (fn [[x]] (not (contains? (:orbit og) x))) frontier)
-            nodes (map first diff)]
-        (if (empty? nodes)
-          (conj og [:gens gens])
-          (recur nodes {:seed seed
-                        :orbit (into (:orbit og) nodes)
-                        :graph (into (:graph og) diff)}))))))
+  [seed fs]
+  (let [indxs (range 0 (count fs))]
+    (loop [frontier [seed] og {:graph {seed {}} :orbit #{seed}}]
+      (let [elts (for [x frontier i indxs] [((nth fs i) x) {i x}])
+            diff (filter (fn [[x]] (not (contains? (:orbit og) x))) elts)
+            newfront (map first diff)]
+        (if (empty? newfront)
+          og
+          (recur newfront {:orbit (into (:orbit og) newfront)
+                           :graph (into (:graph og) diff)}))))))
 
 (defn trace
   "Tracing a path to an element in the orbit graph"
@@ -65,7 +63,7 @@
 ;;immensely wasteful, but will do the job in the beginning
 (defn geodesic
   [source target gens action]
-  (trace target (:graph (orbit-graph source gens action))))
+  (trace target (:graph (orbit-graph source (actions gens action)))))
 
 ;; stack: node and operation pairs, the work that still needs to be done
 (defn dfs
