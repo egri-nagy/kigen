@@ -23,7 +23,7 @@
              :cod (set (range (inc m) N ))}]
     (into pbr (zipmap
                X
-               (take (dec N) (repeatedly (partial rand-subset X)))))))
+               (take (dec N) (repeatedly #(rand-subset X)))))))
 
 ;; Returns a random subset of the given collection.
 ;; generating a vector of booleans as a characteristic function
@@ -33,7 +33,7 @@
 (defn rand-subset
   "returns a random subset of the given collection"
   [coll]
-  (let [bits (take (count coll) (repeatedly (partial rand-nth [true false])))]
+  (let [bits (take (count coll) (repeatedly #(rand-nth [true false])))]
     (set (map second (filter first (map list bits coll))))))
 
 ;; MULTIPLICATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
