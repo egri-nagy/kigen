@@ -1,6 +1,6 @@
 (ns kigen.pbr
   (:use [clojure.set :only [difference]]
-        [kigen.orbit :only [alternating-orbit]]))
+        [kigen.orbit :only [dfs]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}
@@ -51,21 +51,27 @@
     (reduce (fn [m [k v]] (conj m [(shift-point k) (shift-set v)])) {} pbr)))
 
 ;; the edges of the given pbr from the given node
-;; simple lookup in the map and putting the edges in 2-vectors
+;; simple look-up in the map and putting the edges in 2-vectors
 (defn edges-from-node
   [node pbr]
   (map #(vector node %) (pbr node)))
 
 ;; extracting the set of target nodes from a coll of edges
 ;; i.e. getting the second elements of the pairs
-(defn targets [edges] (set (map #(last %) edges)))
+(defn targets [edges] (set (map #(last (last  %)) edges)))
 
-(defn image-set
+(defn reachable-endpoints
   [node pbrs endpoints]
-  (let [seed (edges-from-node node (first pbrs))
-        func-seq (cycle (for [pbr pbrs] [#(edges-from-node (last %) pbr)]))]
+  (let [flipper {0 1, 1 0}
+        seed [map vector (repeat 0) (edges-from-node node (first pbrs))]
+        ops [(fn [i edge]
+               (let [j (flipper i)]
+                 [map vector
+                  (repeat j)
+                  (edges-from-node (second edge) (nth pbrs j))]))]]
+    (println seed)
     (when-not (zero? (count seed))
-      (filter endpoints (targets (alternating-orbit seed (rest func-seq)))))))
+      (filter endpoints (targets (dfs seed ops))))))
 
 (defn mul
   "multiply two partitioned binary relations"
@@ -78,11 +84,9 @@
      (into ab#
            (mapcat
             (fn [points pbrs]
-              (map
-               #(vector % (image-set % pbrs endpoints))
-               points))
-            [(:dom ab#),(:cod ab#)]
-            [ [a,b#] [b#,a]]))
+              (map #(vector % (reachable-endpoints % pbrs endpoints)) points))
+            [(:dom ab#) (:cod ab#)]
+            [[a,b#] [b#,a]]))
      {:dom 0 :cod (- (count (:dom b)))})))
 
 (defn act
