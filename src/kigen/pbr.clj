@@ -1,6 +1,6 @@
 (ns kigen.pbr
   (:use [clojure.set :only [difference]]
-        [kigen.orbit :only [dfs]]))
+        [kigen.orbit :only [sdfs]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}
@@ -63,15 +63,15 @@
 (defn reachable-endpoints
   [node pbrs endpoints]
   (let [flipper {0 1, 1 0}
-        seed [map vector (repeat 0) (edges-from-node node (first pbrs))]
-        ops [(fn [i edge]
-               (let [j (flipper i)]
-                 [map vector
-                  (repeat j)
-                  (edges-from-node (second edge) (nth pbrs j))]))]]
-    (println seed)
-    (when-not (zero? (count seed))
-      (filter endpoints (targets (dfs seed ops))))))
+        seeds (map vector (repeat 0) (edges-from-node node (first pbrs)))
+        op (fn [[i edge]]
+             (let [j (flipper i)]
+               (map vector
+                    (repeat j)
+                    (edges-from-node (second edge) (nth pbrs j)))))]
+    (println seeds)
+    (when-not (zero? (count seeds))
+      (filter endpoints (targets (sdfs seeds op))))))
 
 (defn mul
   "multiply two partitioned binary relations"

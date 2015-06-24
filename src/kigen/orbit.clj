@@ -80,6 +80,22 @@
             (recur nstack coll)
             (recur (into nstack (opf ne)) (conj coll ne))))))))
 
+;;dfs with a set-valued operator
+(defn sdfs
+  [start op]
+  (loop [stack (vec start)
+         coll (set start)]
+    (println stack)
+    (if (empty? stack)
+      coll
+      (let [e (peek stack)
+            nes (op e)
+            nstack (pop stack)
+            c (filter #(contains? coll %) nes)]
+        (recur (into nstack c)
+               (into coll c))))))
+
+
 (defn dfs2
   [start ops]
   (letfn [(opf [t] (for [op ops] [t op])) ;generating node-op pairs to be pushed
