@@ -2,7 +2,7 @@
   (:use [clojure.set :only [difference]]))
 
 (declare orbit
-         alternating-orbit
+         bfs
          orbit-graph
          actions)
 
@@ -10,13 +10,12 @@
 ;; funcs - functions that produce a new element applied to an element
 ;; TODO temporarily dispatching to different functions
 (defn orbit
-  ([seed funcs] (alternating-orbit seed (cycle [funcs])))
+  ([seed funcs] (bfs seed (cycle [funcs])))
   ([seed gens action] (:orbit (orbit-graph seed (actions gens action)))))
 
-;; seed - elements to act on
-;; funcs-seq - sequence of function colls
-;; in each step we may apply different set of functions
-(defn alternating-orbit
+;; seeds - elements to act on
+;; fs - action functions
+(defn bfs
   [seeds fs]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit element
@@ -28,7 +27,6 @@
         total
         (recur (conj o diff)
                (into total diff))))))
-
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
