@@ -69,7 +69,7 @@
                (map vector
                     (repeat j)
                     (edges-from-node (second edge) (nth pbrs j)))))]
-    (println seeds)
+    ;;(println seeds)
     (when-not (zero? (count seeds))
       (filter endpoints (targets (sdfs seeds op))))))
 

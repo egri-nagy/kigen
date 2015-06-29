@@ -85,13 +85,12 @@
   [start op]
   (loop [stack (vec start)
          coll (set start)]
-    (println stack)
     (if (empty? stack)
       coll
       (let [e (peek stack)
             nes (op e)
             nstack (pop stack)
-            c (filter #(contains? coll %) nes)]
+            c (filter #(not (contains? coll %)) nes)]
         (recur (into nstack c)
                (into coll c))))))
 
