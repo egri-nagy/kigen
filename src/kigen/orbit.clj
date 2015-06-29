@@ -13,26 +13,26 @@
   ([seed funcs] (bfs seed (cycle [funcs])))
   ([seed gens action] (:orbit (orbit-graph seed (actions gens action)))))
 
+(defn actions
+  "Creating actions (as functions) from operators and a function for
+  describing how an operator acts"
+  [operators action]
+  (for [o operators] #(action % o)))
+
+;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on
 ;; fs - action functions
 (defn bfs
   [seeds fs]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit element
-  (loop [o [(set  seeds)]
-         total (first o)]
+  (loop [o [(set  seeds)], total (first o)]
     (let [newset (set (for [x (last o) f fs] (f x)))
           diff (difference newset total)]
       (if (empty? diff)
         total
-        (recur (conj o diff)
-               (into total diff))))))
+        (recur (conj o diff) (into total diff))))))
 
-(defn actions
-  "Creating actions (as functions) from operators and a function for
-  describing how an operator acts"
-  [operators action]
-  (for [o operators] #(action % o)))
 
 (defn orbit-graph
   [seed fs]
