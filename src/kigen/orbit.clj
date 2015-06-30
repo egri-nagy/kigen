@@ -8,10 +8,9 @@
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
-;; TODO temporarily dispatching to different functions
+;; TODO this is just temporary dispatching
 (defn orbit
-  ([seed funcs] (bfs seed (cycle [funcs])))
-  ([seed gens action] (:orbit (orbit-graph seed (actions gens action)))))
+  [seed gens action] (bfs [seed] (actions gens action)))
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
@@ -33,7 +32,44 @@
         total
         (recur (conj o diff) (into total diff))))))
 
+;; DEPTH-FIRST SEARCH
+;; stack: node and operation pairs, the work that still needs to be done
+(defn dfs
+  [start ops]
+  (let [opf #(for [op ops] [% op])] ;generating node-op pairs to be pushed
+    (loop [stack (into [] (opf start))
+           coll #{start}]
+      (if (empty? stack)
+        coll
+        (let [[e op] (peek stack)
+              ne (op e)
+              nstack (pop stack)]
+          (if (contains? coll ne)
+            (recur nstack coll)
+            (recur (into nstack (opf ne)) (conj coll ne))))))))
 
+;;another variant - environment style
+(defn dfs2
+  [start ops]
+  (letfn [(opf [t] (for [op ops] [t op])) ;generating node-op pairs to be pushed
+          (f [env]
+            (let [stack (::stack env)
+                  orbit (::orbit env)]
+              (if (empty? stack)
+                orbit
+                (let [[e op] (peek stack)
+                      ne (op e)
+                      nstack (pop stack)]
+                  (if (contains? orbit ne)
+                    (recur (assoc env ::stack nstack))
+                    (recur (assoc env
+                                  ::stack (into nstack (opf ne))
+                                  ::orbit (conj orbit ne))))))))]
+    (f {::stack (into [] (opf start))
+        ::orbit #{start}})))
+
+
+;;ORBIT-GRAPH
 (defn orbit-graph
   [seed fs]
   (let [indxs (range 0 (count fs))]
@@ -60,20 +96,6 @@
   [source target gens action]
   (trace target (:graph (orbit-graph source (actions gens action)))))
 
-;; stack: node and operation pairs, the work that still needs to be done
-(defn dfs
-  [start ops]
-  (let [opf #(for [op ops] [% op])] ;generating node-op pairs to be pushed
-    (loop [stack (into [] (opf start))
-           coll #{start}]
-      (if (empty? stack)
-        coll
-        (let [[e op] (peek stack)
-              ne (op e)
-              nstack (pop stack)]
-          (if (contains? coll ne)
-            (recur nstack coll)
-            (recur (into nstack (opf ne)) (conj coll ne))))))))
 
 ;;dfs with a set-valued operator
 (defn sdfs
@@ -89,25 +111,6 @@
         (recur (into nstack c)
                (into coll c))))))
 
-
-(defn dfs2
-  [start ops]
-  (letfn [(opf [t] (for [op ops] [t op])) ;generating node-op pairs to be pushed
-          (f [env]
-            (let [stack (::stack env)
-                  orbit (::orbit env)]
-              (if (empty? stack)
-                orbit
-                (let [[e op] (peek stack)
-                      ne (op e)
-                      nstack (pop stack)]
-                  (if (contains? orbit ne)
-                    (recur (assoc env ::stack nstack))
-                    (recur (assoc env
-                                  ::stack (into nstack (opf ne))
-                                  ::orbit (conj orbit ne))))))))]
-    (f {::stack (into [] (opf start))
-        ::orbit #{start}})))
 
 ;; the operations should be supplied (can be left or right action)
 ;; elts - a set of elements
