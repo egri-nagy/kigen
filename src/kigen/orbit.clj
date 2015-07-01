@@ -20,13 +20,13 @@
 
 ;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on
-;; fs - action functions
+;; afs - action functions
 (defn bfs
-  [seeds fs]
+  [seeds afs]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit element
   (loop [o [(set  seeds)], total (first o)]
-    (let [newset (set (for [x (last o) f fs] (f x)))
+    (let [newset (set (for [x (last o) f afs] (f x)))
           diff (difference newset total)]
       (if (empty? diff)
         total
@@ -35,10 +35,10 @@
 ;; DEPTH-FIRST SEARCH
 ;; stack: node and operation pairs, the work that still needs to be done
 (defn dfs
-  [start ops]
+  [seeds ops]
   (let [opf #(for [op ops] [% op])] ;generating node-op pairs to be pushed
-    (loop [stack (into [] (opf start))
-           coll #{start}]
+    (loop [stack (into [] (mapcat opf seeds))
+           coll (set seeds)]
       (if (empty? stack)
         coll
         (let [[e op] (peek stack)
@@ -50,7 +50,7 @@
 
 ;;another variant - environment style
 (defn dfs2
-  [start ops]
+  [seeds ops]
   (letfn [(opf [t] (for [op ops] [t op])) ;generating node-op pairs to be pushed
           (f [env]
             (let [stack (::stack env)
@@ -65,8 +65,8 @@
                     (recur (assoc env
                                   ::stack (into nstack (opf ne))
                                   ::orbit (conj orbit ne))))))))]
-    (f {::stack (into [] (opf start))
-        ::orbit #{start}})))
+    (f {::stack (into [] (mapcat opf seeds))
+        ::orbit (set  seeds)})))
 
 
 ;;ORBIT-GRAPH
