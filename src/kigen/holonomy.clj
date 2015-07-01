@@ -10,28 +10,28 @@
   [n] (set (range 1 (inc n))))
 
 (defn subduction?
-  [P Q gens]
+  [P Q afs]
   (or (set/subset? P Q)
-      (contains? (o/orbit Q gens t/act) P)))
+      (contains? (o/orbit [Q] afs) P)))
 
-;;TODO extract the pattern for any preorder
+;;TODO extract the pattern for any pre-order
 (defn equivalent?
-  [P Q gens]
-  (and (subduction? P Q gens t/act)
-       (subduction? Q P gens t/act)))
+  [P Q afs]
+  (and (subduction? P Q afs)
+       (subduction? Q P afs)))
 
 ;; returns a predicate that decides subduction between equivalence classes
 (defn class-subduction
   [gens]
   (fn [clA clB]
-    (some #(subduction? (second %) (first %) gens)
+    (some #(subduction? (second %) (first %) (o/actions gens t/act))
           (for [P clA Q clB] [P Q]))))
 
 ;;surduction is subduction the other way around
 (defn class-surduction
   [gens]
   (fn [clA clB]
-    (some #(subduction? (first %) (second %) gens)
+    (some #(subduction? (first %) (second %) (o/actions gens t/act))
           (for [P clA Q clB] [P Q]))))
 
 ;; due to the rule that singleton sets should have height zero
@@ -59,7 +59,8 @@
 (defn skeleton
   [gens]
   (let [stateset (finite-set (t/transf-degree (first gens)))
-        images (o/orbit stateset gens t/act)
+        afs (o/actions gens t/act)
+        images (o/orbit [stateset] afs)
         c-g (o/cayley-graph images (for [x gens] #(t/act % x)))
         sccs (o/scc images c-g)
         heights (calc-heights sccs gens)

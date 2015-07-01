@@ -10,7 +10,7 @@
 ;; funcs - functions that produce a new element applied to an element
 ;; TODO this is just temporary dispatching
 (defn orbit
-  [seed gens action] (bfs [seed] (actions gens action)))
+  [seeds afs] (bfs seeds afs))
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
