@@ -61,7 +61,7 @@
   (let [stateset (finite-set (t/transf-degree (first gens)))
         afs (o/actions gens t/act)
         images (o/orbit [stateset] afs)
-        c-g (o/cayley-graph images (for [x gens] #(t/act % x)))
+        c-g (o/cayley-graph images afs)
         sccs (o/scc images c-g)
         heights (calc-heights sccs gens)
         extd (into images (for [x stateset] #{x}))]
