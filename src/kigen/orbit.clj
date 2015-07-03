@@ -71,11 +71,13 @@
 
 ;;dfs with a single set-valued operator enabling very simple code
 (defn sdfs
-  [seeds op]
+  "Depth-first search starting from the elements in seeds using a single
+  set-valued action function."
+  [seeds af]
   (loop [stack (vec seeds)  orbit (set seeds)]
     (if (empty? stack)
       orbit
-      (let [frontier (op (peek stack))
+      (let [frontier (af (peek stack))
             newelts (filter #(not (contains? orbit %)) frontier)]
         (recur (into (pop stack) newelts)
                (into orbit newelts))))))
