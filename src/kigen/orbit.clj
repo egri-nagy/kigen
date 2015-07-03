@@ -82,9 +82,11 @@
 
 
 ;;ORBIT-GRAPH
+;;we start search from one specific seed element
 (defn orbit-graph
-  [seed fs]
-  (let [indxs (range 0 (count fs))]
+  [seed afs]
+  (let [fs (vec afs) ;the order of the action functions does matter
+        indxs (range 0 (count fs))]
     (loop [frontier [seed] og {:graph {seed {}} :orbit #{seed}}]
       (let [elts (for [x frontier i indxs] [((nth fs i) x) {i x}])
             diff (filter (fn [[x]] (not (contains? (:orbit og) x))) elts)
