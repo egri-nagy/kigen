@@ -69,6 +69,18 @@
         ::orbit (set  seeds)})))
 
 
+;;dfs with a single set-valued operator enabling very simple code
+(defn sdfs
+  [seeds op]
+  (loop [stack (vec seeds)  orbit (set seeds)]
+    (if (empty? stack)
+      orbit
+      (let [frontier (op (peek stack))
+            newelts (filter #(not (contains? orbit %)) frontier)]
+        (recur (into (pop stack) newelts)
+               (into orbit newelts))))))
+
+
 ;;ORBIT-GRAPH
 (defn orbit-graph
   [seed fs]
@@ -95,22 +107,6 @@
 (defn geodesic
   [source target gens action]
   (trace target (:graph (orbit-graph source (actions gens action)))))
-
-
-;;dfs with a set-valued operator
-(defn sdfs
-  [start op]
-  (loop [stack (vec start)
-         coll (set start)]
-    (if (empty? stack)
-      coll
-      (let [e (peek stack)
-            nes (op e)
-            nstack (pop stack)
-            c (filter #(not (contains? coll %)) nes)]
-        (recur (into nstack c)
-               (into coll c))))))
-
 
 ;; the operations should be supplied (can be left or right action)
 ;; elts - a set of elements
