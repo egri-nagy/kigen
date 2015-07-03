@@ -33,41 +33,39 @@
         (recur (conj o diff) (into total diff))))))
 
 ;; DEPTH-FIRST SEARCH
-;; stack: node and operation pairs, the work that still needs to be done
+;; stack: node and action function pairs, the work that still needs to be done
 (defn dfs
-  [seeds ops]
-  (let [opf #(for [op ops] [% op])] ;generating node-op pairs to be pushed
-    (loop [stack (into [] (mapcat opf seeds))
-           coll (set seeds)]
+  [seeds afs]
+  (let [todof #(for [af afs] [% af])] ; elt -> pairs [elt af], todo list func
+    (loop [stack (into [] (mapcat todof seeds))  orbit (set seeds)]
       (if (empty? stack)
-        coll
-        (let [[e op] (peek stack)
-              ne (op e)
+        orbit
+        (let [[e af] (peek stack)
+              ne (af e)
               nstack (pop stack)]
-          (if (contains? coll ne)
-            (recur nstack coll)
-            (recur (into nstack (opf ne)) (conj coll ne))))))))
+          (if (contains? orbit ne)
+            (recur nstack orbit)
+            (recur (into nstack (todof ne)) (conj orbit ne))))))))
 
 ;;another variant - environment style
 (defn dfs2
-  [seeds ops]
-  (letfn [(opf [t] (for [op ops] [t op])) ;generating node-op pairs to be pushed
+  [seeds afs]
+  (letfn [(todof [t] (for [af afs] [t af])) ; elt -> pairs [elt af]
           (f [env]
             (let [stack (::stack env)
                   orbit (::orbit env)]
               (if (empty? stack)
                 orbit
-                (let [[e op] (peek stack)
-                      ne (op e)
+                (let [[e af] (peek stack)
+                      ne (af e)
                       nstack (pop stack)]
                   (if (contains? orbit ne)
                     (recur (assoc env ::stack nstack))
                     (recur (assoc env
-                                  ::stack (into nstack (opf ne))
+                                  ::stack (into nstack (todof ne))
                                   ::orbit (conj orbit ne))))))))]
-    (f {::stack (into [] (mapcat opf seeds))
+    (f {::stack (into [] (mapcat todof seeds))
         ::orbit (set  seeds)})))
-
 
 ;;dfs with a single set-valued operator enabling very simple code
 (defn sdfs
@@ -112,12 +110,12 @@
 
 ;; the operations should be supplied (can be left or right action)
 ;; elts - a set of elements
-;; ops - operations that act on elts, i.e. functions: elts -> elts
+;; afs - operations that act on elts, i.e. functions: elts -> elts
 (defn cayley-graph
   ;;  TODO the graph is not labelled
-  [elts ops]
+  [elts afs]
   (into {} (for [x elts]
-             [x (set (for [o ops] (o x)))])))
+             [x (set (for [o afs] (o x)))])))
 
 ;;clj-me.cgrand.net/2013/03/18/tarjans-strongly-connected-components-algorithm/
 ;;en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
