@@ -72,3 +72,9 @@
      :subsethd (p/hasse-diagram images set/subset?)
      :supsethd (p/hasse-diagram images set/superset?)
      }))
+
+(defn display
+  [skeleton]
+  (println "#states" (count (:stateset skeleton)))
+  (println "#images" (count (:images skeleton)))
+  (println "#equivclasses" (count (:equivclasses skeleton))))
