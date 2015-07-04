@@ -56,22 +56,23 @@
   [node pbr]
   (map #(vector node %) (pbr node)))
 
-;; extracting the set of target nodes from a coll of edges
-;; i.e. getting the second elements of the pairs
-(defn targets [edges] (set (map #(last (last  %)) edges)))
-
+;; we do a breadth first search in the combined graph of the pbrs
+;; we need to take edges alternating, so we have to work with labelled edges
+;; where the label tells in which pbr the edge exist
 (defn reachable-endpoints
   [node pbrs endpoints]
-  (let [flipper {0 1, 1 0}
+  (let [flipper {0 1, 1 0} ;map for switching the labels
         seeds (map vector (repeat 0) (edges-from-node node (first pbrs)))
-        op (fn [[i edge]]
+        ;the action function, generating labelled edges
+        af (fn [[i edge]]
              (let [j (flipper i)]
                (map vector
                     (repeat j)
-                    (edges-from-node (second edge) (nth pbrs j)))))]
-    ;;(println seeds)
+                    (edges-from-node (second edge) (nth pbrs j)))))
+        ;to extract the target nodes from labelled edges
+        targets (fn [edges] (set (map #(last (last %)) edges)))]
     (when-not (zero? (count seeds))
-      (filter endpoints (targets (sdfs seeds op))))))
+      (filter endpoints (targets (sdfs seeds af))))))
 
 (defn mul
   "multiply two partitioned binary relations"
