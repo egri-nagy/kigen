@@ -67,6 +67,7 @@
         extd (into images (for [x stateset] #{x}))]
     {:stateset stateset
      :images images
+     :extended extd
      :equivclasses sccs
      :heights (expand-set-keyed-map heights)
      :subsethd (p/hasse-diagram images set/subset?)
@@ -77,4 +78,5 @@
   [skeleton]
   (println "#states" (count (:stateset skeleton)))
   (println "#images" (count (:images skeleton)))
-  (println "#equivclasses" (count (:equivclasses skeleton))))
+  (println "#equivclasses" (count (:equivclasses skeleton)))
+  (println "#extd" (count (:extended skeleton))))
