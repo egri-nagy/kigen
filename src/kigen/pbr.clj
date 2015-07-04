@@ -37,6 +37,9 @@
     (set (map second (filter first (map list bits coll))))))
 
 ;; MULTIPLICATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(declare mul
+         act
+         img)
 
 ;; shifting up the integer points by a given value (needed by multiplication)
 ;; the shifting is specified by a map, e.g.  {:dom 0 :cod 2} means not to
@@ -91,9 +94,12 @@
      {:dom 0 :cod (- (count (:dom b)))})))
 
 (defn act
+  "the action of a partitioned binary relation on a set
+  that is a subset of the union of its domain and codomain"
   [set pbr]
   (reduce into #{} (for [x set] (pbr x))))
 
 (defn img
+  "the image of the partitioned binary relation, i.e. acting on its points"
   [pbr]
   (act (into (:dom pbr) (:cod pbr)) pbr))
