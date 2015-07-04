@@ -6,13 +6,13 @@
 
 ;;finite sets represented as 1..n
 (defn finite-set
-  "Returns the set of integers 1..n, the canonical representation of finite sets."
+  "Returns the integers 1..n, the canonical representation of finite sets."
   [n] (set (range 1 (inc n))))
 
 (defn subduction?
   [P Q afs]
   (or (set/subset? P Q)
-      (contains? (o/orbit [Q] afs) P)))
+      (contains? (o/orbit [Q] afs) P))) ;TODO make an orbit alg that can stop
 
 ;;TODO extract the pattern for any pre-order
 (defn equivalent?
