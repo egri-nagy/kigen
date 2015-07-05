@@ -41,8 +41,8 @@
   [eqvcls gens]
   (let [nonsingl-eqvcls (remove #(t/singleton? (first %)) eqvcls)
         sur-hd (p/hasse-diagram nonsingl-eqvcls (class-surduction gens))
-        minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         sub-hd (p/hasse-diagram nonsingl-eqvcls (class-subduction gens))
+        minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         height-tabs (map #(p/max-distances % sub-hd) minimals)]
     (into {} (map (fn [k] [k (inc (apply max (map #(% k) height-tabs)))])
                   (keys sur-hd)))))
@@ -70,8 +70,8 @@
      :extended extd
      :equivclasses sccs
      :heights (expand-set-keyed-map heights)
-     :subsethd (p/hasse-diagram images set/subset?)
-     :supsethd (p/hasse-diagram images set/superset?)
+     :subsethd (p/hasse-diagram extd set/subset?)
+     :supsethd (p/hasse-diagram extd set/superset?)
      }))
 
 (defn display

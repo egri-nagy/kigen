@@ -26,7 +26,7 @@
               (reduce #(assoc % %2 (recalc-covers (%  %2) e))
                       hd
                       candidates)))]
-    ;starting with the empty covering sets we insert all elements
+    ;starting with the empty covering sets, we insert all elements
     (reduce insert
             (into {} (for [e elts] [e #{}]))
             elts)))
