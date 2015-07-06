@@ -11,7 +11,7 @@
 ;; funcs - functions that produce a new element applied to an element
 ;; TODO this is just temporary dispatching
 (defn orbit
-  [seeds afs] (sdfs seeds #(for [af afs] (af %))))
+  [seeds afs] (bfs seeds #(for [af afs] (af %))))
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
@@ -23,11 +23,11 @@
 ;; seeds - elements to act on
 ;; afs - action functions
 (defn bfs
-  [seeds afs]
+  [seeds af]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit element
   (loop [o [(set  seeds)], total (first o)]
-    (let [newset (set (for [x (last o) f afs] (f x)))
+    (let [newset (set (mapcat af (last o)))
           diff (difference newset total)]
       (if (empty? diff)
         total
@@ -41,7 +41,7 @@
   (loop [stack (vec seeds)  orbit (set seeds)]
     (if (empty? stack)
       orbit
-      (let [frontier (af (peek stack))
+      (let [frontier (af (peek stack)) ;maybe taking set here
             newelts (filter #(not (contains? orbit %)) frontier)]
         (recur (into (pop stack) newelts)
                (into orbit newelts))))))
