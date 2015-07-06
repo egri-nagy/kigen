@@ -61,6 +61,7 @@
 (defn skeleton
   [gens]
   (let [stateset (finite-set (t/transf-degree (first gens)))
+        singletons (map hash-set stateset)
         afs (o/actions gens t/act)
         images (o/orbit [stateset] afs)
         c-g (o/cayley-graph images afs)
@@ -68,6 +69,7 @@
         heights (calc-heights sccs gens)
         extd (into images (for [x stateset] #{x}))]
     {:stateset stateset
+     :singletons singletons
      :images images
      :extended extd
      :equivclasses sccs
@@ -75,6 +77,10 @@
      :subsethd (p/hasse-diagram extd set/subset?)
      :supsethd (p/hasse-diagram extd set/superset?)
      }))
+
+(defn tile-chains
+  [sk]
+  (mapcat #(p/all-chains % (:supsethd sk)) (:singletons sk)))
 
 (defn display
   [skeleton]
