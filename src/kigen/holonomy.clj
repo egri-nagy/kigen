@@ -75,8 +75,7 @@
      :equivclasses sccs
      :heights (expand-set-keyed-map heights)
      :subsethd (p/hasse-diagram extd set/subset?)
-     :supsethd (p/hasse-diagram extd set/superset?)
-     }))
+     :supsethd (p/hasse-diagram extd set/superset?)}))
 
 (defn tile-chains
   [sk]

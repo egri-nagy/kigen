@@ -4,13 +4,14 @@
 (declare orbit
          bfs
          orbit-graph
-         actions)
+         actions
+         sdfs)
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
 ;; TODO this is just temporary dispatching
 (defn orbit
-  [seeds afs] (bfs seeds afs))
+  [seeds afs] (sdfs seeds #(for [af afs] (af %))))
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
@@ -31,41 +32,6 @@
       (if (empty? diff)
         total
         (recur (conj o diff) (into total diff))))))
-
-;; DEPTH-FIRST SEARCH
-;; stack: node and action function pairs, the work that still needs to be done
-(defn dfs
-  [seeds afs]
-  (let [todof #(for [af afs] [% af])] ; elt -> pairs [elt af], todo list func
-    (loop [stack (into [] (mapcat todof seeds))  orbit (set seeds)]
-      (if (empty? stack)
-        orbit
-        (let [[e af] (peek stack)
-              ne (af e)
-              nstack (pop stack)]
-          (if (contains? orbit ne)
-            (recur nstack orbit)
-            (recur (into nstack (todof ne)) (conj orbit ne))))))))
-
-;;another variant - environment style
-(defn dfs2
-  [seeds afs]
-  (letfn [(todof [t] (for [af afs] [t af])) ; elt -> pairs [elt af]
-          (f [env]
-            (let [stack (::stack env)
-                  orbit (::orbit env)]
-              (if (empty? stack)
-                orbit
-                (let [[e af] (peek stack)
-                      ne (af e)
-                      nstack (pop stack)]
-                  (if (contains? orbit ne)
-                    (recur (assoc env ::stack nstack))
-                    (recur (assoc env
-                                  ::stack (into nstack (todof ne))
-                                  ::orbit (conj orbit ne))))))))]
-    (f {::stack (into [] (mapcat todof seeds))
-        ::orbit (set  seeds)})))
 
 ;;dfs with a single set-valued operator enabling very simple code
 (defn sdfs
