@@ -56,17 +56,25 @@
 ;;ORBIT-GRAPH
 ;;we start search from one specific seed element
 (defn orbit-graph
-  [seed afs]
-  (let [fs (vec afs) ;the order of the action functions does matter
-        indxs (range 0 (count fs))]
-    (loop [frontier [seed] og {:graph {seed {}} :orbit #{seed}}]
-      (let [elts (for [x frontier i indxs] [((nth fs i) x) {i x}])
-            diff (filter (fn [[x]] (not (contains? (:orbit og) x))) elts)
-            newfront (map first diff)]
-        (if (empty? newfront)
-          og
-          (recur newfront {:orbit (into (:orbit og) newfront)
-                           :graph (into (:graph og) diff)}))))))
+  ([seed afs] (letfn [(T [] true)] (orbit-graph seed afs T T)))
+  ([seed afs candidate? solution?]
+   (let [fs (vec afs) ;the order of the action functions does matter
+         indxs (range 0 (count fs))
+         seed-graph {:graph {seed {}} :orbit #{seed}}
+         null-graph {:graph {} :orbit #{}}]
+     (cond (solution? seed) seed-graph
+           (not (candidate? seed)) null-graph
+           :else (loop [frontier [seed] og seed-graph]
+                   (let [elts (for [x frontier i indxs] [((nth fs i) x) {i x}])
+                         diff (filter
+                               (fn [[x]] (and (not (contains? (:orbit og) x))
+                                              (candidate? x)))
+                               elts)
+                         newfront (map first diff)]
+                     (if (empty? newfront)
+                       og
+                       (recur newfront {:orbit (into (:orbit og) newfront)
+                                        :graph (into (:graph og) diff)}))))))))
 
 (defn trace
   "Tracing a path to an element in the orbit graph"
