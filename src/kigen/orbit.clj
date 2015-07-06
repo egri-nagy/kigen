@@ -5,19 +5,25 @@
          bfs
          orbit-graph
          actions
+         action-function
          sdfs)
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
 ;; TODO this is just temporary dispatching
 (defn orbit
-  [seeds afs] (bfs seeds #(for [af afs] (af %))))
+  [seeds afs] (bfs seeds (action-function afs)))
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
   describing how an operator acts"
   [operators action]
   (for [o operators] #(action % o)))
+
+(defn action-function
+  "Combining several action functions into a single set-valued function."
+  [afs]
+  #(for [f afs] (f %)))
 
 ;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on
