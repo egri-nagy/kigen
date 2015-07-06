@@ -10,7 +10,7 @@
 
 (deftest test-sdfs
   (testing "Testing depth-first search with set-valued operator."
-    (is (= 32 (count (orbit/sdfs [#{1 2 3 4 5}] subset-covers))))))
+    (is (= 32 (count (orbit/dfs [#{1 2 3 4 5}] subset-covers))))))
 
 (comment  (deftest test-*fs
             (let [ops (for [x [1 2 3 4 5]] #(set (remove (partial = x ) %)))

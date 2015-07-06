@@ -40,7 +40,7 @@
         (recur (conj o diff) (into total diff))))))
 
 ;;dfs with a single set-valued operator enabling very simple code
-(defn sdfs
+(defn dfs
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
   [seeds af]

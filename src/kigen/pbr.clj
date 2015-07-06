@@ -1,6 +1,6 @@
 (ns kigen.pbr
   (:use [clojure.set :only [difference]]
-        [kigen.orbit :only [sdfs]]))
+        [kigen.orbit :only [dfs]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}
@@ -75,7 +75,7 @@
         ;to extract the target nodes from labelled edges
         targets (fn [edges] (set (map #(last (last %)) edges)))]
     (when-not (zero? (count seeds))
-      (filter endpoints (targets (sdfs seeds af))))))
+      (filter endpoints (targets (dfs seeds af))))))
 
 (defn mul
   "multiply two partitioned binary relations"
