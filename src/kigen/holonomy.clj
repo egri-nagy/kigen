@@ -85,6 +85,8 @@
   [sk]
   (mapcat #(p/all-chains % (:supsethd sk)) (:singletons sk)))
 
+(defn height [sk P] ((:heights sk) P))
+
 (defn display
   [skeleton]
   (println "#states" (count (:stateset skeleton)))
