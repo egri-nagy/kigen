@@ -12,7 +12,11 @@
 (defn subduction?
   [P Q afs]
   (or (set/subset? P Q)
-      (contains? (o/orbit [Q] afs) P))) ;TODO make an orbit alg that can stop
+      (contains? (:solutions (o/orbit-graph [Q]
+                                            afs
+                                            #(<= (count P) (count %))
+                                            (partial = P)))
+                 P)))
 
 ;;TODO extract the pattern for any pre-order
 (defn equivalent?
