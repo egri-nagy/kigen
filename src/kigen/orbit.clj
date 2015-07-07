@@ -56,13 +56,13 @@
 ;;ORBIT-GRAPH
 ;;we start search from one specific seed element
 (defn orbit-graph
-  ([seed afs] (letfn [(T [] true)] (orbit-graph seed afs T T)))
+  ([seed afs] (letfn [(T [] true) (F [] false)] (orbit-graph seed afs T F)))
   ([seed afs candidate? solution?]
    (let [fs (vec afs) ;the order of the action functions does matter
          indxs (range 0 (count fs))
          seed-graph {:graph {seed {}} :orbit #{seed}}
-         null-graph {:graph {} :orbit #{}}]
-     (cond (solution? seed) seed-graph
+         null-graph {:graph {} :orbit #{} :solutions #{}}]
+     (cond (solution? seed) (assoc seed-graph :solutions #{seed})
            (not (candidate? seed)) null-graph
            :else (loop [frontier [seed] og seed-graph]
                    (let [elts (for [x frontier i indxs] [((nth fs i) x) {i x}])
@@ -70,9 +70,10 @@
                                (fn [[x]] (and (not (contains? (:orbit og) x))
                                               (candidate? x)))
                                elts)
-                         newfront (map first diff)]
-                     (if (empty? newfront)
-                       og
+                         newfront (map first diff)
+                         solutions (filter solution? newfront)]
+                     (if (or (not-empty solutions) (empty? newfront))
+                       (assoc  og :solutions solutions)
                        (recur newfront {:orbit (into (:orbit og) newfront)
                                         :graph (into (:graph og) diff)}))))))))
 
