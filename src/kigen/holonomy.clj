@@ -12,10 +12,10 @@
 (defn subduction?
   [P Q afs]
   (or (set/subset? P Q)
-      (contains? (:solutions (o/orbit-graph [Q]
+      (contains? (:solutions (o/orbit-graph Q
                                             afs
                                             #(<= (count P) (count %))
-                                            (partial = P)))
+                                            #(set/subset? % P)))
                  P)))
 
 ;;TODO extract the pattern for any pre-order
@@ -48,6 +48,10 @@
         sub-hd (p/hasse-diagram nonsingl-eqvcls (class-subduction gens))
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         height-tabs (map #(p/max-distances % sub-hd) minimals)]
+    (println "surhd")
+    (clojure.pprint/pprint sur-hd)
+    (println "subhd")
+    (clojure.pprint/pprint sub-hd)
     (into {} (map (fn [k] [k (inc (apply max (remove nil? (map
                                                            #(% k)
                                                            height-tabs))))])
