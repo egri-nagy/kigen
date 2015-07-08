@@ -71,7 +71,7 @@
                                               (candidate? x)))
                                elts)
                          newfront (map first diff)
-                         solutions (filter solution? newfront)]
+                         solutions (set (filter solution? newfront))]
                      (if (or (not-empty solutions) (empty? newfront))
                        (assoc  og :solutions solutions)
                        (recur newfront {:orbit (into (:orbit og) newfront)
