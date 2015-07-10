@@ -87,6 +87,12 @@
 
 (defn height [sk P] ((:heights sk) P))
 
+(defn positioned
+  [sk tc]
+  (let [height ((:heights sk) (:stateset sk))
+        ptc (vec (map (fn [x] :*) (range height)))]
+    (reduce #(assoc % ((:heights sk) %2)  %2) ptc tc)))
+
 (defn display
   [skeleton]
   (println "#states" (count (:stateset skeleton)))
