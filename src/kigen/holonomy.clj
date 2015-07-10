@@ -70,16 +70,21 @@
         images (o/orbit [stateset] afs)
         c-g (o/cayley-graph images afs)
         sccs (o/scc images c-g)
-        heights (conj (calc-heights sccs gens) [(set singletons) 0])
+        scc-heights (calc-heights sccs gens)
+        scc-heights-full (conj scc-heights [(set singletons) 0])
+        heights (expand-set-keyed-map scc-heights-full)
         extd (into images (for [x stateset] #{x}))]
     {:stateset stateset
      :singletons singletons
      :images images
      :extended extd
      :equivclasses sccs
-     :heights (expand-set-keyed-map heights)
+     :heights heights
+     :height (heights stateset)
      :subsethd (p/hasse-diagram extd set/subset?)
      :supsethd (p/hasse-diagram extd set/superset?)}))
+
+(defn depth [sk P] (inc (- (:height sk) ((:heights sk) P))))
 
 (defn tile-chains
   [sk]
