@@ -70,7 +70,7 @@
         images (o/orbit [stateset] afs)
         c-g (o/cayley-graph images afs)
         sccs (o/scc images c-g)
-        heights (calc-heights sccs gens)
+        heights (conj (calc-heights sccs gens) [(set singletons) 0])
         extd (into images (for [x stateset] #{x}))]
     {:stateset stateset
      :singletons singletons
