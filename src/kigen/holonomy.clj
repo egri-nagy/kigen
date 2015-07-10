@@ -90,6 +90,9 @@
   [sk]
   (mapcat #(p/all-chains % (:supsethd sk)) (:singletons sk)))
 
+(defn chain-act [chain t]
+  (distinct (map #(t/act % t) chain)))
+
 (defn height [sk P] ((:heights sk) P))
 
 (defn positioned
