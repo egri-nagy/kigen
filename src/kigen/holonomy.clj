@@ -44,8 +44,8 @@
 (defn calc-heights
   [eqvcls gens]
   (let [nonsingl-eqvcls (remove #(t/singleton? (first %)) eqvcls)
-        sur-hd (p/hasse-diagram nonsingl-eqvcls (class-surduction gens))
-        sub-hd (p/hasse-diagram nonsingl-eqvcls (class-subduction gens))
+        sur-hd (p/cover-rel nonsingl-eqvcls (class-surduction gens))
+        sub-hd (p/cover-rel nonsingl-eqvcls (class-subduction gens))
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         height-tabs (map #(p/max-distances % sub-hd) minimals)]
     (into {} (map (fn [k] [k (inc (apply max (remove nil? (map
@@ -81,8 +81,8 @@
      :equivclasses sccs
      :heights heights
      :height (heights stateset)
-     :subsethd (p/hasse-diagram extd set/subset?)
-     :supsethd (p/hasse-diagram extd set/superset?)}))
+     :subsethd (p/cover-rel extd set/subset?)
+     :supsethd (p/cover-rel extd set/superset?)}))
 
 (defn depth [sk P] (inc (- (:height sk) ((:heights sk) P))))
 
