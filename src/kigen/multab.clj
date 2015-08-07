@@ -8,6 +8,6 @@
     (vec (map
           (fn [x] (->> xs
                        (map #(mul % x))
-                       (map #(pos/pos (partial = %) xs indices))
+                       (map #(pos/pos (partial = %) indices))
                        (vec)))
           xs))))
