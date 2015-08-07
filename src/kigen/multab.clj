@@ -5,9 +5,9 @@
   "Returns the multiplication table of the elements xs by the function mul."
   [xs mul]
   (let [indices (pos/index (vec xs))]
-    (map
-     (fn [x]
-       (map
-        #(pos/pos (partial = %) xs indices)
-        (map #(mul x %) xs)))
-     xs)))
+    (vec (map
+          (fn [x] (->> xs
+                       (map #(mul x %))
+                       (map #(pos/pos (partial = %) xs indices))
+                       (vec)))
+          xs))))
