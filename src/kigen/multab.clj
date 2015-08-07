@@ -7,7 +7,7 @@
   (let [indices (pos/index (vec xs))]
     (vec (map
           (fn [x] (->> xs
-                       (map #(mul x %))
+                       (map #(mul % x))
                        (map #(pos/pos (partial = %) xs indices))
                        (vec)))
           xs))))
