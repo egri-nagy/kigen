@@ -9,8 +9,10 @@
         (map? coll) (seq coll) ;seq-ing a map gives key value pairs in vectors
         :else (map vector (iterate inc 0) coll))) ;list, vectors index from 0
 
-(defn positions [pred coll]
-  (for [[i v] (index coll) :when (pred v)] i))
+(defn positions
+  ([pred coll] (positions pred coll (index coll)))
+  ([pred coll indx] (for [[i v] indx :when (pred v)] i)))
 
-(defn pos [pred coll]
-  (first (positions pred coll)))
+(defn pos
+  ([pred coll] (first (positions pred coll)))
+  ([pred coll indx] (first (positions pred coll indx))))
