@@ -4,8 +4,10 @@
 ;; adapted from The Joy of Clojure, Second Edition,
 ;; Manning Publications 2014, pp111-113
 
-(defn index [coll]
-  (cond (set? coll) (map vector coll coll) ;elements in set index themselves
+(defn index
+  "Indexes a collection, i.e. associating ordinal numbers to its elements."
+  [coll]
+  (cond (set? coll) (map vector coll coll) ;elements in set index themselves TODO we may not need this
         (map? coll) (seq coll) ;seq-ing a map gives key value pairs in vectors
         :else (map vector (iterate inc 0) coll))) ;list, vectors index from 0
 
