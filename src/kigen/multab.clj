@@ -11,3 +11,8 @@
                        (map #(pos/pos (partial = %) indices))
                        (vec)))
           xs))))
+
+(defn closure
+  "Returns the smallest closed subarray that contains the elements."
+  [mt elts]
+  )
