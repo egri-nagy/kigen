@@ -37,6 +37,7 @@
          exts (difference base elts)]
     (if (empty? exts)
       base
-      (let [nbase (union base exts (extend-by mt base exts))
-            nexts (difference nbase (union base exts) )]
+      (let [gens (union base exts)
+            nbase (union gens (extend-by mt base exts))
+            nexts (difference nbase gens)]
         (recur nbase nexts)))))
