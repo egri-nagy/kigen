@@ -12,6 +12,11 @@
                        (vec)))
           xs))))
 
+(defn content
+  "content of subarray spanned by the elements"
+  [mt elts]
+  (set (for [i elts j elts] (nth (nth mt i) j))))
+
 (defn closure
   "Returns the smallest closed subarray that contains the elements."
   [mt elts]
