@@ -13,16 +13,19 @@
                        (vec)))
           xs))))
 
+(defmacro at [mt i j]
+  `(nth (nth ~mt ~i) ~j))
+
 (defn content
   "content of subarray spanned by the elements"
   [mt elts]
-  (set (for [i elts j elts] (nth (nth mt i) j))))
+  (set (for [i elts j elts] (at mt i j))))
 
 (defn extend-by
   [mt base exts]
   (let [u (union base exts)]
-    (union (set (for [i exts j u] (nth (nth mt i) j)))
-           (set (for [i base j exts] (nth (nth mt i) j))))))
+    (union (set (for [i exts j u] (at mt i j)))
+           (set (for [i base j exts] (at mt i j))))))
 
 (defn closure
   "Returns the smallest closed subarray that contains the elements."
