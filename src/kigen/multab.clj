@@ -13,15 +13,18 @@
                        (vec)))
           xs))))
 
+;; getting the i,j entry of the matrix mt
 (defmacro at [mt i j]
   `(nth (nth ~mt ~i) ~j))
 
+;; the resulting set may not contain the generators in general
 (defn content
-  "content of subarray spanned by the elements"
+  "Returns the content of sub-array spanned by the elements."
   [mt elts]
   (set (for [i elts j elts] (at mt i j))))
 
 (defn extend-by
+  "Extends a closed sub-array by elements exts."
   [mt base exts]
   (let [u (union base exts)]
     (union (set (for [i exts j u] (at mt i j)))
@@ -29,10 +32,11 @@
 
 (defn closure
   "Returns the smallest closed subarray that contains the elements."
-  [mt elts] (loop [base (union (set elts) (content mt elts))
-                   exts (difference base elts)]
-              (if (empty? exts)
-                base
-                (let [nbase (union base exts (extend-by mt base exts))
-                      nexts (difference nbase (union base exts) )]
-                  (recur nbase nexts)))))
+  [mt elts]
+  (loop [base (union (set elts) (content mt elts))
+         exts (difference base elts)]
+    (if (empty? exts)
+      base
+      (let [nbase (union base exts (extend-by mt base exts))
+            nexts (difference nbase (union base exts) )]
+        (recur nbase nexts)))))
