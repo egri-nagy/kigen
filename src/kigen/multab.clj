@@ -41,3 +41,8 @@
             nbase (union gens (extend-by mt base exts))
             nexts (difference nbase gens)]
         (recur nbase nexts)))))
+
+(defn min-extensions
+  [mt closedsub]
+  (let [complement (difference (set (range (count mt))) closedsub)]
+    (set (map #(union closedsub (closure mt (union closedsub [%]))) complement))))
