@@ -45,4 +45,4 @@
 (defn min-extensions
   [mt closedsub]
   (let [complement (difference (set (range (count mt))) closedsub)]
-    (set (pmap #(union closedsub (closure mt closedsub [%])) complement))))
+    (set (pmap #(closure mt closedsub [%]) complement))))
