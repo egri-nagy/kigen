@@ -32,17 +32,17 @@
 
 (defn closure
   "Returns the smallest closed subarray that contains the elements."
-  [mt elts]
-  (loop [base (union (set elts) (content mt elts))
-         exts (difference base elts)]
-    (if (empty? exts)
-      base
-      (let [gens (union base exts)
-            nbase (union gens (extend-by mt base exts))
-            nexts (difference nbase gens)]
-        (recur nbase nexts)))))
+  ([mt elts] (union (content mt elts) (set elts)))
+  ([mt closedsub elts]
+   (loop [base closedsub exts (set elts)]
+     (if (empty? exts)
+       base
+       (let [gens (union base exts)
+             nbase (union gens (extend-by mt base exts))
+             nexts (difference nbase gens)]
+         (recur nbase nexts))))))
 
 (defn min-extensions
   [mt closedsub]
   (let [complement (difference (set (range (count mt))) closedsub)]
-    (set (map #(union closedsub (closure mt (union closedsub [%]))) complement))))
+    (set (pmap #(union closedsub (closure mt closedsub [%])) complement))))
