@@ -34,6 +34,10 @@
   (let [n (count (:dom pbr))]
     (map #(- (first (pbr %)) n) (-> (:dom pbr) seq sort))))
 
+(defn transf-compare
+  [x y]
+  (compare (vec (pbr->transf x)) (vec (pbr->transf y))))
+
 (defn symmetric-gens
   "Generators of the symmetric group of degree n."
   [n]
