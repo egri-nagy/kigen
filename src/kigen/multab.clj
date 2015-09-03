@@ -1,3 +1,7 @@
+;; Functions for dealing with abstract multiplication tables,
+;; i.e. multiplicative elements are represented by their indices in a
+;; given sequence.
+
 (ns kigen.multab
   (:use [clojure.set :only [difference union]]
         [kigen.pos :as pos]))
@@ -13,6 +17,7 @@
                        (vec)))
           xs))))
 
+;; TODO local tables might be fast with hashmaps
 (defn loctab
   [mt i]
   (let [elts (range (count mt))
@@ -24,7 +29,7 @@
 (defmacro at [mt i j]
   `(nth (nth ~mt ~i) ~j))
 
-;; the resulting set may not contain the generators in general
+;; the resulting set may not contain the spanning elements in general
 (defn content
   "Returns the content of sub-array spanned by the elements."
   [mt elts]
@@ -37,11 +42,11 @@
     (union (set (for [i exts j u] (at mt i j)))
            (set (for [i base j exts] (at mt i j))))))
 
+;; TODO
 (defn loctabs-extend-by
   "Extends a closed sub-array by elements exts using local tables."
   [loctabs base exts]
   (let [u (union base exts)]))
-
 
 (defn closure
   "Returns the smallest closed subarray that contains the elements."
