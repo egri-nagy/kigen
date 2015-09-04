@@ -15,21 +15,17 @@
   "The covering relation of a partial order as a graph
   (map: element -> set of covers), given by the elements and a predicate."
   [elts rel?]
-  (letfn [(recalc-covers [covers newval] ;recalculate the set of covers
-            (if (some #(rel? newval %) covers) ;nothing to do newval is below
-              covers
-              (conj (set (filter #(not (rel? % newval)) covers)) newval)))
-          (insert [cr e] ;insert an element into the graph by updating covers
-            (let [candidates (filter #(and (not (= e %))
-                                           (rel? e %))
-                                     (keys cr))]
-              (reduce #(assoc % %2 (recalc-covers (%  %2) e))
-                      cr
-                      candidates)))]
-    ;starting with the empty covering sets, we insert all elements
-    (reduce insert
-            (into {} (for [e elts] [e #{}]))
-            elts)))
+  (let [emptytab (into {} (for [e elts] [e #{}]))
+        recalc-covers (fn [covers newval] ;recalculate the set of covers
+                        (if (some #(rel? newval %) covers)
+                          covers ;newval is below some of covers, no change
+                          (conj
+                           (set (filter #(not (rel? % newval)) covers))
+                           newval))) ; the set of elts not below newval
+        insert (fn [cr e] ;insert an element into the graph by updating covers
+                 (let [xs (filter #(and (not (= e %)) (rel? e %)) elts)]
+                   (reduce #(assoc % %2 (recalc-covers (% %2) e)) cr xs)))]
+    (reduce insert emptytab elts)))
 
 (defn chain-extensions
   "Returns all chains extending chain by one more element in cover-rel cr."
