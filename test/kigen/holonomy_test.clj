@@ -11,4 +11,5 @@
 
 (deftest test-holonomy
   (testing "Testing holonomy decomposition."
-    (is (= 6 (h/depth (h/skeleton BECKS))))))
+    (is (= 6 (h/depth (h/skeleton BECKS))))
+    (is (= 7 (h/depth (h/skeleton (transf/full-ts-gens 7)))))))
