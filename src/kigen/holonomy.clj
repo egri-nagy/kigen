@@ -84,7 +84,9 @@
      :subsethd (p/cover-rel extd set/subset?)
      :supsethd (p/cover-rel extd set/superset?)}))
 
-(defn depth [sk P] (inc (- (:height sk) ((:heights sk) P))))
+(defn depth
+  ([sk P] (inc (- (:height sk) ((:heights sk) P))))
+  ([sk] (depth sk #{1})))
 
 (defn tile-chains
   [sk]

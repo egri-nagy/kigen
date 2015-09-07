@@ -11,4 +11,4 @@
 
 (deftest test-holonomy
   (testing "Testing holonomy decomposition."
-    (is (= 5 (:height (h/skeleton BECKS))))))
+    (is (= 6 (h/depth (h/skeleton BECKS))))))
