@@ -86,7 +86,7 @@
 
 (defn depth
   ([sk P] (inc (- (:height sk) ((:heights sk) P))))
-  ([sk] (depth sk #{1})))
+  ([sk] (depth sk #{1}))) ;the depth of a singleton, we should have this one
 
 (defn tile-chains
   [sk]
