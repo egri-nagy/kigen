@@ -54,9 +54,13 @@
 
 
 ;;ORBIT-GRAPH
+;;stops if some solutions found
 ;;we start search from one specific seed element
 (defn orbit-graph
-  ([seed afs] (letfn [(T [] true) (F [] false)] (orbit-graph seed afs T F)))
+  ([seed afs]
+   (letfn [(T [] true) ;default candidate predicate
+           (F [] false)] ;default solution predicate
+     (orbit-graph seed afs T F)))
   ([seed afs candidate? solution?]
    (let [fs (vec afs) ;the order of the action functions does matter
          indxs (range 0 (count fs))
