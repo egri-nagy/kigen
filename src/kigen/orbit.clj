@@ -6,7 +6,7 @@
          orbit-graph
          actions
          action-function
-         sdfs)
+         dfs)
 
 ;; seed - elements to act on
 ;; funcs - functions that produce a new element applied to an element
