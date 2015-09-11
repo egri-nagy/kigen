@@ -27,7 +27,7 @@
 
 ;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on
-;; afs - action functions
+;; af - action function
 (defn bfs
   [seeds af]
   ;; o - vector of sets containing orbit elements in production order
@@ -47,7 +47,7 @@
   (loop [stack (vec seeds)  orbit (set seeds)]
     (if (empty? stack)
       orbit
-      (let [frontier (af (peek stack)) ;maybe taking set here
+      (let [frontier (set (af (peek stack)))
             newelts (filter #(not (contains? orbit %)) frontier)]
         (recur (into (pop stack) newelts)
                (into orbit newelts))))))
