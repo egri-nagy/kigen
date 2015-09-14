@@ -2,6 +2,8 @@
 ;; i.e. multiplicative elements are represented by their indices in a
 ;; given sequence.
 
+;;TODO consider using immutable bitsets from https://github.com/clojure/data.int-map
+
 (ns kigen.multab
   (:use [clojure.set :only [difference union]]
         [kigen.pos :as pos]))
@@ -49,7 +51,9 @@
   (let [u (union base exts)]))
 
 (defn closure
-  "Returns the smallest closed subarray that contains the elements."
+  "Returns the smallest closed subarray that contains the elements elts.
+  Alternatively, a closed subarray closedsub can be extended by some elements
+  elts."
   ([mt elts] (union (content mt elts) (set elts)))
   ([mt closedsub elts]
    (loop [base closedsub exts (set elts)]
@@ -61,6 +65,8 @@
          (recur nbase nexts))))))
 
 (defn min-extensions
+  "Returns the minimal extensions (by new element) of closed subarray of
+  multiplication table mt."
   [mt closedsub]
   (let [complement (difference (set (range (count mt))) closedsub)]
     (set (pmap #(closure mt closedsub [%]) complement))))
