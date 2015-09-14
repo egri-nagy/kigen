@@ -6,7 +6,8 @@
   (:require [kigen.transf :as transf]) (:gen-class)
   (:require [kigen.poset :as poset]) (:gen-class)
   (:require [kigen.holonomy :as holonomy]) (:gen-class)
-  (:require [kigen.multab :as multab]) (:gen-class))
+  (:require [kigen.multab :as multab]) (:gen-class)
+  (:require [kigen.igs :as igs]) (:gen-class))
 
 (defn -main
   "just a main"

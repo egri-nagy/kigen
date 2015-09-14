@@ -1,10 +1,16 @@
 (ns kigen.igs
   (:use [clojure.set :only [difference union]]
-        [kigen.multab :as multab]))
+        [kigen.multab :as multab :only [closure]]))
 
-(defn igs?
-  "Decides whether the set A is an independent set in multiplication table M."
-  [A M]
+(defn is?
+  "Decides whether the set A is an independent set in multiplication table mt."
+  [mt A]
   (every?
-   #(contains? (multab/closure mt (difference A #{%})) %)
+   #(not (contains? (multab/closure mt (difference A #{%})) %))
    A))
+
+(defn min-extensions
+  "All independent sets that are extensions of the independent set is."
+  [mt is]
+  (let [complement (difference (set (range (count mt))) is)]
+    (filter #(is? mt %) (set (map #(union is #{%}) complement)))))
