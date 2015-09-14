@@ -54,7 +54,7 @@
   "Returns the smallest closed subarray that contains the elements elts.
   Alternatively, a closed subarray closedsub can be extended by some elements
   elts."
-  ([mt elts] (union (content mt elts) (set elts)))
+  ([mt elts] (closure mt #{} (union (content mt elts) (set elts))))
   ([mt closedsub elts]
    (loop [base closedsub exts (set elts)]
      (if (empty? exts)
