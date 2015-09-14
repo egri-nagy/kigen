@@ -12,8 +12,8 @@
   (let [indices (pos/index (vec xs))]
     (vec (pmap
           (fn [x] (->> xs
-                       (map #(mul % x))
-                       (map #(pos/pos (partial = %) indices))
+                       (map #(mul % x)) ;left multiplication by x
+                       (map #(pos/pos (partial = %) indices)) ; elt -> index
                        (vec)))
           xs))))
 
