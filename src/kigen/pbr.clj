@@ -108,6 +108,9 @@
   [pbr]
   (let [dom (:dom pbr)
         d (count dom)
-        f (fn [x] (if (contains? dom x)
-               (+ x d)
-               (- x d)))]))
+        cod (:cod pbr)
+        c (count cod)
+        f (fn [x] (cond (contains? dom x) (+ x c)
+                        (contains? cod x) (- x d)
+                        :else x))]
+    (reduce #(conj % [(f %2), (set (map f (pbr %2)))]) {} (keys pbr))))
