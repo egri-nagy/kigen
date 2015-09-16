@@ -103,3 +103,11 @@
   "the image of the partitioned binary relation, i.e. acting on its points"
   [pbr]
   (act (into (:dom pbr) (:cod pbr)) pbr))
+
+(defn flip
+  [pbr]
+  (let [dom (:dom pbr)
+        d (count dom)
+        f (fn [x] (if (contains? dom x)
+               (+ x d)
+               (- x d)))]))
