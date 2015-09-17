@@ -1,5 +1,5 @@
 (ns kigen.pbr
-  (:use [clojure.set :only [difference]]
+  (:use [clojure.set :only [difference union]]
         [kigen.orbit :only [dfs]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
@@ -105,6 +105,7 @@
   (act (into (:dom pbr) (:cod pbr)) pbr))
 
 (defn flip
+  "Flips a pbr upside-down."
   [pbr]
   (let [dom (:dom pbr)
         d (count dom)
@@ -114,3 +115,11 @@
                         (contains? cod x) (- x d)
                         :else (x {:dom :cod, :cod :dom})))]
     (reduce #(conj % [(f %2), (set (map f (pbr %2)))]) {} (keys pbr))))
+
+(defn rev
+  "Reverses the arrow in a pbr."
+  [pbr]
+  (let [points (union (:dom pbr) (:cod pbr))
+        f (fn [x] (set (filter #(contains? (pbr %) x) points)))
+        imgs (map #(vector % (f %)) points)]
+    (into {:dom (:dom pbr), :cod (:cod pbr)} imgs)))
