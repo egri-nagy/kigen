@@ -112,5 +112,5 @@
         c (count cod)
         f (fn [x] (cond (contains? dom x) (+ x c)
                         (contains? cod x) (- x d)
-                        :else x))]
+                        :else (x {:dom :cod, :cod :dom})))]
     (reduce #(conj % [(f %2), (set (map f (pbr %2)))]) {} (keys pbr))))
