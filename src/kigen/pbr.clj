@@ -123,3 +123,11 @@
         f (fn [x] (set (filter #(contains? (pbr %) x) points)))
         imgs (map #(vector % (f %)) points)]
     (into {:dom (:dom pbr), :cod (:cod pbr)} imgs)))
+
+(defn overlay
+  "Overlays two pbrs. The pbrs should have the same (co)domains."
+  [pbr1 pbr2]
+  (let [points (union (:dom pbr1) (:cod pbr1))]
+    (into {:dom (:dom pbr1), :cod (:cod pbr1)}
+          (map #(vector % (union (pbr1 %) (pbr2 %))) points)))
+  )
