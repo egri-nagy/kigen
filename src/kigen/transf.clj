@@ -10,9 +10,11 @@
   (and (empty? (reduce into (for [key (:cod pbr)] (pbr key))))
        (every?  singleton? (for [key (:dom pbr)] (pbr key)))))
 
+;;this is embedding into the binary relation subsemigroup
+;;not the partition monoid
 (defn transf->pbr
-  "Creates a partitioned binary relation from a transformation
-  given by the list of images.
+  "Creates a partitioned binary relation with directed edges
+  from a transformation given by the list of images.
   Transformations index point from 1, unlike the vector indices."
   [imagelist]
   (let [emptyset #{}
