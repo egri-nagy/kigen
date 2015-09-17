@@ -29,6 +29,15 @@
                             (:cod pbr)))]
     (reduce into pbr (concat [edges non-edges]))))
 
+(defn transf->pbr2
+  "Creates a partitioned binary relation with undirected edges
+  from a transformation given by the list of images.
+  Embedding into the partition monoid.
+  Transformations index point from 1, unlike the vector indices."
+  [imagelist]
+  (let [t (transf->pbr imagelist)]
+    (pbr/overlay t (pbr/rev t))))
+
 (defn pbr->transf
   "Returns the image list of a transformation represented as a pbr.
   Indexing is 1-based."
