@@ -50,7 +50,8 @@
   (compare (vec (pbr->transf x)) (vec (pbr->transf y))))
 
 (defn symmetric-gens
-  "Generators of the symmetric group of degree n."
+  "Generators of the symmetric group of degree n using the embedding
+  into the partitioned binary relation monoid defined by f."
   ([n] (symmetric-gens n transf->pbr))
   ([n f] (if (= 1 n)
            (map f [[1]])
