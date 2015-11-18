@@ -51,12 +51,12 @@
 
 (defn symmetric-gens
   "Generators of the symmetric group of degree n."
-  [n]
-  (if (= 1 n)
-    (map transf->pbr [[1]])
-    (let [transposition (concat [2 1] (range 3 (inc n)))
-          cycle (concat (range 2 (inc n)) [1])]
-      (map transf->pbr (set [transposition cycle])))))
+  ([n] (symmetric-gens n transf->pbr))
+  ([n f] (if (= 1 n)
+           (map f [[1]])
+           (let [transposition (concat [2 1] (range 3 (inc n)))
+                 cycle (concat (range 2 (inc n)) [1])]
+             (map f (set [transposition cycle]))))))
 
 (defn full-ts-gens
   "Generators of the full transformation semigroup of degree n."
