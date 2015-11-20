@@ -12,7 +12,7 @@
 
 ;;this is embedding into the binary relation subsemigroup
 ;;not the partition monoid
-(defn transf->pbr
+(defn transf->binrel
   "Creates a partitioned binary relation with directed edges
   from a transformation given by the list of images.
   Transformations index point from 1, unlike the vector indices."
@@ -29,30 +29,33 @@
                             (:cod pbr)))]
     (reduce into pbr (concat [edges non-edges]))))
 
-(defn transf->pbr2
-  "Creates a partitioned binary relation with undirected edges
-  from a transformation given by the list of images.
-  Embedding into the partition monoid.
-  Transformations index point from 1, unlike the vector indices."
-  [imagelist]
-  (let [t (transf->pbr imagelist)]
-    (pbr/overlay t (pbr/rev t))))
-
-(defn pbr->transf
+(defn binrel->transf
   "Returns the image list of a transformation represented as a pbr.
   Indexing is 1-based."
   [pbr]
   (let [n (count (:dom pbr))]
     (map #(- (first (pbr %)) n) (-> (:dom pbr) seq sort))))
 
+(defn transf->bipart
+  "Creates a partitioned binary relation with undirected edges
+  from a transformation given by the list of images.
+  Embedding into the (bi)partition monoid.
+  Transformations index point from 1, unlike the vector indices."
+  [imagelist]
+  (let [t (transf->binrel imagelist)]
+    (pbr/overlay t (pbr/rev t))))
+
+(defn bipart->transf
+  [pbr] )
+
 (defn transf-compare
   [x y]
-  (compare (vec (pbr->transf x)) (vec (pbr->transf y))))
+  (compare (vec (binrel->transf x)) (vec (binrel->transf y))))
 
 (defn symmetric-gens
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
-  ([n] (symmetric-gens n transf->pbr))
+  ([n] (symmetric-gens n transf->binrel))
   ([n f] (if (= 1 n)
            (map f [[1]])
            (let [transposition (concat [2 1] (range 3 (inc n)))
@@ -65,7 +68,7 @@
   (if (= 1 n)
     (symmetric-gens n)
     (let [collapse (concat [1 1] (range 3 (inc n)))]
-      (concat (symmetric-gens n) [(transf->pbr collapse)]))))
+      (concat (symmetric-gens n) [(transf->binrel collapse)]))))
 
 ;;acting as pbr, then shift back the resulting set to have a transformation of
 ;;the canonical set 1..n
