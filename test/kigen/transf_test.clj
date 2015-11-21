@@ -13,7 +13,7 @@
 
 (deftest pbr-transf-test
   (testing "Testing converting to image list and back."
-    (let [pred #(= (transf/transf->pbr (transf/pbr->transf %)) %)]
+    (let [pred #(= (transf/transf->bipart (transf/bipart->transf %)) %)]
       (doseq [n [1 2 3 4]]
         (is (= true
                (every? pred

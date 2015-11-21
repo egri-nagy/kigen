@@ -46,7 +46,9 @@
     (pbr/overlay t (pbr/rev t))))
 
 (defn bipart->transf
-  [pbr] )
+  [pbr]
+  (vec (map #(- % (count (:dom pbr)))
+            (apply concat (map (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr)))))))
 
 (defn transf-compare
   [x y]

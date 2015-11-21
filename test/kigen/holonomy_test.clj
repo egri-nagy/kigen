@@ -7,7 +7,7 @@
 
 (load-file "resources/sgpbestiary.clj")
 
-(def BECKS (sgp/sgp-by-gens (map transf/transf->pbr becks) pbr/mul))
+(def BECKS (sgp/sgp-by-gens (map transf/transf->binrel becks) pbr/mul))
 
 (deftest test-holonomy
   (testing "Testing holonomy decomposition."
