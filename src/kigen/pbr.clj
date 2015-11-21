@@ -28,13 +28,13 @@
 ;; Returns a random subset of the given collection.
 ;; generating a vector of booleans as a characteristic function
 ;; 1. generate a random bitlist of length of the size of the collection
-;; 2. pair the bits with the collection elements and filter the 'true pairs
+;; 2. pair the bits with the collection elements and filter the true pairs
 ;; 3. return the set of the element parts of the filtered pairs
 (defn rand-subset
   "returns a random subset of the given collection"
   [coll]
   (let [bits (take (count coll) (repeatedly #(rand-nth [true false])))]
-    (set (map second (filter first (map list bits coll))))))
+    (set (map first (filter second (zipmap coll bits))))))
 
 ;; MULTIPLICATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declare mul
