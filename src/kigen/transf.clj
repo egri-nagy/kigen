@@ -5,7 +5,7 @@
 
 (defn singleton? [coll] (= 1 (count coll)))
 
-(defn transf?
+(defn binrel-transf?
   [pbr]
   (and (empty? (reduce into (for [key (:cod pbr)] (pbr key))))
        (every?  singleton? (for [key (:dom pbr)] (pbr key)))))
