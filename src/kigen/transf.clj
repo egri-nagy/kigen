@@ -57,7 +57,7 @@
 (defn symmetric-gens
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
-  ([n] (symmetric-gens n transf->binrel))
+  ([n] (symmetric-gens n transf->bipart))
   ([n f] (if (= 1 n)
            (map f [[1]])
            (let [transposition (concat [2 1] (range 3 (inc n)))
@@ -70,7 +70,7 @@
   (if (= 1 n)
     (symmetric-gens n)
     (let [collapse (concat [1 1] (range 3 (inc n)))]
-      (concat (symmetric-gens n) [(transf->binrel collapse)]))))
+      (concat (symmetric-gens n) [(transf->bipart collapse)]))))
 
 ;;acting as pbr, then shift back the resulting set to have a transformation of
 ;;the canonical set 1..n
