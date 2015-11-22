@@ -1,18 +1,11 @@
 (ns kigen.orbit
   (:use [clojure.set :only [difference]]))
 
-(declare orbit
-         bfs
+(declare bfs
          orbit-graph
          actions
          action-function
          dfs)
-
-;; seed - elements to act on
-;; funcs - functions that produce a new element applied to an element
-;; TODO this is just temporary dispatching
-(defn orbit
-  [seeds afs] (bfs seeds (action-function afs)))
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
