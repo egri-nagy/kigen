@@ -1,11 +1,11 @@
 (ns kigen.orbit
   (:use [clojure.set :only [difference]]))
 
-(declare bfs
-         orbit-graph
-         actions
-         action-function
-         dfs)
+(declare actions ;operators as functions
+         action-function ;combining actions into a single function
+         dfs ;depth-first search
+         bfs ;breadth-first search
+         orbit-graph)
 
 (defn actions
   "Creating actions (as functions) from operators and a function for
@@ -24,7 +24,7 @@
 (defn bfs
   [seeds af]
   ;; o - vector of sets containing orbit elements in production order
-  ;; total - cumulative union of orbit element
+  ;; total - cumulative union of orbit elements
   (loop [o [(set  seeds)], total (first o)]
     (let [newset (set (mapcat af (last o)))
           diff (difference newset total)]
@@ -32,7 +32,7 @@
         total
         (recur (conj o diff) (into total diff))))))
 
-;;dfs with a single set-valued operator enabling very simple code
+;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
@@ -44,7 +44,6 @@
             newelts (filter #(not (contains? orbit %)) frontier)]
         (recur (into (pop stack) newelts)
                (into orbit newelts))))))
-
 
 ;;ORBIT-GRAPH
 ;;stops if some solutions found
