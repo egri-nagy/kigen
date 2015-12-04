@@ -6,7 +6,8 @@
 
 (ns kigen.multab
   (:use [clojure.set :only [difference union]]
-        [kigen.pos :as pos]))
+        [kigen.pos :as pos]
+        [kigen.orbit :as orbit]))
 
 (defn multab
   "Returns the multiplication table of the elements xs by the function mul."
@@ -70,3 +71,9 @@
   [mt closedsub]
   (let [complement (difference (set (range (count mt))) closedsub)]
     (set (pmap #(closure mt closedsub [%]) complement))))
+
+(defn subsgps
+  "All subsemigroups of an abstract semigroup given by its multiplication
+  table"
+  [mt]
+  (orbit/dfs [#{}] (partial min-extensions mt)))
