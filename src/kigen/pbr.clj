@@ -131,3 +131,16 @@
     (into {:dom (:dom pbr1), :cod (:cod pbr1)}
           (map #(vector % (union (pbr1 %) (pbr2 %))) points)))
   )
+
+;;using GAP notation
+(defn ext->int
+  "External representation to internal representation."
+  [extrep]
+  (let [deg (count (first extrep))
+        pbr {:dom (set (range 1 (inc deg)))
+             :cod (set (range (inc deg) (inc (* 2 deg)) ))}
+        xx (apply concat extrep)
+        f (fn [x] (if (< x 0) (+ deg (* x -1)) x ))
+        imgs (map #(vector (inc %) (set (map f (nth xx %)))) (range 0 (* 2 deg)))
+        ]
+    (into pbr imgs)))
