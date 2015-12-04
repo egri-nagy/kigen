@@ -5,9 +5,9 @@
 ;;TODO consider using immutable bitsets from https://github.com/clojure/data.int-map
 
 (ns kigen.multab
-  (:use [clojure.set :only [difference union]]
-        [kigen.pos :as pos]
-        [kigen.orbit :as orbit]))
+  (:use [clojure.set :only [difference union]])
+  (:require [kigen.pos :as pos]
+            [kigen.orbit :as orbit]))
 
 (defn multab
   "Returns the multiplication table of the elements xs by the function mul."
