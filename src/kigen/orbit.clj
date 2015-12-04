@@ -26,6 +26,7 @@
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit elements
   (loop [o [(set  seeds)], total (first o)]
+    ; simple logging (print (count total)) (print "\n") (flush)
     (let [newset (set (mapcat af (last o)))
           diff (difference newset total)]
       (if (empty? diff)
