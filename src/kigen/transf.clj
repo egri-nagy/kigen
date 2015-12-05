@@ -72,6 +72,17 @@
     (let [collapse (concat [1 1] (range 3 (inc n)))]
       (concat (symmetric-gens n) [(transf->bipart collapse)]))))
 
+(defn partial-ts-gens
+  "Generators of the partial transformation monoid of degree n."
+  [n]
+  (let [gens (full-ts-gens n)
+        id (transf->bipart (vec (range 1 (inc n))))
+        f (fn [x] #{})
+        t (update id 1 f)
+        tt (update t (inc n) f) ;TODO sg better than this
+        ]
+    (conj gens tt)))
+
 ;;acting as pbr, then shift back the resulting set to have a transformation of
 ;;the canonical set 1..n
 (defn act
