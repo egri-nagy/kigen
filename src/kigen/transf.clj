@@ -50,6 +50,10 @@
   (vec (map #(- % (count (:dom pbr)))
             (apply concat (map (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr)))))))
 
+(defn idmap
+  [n]
+  (transf->bipart (vec (range 1 (inc n)))))
+
 (defn transf-compare
   [x y]
   (compare (vec (binrel->transf x)) (vec (binrel->transf y))))
@@ -76,7 +80,7 @@
   "Generators of the partial transformation monoid of degree n."
   [n]
   (let [gens (symmetric-gens n)
-        id (transf->bipart (vec (range 1 (inc n))))
+        id (idmap n)
         f (fn [x] #{})
         t (update id 1 f)
         tt (update t (inc n) f) ;TODO sg better than this
