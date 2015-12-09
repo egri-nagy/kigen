@@ -57,3 +57,16 @@
       (recur (inc d)
              (reduce #(assoc % %2 d) dists frontier)
              (apply union (map cr frontier))))))
+
+(defn min-distances
+  "Returns a map of elements to their minimal distance
+   (length of shortest chain) from element e."
+  [e cr]
+  (loop [d 0
+         dists {}
+         frontier #{e}]
+    (if (empty? frontier)
+      dists
+      (recur (inc d)
+             (reduce #(update % %2 (fn [x] (if (nil? x) d x))) dists frontier)
+             (apply union (map cr frontier))))))
