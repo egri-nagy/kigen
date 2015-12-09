@@ -76,27 +76,21 @@
     (let [collapse (concat [1 1] (range 3 (inc n)))]
       (concat (symmetric-gens n) [(transf->bipart collapse)]))))
 
-(defn symmetric-inverse-gens
-  "Generators of the partial transformation monoid of degree n."
+(defn partialmap
   [n]
-  (let [gens (symmetric-gens n)
-        id (idmap n)
-        f (fn [x] #{})
-        t (update id 1 f)
-        tt (update t (inc n) f) ;TODO sg better than this
-        ]
-    (conj gens tt)))
+  (let [id (idmap n)
+        f (fn [x] #{})]
+    (update (update id 1 f) (inc n) f)))
+
+(defn symmetric-inverse-gens
+  "Generators of the symmetric inverse monoid of degree n."
+  [n]
+  (conj (symmetric-gens n) (partialmap n)))
 
 (defn partial-ts-gens
   "Generators of the partial transformation monoid of degree n."
   [n]
-  (let [gens (full-ts-gens n)
-        id (transf->bipart (vec (range 1 (inc n))))
-        f (fn [x] #{})
-        t (update id 1 f)
-        tt (update t (inc n) f) ;TODO sg better than this
-        ]
-    (conj gens tt))) ;TODO get rid of this copy-paste duplication
+  (conj (full-ts-gens n) (partialmap n)))
 
 ;;acting as pbr, then shift back the resulting set to have a transformation of
 ;;the canonical set 1..n
