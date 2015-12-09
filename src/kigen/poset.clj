@@ -7,10 +7,11 @@
          all-chains ;all chains from an element
          max-distances) ;maximal distances from an element
 
-;; Not the most clever algorithm: it assumes that anything related is a cover
-;; then gets rid of it if proven not to be a cover
+;; A cubic algorithm for finding covers for a binary relation.
+;; It assumes that anything related is a cover
+;; then gets rid of it if it is proven not to be a cover
 ;; elts - set of elements
-;; rel? - a partial order relation predicate
+;; rel? - a partial order relation predicate, (rel? a b) Is a below b?
 (defn cover-rel
   "The covering relation of a partial order as a graph
   (map: element -> set of covers), given by the elements and a predicate."
@@ -21,7 +22,7 @@
                           covers ;newval is below some of covers, no change
                           (conj
                            (set (filter #(not (rel? % newval)) covers))
-                           newval))) ; the set of elts not below newval
+                           newval))) ;the subset of covers not below and newval
         insert (fn [cr e] ;insert an element into the graph by updating covers
                  (let [xs (filter #(and (not (= e %)) (rel? e %)) elts)]
                    (reduce #(assoc % %2 (recalc-covers (% %2) e)) cr xs)))]
