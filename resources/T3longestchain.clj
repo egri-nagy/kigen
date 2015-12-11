@@ -1,11 +1,12 @@
-(def mtT3 (multab/multab T3 pbr/mul))
+(defn x-chain [S distances]
+  (let [mt (multab/multab S)
+        subs (multab/subsgps mt)
+        covrel (poset/cover-rel subs clojure.set/superset?)
+        dists (distances #{} covrel)]
+    (dists (set (range 0 (count S))))))
 
-(def T3subs (multab/min-extensions mtT3 #{}))
+(defn shortest-chain [S]
+  (x-chain S poset/min-distances))
 
-(def T3subs (orbit/dfs [#{}] (partial multab/min-extensions mtT3)))
-
-(def T3sr (poset/cover-rel T3subs clojure.set/superset?))
-
-(def result (poset/max-distances #{} T3sr))
-
-(result (set (range 0 27)))
+(defn longest-chain [S]
+  (x-chain S poset/max-distances))
