@@ -7,18 +7,20 @@
 (ns kigen.multab
   (:use [clojure.set :only [difference union]])
   (:require [kigen.pos :as pos]
-            [kigen.orbit :as orbit]))
+            [kigen.orbit :as orbit]
+            [kigen.pbr :as pbr]))
 
 (defn multab
   "Returns the multiplication table of the elements xs by the function mul."
-  [xs mul]
-  (let [indices (pos/index (vec xs))]
-    (vec (pmap
-          (fn [x] (->> xs
-                       (map #(mul % x)) ;left multiplication by x
-                       (map #(pos/pos (partial = %) indices)) ; elt -> index
-                       (vec)))
-          xs))))
+  ([xs] (multab xs pbr/mul))
+  ([xs mul]
+   (let [indices (pos/index (vec xs))]
+     (vec (pmap
+           (fn [x] (->> xs
+                        (map #(mul % x)) ;left multiplication by x
+                        (map #(pos/pos (partial = %) indices)) ; elt -> index
+                        (vec)))
+           xs)))))
 
 ;; TODO local tables might be fast with hashmaps
 (defn loctab
