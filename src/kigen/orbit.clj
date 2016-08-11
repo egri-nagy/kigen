@@ -1,17 +1,24 @@
+;; calculating orbits by graph search algorithms
 (ns kigen.orbit
   (:use [clojure.set :only [difference]]))
 
-(declare actions ;operators as functions
+(declare right-action
+         actions ;operators as functions
          action-function ;combining actions into a single function
          dfs ;depth-first search
          bfs ;breadth-first search
          orbit-graph)
 
+(defn right-action
+  "Creating a right action from a binary function and an argument."
+  [f a]
+  #(f % a))
+
 (defn actions
   "Creating actions (as functions) from operators and a function for
   describing how an operator acts"
   [operators action]
-  (for [o operators] #(action % o)))
+  (for [o operators] (right-action action o)))
 
 (defn action-function
   "Combining several action functions into a single set-valued function."
