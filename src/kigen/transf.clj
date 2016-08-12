@@ -1,5 +1,6 @@
 (ns kigen.transf
-  (:require [kigen.pbr :as pbr]))
+  (:require [kigen.pbr :as pbr]
+            [kigen.orbit :as o]))
 
 (defn transf-degree [pbr] (count (:dom pbr)))
 

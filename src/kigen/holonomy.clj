@@ -24,18 +24,20 @@
   (and (subduction? P Q afs)
        (subduction? Q P afs)))
 
+
+
 ;; returns a predicate that decides subduction between equivalence classes
 (defn class-subduction
   [gens]
   (fn [clA clB]
-    (some #(subduction? (second %) (first %) (o/actions gens t/act))
+    (some #(subduction? (second %) (first %) (o/right-actions t/act gens))
           (for [P clA Q clB] [P Q]))))
 
 ;;surduction is subduction the other way around
 (defn class-surduction
   [gens]
   (fn [clA clB]
-    (some #(subduction? (first %) (second %) (o/actions gens t/act))
+    (some #(subduction? (first %) (second %) (o/right-actions t/act gens))
           (for [P clA Q clB] [P Q]))))
 
 ;; due to the rule that singleton sets should have height zero
@@ -66,7 +68,7 @@
   [gens]
   (let [stateset (finite-set (t/transf-degree (first gens)))
         singletons (map hash-set stateset)
-        afs (o/actions gens t/act)
+        afs (o/right-actions t/act gens)
         images (o/bfs [stateset] (action-function afs))
         c-g (o/cayley-graph images afs)
         sccs (o/scc images c-g)

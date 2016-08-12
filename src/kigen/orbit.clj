@@ -3,22 +3,22 @@
   (:use [clojure.set :only [difference]]))
 
 (declare right-action
-         actions ;operators as functions
+         right-actions ;operators as functions
          action-function ;combining actions into a single function
          dfs ;depth-first search
          bfs ;breadth-first search
          orbit-graph)
 
 (defn right-action
-  "Creating a right action from a binary function and an argument."
+  "Returns a right action from a binary function and an argument."
   [f a]
   #(f % a))
 
-(defn actions
+(defn right-actions
   "Creating actions (as functions) from operators and a function for
   describing how an operator acts"
-  [operators action]
-  (for [o operators] (right-action action o)))
+  [f as]
+  (map (partial right-action f) as))
 
 (defn action-function
   "Combining several action functions into a single set-valued function."
@@ -93,7 +93,7 @@
 ;;immensely wasteful, but will do the job in the beginning
 (defn geodesic
   [source target gens action]
-  (trace target (:graph (orbit-graph source (actions gens action)))))
+  (trace target (:graph (orbit-graph source (right-actions gens action)))))
 
 ;; the operations should be supplied (can be left or right action)
 ;; elts - a set of elements
