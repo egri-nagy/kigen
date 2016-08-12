@@ -1,5 +1,5 @@
 (ns kigen.sgp
-  (:use [kigen.orbit :only [bfs right-actions action-function]])
+  (:use [kigen.orbit :only [bfs right-actions set-action]])
   (:require [kigen.pbr :as pbr])
   (:require [clojure.math.combinatorics :as combinatorics]))
 
@@ -9,7 +9,7 @@
 (defn sgp-by-gens
   ([gens] (sgp-by-gens gens pbr/mul))
   ([gens mul]
-   (bfs gens (action-function (right-actions mul gens)))))
+   (bfs gens (set-action (right-actions mul gens)))))
 
 (defn commutative? [sgp]
   (every? #(= (pbr/mul (first %) (second %)) (pbr/mul (second %) (first %)))

@@ -4,7 +4,7 @@
 
 (declare right-action
          right-actions ;operators as functions
-         action-function ;combining actions into a single function
+         set-action ;combining actions into a single function
          dfs ;depth-first search
          bfs ;breadth-first search
          orbit-graph)
@@ -15,15 +15,14 @@
   #(f % a))
 
 (defn right-actions
-  "Creating actions (as functions) from operators and a function for
-  describing how an operator acts"
+  "Applying right-action to a collection of arguments."
   [f as]
   (map (partial right-action f) as))
 
-(defn action-function
+(defn set-action
   "Combining several action functions into a single set-valued function."
   [afs]
-  #(for [f afs] (f %)))
+  #(set (for [f afs] (f %))))
 
 ;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on

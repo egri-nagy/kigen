@@ -69,7 +69,7 @@
   (let [stateset (finite-set (t/transf-degree (first gens)))
         singletons (map hash-set stateset)
         afs (o/right-actions t/act gens)
-        images (o/bfs [stateset] (action-function afs))
+        images (o/bfs [stateset] (set-action afs))
         c-g (o/cayley-graph images afs)
         sccs (o/scc images c-g)
         scc-heights (calc-heights sccs gens)
