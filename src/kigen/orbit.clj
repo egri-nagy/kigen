@@ -26,14 +26,16 @@
 
 ;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on
-;; af - action function
+;; sa - set action function
 (defn bfs
-  [seeds af]
+  "Breadth-first search starting from the elements in seeds using a single
+  set-valued action function producing new elements."  
+  [seeds sa]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit elements
   (loop [o [(set  seeds)], total (first o)]
     ; simple logging (print (count total)) (print "\n") (flush)
-    (let [newset (set (mapcat af (last o)))
+    (let [newset (set (mapcat sa (last o)))
           diff (difference newset total)]
       (if (empty? diff)
         total

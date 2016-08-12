@@ -1,15 +1,24 @@
 ;; partially ordered sets
+;; ways of defining relations:
+;; 1. elements and a relation function (implicit)
+;; 2. a map: elements -> set of related elements (explicit)
 (ns kigen.poset
   (:use [clojure.set :only [union]]))
 
-(declare cover-rel ;calculates the covering relation of a relation
+(declare rel ;explicit relation
+         cover-rel ;calculates the covering relation of a relation
          chain-extensions ;extends chain by one more element
          all-chains ;all chains from an element
          max-distances) ;maximal distances from an element
 
+(defn rel
+  "Makes an implicit relation explicit. Works for finite set of elements."
+  [elts rel?]
+  (into {} (map #(vec [% (set (filter (fn [x] (rel? x %)) elts))]) elts)))
+
 ;; A cubic algorithm for finding covers for a binary relation.
 ;; It assumes that anything related is a cover
-;; then gets rid of it if it is proven not to be a cover
+;; then gets rid of an element if it is proven not to be a cover
 ;; elts - set of elements
 ;; rel? - a partial order relation predicate, (rel? a b) Is a below b?
 (defn cover-rel
