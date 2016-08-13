@@ -1,7 +1,8 @@
 ;; partially ordered sets
 ;; ways of defining relations:
-;; 1. elements and a relation function (implicit)
-;; 2. a map: elements -> set of related elements (explicit)
+;; 1. implicit, elements and a relation function; x rel y
+;; 2. explicit, a map: element x -> set of related elements,
+;;    i.e. all y such that x rel y
 (ns kigen.poset
   (:use [clojure.set :only [union]]))
 
@@ -14,7 +15,9 @@
 (defn rel
   "Makes an implicit relation explicit. Works for finite set of elements."
   [elts rel?]
-  (into {} (map #(vec [% (set (filter (fn [x] (rel? x %)) elts))]) elts)))
+  (into {} (map
+            #(vec [% (set (filter (fn [x] (rel? % x)) elts))])
+            elts)))
 
 ;; A cubic algorithm for finding covers for a binary relation.
 ;; It assumes that anything related is a cover
@@ -27,13 +30,13 @@
   [elts rel?]
   (let [emptytab (into {} (for [e elts] [e #{}]))
         recalc-covers (fn [covers newval] ;recalculate the set of covers
-                        (if (some #(rel? newval %) covers)
+                        (if (some #(rel? % newval) covers)
                           covers ;newval is below some of covers, no change
                           (conj
-                           (set (filter #(not (rel? % newval)) covers))
+                           (set (filter #(not (rel? newval %)) covers))
                            newval))) ;the subset of covers not below and newval
         insert (fn [cr e] ;insert an element into the graph by updating covers
-                 (let [xs (filter #(and (not (= e %)) (rel? e %)) elts)]
+                 (let [xs (filter #(and (not (= e %)) (rel? % e)) elts)]
                    (reduce #(assoc % %2 (recalc-covers (% %2) e)) cr xs)))]
     (reduce insert emptytab elts)))
 
