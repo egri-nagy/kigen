@@ -96,11 +96,11 @@
   [source target gens action]
   (trace target (:graph (orbit-graph source (right-actions gens action)))))
 
-;; the operations should be supplied (can be left or right action)
 ;; elts - a set of elements
-;; afs - operations that act on elts, i.e. functions: elts -> elts
+;; afs - operations that act on elts, i.e. functions: elt -> elt
 (defn cayley-graph
-  ;;  TODO the graph is not labelled
+  "Unlabelled Cayley graph of elements elts by action functions afs.
+  Returns a map: element -> image set (successors) of element"
   [elts afs]
   (into {} (for [x elts]
              [x (set (for [o afs] (o x)))])))
@@ -114,20 +114,20 @@
 ;; ::sccs   the current set of SCCs
 (defn scc
   "Returns the strongly connected components of a graph specified by its nodes
-  and a successor function succs from node to nodes."
-  [nodes succs]
+  and a successor function succ-func from node to nodes."
+  [nodes succ-func]
   (letfn [(strongconn [env node]
             (if (contains? env node)
               env ;nothing to do, the node is already visited
               (let [stack (::stack env)
                     n (count stack)
                     env (assoc env node n ::stack (conj stack node))
-                    env (reduce (fn [env succ]
-                                  (let [env (strongconn env succ)]
-                                    (assoc env
-                                           node
-                                           (min (or (env succ) n) (env node)))))
-                                env (succs node))]
+                    f (fn [env succ]
+                       (let [env (strongconn env succ)]
+                         (assoc env
+                                node
+                                (min (or (env succ) n) (env node)))))
+                    env (reduce f env (succ-func node))]
                 (if (= n (env node)) ; no link below, an SCC found
                   (let [nodes (::stack env)
                         scc (set (take (- (count nodes) n) nodes))
