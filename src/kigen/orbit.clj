@@ -117,24 +117,26 @@
   and a successor function succ-func from node to nodes."
   [nodes succ-func]
   (letfn [(strongconn [env node]
+            ;(println "strogconn" env node)
             (if (contains? env node)
               env ;nothing to do, the node is already visited
-              (let [stack (::stack env)
-                    n (count stack)
-                    env (assoc env node n ::stack (conj stack node))
+              (let [stack (:stack env)
+                    n (count stack) ;n is the time of discovery for node
+                    env (assoc env node n :stack (conj stack node))
                     f (fn [env succ]
+                        ;(println "f" env succ)
                        (let [env (strongconn env succ)]
                          (assoc env
                                 node
                                 (min (or (env succ) n) (env node)))))
                     env (reduce f env (succ-func node))]
                 (if (= n (env node)) ; no link below, an SCC found
-                  (let [nodes (::stack env)
+                  (let [nodes (:stack env)
                         scc (set (take (- (count nodes) n) nodes))
                         env (reduce #(assoc %1 %2 nil) env scc)] ;clear lengths
-                    (assoc env ::stack stack ::sccs (conj (::sccs env) scc)))
+                    (assoc env :stack stack :sccs (conj (:sccs env) scc)))
                   env))))]
-    (::sccs ;getting the result from the environment
+    (:sccs ;getting the result from the environment
      (reduce strongconn
-             {::stack () ::sccs #{}} ;initial environment
+             {:stack () :sccs #{}} ;initial environment
              nodes))))
