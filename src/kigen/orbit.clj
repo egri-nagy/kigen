@@ -106,6 +106,7 @@
              [x (set (for [o afs] (o x)))])))
 
 ;;clj-me.cgrand.net/2013/03/18/tarjans-strongly-connected-components-algorithm/
+;;https://gist.github.com/cgrand/5188919
 ;;en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
 
 ;;env is a map containing:
