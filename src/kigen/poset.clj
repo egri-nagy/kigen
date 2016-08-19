@@ -69,28 +69,27 @@
           (recur (pop stack) (conj chains chain))
           (recur (into (pop stack) exts) chains))))))
 
-(defn max-distances
-  "Returns a map of elements to their maximal distance (length of longest chain)
-  from element e."
-  [e cr]
+(defn distance-calculator
+  "For a Hasse-diagram/cover relation cr this perform a BFS and records the
+  discovery times. Returns a map: element -> vector of discovery times"
+  [e cr f]
   (loop [d 0
          dists {}
          frontier #{e}]
     (if (empty? frontier)
-      dists
+      (into {} (map (fn [[k v]] [k (apply max v)]) dists))
       (recur (inc d)
-             (reduce #(assoc % %2 d) dists frontier)
+             (reduce #(assoc % %2 (conj (% %2) d)) dists frontier)
              (apply union (map cr frontier))))))
+
+(defn max-distances
+  "Returns a map of elements to their maximal distance 
+  (length of longest chain) from element e."
+  [e cr]
+  (distance-calculator e cr max))
 
 (defn min-distances
   "Returns a map of elements to their minimal distance
    (length of shortest chain) from element e."
   [e cr]
-  (loop [d 0
-         dists {}
-         frontier #{e}]
-    (if (empty? frontier)
-      dists
-      (recur (inc d)
-             (reduce #(update % %2 (fn [x] (if (nil? x) d x))) dists frontier)
-             (apply union (map cr frontier))))))
+  (distance-calculator e cr min))
