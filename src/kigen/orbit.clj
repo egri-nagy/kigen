@@ -57,26 +57,20 @@
 ;;ORBIT-GRAPH
 ;; seed - we start search from this single specific  element
 (defn orbit-graph
-  ([seed afs]
-   (letfn [(T [x] true) ;default candidate predicate
-           (F [x] false)] ;default solution predicate
-     (orbit-graph seed afs T F)))
-  ([seed afs candidate? solution?]
-   (let [seed-graph {:orbit #{seed}}
-         null-graph {:orbit #{} :solutions #{}}]
-     (cond (solution? seed) (assoc seed-graph :solutions #{seed})
-           (not (candidate? seed)) null-graph
-           :else (loop [frontier [seed] og seed-graph]
-                   (let [elts (for [x frontier a afs] [(a x)])
-                         diff (filter
-                               (fn [[x]] (and (not (contains? (:orbit og) x))
-                                              (candidate? x)))
-                               elts)
-                         newfront (map first diff)
-                         solutions (set (filter solution? newfront))]
-                     (if (or (not-empty solutions) (empty? newfront))
-                       (assoc  og :solutions solutions)
-                       (recur newfront {:orbit (into (:orbit og) newfront)}))))))))
+  [seed afs candidate? solution?]
+   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
+         (not (candidate? seed)) {:orbit #{} :solutions #{}}
+         :else (loop [frontier [seed] og {:orbit #{seed}}]
+           (let [elts (for [x frontier a afs] [(a x)])
+                 diff (filter
+                       (fn [[x]] (and (not (contains? (:orbit og) x))
+                                      (candidate? x)))
+                       elts)
+                 newfront (map first diff)
+                 solutions (set (filter solution? newfront))]
+             (if (or (not-empty solutions) (empty? newfront))
+               (assoc  og :solutions solutions)
+               (recur newfront {:orbit (into (:orbit og) newfront)}))))))
 
 ;; (defn trace
 ;;   "Tracing a path to an element in the orbit graph"
