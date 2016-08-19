@@ -62,14 +62,12 @@
            (F [x] false)] ;default solution predicate
      (orbit-graph seed afs T F)))
   ([seed afs candidate? solution?]
-   (let [fs (vec afs) ;the order of the action functions does matter
-         indxs (range 0 (count fs))
-         seed-graph {:graph {seed {}} :orbit #{seed}}
-         null-graph {:graph {} :orbit #{} :solutions #{}}]
+   (let [seed-graph {:orbit #{seed}}
+         null-graph {:orbit #{} :solutions #{}}]
      (cond (solution? seed) (assoc seed-graph :solutions #{seed})
            (not (candidate? seed)) null-graph
            :else (loop [frontier [seed] og seed-graph]
-                   (let [elts (for [x frontier i indxs] [((nth fs i) x) {i x}])
+                   (let [elts (for [x frontier a afs] [(a x)])
                          diff (filter
                                (fn [[x]] (and (not (contains? (:orbit og) x))
                                               (candidate? x)))
@@ -78,8 +76,7 @@
                          solutions (set (filter solution? newfront))]
                      (if (or (not-empty solutions) (empty? newfront))
                        (assoc  og :solutions solutions)
-                       (recur newfront {:orbit (into (:orbit og) newfront)
-                                        :graph (into (:graph og) diff)}))))))))
+                       (recur newfront {:orbit (into (:orbit og) newfront)}))))))))
 
 ;; (defn trace
 ;;   "Tracing a path to an element in the orbit graph"
