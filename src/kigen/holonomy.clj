@@ -20,20 +20,17 @@
                                                  #(<= (count P) (count %))
                                                  #(set/superset? % P)))))))
 
-;; returns a predicate that decides subduction between equivalence classes
-(defn class-subduction
-  [subduction?]
-  (fn [clA clB]
-    (subduction? (first clB) (first clA)))) ; TODO why the opposite order?
-
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons
 ;; this is done by doing surduction and find the maximum
 (defn calc-heights
   [eqvcls subduction?]
   (let [nonsingl-eqvcls (remove #(t/singleton? (first %)) eqvcls)
-        sur-hd (p/cover-rel nonsingl-eqvcls (class-subduction subduction?))
-        sub-hd (p/cover-rel nonsingl-eqvcls (class-subduction (p/inverse subduction?)))
+        class-subduction? (fn [clA clB]
+                            (subduction? (first clA) (first clB)))
+        class-surduction? (p/inverse class-subduction?)
+        sur-hd (p/cover-rel nonsingl-eqvcls class-surduction?)
+        sub-hd (p/cover-rel nonsingl-eqvcls class-subduction?)
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
         height-tabs (map #(p/max-distances % sub-hd) minimals)]
     (into {} (map (fn [k] [k (inc (apply max (remove nil? (map
