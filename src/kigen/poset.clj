@@ -1,5 +1,5 @@
 ;; partially ordered sets
-;; ways of defining relations:
+;; ways of defining binary relations:
 ;; 1. implicit, elements and a relation function; x rel y
 ;; 2. explicit, a map: element x -> set of related elements,
 ;;    i.e. all y such that x rel y
@@ -18,6 +18,18 @@
   (into {} (map
             #(vec [% (set (filter (fn [x] (rel? % x)) elts))])
             elts)))
+
+(defn inverse
+  "Given an implicit relation by function rel? this returns the function
+  for the inverse relation."
+  [rel?]
+  (fn [x y] (rel? y x))) ; just swapping arguments
+
+(defn equivalent
+  [preorder-rel?]
+  (fn [x y] (and (preorder-rel? x y)
+                 (preorder-rel? y x))))
+
 
 ;; A cubic algorithm for finding covers for a binary relation.
 ;; It assumes that anything related is a cover
