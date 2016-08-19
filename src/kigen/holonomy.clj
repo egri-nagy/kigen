@@ -24,8 +24,7 @@
 (defn class-subduction
   [subduction?]
   (fn [clA clB]
-    (some #(subduction? (second %) (first %))
-          (for [P clA Q clB] [P Q]))))
+    (subduction? (first clB) (first clA)))) ; TODO why the opposite order?
 
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons
