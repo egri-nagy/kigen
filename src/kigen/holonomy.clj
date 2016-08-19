@@ -12,11 +12,10 @@
 (defn subduction?
   [P Q afs]
   (or (set/subset? P Q)
-      (contains? (:solutions (o/controlled-dfs Q
+      (not-empty (:solutions (o/controlled-dfs Q
                                                afs
                                                #(<= (count P) (count %))
-                                               #(set/subset? % P)))
-                 P)))
+                                               #(set/superset? % P))))))
 
 ;;TODO extract the pattern for any pre-order
 (defn equivalent?
