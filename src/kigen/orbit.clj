@@ -55,12 +55,11 @@
                (into orbit newelts))))))
 
 ;;ORBIT-GRAPH
-;;stops if some solutions found
-;;we start search from one specific seed element
+;; seed - we start search from this single specific  element
 (defn orbit-graph
   ([seed afs]
-   (letfn [(T [] true) ;default candidate predicate
-           (F [] false)] ;default solution predicate
+   (letfn [(T [x] true) ;default candidate predicate
+           (F [x] false)] ;default solution predicate
      (orbit-graph seed afs T F)))
   ([seed afs candidate? solution?]
    (let [fs (vec afs) ;the order of the action functions does matter
@@ -82,19 +81,19 @@
                        (recur newfront {:orbit (into (:orbit og) newfront)
                                         :graph (into (:graph og) diff)}))))))))
 
-(defn trace
-  "Tracing a path to an element in the orbit graph"
-  [e og]
-  (drop 1 (rseq (loop [e e r []]
-                  (if (nil? e)
-                    r
-                    (let [[[k v]] (seq (og e))]
-                      (recur v (conj r k))))))))
+;; (defn trace
+;;   "Tracing a path to an element in the orbit graph"
+;;   [e og]
+;;   (drop 1 (rseq (loop [e e r []]
+;;                   (if (nil? e)
+;;                     r
+;;                     (let [[[k v]] (seq (og e))]
+;;                       (recur v (conj r k))))))))
 
-;;immensely wasteful, but will do the job in the beginning
-(defn geodesic
-  [source target gens action]
-  (trace target (:graph (orbit-graph source (right-actions gens action)))))
+;; ;;immensely wasteful, but will do the job in the beginning
+;; (defn geodesic
+;;   [source target gens action]
+;;   (trace target (:graph (orbit-graph source (right-actions gens action)))))
 
 ;; elts - a set of elements
 ;; afs - operations that act on elts, i.e. functions: elt -> elt
