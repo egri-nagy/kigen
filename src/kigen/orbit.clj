@@ -7,7 +7,7 @@
          set-action ;combining actions into a single function
          dfs ;depth-first search
          bfs ;breadth-first search
-         orbit-graph)
+         controlled-dfs)
 
 (defn right-action
   "Returns a right action from a binary function and an argument."
@@ -56,21 +56,20 @@
 
 ;;ORBIT-GRAPH
 ;; seed - we start search from this single specific  element
-(defn orbit-graph
+(defn controlled-dfs
   [seed afs candidate? solution?]
-   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
-         (not (candidate? seed)) {:orbit #{} :solutions #{}}
-         :else (loop [frontier [seed] og {:orbit #{seed}}]
-           (let [elts (for [x frontier a afs] [(a x)])
-                 diff (filter
-                       (fn [[x]] (and (not (contains? (:orbit og) x))
-                                      (candidate? x)))
-                       elts)
-                 newfront (map first diff)
-                 solutions (set (filter solution? newfront))]
-             (if (or (not-empty solutions) (empty? newfront))
-               (assoc  og :solutions solutions)
-               (recur newfront {:orbit (into (:orbit og) newfront)}))))))
+  (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
+        (not (candidate? seed)) {:orbit #{} :solutions #{}}
+        :else (loop [frontier [seed] o {:orbit #{seed}}]
+                (let [elts (for [x frontier a afs] (a x))
+                      diff (filter
+                            (fn [x] (and (not (contains? (:orbit o) x))
+                                         (candidate? x)))
+                            elts)
+                      solutions (set (filter solution? diff))]
+                  (if (or (not-empty solutions) (empty? diff))
+                    (assoc  o :solutions solutions)
+                    (recur diff {:orbit (into (:orbit o) diff)}))))))
 
 ;; (defn trace
 ;;   "Tracing a path to an element in the orbit graph"
