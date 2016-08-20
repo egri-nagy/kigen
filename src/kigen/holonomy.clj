@@ -32,11 +32,11 @@
         sur-hd (p/cover-rel nonsingl-eqvcls class-surduction?)
         sub-hd (p/cover-rel nonsingl-eqvcls class-subduction?)
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
-        height-tabs (map #(p/max-distances % sub-hd) minimals)]
-    (into {} (map (fn [k] [k (inc (apply max (remove nil? (map
-                                                           #(% k)
-                                                           height-tabs))))])
-                  (keys sur-hd)))))
+        height-tabs (map #(p/max-distances % sub-hd) minimals)
+        max-dist (fn [k] (apply max (remove nil? (map ;across all height-tabs
+                                                  #(% k)
+                                                  height-tabs))))]
+    (into {} (map #(vector % (inc (max-dist %))) (keys sur-hd)))))
 
 (defn expand-set-keyed-map
   "Takes a map whose keys are sets and returns another map where each element
