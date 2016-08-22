@@ -7,7 +7,7 @@
          set-action ;combining actions into a single function
          dfs ;depth-first search
          bfs ;breadth-first search
-         controlled-dfs)
+         controlled-bfs)
 
 (defn right-action
   "Returns a right action from a binary function and an argument."
@@ -56,7 +56,7 @@
 
 ;;ORBIT-GRAPH
 ;; seed - we start search from this single specific  element
-(defn controlled-dfs
+(defn controlled-bfs
   [seed afs candidate? solution?]
   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
         (not (candidate? seed)) {:orbit #{} :solutions #{}}

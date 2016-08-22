@@ -15,7 +15,7 @@
   [as]
   (fn [P Q]
     (or (set/subset? P Q)
-        (not-empty (:solutions (o/controlled-dfs Q
+        (not-empty (:solutions (o/controlled-bfs Q
                                                  as
                                                  #(<= (count P) (count %))
                                                  #(set/superset? % P)))))))
