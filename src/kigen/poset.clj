@@ -57,14 +57,16 @@
   (letfn [(chain-extensions
             [chain]
             (map (partial conj chain) (cr (last chain))))]
-   (loop [stack [[e]] chains #{}]
-     (if (empty? stack)
-       chains
-       (let [chain (peek stack)
-             exts (chain-extensions chain)]
-         (if (empty? exts)
-           (recur (pop stack) (conj chains chain))
-           (recur (into (pop stack) exts) chains)))))))
+   ;; (loop [stack [[e]] chains #{}]
+   ;;   (if (empty? stack)
+   ;;     chains
+   ;;     (let [chain (peek stack)
+   ;;           exts (chain-extensions chain)]
+   ;;       (if (empty? exts)
+   ;;         (recur (pop stack) (conj chains chain))
+    ;;         (recur (into (pop stack) exts) chains)))))
+    (kigen.orbit/dfs [[e]] chain-extensions)
+    ))
 
 (defn distance-calculator
   "For a Hasse-diagram/cover relation cr this perform a BFS and records the
