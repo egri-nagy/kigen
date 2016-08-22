@@ -4,7 +4,8 @@
 ;; 2. explicit, a map: element x -> set of related elements,
 ;;    i.e. all y such that x rel y
 (ns kigen.poset
-  (:use [clojure.set :only [union]]))
+  (:use [clojure.set :only [union]]
+        [kigen.orbit :as o]))
 
 (declare rel ;explicit relation
          cover-rel ;calculates the covering relation of a relation
@@ -54,19 +55,10 @@
 (defn all-chains
   "All chains from element e in the cover-rel cr."
   [e cr]
-  (letfn [(chain-extensions
-            [chain]
-            (map (partial conj chain) (cr (last chain))))]
-   ;; (loop [stack [[e]] chains #{}]
-   ;;   (if (empty? stack)
-   ;;     chains
-   ;;     (let [chain (peek stack)
-   ;;           exts (chain-extensions chain)]
-   ;;       (if (empty? exts)
-   ;;         (recur (pop stack) (conj chains chain))
-    ;;         (recur (into (pop stack) exts) chains)))))
-    (kigen.orbit/dfs [[e]] chain-extensions)
-    ))
+  (letfn [(newelts [chain] (cr (last chain)))
+          (chain-extensions [chain]
+            (map (partial conj chain) (newelts chain)))]
+    (filter #(empty? (newelts %)) (o/bfs [[e]] chain-extensions))))
 
 (defn distance-calculator
   "For a Hasse-diagram/cover relation cr this perform a BFS and records the
