@@ -8,7 +8,6 @@
 
 (declare rel ;explicit relation
          cover-rel ;calculates the covering relation of a relation
-         chain-extensions ;extends chain by one more element
          all-chains ;all chains from an element
          max-distances) ;maximal distances from an element
 
@@ -52,22 +51,20 @@
                    (reduce #(assoc % %2 (recalc-covers (% %2) e)) cr xs)))]
     (reduce insert emptytab elts)))
 
-(defn chain-extensions
-  "Returns all chains extending chain by one more element in cover-rel cr."
-  [chain cr]
-  (map (partial conj chain) (cr (last chain))))
-
 (defn all-chains
   "All chains from element e in the cover-rel cr."
   [e cr]
-  (loop [stack [[e]] chains #{}]
-    (if (empty? stack)
-      chains
-      (let [chain (peek stack)
-            exts (chain-extensions chain cr)]
-        (if (empty? exts)
-          (recur (pop stack) (conj chains chain))
-          (recur (into (pop stack) exts) chains))))))
+  (letfn [(chain-extensions
+            [chain]
+            (map (partial conj chain) (cr (last chain))))]
+   (loop [stack [[e]] chains #{}]
+     (if (empty? stack)
+       chains
+       (let [chain (peek stack)
+             exts (chain-extensions chain)]
+         (if (empty? exts)
+           (recur (pop stack) (conj chains chain))
+           (recur (into (pop stack) exts) chains)))))))
 
 (defn distance-calculator
   "For a Hasse-diagram/cover relation cr this perform a BFS and records the
