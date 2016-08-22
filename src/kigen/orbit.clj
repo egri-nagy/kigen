@@ -57,11 +57,11 @@
 ;;ORBIT-GRAPH
 ;; seed - we start search from this single specific  element
 (defn controlled-bfs
-  [seed afs candidate? solution?]
+  [seed sa candidate? solution?]
   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
         (not (candidate? seed)) {:orbit #{} :solutions #{}}
         :else (loop [frontier [seed] o {:orbit #{seed}}]
-                (let [elts (for [x frontier a afs] (a x))
+                (let [elts (mapcat sa frontier)
                       diff (filter
                             (fn [x] (and (not (contains? (:orbit o) x))
                                          (candidate? x)))
