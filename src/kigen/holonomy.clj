@@ -42,9 +42,9 @@
   "Takes a map whose keys are sets and returns another map where each element
   of key set maps to the value of the original key."
   [m]
-  (into {} (apply concat (for [k (keys m)]
-                           (for [e k]
-                             [e (m k)])))))
+  (into {} (apply concat (map
+                          (fn [key] (let [val (m key)] (for [e key] [e val])))
+                          (keys m)))))
 
 (defn skeleton
   "Creates a big map of holding all the skeleton information for the
