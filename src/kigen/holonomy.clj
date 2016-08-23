@@ -4,14 +4,13 @@
         [kigen.poset :as p]
         [clojure.set :as set]))
 
-;;finite sets represented as 1..n
 (defn finite-set
-  "Returns the integers 1..n, the canonical representation of finite sets."
+  "Returns the set of integers 1..n, canonical representation of finite sets."
   [n] (set (range 1 (inc n))))
 
 (defn subduction-function
-  "Returns a function for deciding the subduction relation of finite sets
-  based on the given transformation right actions."
+  "P subduces Q if Q can be transformed by the actions to be a superset of P.
+  P,Q: finite sets; as: transformations acting on the right"
   [as]
   (fn [P Q]
     (or (set/subset? P Q)
