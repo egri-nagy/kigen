@@ -68,7 +68,6 @@
      :equivclasses sccs
      :heights heights
      :height (heights stateset)
-     ;:subsethd (p/cover-rel extd set/superset?)
      :supsethd (p/cover-rel extd set/subset?)}))
 
 (defn depth
