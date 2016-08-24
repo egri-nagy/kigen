@@ -81,8 +81,8 @@
 (defn dominating-chains
   "All dominating chains in skeleton sk for a chain."
   [sk chain]
-  (let [sets (set chain)
-        singleton (first (filter #(= 1 (count %)) sets))]
+  (let [sets (set chain) ; representing the chain as a set
+        singleton (first (filter #(= 1 (count %)) chain))] ;finding its singleton
     (if-not (nil? singleton)
       (filter #(subset? sets (set %))
               (tile-chains-from sk singleton)))))
