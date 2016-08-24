@@ -82,7 +82,7 @@
   "All dominating chains in skeleton sk for a chain."
   [sk chain]
   (let [sets (set chain)
-        singleton (first (set/intersection (:singletons sk) sets))]
+        singleton (first (filter #(= 1 (count %)) sets))]
     (if-not (nil? singleton)
       (filter #(subset? sets (set %))
               (tile-chains-from sk singleton)))))
