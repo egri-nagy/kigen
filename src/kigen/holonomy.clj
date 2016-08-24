@@ -52,7 +52,7 @@
   (let [r-a-gens (o/right-actions t/act gens) ; right action generators
         subduction? (subduction-function r-a-gens)
         stateset (finite-set (t/transf-degree (first gens)))
-        singletons (map hash-set stateset)
+        singletons (set (map hash-set stateset))
         images (o/bfs [stateset] (set-action r-a-gens))
         extd (into images singletons)
         c-g (o/cayley-graph images r-a-gens)
@@ -73,9 +73,19 @@
   ([sk P] (inc (- (:height sk) ((:heights sk) P))))
   ([sk] (depth sk #{1}))) ;the depth of a singleton, we should have this one
 
-(defn tile-chains
-  [sk]
-  (mapcat #(p/all-chains % (:supsethd sk)) (:singletons sk)))
+(defn tile-chains-from
+  "Ascending chains from set P in skeleton sk."
+  [sk P]
+  (p/all-chains P (:supsethd sk)))
+
+(defn dominating-chains
+  "All dominating chains in skeleton sk for a chain."
+  [sk chain]
+  (let [sets (set chain)
+        singleton (first (set/intersection (:singletons sk) sets))]
+    (if-not (nil? singleton)
+      (filter #(subset? sets (set %))
+              (tile-chains-from sk singleton)))))
 
 (defn chain-act [chain t]
   (distinct (map #(t/act % t) chain)))
