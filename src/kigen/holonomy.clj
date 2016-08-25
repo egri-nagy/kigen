@@ -2,6 +2,7 @@
   (:use [kigen.orbit :as o]
         [kigen.transf :as t]
         [kigen.poset :as p]
+        [kigen.pos :as pos]
         [clojure.set :as set]))
 
 (defn finite-set
@@ -94,6 +95,17 @@
 
 (defn chain-act [chain t]
   (distinct (map #(t/act % t) chain)))
+
+(defn chain-transf
+  [sk t]
+  (let [chains (tile-chains sk)
+        indxd (pos/indexed chains)
+        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
+    (map
+     (fn [chain] (map
+                  posf
+                  (dominating-chains sk (chain-act chain t))))
+     chains)))
 
 (defn height [sk P] ((:heights sk) P))
 
