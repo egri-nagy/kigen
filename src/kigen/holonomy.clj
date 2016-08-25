@@ -78,6 +78,11 @@
   [sk P]
   (p/all-chains P (:supsethd sk)))
 
+(defn tile-chains
+  "All maximal chains in skeleton sk."
+  [sk]
+  (mapcat #(tile-chains-from sk %) (:singletons sk)))
+
 (defn dominating-chains
   "All dominating chains in skeleton sk for a chain."
   [sk chain]
