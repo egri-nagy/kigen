@@ -1,3 +1,4 @@
+;; Assigning position numbers to elements in a sequential collection.
 (ns kigen.pos)
 
 (defn indexed
@@ -10,4 +11,5 @@
   [pred indxd] (for [[i v] indxd :when (pred v)] i))
 
 (defn pos
-  [pred indx] (first (positions pred indx)))
+  "Getting the index of the first element satisfying a predicate."
+  [pred indxd] (first (positions pred indxd)))
