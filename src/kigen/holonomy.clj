@@ -100,12 +100,9 @@
   [sk t]
   (let [chains (tile-chains sk)
         indxd (pos/indexed chains)
-        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
-    (map
-     (fn [chain] (map
-                  posf
-                  (dominating-chains sk (chain-act chain t))))
-     chains)))
+        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))
+        tchains (map #(chain-act % t) chains)]
+    tchains)) ;just temporarily
 
 (defn height [sk P] ((:heights sk) P))
 
