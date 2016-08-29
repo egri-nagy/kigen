@@ -6,7 +6,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/math.combinatorics "0.1.3"]]
   :plugins [[lein-cloverage "1.0.6"]
-            [lein-kibit "0.1.2"]]
+            [lein-kibit "0.1.2"]
+            [lein-ancient "0.6.10"]]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
