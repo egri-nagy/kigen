@@ -49,7 +49,7 @@
 (defn bipart->transf
   [pbr]
   (vec (map #(- % (count (:dom pbr)))
-            (apply concat (map (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr)))))))
+            (mapcat (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr))))))
 
 (defn idmap
   [n]
