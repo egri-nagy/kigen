@@ -49,7 +49,7 @@
                            newval))) ;the subset of covers not below and newval
         insert (fn [cr e] ;insert an element into the graph by updating covers
                  (let [xs (filter #(and (not= e %) (rel? % e)) elts)]
-                   (reduce #(assoc % %2 (recalc-covers (% %2) e)) cr xs)))]
+                   (reduce #(update-in % [%2] recalc-covers e) cr xs)))]
     (reduce insert emptytab elts)))
 
 (defn all-chains
@@ -70,7 +70,7 @@
     (if (empty? frontier)
       (into {} (map (fn [[k v]] [k (apply max v)]) dists))
       (recur (inc d)
-             (reduce #(assoc % %2 (conj (% %2) d)) dists frontier)
+             (reduce #(update-in % [%2] conj d) dists frontier)
              (apply union (map cr frontier))))))
 
 (defn max-distances
