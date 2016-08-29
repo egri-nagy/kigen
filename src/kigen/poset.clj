@@ -3,9 +3,10 @@
 ;; 1. implicit, elements and a relation function; x rel y
 ;; 2. explicit, a map: element x -> set of related elements,
 ;;    i.e. all y such that x rel y
+
 (ns kigen.poset
-  (:use [clojure.set :only [union]]
-        [kigen.orbit :as o]))
+  (:require [clojure.set :refer [union]]
+            [kigen.orbit :as o]))
 
 (declare rel ;explicit relation
          cover-rel ;calculates the covering relation of a relation

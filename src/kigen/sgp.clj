@@ -1,7 +1,7 @@
 (ns kigen.sgp
-  (:use [kigen.orbit :only [bfs right-actions set-action]])
-  (:require [kigen.pbr :as pbr])
-  (:require [clojure.math.combinatorics :as combinatorics]))
+  (:require [clojure.math.combinatorics :as combinatorics]
+            [kigen.orbit :refer [bfs right-actions set-action]]
+            [kigen.pbr :as pbr]))
 
 (declare sg-by-gens
          commutative?)

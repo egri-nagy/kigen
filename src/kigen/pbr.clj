@@ -1,6 +1,6 @@
 (ns kigen.pbr
-  (:use [clojure.set :only [difference union]]
-        [kigen.orbit :only [dfs]]))
+  (:require [clojure.set :refer [union]]
+            [kigen.orbit :refer [dfs]]))
 
 ;; partitioned binary relations stored as maps: integers -> set of integers
 ;; e.g. {1 #{1 2}, 2 #{2}}

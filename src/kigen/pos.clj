@@ -1,4 +1,5 @@
 ;; Assigning position numbers to elements in a sequential collection.
+
 (ns kigen.pos)
 
 (defn indexed

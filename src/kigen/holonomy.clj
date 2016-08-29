@@ -1,9 +1,9 @@
 (ns kigen.holonomy
-  (:use [kigen.orbit :as o]
-        [kigen.transf :as t]
-        [kigen.poset :as p]
-        [kigen.pos :as pos]
-        [clojure.set :as set]))
+  (:require [clojure.set :as set :refer [subset?]]
+            [kigen.orbit :as o :refer [set-action]]
+            [kigen.pos :as pos]
+            [kigen.poset :as p]
+            [kigen.transf :as t]))
 
 (defn finite-set
   "Returns the set of integers 1..n, canonical representation of finite sets."

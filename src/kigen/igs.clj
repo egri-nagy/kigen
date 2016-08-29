@@ -1,6 +1,6 @@
 (ns kigen.igs
-  (:use [clojure.set :only [difference union]]
-        [kigen.multab :as multab :only [closure]]))
+  (:require [clojure.set :refer [difference union]]
+            [kigen.multab :as multab]))
 
 (defn is?
   "Decides whether the set A is an independent set in multiplication table mt."

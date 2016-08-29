@@ -1,6 +1,7 @@
 ;; calculating orbits by graph search algorithms
+
 (ns kigen.orbit
-  (:use [clojure.set :only [difference]]))
+  (:require [clojure.set :refer [difference]]))
 
 (declare right-action
          right-actions ;operators as functions
