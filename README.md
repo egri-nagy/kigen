@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/egri-nagy/kigen.svg?branch=master)](https://travis-ci.org/egri-nagy/kigen)
 # kigen
 General implementation of diagram semigroups based on partitioned binary relations (as defined in http://arxiv.org/abs/1102.0862).
 
