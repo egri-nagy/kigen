@@ -48,7 +48,7 @@
                            (set (filter #(not (rel? newval %)) covers))
                            newval))) ;the subset of covers not below and newval
         insert (fn [cr e] ;insert an element into the graph by updating covers
-                 (let [xs (filter #(and (not (= e %)) (rel? % e)) elts)]
+                 (let [xs (filter #(and (not= e %) (rel? % e)) elts)]
                    (reduce #(assoc % %2 (recalc-covers (% %2) e)) cr xs)))]
     (reduce insert emptytab elts)))
 
