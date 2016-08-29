@@ -22,14 +22,6 @@
                         (vec)))
            xs)))))
 
-;; TODO local tables might be fast with hashmaps
-(defn loctab
-  [mt i]
-  (let [elts (range (count mt))
-        lt (reduce #(conj % [%2 #{}]) {} elts)
-        ]
-    lt))
-
 ;; getting the i,j entry of the matrix mt
 (defmacro at [mt i j]
   `(nth (nth ~mt ~i) ~j))
@@ -46,12 +38,6 @@
   (let [u (union base exts)]
     (union (set (for [i exts j u] (at mt i j)))
            (set (for [i base j exts] (at mt i j))))))
-
-;; TODO
-(defn loctabs-extend-by
-  "Extends a closed sub-array by elements exts using local tables."
-  [loctabs base exts]
-  (let [u (union base exts)]))
 
 (defn closure
   "Returns the smallest closed subarray that contains the elements elts.
