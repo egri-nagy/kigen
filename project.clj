@@ -7,7 +7,8 @@
                  [org.clojure/math.combinatorics "0.1.3"]]
   :plugins [[lein-cloverage "1.0.6"]
             [lein-kibit "0.1.2"]
-            [lein-ancient "0.6.10"]]
+            [lein-ancient "0.6.10"]
+            [jonase/eastwood "0.2.3"]]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
