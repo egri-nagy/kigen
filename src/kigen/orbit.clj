@@ -1,6 +1,5 @@
-;; calculating orbits by graph search algorithms
-
 (ns kigen.orbit
+  "Calculating orbits by graph search algorithms."
   (:require [clojure.set :refer [difference]]))
 
 (declare right-action
@@ -30,7 +29,7 @@
 ;; sa - set action function
 (defn bfs
   "Breadth-first search starting from the elements in seeds using a single
-  set-valued action function producing new elements."  
+  set-valued action function producing new elements."
   [seeds sa]
   ;; o - vector of sets containing orbit elements in production order
   ;; total - cumulative union of orbit elements
