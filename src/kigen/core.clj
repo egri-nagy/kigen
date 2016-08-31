@@ -1,8 +1,12 @@
 (ns kigen.core
-  (:require [kigen.pbr :as pbr])
+  (:require [kigen.pbr]
+        [kigen.transf]
+        [kigen.holonomy]
+        [kigen.poset]
+        [kigen.sgp])
   (:gen-class))
 
 (defn -main
   "just a main"
   [& args]
-  (println (pbr/rand-pbr 3 4)))
+  (println "REPL me please!"))
