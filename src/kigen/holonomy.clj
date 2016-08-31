@@ -96,6 +96,18 @@
 (defn chain-act [chain t]
   (distinct (map #(t/act % t) chain)))
 
+(defn chain-sgp [sgp]
+  (let [sk (skeleton sgp)
+        sgpact (fn [chain] (set (map #(chain-act chain %) sgp)))
+        maxchains (tile-chains sk)
+        chains (vec (o/bfs maxchains sgpact))
+        indxd (pos/indexed chains)
+        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
+    (map
+     (fn [t] (let [imgs (map #(chain-act % t) chains)]
+               (map posf imgs)))
+     sgp)))
+
 (defn chop [l] (drop 1 (take (dec (count l)) l)))
 
 (defn chain-transf

@@ -3,7 +3,8 @@
         [kigen.transf]
         [kigen.holonomy]
         [kigen.poset]
-        [kigen.sgp])
+        [kigen.sgp]
+        [kigen.orbit])
   (:gen-class))
 
 (defn -main
