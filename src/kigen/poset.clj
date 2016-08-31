@@ -1,16 +1,13 @@
-;; partially ordered sets
-;; ways of defining binary relations:
-;; 1. implicit, elements and a relation function; x rel y
-;; 2. explicit, a map: element x -> set of related elements,
-;;    i.e. all y such that x rel y
-
 (ns kigen.poset
+  "Computing partially ordered sets. Ways of defining binary relations:
+  1. elements and a relation function (implicit)
+  2. a map: element x -> set of related elements (explicit)"
   (:require [clojure.set :refer [union]]
             [kigen.orbit :as o]))
 
 (declare rel ;explicit relation
          cover-rel ;calculates the covering relation of a relation
-         all-chains ;all chains from an element
+         chains ;all chains between given elements
          max-distances) ;maximal distances from an element
 
 (defn rel
@@ -53,13 +50,13 @@
                    (reduce #(update-in % [%2] recalc-covers e) cr xs)))]
     (reduce insert emptytab elts)))
 
-(defn all-chains
-  "All chains from element e in the cover-rel cr."
-  [e cr]
+(defn chains
+  "All chains between elements a and b in the given (explicit) cover relation."
+  [a b cr]
   (letfn [(newelts [chain] (cr (last chain)))
           (chain-extensions [chain]
             (map (partial conj chain) (newelts chain)))]
-    (filter #(empty? (newelts %)) (o/bfs [[e]] chain-extensions))))
+    (filter #(= b (last %)) (o/bfs [[a]] chain-extensions))))
 
 (defn distance-calculator
   "For a Hasse-diagram/cover relation cr this perform a BFS and records the

@@ -77,7 +77,7 @@
 (defn tile-chains-from
   "Ascending chains from set P in skeleton sk."
   [sk P]
-  (p/all-chains P (:supsethd sk)))
+  (p/chains P (:stateset sk) (:supsethd sk)))
 
 (defn tile-chains
   "All maximal chains in skeleton sk."
