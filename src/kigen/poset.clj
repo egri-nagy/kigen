@@ -50,13 +50,15 @@
                    (reduce #(update-in % [%2] recalc-covers e) cr xs)))]
     (reduce insert emptytab elts)))
 
+;; search is done with a BFS
 (defn chains
   "All chains between elements a and b in the given (explicit) cover relation."
   [a b cr]
-  (letfn [(newelts [chain] (cr (last chain)))
-          (chain-extensions [chain]
-            (map (partial conj chain) (newelts chain)))]
-    (filter #(= b (last %)) (o/bfs [[a]] chain-extensions))))
+  (letfn [(solution? [chain] (= b (last chain)))
+          (extensions [chain]
+            (when-not (solution? chain)
+              (map (partial conj chain) (cr (last chain)))))]
+    (filter solution? (o/bfs [[a]] extensions))))
 
 (defn distance-calculator
   "For a Hasse-diagram/cover relation cr this perform a BFS and records the
