@@ -16,4 +16,8 @@
     (let [r {1 #{2 3 4}, 2 #{6}, 3 #{5}, 4 #{5}, 5 #{6}}]
       (is (=
            (set (poset/chains 1 5 r))
-           #{[1 3 5], [1 4 5]} )))))
+           #{[1 3 5], [1 4 5]} ))
+      (is (= [[1 2]] (poset/chains 1 2 r)))
+      (is (= 3 (count (poset/chains 1 6 r))))
+      (is (zero? (count (poset/chains 3 4 r))))
+      (is (= 1 (count (poset/chains 3 5 r)))))))
