@@ -3,9 +3,17 @@
   binary relations."
   (:require [kigen.pbr :as pbr]))
 
+(declare singleton?
+         transf->binrel
+         binrel->transf
+         binrel-transf?
+         transf-binrel-degree
+         transf->bipart
+         bipart->transf)
+
 (defn singleton? [coll] (= 1 (count coll)))
 
-;; BINARY RELATION EMBEDDIND ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; BINARY RELATION EMBEDDING ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;this is embedding into the binary relation subsemigroup
 ;;not the partition monoid
 (defn transf->binrel
@@ -39,11 +47,12 @@
 
 (defn transf-binrel-degree [pbr] (count (:dom pbr)))
 
-;;default choices
+;;DEFAULT representation of transformations as pbr
 (def ->transf binrel->transf)
 (def transf-> transf->binrel)
 (def transf-degree transf-binrel-degree)
 
+;; BIPARTITION EMBEDDING ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn transf->bipart
   "Creates a partitioned binary relation with undirected edges
   from a transformation given by the list of images.
@@ -58,50 +67,30 @@
   (vec (map #(- % (count (:dom pbr)))
             (mapcat (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr))))))
 
-(defn idmap
-  [n]
-  (transf->bipart (vec (range 1 (inc n)))))
-
-(defn transf-compare
-  [x y]
-  (compare (vec (binrel->transf x)) (vec (binrel->transf y))))
+(defn idmap [n] (vec (range 1 (inc n))))
+(defn transposition [n] (concat [2 1] (range 3 (inc n))))
+(defn ncycle [n] (concat (range 2 (inc n)) [1]))
+(defn collapsing [n] (concat [1 1] (range 3 (inc n))))
 
 (defn symmetric-gens
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
-  ([n] (symmetric-gens n transf->bipart))
+  ([n] (symmetric-gens n transf->))
   ([n f] (if (= 1 n)
            (map f [[1]])
-           (let [transposition (concat [2 1] (range 3 (inc n)))
-                 cycle (concat (range 2 (inc n)) [1])]
-             (map f (set [transposition cycle]))))))
+           (map f [(transposition n) (ncycle n)]))))
 
 (defn full-ts-gens
   "Generators of the full transformation semigroup of degree n."
   [n]
   (if (= 1 n)
     (symmetric-gens n)
-    (let [collapse (concat [1 1] (range 3 (inc n)))]
-      (concat (symmetric-gens n) [(transf->bipart collapse)]))))
+    (concat (symmetric-gens n) [(transf-> (collapsing n))])))
 
-(defn partialmap
-  [n]
-  (let [id (idmap n)
-        f (fn [x] #{})]
-    (update (update id 1 f) (inc n) f)))
-
-(defn symmetric-inverse-gens
-  "Generators of the symmetric inverse monoid of degree n."
-  [n]
-  (conj (symmetric-gens n) (partialmap n)))
-
-(defn partial-ts-gens
-  "Generators of the partial transformation monoid of degree n."
-  [n]
-  (conj (full-ts-gens n) (partialmap n)))
+;TODO 0 as partial!
 
 ;;acting as pbr, then shift back the resulting set to have a transformation of
-;;the canonical set 1..n
+;;the canonical set 1..n ; TODO does this work for both representations?
 (defn act
   [points t]
   (set (map #(- % (count (:dom t))) (pbr/act points t))))
