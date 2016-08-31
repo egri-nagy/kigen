@@ -1,15 +1,11 @@
 (ns kigen.transf
+  "Transformations and permutations. Several embeddings into partitioned
+  binary relations."
   (:require [kigen.pbr :as pbr]))
-
-(defn transf-degree [pbr] (count (:dom pbr)))
 
 (defn singleton? [coll] (= 1 (count coll)))
 
-(defn binrel-transf?
-  [pbr]
-  (and (empty? (reduce into (for [key (:cod pbr)] (pbr key))))
-       (every?  singleton? (for [key (:dom pbr)] (pbr key)))))
-
+;; BINARY RELATION EMBEDDIND ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;this is embedding into the binary relation subsemigroup
 ;;not the partition monoid
 (defn transf->binrel
@@ -36,9 +32,17 @@
   (let [n (count (:dom pbr))]
     (map #(- (first (pbr %)) n) (-> (:dom pbr) seq sort))))
 
+(defn binrel-transf?
+  [pbr]
+  (and (empty? (reduce into (for [key (:cod pbr)] (pbr key))))
+       (every?  singleton? (for [key (:dom pbr)] (pbr key)))))
+
+(defn transf-binrel-degree [pbr] (count (:dom pbr)))
+
 ;;default choices
 (def ->transf binrel->transf)
 (def transf-> transf->binrel)
+(def transf-degree transf-binrel-degree)
 
 (defn transf->bipart
   "Creates a partitioned binary relation with undirected edges
