@@ -8,8 +8,8 @@
 
 (deftest test-multab
   (testing "Testing multiplication tables."
-    (let [mtT3 (mt/multab
-                (sgp/sgp-by-gens (transf/full-ts-gens 3) pbr/mul)
+    (let [mtT2 (mt/multab
+                (sgp/sgp-by-gens (transf/full-ts-gens 2) pbr/mul)
                 pbr/mul)]
-      (is (= 27 (count mtT3)))
-      (is (= 1299 (count (o/bfs [#{}] (partial mt/min-extensions mtT3))))))))
+      (is (= 4 (count mtT2)))
+      (is (= 10 (count (o/bfs [#{}] (partial mt/min-extensions mtT2))))))))

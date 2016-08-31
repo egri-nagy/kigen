@@ -36,6 +36,10 @@
   (let [n (count (:dom pbr))]
     (map #(- (first (pbr %)) n) (-> (:dom pbr) seq sort))))
 
+;;default choices
+(def ->transf binrel->transf)
+(def transf-> transf->binrel)
+
 (defn transf->bipart
   "Creates a partitioned binary relation with undirected edges
   from a transformation given by the list of images.
