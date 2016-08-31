@@ -60,6 +60,15 @@
               (map (partial conj chain) (cr (last chain)))))]
     (filter solution? (o/bfs [[a]] extensions))))
 
+(defn gaps
+  "Returns all pairs of consecutive elements of the chain that are not in
+  cover relation."
+  [chain cr]
+  (filter
+   #(not (contains? (cr (first %)) (second %)))
+   (partition 2 1 chain)))
+
+
 (defn distance-calculator
   "For a Hasse-diagram/cover relation cr this perform a BFS and records the
   discovery times. Returns a map: element -> vector of discovery times"

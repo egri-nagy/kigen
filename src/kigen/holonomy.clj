@@ -96,13 +96,21 @@
 (defn chain-act [chain t]
   (distinct (map #(t/act % t) chain)))
 
+(defn chop [l] (drop 1 (take (dec (count l)) l)))
+
 (defn chain-transf
   [sk t]
-  (let [chains (tile-chains sk)
-        indxd (pos/indexed chains)
+  (let [tilechains (tile-chains sk)
+        transfdchains (map #(chain-act % t) tilechains)
+        dchains (map #(conj (vec %) (:stateset sk)) (distinct transfdchains)); don't conj when it's there
+        gaps (distinct (mapcat #(p/gaps % (:supsethd sk)) dchains)) ;;TODO think about context first for args, so we can partial 
+        fillingf (fn [pair] (p/chains (first pair) (second pair) (:supsethd sk)))
+        fillings (into {} (map #(vector % (fillingf %)) gaps)); gap (pair) -> list of possible fillings
+        ;;now the indexing part
+        indxd (pos/indexed tilechains)
         posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))
-        tchains (map #(chain-act % t) chains)]
-    tchains)) ;just temporarily
+        ]
+    fillings)) ;just temporarily
 
 (defn height [sk P] ((:heights sk) P))
 
