@@ -13,3 +13,4 @@
             kigen.pbr/mul))
 
 (def alifex [ [ 2, 2, 3, 3, 3 ], [ 3, 3, 3, 5, 4 ] ])
+(def alifexgens (map kigen.transf/transf-> alifex))
