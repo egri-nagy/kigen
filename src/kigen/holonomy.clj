@@ -93,29 +93,41 @@
       (filter #(subset? sets (set %))
               (tile-chains-from sk singleton)))))
 
-(defn chain-act [chain t]
-  (distinct (map #(t/act % t) chain)))
+(defn on-chain
+  "Acting on a chin by a transformation on the right."
+  [chain transf]
+  (distinct (map #(t/act % transf) chain)))
 
-(defn chain-sgp [sgp]
-  (let [sk (skeleton sgp)
-        sgpact (fn [chain] (set (map #(chain-act chain %) sgp)))
+(defn in-chain-comparator
+  "Comparator for chain elements, works only for total orders."
+  [x y]
+  (cond (clojure.set/subset? x y) 1
+        (clojure.set/superset? x y) -1
+        (= x y) 0))
+
+
+
+(defn chain-sgp [gens]
+  "Returns the encoded generators of the full unrestricted chain semigroup."
+  (let [sk (skeleton gens)
+        sgpact (fn [chain] (set (map #(on-chain chain %) gens)))
         maxchains (tile-chains sk)
         chains (vec (o/bfs maxchains sgpact))
         indxd (pos/indexed chains)
         posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
     (map
-     (fn [t] (let [imgs (map #(chain-act % t) chains)]
+     (fn [t] (let [imgs (map #(on-chain % t) chains)]
                (map posf imgs)))
-     sgp)))
+     gens)))
 
 (defn chop [l] (drop 1 (take (dec (count l)) l)))
 
 (defn chain-transf
   [sk t]
   (let [tilechains (tile-chains sk)
-        transfdchains (map #(chain-act % t) tilechains)
+        transfdchains (map #(on-chain % t) tilechains)
         dchains (map #(conj (vec %) (:stateset sk)) (distinct transfdchains)); don't conj when it's there
-        gaps (distinct (mapcat #(p/gaps % (:supsethd sk)) dchains)) ;;TODO think about context first for args, so we can partial 
+        gaps (distinct (mapcat #(p/gaps % (:supsethd sk)) dchains)) ;;TODO think about context first for args, so we can partial
         fillingf (fn [pair] (p/chains (first pair) (second pair) (:supsethd sk)))
         fillings (into {} (map #(vector % (fillingf %)) gaps)); gap (pair) -> list of possible fillings
         ;;now the indexing part

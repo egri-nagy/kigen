@@ -1,6 +1,6 @@
 (ns kigen.core
   (:require [kigen.pbr]
-        [kigen.transf]
+        [kigen.transf :as transf]
         [kigen.holonomy]
         [kigen.poset]
         [kigen.sgp]
