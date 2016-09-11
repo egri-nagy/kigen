@@ -5,7 +5,8 @@
             :url "http://www.gnu.org/copyleft/gpl.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/math.combinatorics "0.1.3"]
-                 [slamhound "1.5.5"]]
+                 [slamhound "1.5.5"]
+                 [proto-repl "0.3.1"]]
   :plugins [[lein-cloverage "1.0.6"]
             [lein-kibit "0.1.2"]
             [lein-ancient "0.6.10"]
