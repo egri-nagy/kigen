@@ -132,8 +132,8 @@
         fillings (into {} (map #(vector % (fillingf %)) gaps)); gap (pair) -> list of possible fillings
         ;;now the indexing part
         indxd (pos/indexed tilechains)
-        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))
-        ]
+        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
+
     fillings)) ;just temporarily
 
 (defn height [sk P] ((:heights sk) P))

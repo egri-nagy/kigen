@@ -28,7 +28,6 @@
   (fn [x y] (and (preorder-rel? x y)
                  (preorder-rel? y x))))
 
-
 ;; A cubic algorithm for finding covers for a binary relation.
 ;; It assumes that anything related is a cover
 ;; then gets rid of an element if it is proven not to be a cover
