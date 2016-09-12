@@ -3,6 +3,7 @@
             [kigen.orbit :as o :refer [set-action]]
             [kigen.pos :as pos]
             [kigen.poset :as p]
+            [kigen.chain :as chain]
             [kigen.transf :as t]))
 
 (defn finite-set
@@ -32,7 +33,7 @@
         sur-hd (p/cover-rel nonsingl-eqvcls class-surduction?)
         sub-hd (p/cover-rel nonsingl-eqvcls class-subduction?)
         minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
-        height-tabs (map #(p/max-distances % sub-hd) minimals)
+        height-tabs (map #(chain/max-distances % sub-hd) minimals)
         max-dist (fn [k] (apply max (remove nil? (map ;across all height-tabs
                                                   #(% k)
                                                   height-tabs))))]
@@ -77,7 +78,7 @@
 (defn tile-chains-from
   "Ascending chains from set P in skeleton sk."
   [sk P]
-  (p/chains P (:stateset sk) (:supsethd sk)))
+  (chain/chains P (:stateset sk) (:supsethd sk)))
 
 (defn tile-chains
   "All maximal chains in skeleton sk."
@@ -127,8 +128,8 @@
   (let [tilechains (tile-chains sk)
         transfdchains (map #(on-chain % t) tilechains)
         dchains (map #(conj (vec %) (:stateset sk)) (distinct transfdchains)); don't conj when it's there
-        gaps (distinct (mapcat #(p/gaps % (:supsethd sk)) dchains)) ;;TODO think about context first for args, so we can partial
-        fillingf (fn [pair] (p/chains (first pair) (second pair) (:supsethd sk)))
+        gaps (distinct (mapcat #(chain/gaps % (:supsethd sk)) dchains)) ;;TODO think about context first for args, so we can partial
+        fillingf (fn [pair] (chain/chains (first pair) (second pair) (:supsethd sk)))
         fillings (into {} (map #(vector % (fillingf %)) gaps)); gap (pair) -> list of possible fillings
         ;;now the indexing part
         indxd (pos/indexed tilechains)

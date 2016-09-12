@@ -1,15 +1,16 @@
 (ns kigen.chain
-  (:require [kigen.poset :as poset]))
+ (:require [kigen.orbit :as o]
+           [clojure.set :refer [union]]))
 
 ;; search is done with a BFS
 (defn chains
-"All chains between elements a and b in the given (explicit) cover relation."
+ "All chains between elements a and b in the given (explicit) cover relation."
   [a b cr]
   (letfn [(solution? [chain] (= b (last chain)))
           (extensions [chain]
             (when-not (solution? chain)
               (map (partial conj chain) (cr (last chain)))))]
-    (filter solution? (o/bfs [[a]] extensions)))
+    (filter solution? (o/bfs [[a]] extensions))))
 
 (defn gaps
   "Returns all pairs of consecutive elements of the chain that are not in

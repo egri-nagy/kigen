@@ -1,9 +1,7 @@
 (ns kigen.poset
   "Computing partially ordered sets. Ways of defining binary relations:
   1. elements and a relation function (implicit)
-  2. a map: element x -> set of related elements (explicit)"
-  (:require [clojure.set :refer [union]]
-            [kigen.orbit :as o]))
+  2. a map: element x -> set of related elements (explicit)")
 
 (declare rel ;explicit relation
          cover-rel ;calculates the covering relation of a relation
