@@ -1,4 +1,5 @@
 (ns kigen.chain
+  "Chains in partially ordered sets."
  (:require [kigen.orbit :as o]
            [clojure.set :refer [union]]))
 
