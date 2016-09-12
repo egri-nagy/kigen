@@ -1,10 +1,8 @@
-;; Functions for dealing with abstract multiplication tables,
-;; i.e. multiplicative elements are represented by their indices in a
-;; given sequence.
-
 ;;TODO consider using immutable bitsets from https://github.com/clojure/data.int-map
-
 (ns kigen.multab
+  "Functions for dealing with abstract multiplication tables,
+  i.e. multiplicative elements are represented by their indices in a
+  given sequence."
   (:require [clojure.set :refer [difference union]]
             [kigen.orbit :as orbit]
             [kigen.pbr :as pbr]
