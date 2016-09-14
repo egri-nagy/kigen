@@ -25,23 +25,22 @@
   `(nth (nth ~mt ~i) ~j))
 
 ;; the resulting set may not contain the spanning elements in general
-(defn content
-  "Returns the content of sub-array spanned by the elements."
-  [mt elts]
-  (set (for [i elts j elts] (at mt i j))))
+(defn set-mul
+  "Setwise multiplication of subsets of a multab."
+  ([mt A] (set-mul mt A A))
+  ([mt A B] (set (for [i A j B] (at mt i j)))))
 
 (defn extend-by
   "Extends a closed sub-array by elements exts."
   [mt base exts]
   (let [u (union base exts)]
-    (union (set (for [i exts j u] (at mt i j)))
-           (set (for [i base j exts] (at mt i j))))))
+    (union (set-mul mt exts u) (set-mul mt base exts))))
 
 (defn closure
   "Returns the smallest closed subarray that contains the elements elts.
   Alternatively, a closed subarray closedsub can be extended by some elements
   elts."
-  ([mt elts] (closure mt #{} (union (content mt elts) (set elts))))
+  ;([mt elts] (closure mt #{} (union (set-mul mt elts) (set elts))))
   ([mt closedsub elts]
    (loop [base closedsub exts (set elts)]
      (if (empty? exts)
