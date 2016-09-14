@@ -30,6 +30,11 @@
   ([mt A] (set-mul mt A A))
   ([mt A B] (set (for [i A j B] (at mt i j)))))
 
+(defn newelements [mt S x]
+  (if (contains? S x)
+    S
+    (let [T (conj S (at mt x x))]
+      (filter T (set-mul mt T [x])))))
 (defn extend-by
   "Extends a closed sub-array by elements exts."
   [mt base exts]
