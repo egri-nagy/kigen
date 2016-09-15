@@ -3,7 +3,7 @@
   "Functions for dealing with abstract multiplication tables,
   i.e. multiplicative elements are represented by their indices in a
   given sequence."
-  (:require [clojure.set :refer [difference union]]
+  (:require [clojure.set :refer [difference union subset?]]
             [kigen.orbit :as orbit]
             [kigen.pbr :as pbr]
             [kigen.pos :as pos]))
@@ -24,36 +24,26 @@
 (defmacro at [mt i j]
   `(nth (nth ~mt ~i) ~j))
 
-;; the resulting set may not contain the spanning elements in general
 (defn set-mul
   "Setwise multiplication of subsets of a multab."
   ([mt A] (set-mul mt A A))
   ([mt A B] (set (for [i A j B] (at mt i j)))))
 
-(defn newelements [mt S x]
-  (if (contains? S x)
-    S
-    (let [T (conj S (at mt x x))]
-      (filter T (set-mul mt T [x])))))
-(defn extend-by
-  "Extends a closed sub-array by elements exts."
-  [mt base exts]
-  (let [u (union base exts)]
-    (union (set-mul mt exts u) (set-mul mt base exts))))
+(defn newelements [mt S X]
+  "For a subsemigroup S in mt this returns the elements
+  (SX union XS) setminus (S union X)."
+  (if (subset? X S)
+    #{}
+    (let [T (union S X)]
+      (remove T (union (set-mul mt T X)
+                       (set-mul mt X T))))))
 
 (defn closure
-  "Returns the smallest closed subarray that contains the elements elts.
-  Alternatively, a closed subarray closedsub can be extended by some elements
-  elts."
-  ;([mt elts] (closure mt #{} (union (set-mul mt elts) (set elts))))
-  ([mt closedsub elts]
-   (loop [base closedsub exts (set elts)]
-     (if (empty? exts)
-       base
-       (let [gens (union base exts)
-             nbase (union gens (extend-by mt base exts))
-             nexts (difference nbase gens)]
-         (recur nbase nexts))))))
+  [mt closedsub elts]
+  (loop [base closedsub, exts (set elts)]
+    (if (empty? exts)
+      base
+      (recur (union base exts) (newelements mt base exts)))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
