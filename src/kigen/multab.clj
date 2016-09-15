@@ -2,7 +2,7 @@
 (ns kigen.multab
   "Functions for dealing with abstract multiplication tables,
   i.e. multiplicative elements are represented by their indices in a
-  given sequence."
+  given sequence, and sets of these elements."
   (:require [clojure.set :refer [difference union subset?]]
             [kigen.orbit :as orbit]
             [kigen.pbr :as pbr]
@@ -25,13 +25,14 @@
   `(nth (nth ~mt ~i) ~j))
 
 (defn set-mul
-  "Setwise multiplication of subsets of a multab."
-  ([mt A] (set-mul mt A A))
-  ([mt A B] (set (for [i A j B] (at mt i j)))))
+  "Setwise multiplication of subsets of a multab. For A and B it returns AB."
+  [mt A B]
+  (set (for [i A j B] (at mt i j))))
 
-(defn newelements [mt S X]
+(defn newelements
   "For a subsemigroup S in mt this returns the elements
   (SX union XS) setminus (S union X)."
+  [mt S X]
   (if (subset? X S)
     #{}
     (let [T (union S X)]
@@ -39,18 +40,18 @@
                        (set-mul mt X T))))))
 
 (defn closure
-  [mt closedsub elts]
-  (loop [base closedsub, exts (set elts)]
-    (if (empty? exts)
-      base
-      (recur (union base exts) (newelements mt base exts)))))
+  "It calculates the closure of base with elements in the set exts."
+  [mt base exts]
+  (if (empty? exts)
+    base
+    (recur mt (union base exts) (newelements mt base exts))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
   [mt closedsub]
   (let [complement (difference (set (range (count mt))) closedsub)]
-    (set (pmap #(closure mt closedsub [%]) complement))))
+    (set (pmap #(closure mt closedsub #{%}) complement))))
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
