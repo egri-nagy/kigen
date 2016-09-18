@@ -10,7 +10,7 @@
    A))
 
 (defn min-extensions
-  "All independent sets that are extensions of the independent set is."
-  [mt is]
-  (let [complement (difference (set (range (count mt))) is)]
-    (filter #(is? mt %) (set (map #(union is #{%}) complement)))))
+  "All independent sets that are extensions of the independent set I."
+  [mt I]
+  (let [complement (difference (multab/elts mt) I)]
+    (filter #(is? mt %) (set (map #(union I #{%}) complement)))))

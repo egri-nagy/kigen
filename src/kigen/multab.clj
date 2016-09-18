@@ -20,6 +20,11 @@
                         (vec)))
            xs)))))
 
+(defn elts
+  "Returns the elements of the given multiplication table."
+  [mt]
+  (set (range (count mt))))
+
 ;; getting the i,j entry of the matrix mt
 (defmacro at [mt i j]
   `(nth (nth ~mt ~i) ~j))
@@ -51,7 +56,7 @@
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
   [mt closedsub]
-  (let [complement (difference (set (range (count mt))) closedsub)]
+  (let [complement (difference (elts mt) closedsub)]
     (set (pmap #(closure mt closedsub #{%}) complement))))
 
 (defn subsgps
