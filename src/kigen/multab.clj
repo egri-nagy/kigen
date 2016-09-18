@@ -41,10 +41,11 @@
 
 (defn closure
   "It calculates the closure of base with elements in the set exts."
-  [mt base exts]
-  (if (empty? exts)
-    base
-    (recur mt (union base exts) (newelements mt base exts))))
+  ([mt exts] (closure mt #{} exts))
+  ([mt base exts]
+   (if (empty? exts)
+     base
+     (recur mt (union base exts) (newelements mt base exts)))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
