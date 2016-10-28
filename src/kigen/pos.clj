@@ -1,6 +1,5 @@
-;; Assigning position numbers to elements in a sequential collection.
-
-(ns kigen.pos)
+(ns kigen.pos
+  "Assigning position numbers to elements in a sequential collection.")
 
 (defn indexed
   "Indexes a collection, i.e. associating ordinal numbers to its elements."
