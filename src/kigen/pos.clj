@@ -5,7 +5,7 @@
 (defn indexed
   "Indexes a collection, i.e. associating ordinal numbers to its elements."
   [coll]
-  (into {} (map vector (iterate inc 0) coll))) ;list, vectors index from 0
+  (into {} (map vector (range) coll))) ;list, vectors index from 0
 
 (defn positions
   "All positions of elements satisfying predicate v in an indexed collection."
