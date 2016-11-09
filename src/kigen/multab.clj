@@ -25,14 +25,10 @@
   [mt]
   (set (range (count mt))))
 
-;; getting the i,j entry of the matrix mt
-(defmacro at [mt i j]
-  `(nth (nth ~mt ~i) ~j))
-
 (defn set-mul
   "Setwise multiplication of subsets of a multab. For A and B it returns AB."
   [mt A B]
-  (set (for [i A j B] (at mt i j))))
+  (set (for [i A j B] ((mt i) j))))
 
 (defn newelements
   "For a subsemigroup S in mt this returns the elements
