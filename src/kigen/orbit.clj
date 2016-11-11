@@ -50,7 +50,7 @@
     (if (empty? stack)
       orbit
       (let [frontier (set (af (peek stack)))
-            newelts (filter #(not (contains? orbit %)) frontier)]
+            newelts (remove orbit frontier)]
         (recur (into (pop stack) newelts)
                (into orbit newelts))))))
 
