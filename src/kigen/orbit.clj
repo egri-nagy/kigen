@@ -32,24 +32,24 @@
   set-valued action function producing new elements."
   [seeds sa]
   ;; o - vector of sets containing orbit elements in production order
-  ;; total - cumulative union of orbit elements
-  (loop [o [(set  seeds)], total (first o)]
-    ; simple logging (print (count total)) (print "\n") (flush)
+  ;; orbit - cumulative union of orbit elements
+  (loop [o [(set  seeds)], orbit (first o)]
+    ; simple logging (print (count orbit)) (print "\n") (flush)
     (let [newset (set (mapcat sa (last o)))
-          diff (difference newset total)]
+          diff (difference newset orbit)]
       (if (empty? diff)
-        total
-        (recur (conj o diff) (into total diff))))))
+        orbit
+        (recur (conj o diff) (into orbit diff))))))
 
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
-  [seeds af]
-  (loop [stack (vec seeds)  orbit (set seeds)]
+  [seeds sa]
+  (loop [stack (vec seeds), orbit (set seeds)]
     (if (empty? stack)
       orbit
-      (let [frontier (set (af (peek stack)))
+      (let [frontier (set (sa (peek stack)))
             newelts (remove orbit frontier)]
         (recur (into (pop stack) newelts)
                (into orbit newelts))))))
