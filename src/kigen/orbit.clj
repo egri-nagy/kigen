@@ -44,22 +44,29 @@
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs-step
   ""
+  ;initialization, creating a stack
   ([seeds sa] [(vec seeds) (set seeds)])
+  ;extending the element at the top of the stack
   ([stack orbit sa]
    (let [newelts (remove orbit (set (sa (peek stack))))]
      [(into (pop stack) newelts)
       (into orbit newelts)])))
 
-(defn dfs
+(defn search
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
-  [seeds sa]
-  (let [[stack orbit] (dfs-step seeds sa)] 
-    (loop [s stack, o orbit]
-      (if (empty? s)
-        o
-        (let [[stack orbit] (dfs-step s o sa)]
+  [seeds sa stepf]
+  (let [initial (stepf seeds sa)] 
+    (loop [stack (first initial) orbit (second initial)]
+      (if (empty? stack)
+        orbit
+        (let [[stack orbit] (stepf stack orbit sa)]
           (recur stack orbit))))))
+
+(defn dfs
+  ""
+  [seeds sa]
+  (search seeds sa dfs-step))
 
 (defn controlled-bfs
   "Breadth-first search with the ability to bail out early when
