@@ -40,10 +40,9 @@
         (let [[waiting orbit] (stepf waiting orbit sa)]
           (recur waiting orbit))))))
 
-(defn controlled-orbit
-  "Breadth-first search with the ability to bail out early when
-  a solution is found. The partial orbit and the solutions found
-  in the last frontline is returned in a map with keywords :orbit :solutions."
+(defn first-solution
+  "Generic search with the ability to bail out early when
+  a solution is found. It returns a solution or nil."
   [seed sa candidate? solution? stepf]
   (let [initial (stepf [seed] sa)]
     (loop [waiting (first initial) orbit (second initial)]
@@ -51,7 +50,7 @@
             solutions (filter solution? diff)
             norbit (into orbit diff)]
         (if (or (not-empty solutions) (empty? diff))
-          {:orbit norbit :solutions (set solutions)}
+          (first solutions)
           (let [[x y] (stepf diff norbit sa)] (recur x y)))))))
 
 ;; BREADTH-FIRST SEARCH
@@ -70,6 +69,10 @@
   [seeds sa]
   (full-orbit seeds sa bfs-step))
 
+(defn first-solution-bfs
+  [seed sa candidate? solution?]
+  (first-solution seed sa candidate? solution? bfs-step))
+
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs-step
   "The next step of a depth-first search including the initial one."
@@ -87,41 +90,9 @@
   [seeds sa]
   (full-orbit seeds sa dfs-step))
 
-(defn controlled-bfs
+(defn first-solution-dfs
   [seed sa candidate? solution?]
-  (controlled-orbit seed sa candidate? solution? bfs-step))
-;; (defn controlled-bfs
-;;   "Breadth-first search with the ability to bail out early when
-;;   a solution is found. The partial orbit and the solutions found
-;;   in the last frontline is returned in a map with keywords :orbit :solutions."
-;;   [seed sa candidate? solution?]
-;;   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
-;;         (not (candidate? seed)) {:orbit #{} :solutions #{}}
-;;         :else (loop [frontier [seed] orbit  #{seed}]
-;;                 (let [elts (mapcat sa frontier)
-;;                       diff (filter
-;;                             (fn [x] (and (not (contains? orbit x))
-;;                                          (candidate? x)))
-;;                             elts)
-;;                       solutions (filter solution? diff)
-;;                       norbit (into orbit diff)]
-;;                   (if (or (not-empty solutions) (empty? diff))
-;;                     {:orbit norbit :solutions (set solutions)}
-;;                     (recur diff norbit))))))
-
-;; (defn trace
-;;   "Tracing a path to an element in the orbit graph"
-;;   [e og]
-;;   (drop 1 (rseq (loop [e e r []]
-;;                   (if (nil? e)
-;;                     r
-;;                     (let [[[k v]] (seq (og e))]
-;;                       (recur v (conj r k))))))))
-
-;; ;;immensely wasteful, but will do the job in the beginning
-;; (defn geodesic
-;;   [source target gens action]
-;;   (trace target (:graph (orbit-graph source (right-actions gens action)))))
+  (first-solution seed sa candidate? solution? dfs-step))
 
 ;; elts - a set of elements
 ;; afs - operations that act on elts, i.e. functions: elt -> elt
