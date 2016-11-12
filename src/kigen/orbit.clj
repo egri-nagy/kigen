@@ -60,16 +60,17 @@
   [seed sa candidate? solution?]
   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
         (not (candidate? seed)) {:orbit #{} :solutions #{}}
-        :else (loop [frontier [seed] o {:orbit #{seed}}]
+        :else (loop [frontier [seed] orbit  #{seed}]
                 (let [elts (mapcat sa frontier)
                       diff (filter
-                            (fn [x] (and (not (contains? (:orbit o) x))
+                            (fn [x] (and (not (contains? orbit x))
                                          (candidate? x)))
                             elts)
-                      solutions (set (filter solution? diff))]
+                      solutions (filter solution? diff)
+                      norbit (into orbit diff)]
                   (if (or (not-empty solutions) (empty? diff))
-                    (assoc  o :solutions solutions)
-                    (recur diff {:orbit (into (:orbit o) diff)}))))))
+                    {:orbit norbit :solutions (set solutions)}
+                    (recur diff norbit))))))
 
 ;; (defn trace
 ;;   "Tracing a path to an element in the orbit graph"
