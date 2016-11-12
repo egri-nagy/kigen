@@ -5,9 +5,12 @@
 (declare right-action
          right-actions ;operators as functions
          set-action ;combining actions into a single function
+         dfs-step
          dfs ;depth-first search
+         bfs-step
          bfs ;breadth-first search
-         controlled-bfs)
+         controlled-bfs
+         full-orbit)
 
 (defn right-action
   "Returns a right action from a binary function and an argument."
@@ -23,6 +26,19 @@
   "Combining several action functions into a single set-valued function."
   [afs]
   #(set (for [f afs] (f %))))
+
+; GENERIC ORBIT ALGORITHMS
+(defn full-orbit
+  "Generic graph-search for poducing the full orbit from seeds
+  by applying set valued action sa. The order of the enumeration
+  is determined by the step function."
+  [seeds sa stepf]
+  (let [initial (stepf seeds sa)] ;initializing the search alg. data structure
+    (loop [waiting (first initial) orbit (second initial)]
+      (if (empty? waiting)
+        orbit
+        (let [[waiting orbit] (stepf waiting orbit sa)]
+          (recur waiting orbit))))))
 
 ;; BREADTH-FIRST SEARCH
 ;; seeds - elements to act on
@@ -43,7 +59,7 @@
 
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs-step
-  ""
+  "The next step of a depth-first search including the initial one."
   ;initialization, creating a stack
   ([seeds sa] [(vec seeds) (set seeds)])
   ;extending the element at the top of the stack
@@ -52,21 +68,11 @@
      [(into (pop stack) newelts)
       (into orbit newelts)])))
 
-(defn search
+(defn dfs
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
-  [seeds sa stepf]
-  (let [initial (stepf seeds sa)] 
-    (loop [stack (first initial) orbit (second initial)]
-      (if (empty? stack)
-        orbit
-        (let [[stack orbit] (stepf stack orbit sa)]
-          (recur stack orbit))))))
-
-(defn dfs
-  ""
   [seeds sa]
-  (search seeds sa dfs-step))
+  (full-orbit seeds sa dfs-step))
 
 (defn controlled-bfs
   "Breadth-first search with the ability to bail out early when
