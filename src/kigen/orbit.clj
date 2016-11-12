@@ -40,6 +40,20 @@
         (let [[waiting orbit] (stepf waiting orbit sa)]
           (recur waiting orbit))))))
 
+(defn controlled-orbit
+  "Breadth-first search with the ability to bail out early when
+  a solution is found. The partial orbit and the solutions found
+  in the last frontline is returned in a map with keywords :orbit :solutions."
+  [seed sa candidate? solution? stepf]
+  (let [initial (stepf [seed] sa)]
+    (loop [waiting (first initial) orbit (second initial)]
+      (let [diff (filter candidate? waiting)
+            solutions (filter solution? diff)
+            norbit (into orbit diff)]
+        (if (or (not-empty solutions) (empty? diff))
+          {:orbit norbit :solutions (set solutions)}
+          (let [[x y] (stepf diff norbit sa)] (recur x y)))))))
+
 ;; BREADTH-FIRST SEARCH
 (defn bfs-step
   "The next step of a depth-first search including the initial one."
@@ -74,23 +88,26 @@
   (full-orbit seeds sa dfs-step))
 
 (defn controlled-bfs
-  "Breadth-first search with the ability to bail out early when
-  a solution is found. The partial orbit and the solutions found
-  in the last frontline is returned in a map with keywords :orbit :solutions."
   [seed sa candidate? solution?]
-  (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
-        (not (candidate? seed)) {:orbit #{} :solutions #{}}
-        :else (loop [frontier [seed] orbit  #{seed}]
-                (let [elts (mapcat sa frontier)
-                      diff (filter
-                            (fn [x] (and (not (contains? orbit x))
-                                         (candidate? x)))
-                            elts)
-                      solutions (filter solution? diff)
-                      norbit (into orbit diff)]
-                  (if (or (not-empty solutions) (empty? diff))
-                    {:orbit norbit :solutions (set solutions)}
-                    (recur diff norbit))))))
+  (controlled-orbit seed sa candidate? solution? bfs-step))
+;; (defn controlled-bfs
+;;   "Breadth-first search with the ability to bail out early when
+;;   a solution is found. The partial orbit and the solutions found
+;;   in the last frontline is returned in a map with keywords :orbit :solutions."
+;;   [seed sa candidate? solution?]
+;;   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
+;;         (not (candidate? seed)) {:orbit #{} :solutions #{}}
+;;         :else (loop [frontier [seed] orbit  #{seed}]
+;;                 (let [elts (mapcat sa frontier)
+;;                       diff (filter
+;;                             (fn [x] (and (not (contains? orbit x))
+;;                                          (candidate? x)))
+;;                             elts)
+;;                       solutions (filter solution? diff)
+;;                       norbit (into orbit diff)]
+;;                   (if (or (not-empty solutions) (empty? diff))
+;;                     {:orbit norbit :solutions (set solutions)}
+;;                     (recur diff norbit))))))
 
 ;; (defn trace
 ;;   "Tracing a path to an element in the orbit graph"
