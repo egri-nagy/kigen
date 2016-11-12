@@ -42,21 +42,29 @@
         (recur (conj o diff) (into orbit diff))))))
 
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
+(defn dfs-step
+  ""
+  ([seeds sa] [(vec seeds) (set seeds)])
+  ([stack orbit sa]
+   (let [newelts (remove orbit (set (sa (peek stack))))]
+     [(into (pop stack) newelts)
+      (into orbit newelts)])))
+
 (defn dfs
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
   [seeds sa]
-  (loop [stack (vec seeds), orbit (set seeds)]
-    (if (empty? stack)
-      orbit
-      (let [frontier (set (sa (peek stack)))
-            newelts (remove orbit frontier)]
-        (recur (into (pop stack) newelts)
-               (into orbit newelts))))))
+  (let [[stack orbit] (dfs-step seeds sa)] 
+    (loop [s stack, o orbit]
+      (if (empty? s)
+        o
+        (let [[stack orbit] (dfs-step s o sa)]
+          (recur stack orbit))))))
 
-;;ORBIT-GRAPH
-;; seed - we start search from this single specific  element
 (defn controlled-bfs
+  "Breadth-first search with the ability to bail out early when
+  a solution is found. The partial orbit and the solutions found
+  in the last frontline is returned in a map with keywords :orbit :solutions."
   [seed sa candidate? solution?]
   (cond (solution? seed) {:orbit #{seed} :solutions #{seed}}
         (not (candidate? seed)) {:orbit #{} :solutions #{}}
