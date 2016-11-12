@@ -43,11 +43,10 @@
 ;; BREADTH-FIRST SEARCH
 (defn bfs-step
   "The next step of a depth-first search including the initial one."
-  ([seeds sa] [ [(set seeds)] (set seeds) ])
-  ([stack orbit sa]
-   (let [newelts (remove orbit (mapcat sa (last orbit)))]
-     [(conj orbit newelts)
-      (into orbit newelts)])))
+  ([seeds sa] (let [s (set seeds)] [ s s ]))
+  ([fronts orbit sa]
+   (let [newelts (remove orbit (mapcat sa fronts))]
+     [newelts (into orbit newelts)])))
 
 ;; seeds - elements to act on
 ;; sa - set action function
@@ -55,7 +54,7 @@
   "Breadth-first search starting from the elements in seeds using a single
   set-valued action function producing new elements."
   [seeds sa]
-  (full-orbit seeds sa dfs-step))
+  (full-orbit seeds sa bfs-step))
 
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs-step
