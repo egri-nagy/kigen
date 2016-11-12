@@ -41,21 +41,21 @@
           (recur waiting orbit))))))
 
 ;; BREADTH-FIRST SEARCH
+(defn bfs-step
+  "The next step of a depth-first search including the initial one."
+  ([seeds sa] [ [(set seeds)] (set seeds) ])
+  ([stack orbit sa]
+   (let [newelts (remove orbit (mapcat sa (last orbit)))]
+     [(conj orbit newelts)
+      (into orbit newelts)])))
+
 ;; seeds - elements to act on
 ;; sa - set action function
 (defn bfs
   "Breadth-first search starting from the elements in seeds using a single
   set-valued action function producing new elements."
   [seeds sa]
-  ;; o - vector of sets containing orbit elements in production order
-  ;; orbit - cumulative union of orbit elements
-  (loop [o [(set  seeds)], orbit (first o)]
-    ; simple logging (print (count orbit)) (print "\n") (flush)
-    (let [newset (set (mapcat sa (last o)))
-          diff (difference newset orbit)]
-      (if (empty? diff)
-        orbit
-        (recur (conj o diff) (into orbit diff))))))
+  (full-orbit seeds sa dfs-step))
 
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
 (defn dfs-step
