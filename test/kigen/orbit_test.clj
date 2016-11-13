@@ -9,18 +9,18 @@
   (map #(set (remove (partial = %) coll)) coll))
 
 (deftest test-*fs
-  (let [bfsres (orbit/bfs [#{1 2 3 4 5 6 7 8}] subset-covers)
-        dfsres (orbit/dfs [#{1 2 3 4 5 6 7 8}] subset-covers)]
-    (testing "Testing depth-first and breadth-first searches."
-      (is (= 256 (count bfsres)))
-      (is (= bfsres dfsres)))))
+  (let [bulkres (orbit/full-orbit-bulk [#{1 2 3 4 5 6 7 8}] subset-covers)
+        singleres (orbit/full-orbit-single [#{1 2 3 4 5 6 7 8}] subset-covers)]
+    (testing "Testing single and bulk extension searches."
+      (is (= 256 (count bulkres)))
+      (is (= bulkres singleres)))))
 
 (deftest test-first-solution-*fs
   (let [f (fn [x] (hash-set (conj x (inc (count x)))))
         cand? (fn [x] (<= (count x) 11))
         sol? (fn [x] (= (count x) 11))
-        bfssol (orbit/first-solution-bfs #{0} f cand? sol?)
-        ;dfssol (orbit/first-solution-dfs #{0} f cand? sol?)
+        bulksol (orbit/first-solution-bulk #{0} f cand? sol?)
+        singlesol (orbit/first-solution-single #{0} f cand? sol?)
         ]
-    (testing "Testing depth-first and breadth-first solutions."
-      (is (not (some nil? [bfssol bfssol]))))))
+    (testing "Testing bulk and single extension first solutions."
+      (is (not (some nil? [bulksol singlesol]))))))

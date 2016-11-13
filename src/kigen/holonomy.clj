@@ -16,10 +16,10 @@
   [as]
   (fn [P Q]
     (or (set/subset? P Q)
-        (not (nil? (o/first-solution-bfs Q
-                                         (o/set-action as)
-                                         #(<= (count P) (count %))
-                                         #(set/superset? % P)))))))
+        (not (nil? (o/first-solution-single Q
+                                            (o/set-action as)
+                                            #(<= (count P) (count %))
+                                            #(set/superset? % P)))))))
 
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons
@@ -55,7 +55,7 @@
         subduction? (subduction-function r-a-gens)
         stateset (finite-set (t/transf-degree (first gens)))
         singletons (set (map hash-set stateset))
-        images (o/bfs [stateset] (set-action r-a-gens))
+        images (o/full-orbit-bulk [stateset] (set-action r-a-gens))
         extd (into images singletons)
         c-g (o/cayley-graph images r-a-gens)
         sccs (o/scc images c-g)
@@ -113,7 +113,7 @@
   (let [sk (skeleton gens)
         sgpact (fn [chain] (set (map #(on-chain chain %) gens)))
         maxchains (tile-chains sk)
-        chains (vec (o/bfs maxchains sgpact))
+        chains (vec (o/full-orbit-bulk maxchains sgpact))
         indxd (pos/indexed chains)
         posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
     (map

@@ -59,4 +59,4 @@
   "All subsemigroups of an abstract semigroup given by its multiplication
   table"
   [mt]
-  (orbit/dfs [#{}] (partial min-extensions mt)))
+  (orbit/full-orbit-single [#{}] (partial min-extensions mt)))

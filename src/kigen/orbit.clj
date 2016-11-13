@@ -26,20 +26,47 @@
   [afs]
   #(set (for [f afs] (f %))))
 
-; GENERIC ORBIT ALGORITHMS
+;; EXTENSION STRATEGIES
+(defn bulk-step
+  "Extends all elements in one go."
+  [waiting sa]
+  [(mapcat sa waiting) #{}])
+
+(defn single-step
+  "Extends only one element."
+  [waiting sa]
+  [(sa (first waiting)) (rest waiting)])
+
+; FULL ORBIT ALGORITHMS
 (defn full-orbit
   "Generic graph-search for poducing the full orbit from seeds
   by applying set valued action sa. The order of the enumeration
   is determined by the step function."
   [seeds sa stepf]
-  (let [initial (set seeds)]
-    (loop [waiting initial, orbit initial]
+  (let [iset (set seeds)
+        ilist (seq seeds)]
+    (loop [waiting ilist, orbit iset]
       (if (empty? waiting)
         orbit
-        (let [[newelts unprocessed] (stepf waiting sa)
-              newelts (remove orbit newelts)]
+        (let [[extensions unprocessed] (stepf waiting sa)
+              newelts (remove orbit extensions)]
           (recur (into unprocessed newelts) (into orbit newelts)))))))
 
+;; seeds - elements to act on
+;; sa - set action function
+(defn full-orbit-bulk
+  "Bulk-extension search starting from the elements in seeds using a single
+  set-valued action function producing new elements."
+  [seeds sa]
+  (full-orbit seeds sa bulk-step))
+
+(defn full-orbit-single
+  "Single extension search starting from the elements in seeds using a single
+  set-valued action function."
+  [seeds sa]
+  (full-orbit seeds sa single-step))
+
+; PARTIAL ORBITS, STOPPING AT FIRST SOLUTIONS
 (defn first-solution
   "Generic search with the ability to bail out early when
   a solution is found. It returns a solution or nil."
@@ -51,45 +78,18 @@
       (if (or (not-empty solutions) (empty? candidates))
         (first solutions)
         (let [[newelts unprocessed] (stepf candidates sa)
-              newelts (remove norbit newelts)]
-          (recur (into unprocessed newelts) norbit))))))
+              diff (remove norbit newelts)]
+          (recur (into unprocessed diff) norbit))))))
 
-;; BREADTH-FIRST SEARCH
-(defn bulk-step
-  "Extends all elements in one go."
-  [waiting sa]
-  [(mapcat sa waiting) #{}])
-
-(defn single-step
-  "Extends only one element."
-  [waiting sa]
-  [(sa (first waiting)) (rest waiting)])
-
-;; seeds - elements to act on
-;; sa - set action function
-(defn bfs
-  "Breadth-first search starting from the elements in seeds using a single
-  set-valued action function producing new elements."
-  [seeds sa]
-  (full-orbit seeds sa bulk-step))
-
-(defn first-solution-bfs
+(defn first-solution-single
   "Returns a first solution when searching by breadth-first."
   [seed sa candidate? solution?]
   (first-solution seed sa candidate? solution? single-step))
 
-;;DEPTH-FIRST SEARCH (same arguments as bfs)
-
-(defn dfs
-  "Depth-first search starting from the elements in seeds using a single
-  set-valued action function."
-  [seeds sa]
-  (full-orbit seeds sa single-step))
-
-(defn first-solution-dfs
+(defn first-solution-bulk
   "Returns a first solution when searching by depth-first."
   [seed sa candidate? solution?]
-  (first-solution seed sa candidate? solution? single-step))
+  (first-solution seed sa candidate? solution? bulk-step))
 
 ;; elts - a set of elements
 ;; afs - operations that act on elts, i.e. functions: elt -> elt

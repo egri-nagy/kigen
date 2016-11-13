@@ -3,7 +3,7 @@
  (:require [kigen.orbit :as o]
            [clojure.set :refer [union]]))
 
-;; search is done with a BFS
+;; search is done with a FULL-ORBIT-BULK
 (defn chains
  "All chains between elements a and b in the given (explicit) cover relation."
   [a b cr]
@@ -11,7 +11,7 @@
           (extensions [chain]
             (when-not (solution? chain)
               (map (partial conj chain) (cr (last chain)))))]
-    (filter solution? (o/bfs [[a]] extensions))))
+    (filter solution? (o/full-orbit-bulk [[a]] extensions))))
 
 (defn gaps
   "Returns all pairs of consecutive elements of the chain that are not in
@@ -23,7 +23,7 @@
 
 
 (defn distance-calculator
-  "For a Hasse-diagram/cover relation cr this perform a BFS and records the
+  "For a Hasse-diagram/cover relation cr this perform a search and records the
     discovery times. Returns a map: element -> vector of discovery times"
   [e cr f]
   (loop [d 0

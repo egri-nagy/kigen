@@ -1,6 +1,6 @@
 (ns kigen.sgp
   (:require [clojure.math.combinatorics :as combinatorics]
-            [kigen.orbit :refer [bfs right-actions set-action]]
+            [kigen.orbit :refer [full-orbit-bulk right-actions set-action]]
             [kigen.pbr :as pbr]))
 
 (declare sg-by-gens
@@ -12,7 +12,7 @@
   default operation."
   ([gens] (sgp-by-gens gens pbr/mul))
   ([gens mul]
-   (bfs gens (set-action (right-actions mul gens)))))
+   (full-orbit-bulk gens (set-action (right-actions mul gens)))))
 
 (defn commutative?
   "Brute-force checking of commutativity of a semigroup."
