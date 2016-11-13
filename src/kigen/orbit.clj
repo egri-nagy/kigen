@@ -43,14 +43,12 @@
   by applying set valued action sa. The order of the enumeration
   is determined by the step function."
   [seeds sa stepf]
-  (let [iset (set seeds)
-        ilist (seq seeds)]
-    (loop [waiting ilist, orbit iset]
-      (if (empty? waiting)
-        orbit
-        (let [[extensions unprocessed] (stepf waiting sa)
-              newelts (remove orbit extensions)]
-          (recur (into unprocessed newelts) (into orbit newelts)))))))
+  (loop [waiting (seq seeds), orbit (set seeds)]
+    (if (empty? waiting)
+      orbit
+      (let [[extensions unprocessed] (stepf waiting sa)
+            newelts (remove orbit extensions)]
+        (recur (into unprocessed newelts) (into orbit newelts))))))
 
 ;; seeds - elements to act on
 ;; sa - set action function
@@ -73,11 +71,11 @@
   [seed sa candidate? solution? stepf]
   (loop [waiting (set [seed]), orbit #{}]
     (let [candidates (filter candidate? waiting)
-          solutions (filter solution? candidates)
-          norbit (into orbit candidates)]
+          solutions (filter solution? candidates)]
       (if (or (not-empty solutions) (empty? candidates))
         (first solutions)
         (let [[newelts unprocessed] (stepf candidates sa)
+              norbit (into orbit candidates)
               diff (remove norbit newelts)]
           (recur (into unprocessed diff) norbit))))))
 
