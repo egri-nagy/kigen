@@ -1,13 +1,12 @@
 (ns kigen.orbit
-  "Calculating orbits by graph search algorithms."
-  (:require [clojure.set :refer [difference]]))
+  "Calculating orbits by graph search algorithms.")
 
 (declare right-action
          right-actions ;operators as functions
          set-action ;combining actions into a single function
-         dfs-step
+         single-step
          dfs ;depth-first search
-         bfs-step
+         bulk-step
          bfs ;breadth-first search
          controlled-bfs
          full-orbit)
@@ -33,33 +32,38 @@
   by applying set valued action sa. The order of the enumeration
   is determined by the step function."
   [seeds sa stepf]
-  (let [initial (stepf seeds sa)] ;initializing the search alg. data structure
-    (loop [waiting (first initial) orbit (second initial)]
+  (let [initial (set seeds)]
+    (loop [waiting initial, orbit initial]
       (if (empty? waiting)
         orbit
-        (let [[waiting orbit] (stepf waiting orbit sa)]
-          (recur waiting orbit))))))
+        (let [[newelts unprocessed] (stepf waiting sa)
+              newelts (remove orbit newelts)]
+          (recur (into unprocessed newelts) (into orbit newelts)))))))
 
 (defn first-solution
   "Generic search with the ability to bail out early when
   a solution is found. It returns a solution or nil."
   [seed sa candidate? solution? stepf]
-  (let [initial (stepf [seed] sa)]
-    (loop [waiting (first initial) orbit (second initial)]
-      (let [diff (filter candidate? waiting)
-            solutions (filter solution? diff)
-            norbit (into orbit diff)]
-        (if (or (not-empty solutions) (empty? diff))
-          (first solutions)
-          (let [[x y] (stepf diff norbit sa)] (recur x y)))))))
+  (loop [waiting (set [seed]), orbit #{}]
+    (let [candidates (filter candidate? waiting)
+          solutions (filter solution? candidates)
+          norbit (into orbit candidates)]
+      (if (or (not-empty solutions) (empty? candidates))
+        (first solutions)
+        (let [[newelts unprocessed] (stepf candidates sa)
+              newelts (remove norbit newelts)]
+          (recur (into unprocessed newelts) norbit))))))
 
 ;; BREADTH-FIRST SEARCH
-(defn bfs-step
-  "The next step of a depth-first search including the initial one."
-  ([seeds sa] (let [s (set seeds)] [ s s ]))
-  ([fronts orbit sa]
-   (let [newelts (remove orbit (mapcat sa fronts))]
-     [newelts (into orbit newelts)])))
+(defn bulk-step
+  "Extends all elements in one go."
+  [waiting sa]
+  [(mapcat sa waiting) #{}])
+
+(defn single-step
+  "Extends only one element."
+  [waiting sa]
+  [(sa (first waiting)) (rest waiting)])
 
 ;; seeds - elements to act on
 ;; sa - set action function
@@ -67,32 +71,25 @@
   "Breadth-first search starting from the elements in seeds using a single
   set-valued action function producing new elements."
   [seeds sa]
-  (full-orbit seeds sa bfs-step))
+  (full-orbit seeds sa bulk-step))
 
 (defn first-solution-bfs
+  "Returns a first solution when searching by breadth-first."
   [seed sa candidate? solution?]
-  (first-solution seed sa candidate? solution? bfs-step))
+  (first-solution seed sa candidate? solution? single-step))
 
 ;;DEPTH-FIRST SEARCH (same arguments as bfs)
-(defn dfs-step
-  "The next step of a depth-first search including the initial one."
-  ;initialization, creating a stack
-  ([seeds sa] [(vec seeds) (set seeds)])
-  ;extending the element at the top of the stack
-  ([stack orbit sa]
-   (let [newelts (remove orbit (set (sa (peek stack))))]
-     [(into (pop stack) newelts)
-      (into orbit newelts)])))
 
 (defn dfs
   "Depth-first search starting from the elements in seeds using a single
   set-valued action function."
   [seeds sa]
-  (full-orbit seeds sa dfs-step))
+  (full-orbit seeds sa single-step))
 
 (defn first-solution-dfs
+  "Returns a first solution when searching by depth-first."
   [seed sa candidate? solution?]
-  (first-solution seed sa candidate? solution? dfs-step))
+  (first-solution seed sa candidate? solution? single-step))
 
 ;; elts - a set of elements
 ;; afs - operations that act on elts, i.e. functions: elt -> elt

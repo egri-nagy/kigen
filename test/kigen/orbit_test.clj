@@ -14,3 +14,13 @@
     (testing "Testing depth-first and breadth-first searches."
       (is (= 256 (count bfsres)))
       (is (= bfsres dfsres)))))
+
+(deftest test-first-solution-*fs
+  (let [f (fn [x] (hash-set (conj x (inc (count x)))))
+        cand? (fn [x] (<= (count x) 11))
+        sol? (fn [x] (= (count x) 11))
+        bfssol (orbit/first-solution-bfs #{0} f cand? sol?)
+        ;dfssol (orbit/first-solution-dfs #{0} f cand? sol?)
+        ]
+    (testing "Testing depth-first and breadth-first solutions."
+      (is (not (some nil? [bfssol bfssol]))))))
