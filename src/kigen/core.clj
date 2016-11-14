@@ -1,10 +1,11 @@
 (ns kigen.core
   (:require [kigen.pbr]
-        [kigen.transf :as transf]
-        [kigen.holonomy]
-        [kigen.poset]
-        [kigen.sgp]
-        [kigen.orbit])
+            [kigen.transf :as transf]
+            [kigen.perm :as perm]
+            [kigen.holonomy]
+            [kigen.poset]
+            [kigen.sgp]
+            [kigen.orbit])
   (:gen-class))
 
 (defn -main
