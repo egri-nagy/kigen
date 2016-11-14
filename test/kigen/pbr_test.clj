@@ -8,3 +8,11 @@
   (testing "Testing pbr multiplication."
     (is (= alphabeta (pbr/mul alpha beta)))
     (is (= RHab (pbr/mul RHa RHb)))))
+
+(deftest pbr-associativity-test
+  (testing "Testing pbr associativity."
+    (let [a (pbr/rand-pbr 13)
+          b (pbr/rand-pbr 13)
+          c (pbr/rand-pbr 13)]
+      (is (= (pbr/mul (pbr/mul a b) c)
+             (pbr/mul a (pbr/mul b c)))))))

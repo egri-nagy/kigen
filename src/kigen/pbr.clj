@@ -15,14 +15,15 @@
 ;; not a good sampling at the moment
 (defn rand-pbr
   "a random (n,m) partitioned binary relation"
-  [m n]
-  (let [N (+ m n 1) ;the number of points/nodes
-        X (range 1 N) ;the full set of points, union of dom, cod
-        pbr {:dom (set (range 1 (inc m))) ; initial map contains dom, cod
-             :cod (set (range (inc m) N ))}]
-    (into pbr (zipmap
-               X
-               (repeatedly (dec N) #(rand-subset X))))))
+  ([n] (rand-pbr n n))
+  ([m n]
+   (let [N (+ m n 1) ;the number of points/nodes
+         X (range 1 N) ;the full set of points, union of dom, cod
+         pbr {:dom (set (range 1 (inc m))) ; initial map contains dom, cod
+              :cod (set (range (inc m) N ))}]
+     (into pbr (zipmap
+                X
+                (repeatedly (dec N) #(rand-subset X)))))))
 
 ;; Returns a random subset of the given collection.
 ;; generating a vector of booleans as a characteristic function
