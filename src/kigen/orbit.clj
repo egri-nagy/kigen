@@ -5,37 +5,42 @@
          right-actions ;operators as functions
          set-action ;combining actions into a single function
          single-step
-         dfs ;depth-first search
          bulk-step
-         bfs ;breadth-first search
-         controlled-bfs
-         full-orbit)
+         full-orbit
+         full-orbit-single
+         full-orbit-bulk
+         first-solution
+         first-solution-single
+         first-solution-bulk)
 
 (defn right-action
   "Returns a right action from a binary function and an argument."
-  [f a]
-  #(f % a))
+  [binaryfunc arg]
+  (fn [x] (binaryfunc x arg)))
 
 (defn right-actions
   "Applying right-action to a collection of arguments."
-  [f as]
-  (map (partial right-action f) as))
+  [binaryfunc args]
+  (map (partial right-action binaryfunc) args))
 
 (defn set-action
   "Combining several action functions into a single set-valued function."
   [afs]
-  #(set (for [f afs] (f %))))
+  (fn [x]
+    (set (for [f afs] (f x)))))
 
 ;; EXTENSION STRATEGIES
 (defn bulk-step
-  "Extends all elements in one go."
-  [waiting sa]
-  [(mapcat sa waiting) #{}])
+  "Applies action to all elements in one go. Returns the empty set as
+  unprocessed elements."
+  [elts action]
+  [(mapcat action elts) #{}])
 
 (defn single-step
-  "Extends only one element."
-  [waiting sa]
-  [(sa (first waiting)) (rest waiting)])
+  "Produces elements by applying the set-valued action to a single element
+  from the given collection of elements. Also returns unprocessed elements."
+  [elts action]
+  [(action (first elts)) (rest elts)])
 
 ; FULL ORBIT ALGORITHMS
 (defn full-orbit
