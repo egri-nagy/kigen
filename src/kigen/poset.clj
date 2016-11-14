@@ -22,6 +22,8 @@
   (fn [x y] (rel? y x))) ; just swapping arguments
 
 (defn equivalent
+  "Given a preorder relation, it returns the corresponding partial order
+  implicit relation."
   [preorder-rel?]
   (fn [x y] (and (preorder-rel? x y)
                  (preorder-rel? y x))))
