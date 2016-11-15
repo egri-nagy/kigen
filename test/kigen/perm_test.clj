@@ -16,6 +16,6 @@
 (deftest perm-conjugate-test
   (testing "Testing permutation conjugation."
     (let [ts [[2 3 4 5 1] [2 1 3 4 5] [3 1 4 5 2]]
-          pbrs (map transf/transf->binrel ts)]
-      (is (= (ts 2) (transf/binrel->transf (perm/conjugate (first pbrs)
-                                                       (second pbrs))))))))
+          pbrs (map transf/transf->bipart ts)]
+      (is (= (last pbrs) (perm/conjugate (first pbrs)
+                                         (second pbrs)))))))
