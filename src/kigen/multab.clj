@@ -12,11 +12,11 @@
   "Returns the multiplication table of the elements xs by the function mul."
   ([xs] (multab xs pbr/mul))
   ([xs mul]
-   (let [indices (pos/indexed (vec xs))]
+   (let [vxs (vec xs)]
      (vec (pmap
            (fn [x] (->> xs
                         (map #(mul % x)) ;left multiplication by x
-                        (map #(pos/pos (partial = %) indices)) ; elt -> index
+                        (map #(pos/pos (partial = %) vxs)) ;elt -> index
                         (vec)))
            xs)))))
 

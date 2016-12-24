@@ -1,14 +1,12 @@
 (ns kigen.pos
   "Assigning position numbers to elements in a sequential collection.")
 
-(defn indexed
-  "Indexes a collection, i.e. associating ordinal numbers to its elements."
-  [coll]
-  (into {} (map vector (range) coll))) ;list, vectors index from 0
-
 (defn positions
-  "All positions of elements satisfying predicate v in an indexed collection."
-  [pred indxd] (for [[i v] indxd :when (pred v)] i))
+  "All positions of elements satisfying predicate in a vector."
+  [pred v]
+  (for [[index element] (map vector (range) v)
+        :when (pred element)]
+    index))
 
 (defn pos
   "Getting the index of the first element satisfying a predicate."

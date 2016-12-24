@@ -114,8 +114,7 @@
         sgpact (fn [chain] (set (map #(on-chain chain %) gens)))
         maxchains (tile-chains sk)
         chains (vec (o/full-orbit-bulk maxchains sgpact))
-        indxd (pos/indexed chains)
-        posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
+        posf (fn [dc] (pos/pos #( = (set dc) (set %)) chains))]
     (map
      (fn [t] (let [imgs (map #(on-chain % t) chains)]
                (map posf imgs)))
@@ -132,7 +131,7 @@
         fillingf (fn [pair] (chain/chains (first pair) (second pair) (:supsethd sk)))
         fillings (into {} (map #(vector % (fillingf %)) gaps)); gap (pair) -> list of possible fillings
         ;;now the indexing part
-        indxd (pos/indexed tilechains)
+        indxd (vec tilechains)
         posf (fn [dc] (pos/pos #( = (set dc) (set %)) indxd))]
 
     fillings)) ;just temporarily
