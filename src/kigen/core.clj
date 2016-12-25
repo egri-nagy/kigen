@@ -5,6 +5,7 @@
             [kigen.holonomy]
             [kigen.poset]
             [kigen.sgp]
+            [kigen.multab]
             [kigen.orbit])
   (:gen-class))
 

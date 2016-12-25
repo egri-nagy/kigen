@@ -2,14 +2,17 @@
 (ns kigen.multab
   "Functions for dealing with abstract multiplication tables,
   i.e. multiplicative elements are represented by their indices in a
-  given sequence, and sets of these elements."
+  given sequence, and sets of these elements.
+  The tables are vectors of vectors (the rows of the table),
+  so multiplication is just look up."
   (:require [clojure.set :refer [difference union subset?]]
             [kigen.orbit :as orbit]
             [kigen.pbr :as pbr]
             [kigen.pos :as pos]))
 
 (defn multab
-  "Returns the multiplication table of the elements xs by the function mul."
+  "Returns the multiplication table of the elements xs by the function mul.
+  The default is PBR multiplication. Computation is done by rows in parallel."
   ([xs] (multab xs pbr/mul))
   ([xs mul]
    (let [vxs (vec xs)]
@@ -21,7 +24,8 @@
            xs)))))
 
 (defn elts
-  "Returns the elements of the given multiplication table."
+  "Returns the elements of the given multiplication table.
+  The elements are just the set of indices from 0 to n-1."
   [mt]
   (set (range (count mt))))
 
@@ -31,7 +35,7 @@
   (set (for [i A j B] ((mt i) j))))
 
 (defn newelements
-  "For a subsemigroup S in mt this returns the elements
+  "For a subsemigroup S and a subset X in mt this returns the elements
   (SX union XS) setminus (S union X)."
   [mt S X]
   (if (subset? X S)
@@ -44,16 +48,17 @@
   "It calculates the closure of base with elements in the set exts."
   ([mt exts] (closure mt #{} exts))
   ([mt base exts]
-   (if (empty? exts)
-     base
-     (recur mt (union base exts) (newelements mt base exts)))))
+   (letfn
+       [(finished? [[_ exts]] (empty? exts))
+        (extend [[base exts]] #{[(set  (union base exts)) (set (newelements mt base exts))]})]
+     (first (orbit/first-solution-single [base exts] extend (fn [x] true) finished?))))) 
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
   [mt closedsub]
   (let [complement (difference (elts mt) closedsub)]
-    (set (pmap #(closure mt closedsub #{%}) complement))))
+    (set (map #(closure mt closedsub #{%}) complement))))
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
