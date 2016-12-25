@@ -50,8 +50,22 @@
   ([mt base exts]
    (letfn
        [(finished? [[_ exts]] (empty? exts))
-        (extend [[base exts]] #{[(set  (union base exts)) (set (newelements mt base exts))]})]
-     (first (orbit/first-solution-single [base exts] extend (fn [x] true) finished?))))) 
+        (extend [[base exts]]
+          #{[(set  (union base exts)) (set (newelements mt base exts))]})]
+     (first
+      (orbit/first-solution-single [base exts] extend (fn [x] true) finished?)))))
+
+(defn in-closure?
+  "Returns true if an element x is in the closure of sgp by gens"
+  ([mt gens x] (in-closure? mt #{} gens x))
+  ([mt sgp gens x]
+   (letfn
+       [(finished? [[sgp gens]]
+          (or (empty? gens) (contains? sgp x) (contains? gens x)))
+        (extend [[sgp gens]]
+          #{[(set  (union sgp gens)) (set (newelements mt sgp gens))]})]
+     (nil?
+      (orbit/first-solution-single [sgp gens] extend (fn [x] true) finished?)))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of

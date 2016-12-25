@@ -6,7 +6,7 @@
   "Decides whether the set A is an independent set in multiplication table mt."
   [mt A]
   (every?
-   #(not (contains? (multab/closure mt (difference A #{%})) %))
+   #(not (multab/in-closure mt (difference A #{%}) %))
    A))
 
 (defn min-extensions
