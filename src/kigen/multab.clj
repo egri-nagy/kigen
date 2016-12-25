@@ -16,7 +16,7 @@
      (vec (pmap
            (fn [x] (->> xs
                         (map #(mul % x)) ;left multiplication by x
-                        (map #(pos/pos (partial = %) vxs)) ;elt -> index
+                        (map #(pos/index vxs %)) ;elt -> index
                         (vec)))
            xs)))))
 
