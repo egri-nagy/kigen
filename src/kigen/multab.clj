@@ -61,10 +61,10 @@
   ([mt sgp gens x]
    (letfn
        [(finished? [[sgp gens]]
-          (or (empty? gens) (contains? sgp x) (contains? gens x)))
+          (or (contains? sgp x) (contains? gens x)))
         (extend [[sgp gens]]
           #{[(set  (union sgp gens)) (set (newelements mt sgp gens))]})]
-     (nil?
+     (some?
       (orbit/first-solution-single [sgp gens] extend (fn [x] true) finished?)))))
 
 (defn min-extensions
@@ -72,7 +72,7 @@
   multiplication table mt."
   [mt closedsub]
   (let [complement (difference (elts mt) closedsub)]
-    (set (map #(closure mt closedsub #{%}) complement))))
+    (set (pmap #(closure mt closedsub #{%}) complement))))
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication

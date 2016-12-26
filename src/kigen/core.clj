@@ -6,6 +6,7 @@
             [kigen.poset]
             [kigen.sgp]
             [kigen.multab]
+            [kigen.igs]
             [kigen.orbit])
   (:gen-class))
 
