@@ -1,5 +1,5 @@
-(ns kigen.backtrack
-  "Partitioned backtrack search for morphisms and morphic relations.
+(ns kigen.morphism
+  "Constructing morphisms and morphic relations.
   input: two multiplication tables (source, target)
   output: vectors describing morphisms")
 
@@ -12,8 +12,8 @@
 (defmacro at [mt i j]
     `((~mt ~i) ~j))
 
-(defn good?
-  ([S T hom] (good? S T hom (vec (range (count hom))) (set hom))) ; TODO reverse here maybe?
+(defn morphic?
+  ([S T hom] (morphic? S T hom (vec (range (count hom))) (set hom))) ; TODO reverse here maybe?
   ([S T hom, dom, cod]
    (letfn [(f [x y] (let [z (at S x y)
                           t (at T (hom x) (hom y))]
@@ -30,11 +30,11 @@
 (defn backtrack
   "S source set of elements, T target set of elements,
   hom - (partial) morphism
-  good? - takes a partial solution and the next element
+  morphic? - takes a partial morphism and decides
   choices - the possible next elements based on partial solution and source"
-  [S,T,hom,  good?, choices]
+  [S,T,hom,  morphic?, choices]
   (if (= (count S) (count hom))
     hom ; it is a solution
-    (let [goodones (filter #(good? hom %) (choices hom S))
+    (let [morphicones (filter #(morphic? hom %) (choices hom S))
           ]
       nil)))
