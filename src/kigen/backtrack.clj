@@ -14,12 +14,11 @@
 
 (defn good? [S, T, hom, t]
   (let [dom (range (count S))]
-    (every?
-     (fn [x] (every?
-              (fn [y] (= (hom (at S x y))
-                         (at T (hom x) (hom y))))
-              dom))
-     dom)))
+    (nil? (first (for [x dom
+                       y dom
+                       :when (not= (hom (at S x y))
+                                   (at T (hom x) (hom y)))]
+                   [x y])))))
 
 (defn backtrack
   "S source set of elements, T target set of elements,
