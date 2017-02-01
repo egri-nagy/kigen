@@ -12,22 +12,24 @@
 (defmacro at [mt i j]
     `((~mt ~i) ~j))
 
-(defn good? [S, T, hom, t]
-  (let [dom (range (count S))]
-    (nil? (first (for [x dom
-                       y dom
-                       :when (not= (hom (at S x y))
-                                   (at T (hom x) (hom y)))]
-                   [x y])))))
+(defn good?
+  ([S T hom] (good? S T hom (range (count S)) (set hom)))
+  ([S T hom, dom, cod]
+   (let [dom (range (count S))]
+     (nil? (first (for [x dom
+                        y dom
+                        :when (not= (hom (at S x y))
+                                    (at T (hom x) (hom y)))]
+                    [x y]))))))
 
 (defn backtrack
   "S source set of elements, T target set of elements,
-  psol - partial solution
+  hom - (partial) morphism
   good? - takes a partial solution and the next element
   choices - the possible next elements based on partial solution and source"
-  [S,T,psol,  good?, choices]
-  (if (= (count S) (count psol))
-    psol ; it is a solution
-    (let [goodones (filter #(good? psol %) (choices psol S))
+  [S,T,hom,  good?, choices]
+  (if (= (count S) (count hom))
+    hom ; it is a solution
+    (let [goodones (filter #(good? hom %) (choices hom S))
           ]
       nil)))
