@@ -13,13 +13,18 @@
     `((~mt ~i) ~j))
 
 (defn good?
-  ([S T hom] (good? S T hom (range (count S)) (set hom)))
+  ([S T hom] (good? S T hom (vec (range (count hom))) (set hom))) ; TODO reverse here maybe?
   ([S T hom, dom, cod]
-   (let [dom (range (count S))]
+   (letfn [(f [x y] (let [z (at S x y)
+                          t (at T (hom x) (hom y))]
+                      (or (and (contains? cod t) ; verbose logic, should be reduced
+                               (contains? dom z)
+                               (= t (hom z)))
+                          (and (not (contains? cod t))
+                               (not (contains? dom z))))))]
      (nil? (first (for [x dom
                         y dom
-                        :when (not= (hom (at S x y))
-                                    (at T (hom x) (hom y)))]
+                        :when (not (f x y))]
                     [x y]))))))
 
 (defn backtrack
