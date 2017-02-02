@@ -13,18 +13,21 @@
     `((~mt ~i) ~j))
 
 (defn morphic?
-  ([S T hom] (morphic? S T hom (vec (range (count hom))) (set hom))) ; TODO reverse here maybe?
-  ([S T hom, dom, cod]
-   (letfn [(f [x y] (let [z (at S x y)
-                          t (at T (hom x) (hom y))]
-                      (not  (and (contains? cod t) ; experimenting with the condition, this one is too permissive
-                                 (contains? dom z)
-                                 (not= t (hom z))))
-                      ))]
-     (first (for [x dom
-                  y dom
-                  :when (not (f x y))]
-              [x y])))))
+  "Decides whether the mapping hom from S to T is homomorphic or not."
+  [S T hom]
+  (let [dom (vec (range (count hom)))
+        cod (set hom)]
+    (letfn [(f [x y] (let [z (at S x y)
+                           XY (at T (hom x) (hom y))]
+                       (or
+                        ;both defined but not matching
+                        (and (contains? cod XY)
+                                (contains? dom z)
+                                (not= XY (hom z)))
+                        ;finishing but XY not defined
+                        (and (= (count dom) (count S))
+                                (not (contains? cod XY))))))]
+      (nil? (first (for [x dom y dom :when (f x y)] [x y]))))))
 
 (defn backtrack
   "S source set of elements, T target set of elements,
@@ -35,4 +38,4 @@
   (if (= (count S) (count hom))
     (print hom)
     (map #(backtrack S T % morphic? choices)
-         (filter #(nil? (morphic? S T %)) (map #(conj hom %) choices)))))
+         (filter #(morphic? S T %) (map #(conj hom %) choices)))))
