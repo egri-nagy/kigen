@@ -35,7 +35,11 @@
   morphic? - takes a partial morphism and decides
   choices - the possible next elements based on partial solution and source"
   [S,T,hom,  morphic?, choices]
-  (if (= (count S) (count hom))
-    (print hom)
-    (map #(backtrack S T % morphic? choices)
-         (filter #(morphic? S T %) (map #(conj hom %) choices)))))
+  (loop [homs [hom]]
+    (if (= (count (first homs)) (count S))
+      homs
+      (recur (mapcat
+              (fn [hom] (filter
+                         #(morphic? S T %)
+                         (map #(conj hom %) choices)))
+              homs)))))
