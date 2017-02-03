@@ -29,7 +29,7 @@
                                 (not (contains? cod XY))))))]
       (nil? (first (for [x dom y dom :when (f x y)] [x y]))))))
 
-(defn backtrack
+(defn search
   "S source set of elements, T target set of elements,
   hom - (partial) morphism
   morphic? - takes a partial morphism and decides
@@ -43,3 +43,17 @@
                          #(morphic? S T %)
                          (map #(conj hom %) choices)))
               homs)))))
+
+(defn backtrack
+  "S source set of elements, T target set of elements,
+  hom - (partial) morphism
+  morphic? - takes a partial morphism and decides
+  choices - the possible next elements based on partial solution and source"
+  [S,T,hom,  morphic?, choices]
+  (if (= (count hom) (count S))
+    [hom]
+    (mapcat
+     #(backtrack S T % morphic? choices)
+     (filter
+      #(morphic? S T %)
+      (map #(conj hom %) choices)))))
