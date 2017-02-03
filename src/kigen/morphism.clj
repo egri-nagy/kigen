@@ -43,14 +43,15 @@
   "S source multab
    T target multab
   hom - (partial) morphism
-  morphic? - takes a partial morphism and decides
+  morphic? - predicate deciding whether a map is a (potential) morphism or not
   choices - the possible next elements based on partial solution and source"
-  [S,T,hom,  morphic?, choices]
-  (letfn [(backtrack  [hom choices]
-            (if (= (count hom) (count S))
-              [hom]
-              (let [extensions (filter
-                                #(morphic? S T %)
-                                (map #(conj hom %) choices))] 
-                (mapcat #(backtrack % choices) extensions))))]
-    (backtrack hom choices)))
+  [S,T,hom,  morphic?]
+  (let [Tset (set (range (count T)))]
+    (letfn [(backtrack  [hom]
+              (if (= (count hom) (count S))
+                [hom]
+                (let [extensions (filter
+                                  #(morphic? S T %)
+                                  (map #(conj hom %) Tset))] 
+                  (mapcat backtrack  extensions))))]
+      (backtrack hom))))
