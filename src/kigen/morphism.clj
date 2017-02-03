@@ -44,19 +44,18 @@
                          (map #(conj hom %) choices)))
               homs)))))
 
-(defn backtrack
+(defn morphisms
   "S source multab
    T target multab
   hom - (partial) morphism
   morphic? - takes a partial morphism and decides
   choices - the possible next elements based on partial solution and source"
   [S,T,hom,  morphic?, choices]
-  (letfn [(f  [hom choices]
+  (letfn [(backtrack  [hom choices]
             (if (= (count hom) (count S))
               [hom]
-              (mapcat
-               #(f % choices)
-               (filter
-                #(morphic? S T %)
-                (map #(conj hom %) choices)))))]
-    (f hom choices)))
+              (let [extensions (filter
+                                #(morphic? S T %)
+                                (map #(conj hom %) choices))] 
+                (mapcat #(backtrack % choices) extensions))))]
+    (backtrack hom choices)))
