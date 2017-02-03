@@ -3,7 +3,7 @@
             [kigen.orbit :refer [full-orbit-bulk right-actions set-action]]
             [kigen.pbr :as pbr]))
 
-(declare sg-by-gens
+(declare sgp-by-gens
          commutative?)
 
 (defn sgp-by-gens
