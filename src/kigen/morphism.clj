@@ -55,3 +55,21 @@
                                   (map #(conj hom %) Tset))] 
                   (mapcat backtrack  extensions))))]
       (backtrack hom))))
+
+(defn isomorphisms
+  "S source multab
+   T target multab
+  hom - (partial) morphism
+  morphic? - predicate deciding whether a map is a (potential) morphism or not
+  choices - the possible next elements based on partial solution and source"
+  [S,T,hom,  morphic?]
+  (let [Tset (set (range (count T)))]
+    (letfn [(backtrack  [hom choices]
+              (if (= (count hom) (count S))
+                [hom]
+                (let [valid-choices (remove (set hom) choices)
+                      extensions (filter
+                                  #(morphic? S T %)
+                                  (map #(conj hom %) valid-choices))] 
+                  (mapcat #(backtrack % choices)  extensions))))]
+      (backtrack hom Tset))))
