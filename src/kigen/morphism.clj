@@ -3,11 +3,6 @@
   input: two multiplication tables (source, target)
   output: vectors describing morphisms")
 
-;just for experimenting with
-(def T2 [ [ 0, 0, 3, 3 ],
-         [ 0, 1, 2, 3 ],
-         [ 0, 2, 1, 3 ],
-         [ 0, 3, 0, 3 ] ])
 
 (defmacro at [mt i j]
     `((~mt ~i) ~j))
