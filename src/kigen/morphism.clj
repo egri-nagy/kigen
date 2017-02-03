@@ -10,12 +10,12 @@
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
   [S T hom dom cod]
-  (letfn [(f [x y] (let [z (at S x y)
+  (letfn [(fail? [x y] (let [z (at S x y)
                          XY (at T (hom x) (hom y))]
                      (if (contains? cod XY)
                        (and (contains? dom z) (not= XY (hom z)))
                        (= (count dom) (count S)))))]
-      (nil? (first (for [x dom y dom :when (f x y)] [x y])))))
+      (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
 
 (defn morphisms
   "S source multab
