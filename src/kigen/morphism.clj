@@ -34,10 +34,14 @@
               (if (= (count hom) (count S))
                 [hom]
                 (let [ndom (conj dom (count hom))
-                      extensions (filter
-                                  #(morphic? S T (conj hom %) ndom (conj cod %))
-                                  Tset)] 
-                  (mapcat #(backtrack (conj hom %) ndom (conj cod %))  extensions))))]
+                      extensions (map (fn [x] [(conj hom x) (conj cod x)]) Tset)
+                      morphic-extensions (filter
+                                          (fn [[nhom ncod]]
+                                            (morphic? S T nhom ndom ncod))
+                                          extensions)] 
+                  (mapcat
+                   (fn [[nhom ncod]] (backtrack nhom ndom ncod))
+                   morphic-extensions))))]
       (backtrack hom (vec (range (count hom))) (set hom)))))
 
 (defn isomorphic?
