@@ -24,21 +24,6 @@
                                 (not (contains? cod XY))))))]
       (nil? (first (for [x dom y dom :when (f x y)] [x y]))))))
 
-(defn search
-  "S source set of elements, T target set of elements,
-  hom - (partial) morphism
-  morphic? - takes a partial morphism and decides
-  choices - the possible next elements based on partial solution and source"
-  [S,T,hom,  morphic?, choices]
-  (loop [homs [hom]]
-    (if (= (count (first homs)) (count S))
-      homs
-      (recur (mapcat
-              (fn [hom] (filter
-                         #(morphic? S T %)
-                         (map #(conj hom %) choices)))
-              homs)))))
-
 (defn morphisms
   "S source multab
    T target multab
