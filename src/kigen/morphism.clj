@@ -1,7 +1,9 @@
 (ns kigen.morphism
   "Constructing morphisms and morphic relations.
   input: two multiplication tables (source, target)
-  output: vectors describing morphisms")
+  output: vectors describing morphisms"
+  (:require [kigen.multab :as multab]
+            [clojure.set :refer [subset?]]))
 
 
 (defmacro at [mt i j]
@@ -16,6 +18,17 @@
                        (and (contains? dom z) (not= XY (hom z)))
                        (= (count dom) (count S)))))]
       (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
+
+(defn relmorphic?
+  "Decides whether the mapping hom from S to T is homomorphic or not."
+  [S T hom dom cod]
+  (letfn [(fail? [x y] (let [z (at S x y)
+                             XY (multab/set-mul  T (hom x) (hom y))]
+                         (if (contains? cod XY)
+                           (and (contains? dom z) (not (subset? (hom z) XY)))
+                           (= (count dom) (count S)))))]
+    (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
+
 
 (defn morphisms
   "S source multab
