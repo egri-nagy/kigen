@@ -21,24 +21,25 @@
   "S source multab
    T target multab
   hom - (partial) morphism
-  morphic? - predicate deciding whether a map is a (potential) morphism or not"
-  [S,T,hom, morphic?]
-  (let [Tset (set (range (count T)))]
-    (letfn [(backtrack [hom dom cod]
-              (if (= (count hom) (count S))
-                [hom]
-                (let [ndom (conj dom (count hom))
-                      extensions (map
-                                  (fn [x] [(conj hom x) (conj cod x)])
-                                  Tset)
-                      morphic-extensions (filter
-                                          (fn [[nhom ncod]]
-                                            (morphic? S T nhom ndom ncod))
-                                          extensions)] 
-                  (mapcat
-                   (fn [[nhom ncod]] (backtrack nhom ndom ncod))
-                   morphic-extensions))))]
-      (backtrack hom (vec (range (count hom))) (set hom)))))
+  morphic? - predicate deciding whether a map is a (potential) morphism or not
+  targets - subset of T that are possible targets of the morphism"
+  ([S,T,hom, morphic?] (morphisms S T hom morphic? (set (range (count T)))))
+  ([S,T,hom, morphic?, targets]
+   (letfn [(backtrack [hom dom cod]
+             (if (= (count hom) (count S))
+               [hom]
+               (let [ndom (conj dom (count hom))
+                     extensions (map
+                                 (fn [x] [(conj hom x) (conj cod x)])
+                                 targets)
+                     morphic-extensions (filter
+                                         (fn [[nhom ncod]]
+                                           (morphic? S T nhom ndom ncod))
+                                         extensions)]
+                 (mapcat
+                  (fn [[nhom ncod]] (backtrack nhom ndom ncod))
+                  morphic-extensions))))]
+     (backtrack hom (vec (range (count hom))) (set hom)))))
 
 (defn isomorphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
@@ -66,6 +67,6 @@
                 (let [valid-choices (remove (set hom) choices)
                       extensions (filter
                                   #(morphic? S T %)
-                                  (map #(conj hom %) valid-choices))] 
+                                  (map #(conj hom %) valid-choices))]
                   (mapcat #(backtrack % choices)  extensions))))]
       (backtrack hom Tset))))
