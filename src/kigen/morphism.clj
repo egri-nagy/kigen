@@ -45,12 +45,12 @@
   [S T hom]
   (let [dom (vec (range (count hom)))
         cod (set hom)]
-    (letfn [(f [x y] (let [z (at S x y)
+    (letfn [(good? [x y] (let [z (at S x y)
                            XY (at T (hom x) (hom y))]
                        (if  (contains? dom z)
                          (= XY (hom z))
                          (not (contains? cod XY)))))]
-      (nil? (first (for [x dom y dom :when (not (f x y))] [x y]))))))
+      (nil? (first (for [x dom y dom :when (not (good? x y))] [x y]))))))
 
 (defn isomorphisms
   "S source multab
