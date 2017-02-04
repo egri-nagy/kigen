@@ -20,15 +20,14 @@
       (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
 
 (defn relmorphic?
-  "Decides whether the mapping hom from S to T is homomorphic or not."
+  "Decides whether the (partial) mapping hom from S to T with given domain and
+  codomainis a relational morphism or not."
   [S T hom dom cod]
-  (letfn [(fail? [x y] (let [z (at S x y)
-                             XY (multab/set-mul  T (hom x) (hom y))]
-                         (if (contains? cod XY)
-                           (and (contains? dom z) (not (subset? (hom z) XY)))
-                           (= (count dom) (count S)))))]
+  (letfn [(fail? [x y] (let [xy (at S x y)
+                             XY (multab/set-mul T (hom x) (hom y))]
+                         (and (contains? dom xy)
+                              (not (subset? XY (hom xy))))))]
     (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
-
 
 (defn morphisms
   "S source multab
