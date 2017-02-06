@@ -2,12 +2,8 @@
   "Constructing morphisms and morphic relations.
   input: two multiplication tables (source, target)
   output: vectors describing morphisms"
-  (:require [kigen.multab :as multab]
+  (:require [kigen.multab :as multab :refer [at]]
             [clojure.set :refer [subset?]]))
-
-
-(defmacro at [mt i j]
-    `((~mt ~i) ~j))
 
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."

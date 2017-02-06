@@ -10,6 +10,11 @@
             [kigen.pbr :as pbr]
             [kigen.pos :as pos]))
 
+(defmacro at
+  "Convenient accessing of matrix elements."
+  [mt i j]
+  `((~mt ~i) ~j))
+
 (defn multab
   "Returns the multiplication table of the elements xs by the function mul.
   The default is PBR multiplication. Computation is done by rows in parallel."
@@ -32,7 +37,7 @@
 (defn set-mul
   "Setwise multiplication of subsets of a multab. For A and B it returns AB."
   [mt A B]
-  (set (for [i A j B] ((mt i) j))))
+  (set (for [i A j B] (at mt i j))))
 
 (defn newelements
   "For a subsemigroup S and a subset X in mt this returns the elements
