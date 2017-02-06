@@ -31,7 +31,7 @@
   hom - (partial) morphism
   morphic? - predicate deciding whether a map is a (potential) morphism or not
   targets - subset of T that are possible targets of the morphism"
-  ([S,T,hom, morphic?] (morphisms S T hom morphic? (set (range (count T)))))
+  ([S,T,hom, morphic?] (morphisms S T hom morphic? (multab/elts T)))
   ([S,T,hom, morphic?, targets]
    (letfn [(backtrack [hom dom cod]
              (if (= (count hom) (count S))
@@ -68,7 +68,7 @@
   morphic? - predicate deciding whether a map is a (potential) morphism or not
   choices - the possible next elements based on partial solution and source"
   [S,T,hom,  morphic?]
-  (let [Tset (set (range (count T)))]
+  (let [Tset (multab/elts T)]
     (letfn [(backtrack  [hom choices]
               (if (= (count hom) (count S))
                 [hom]
