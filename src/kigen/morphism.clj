@@ -3,7 +3,8 @@
   input: two multiplication tables (source, target)
   output: vectors describing morphisms"
   (:require [kigen.multab :as multab :refer [at]]
-            [clojure.set :refer [subset?]]))
+            [clojure.set :refer [subset?]]
+            [clojure.math.combinatorics :refer [subsets]]))
 
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
@@ -14,6 +15,10 @@
                        (and (contains? dom z) (not= XY (hom z)))
                        (= (count dom) (count S)))))]
       (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
+
+(defn non-empty-subsets [X]
+  (set
+   (remove #{#{}} (map set (clojure.math.combinatorics/subsets (seq X))))))
 
 (defn relmorphic?
   "Decides whether the (partial) mapping hom from S to T with given domain and
