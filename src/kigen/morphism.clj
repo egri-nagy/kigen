@@ -6,7 +6,7 @@
             [clojure.set :refer [subset?]]
             [clojure.math.combinatorics :refer [subsets partitions]]))
 
-(declare morphsims)
+(declare morphisms)
 
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
