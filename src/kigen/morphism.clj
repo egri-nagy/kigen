@@ -27,20 +27,16 @@
 ;;------------------------------------------------------------------------------
 ;; high-level, easy to call user functions for finding morphisms
 
-(defn relmorphisms [S T]
+(defn relmorphisms "All relational morphisms from S to T."
+  [S T]
   (morphism-search S T []
                    (set (non-empty-subsets (multab/elts T)))
                    relmorphic?
                    one-to-many))
 
-(defn morphisms [S T]
-  (morphism-search S T [] (set (multab/elts T)) morphic? one-to-many))
-
-(defn isomorphisms [S T]
-  (morphism-search S T [] (set (multab/elts T)) isomorphic? one-to-one))
-
-(defn divisions [S T]
-  "All division from S to T."
+(defn divisions
+  "All divisions from S to T."
+  [S T]
   (mapcat
    #(morphism-search S T []
                      (set %)
@@ -48,17 +44,25 @@
                      one-to-one)
    (big-enough-partitions S (multab/elts T))))
 
+(defn homomorphisms "All homomorphisms from S to T."
+  [S T]
+  (morphism-search S T [] (set (multab/elts T)) morphic? one-to-many))
+
+(defn isomorphisms
+  "All isomorphisms from S to T."
+  [S T]
+  (morphism-search S T [] (set (multab/elts T)) isomorphic? one-to-one))
+
 ;;------------------------------------------------------------------------------
 ;; the generic search algorithm
 
-;TODO the partial part is not done yet
 (defn morphism-search
   "A backtrack search for constructing morphisms from a source multiplication
   table S to a target T. A partial morphism can be given to constrain the search
-  or an empty vector to get all.
-    hom - (partial) morphism
-  morphic? - predicate deciding whether a map is a (potential) morphism or not
-  targets - subset of T that are possible targets of the morphism"
+  (TODO the partial part is not done yet) or an empty vector to get all.
+  The predicate function accept? checks whether a new extension is morphic or not
+  according to the type of the morphism. The function cands-update-fn keeps track
+  of the possible candidates at each extension."
   [S,T,hom, cands, accept?, cands-update-fn]
   (letfn [(backtrack [hom dom cod cands]
             (if (= (count hom) (count S))
@@ -128,10 +132,14 @@
 ;;------------------------------------------------------------------------------
 ;; Constructing set valued candidates for relational morphisms.
 
-(defn non-empty-subsets [T]
+(defn non-empty-subsets
+  "All subsets of T as sets, except the empty set."
+  [T]
   (remove #{#{}}
           (map set (subsets (seq T)))))
 
-(defn big-enough-partitions [S T]
+(defn big-enough-partitions
+  "All partitions of T with at least |S| many elements. The elements are sets."
+  [S T]
   (filter #(<= (count S) (count %))
           (map #(map set %) (partitions (seq T)))))
