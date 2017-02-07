@@ -4,7 +4,9 @@
   output: vectors describing morphisms"
   (:require [kigen.multab :as multab :refer [at]]
             [clojure.set :refer [subset?]]
-            [clojure.math.combinatorics :refer [subsets]]))
+            [clojure.math.combinatorics :refer [subsets partitions]]))
+
+(declare morphsims)
 
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
@@ -16,9 +18,13 @@
                        (= (count dom) (count S)))))]
       (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
 
-(defn non-empty-subsets [X]
-  (set
-   (remove #{#{}} (map set (clojure.math.combinatorics/subsets (seq X))))))
+(defn non-empty-subsets [T]
+  (remove #{#{}}
+          (map set (subsets (seq T)))))
+
+(defn big-enough-partitions [S T]
+  (filter #(<= (count S) (count %))
+          (map #(map set %) (partitions (seq T)))))
 
 (defn relmorphic?
   "Decides whether the (partial) mapping hom from S to T with given domain and
@@ -42,6 +48,19 @@
 
 (defn one-to-many [targets x] targets)
 (defn one-to-one [targets x] (disj  targets x))
+
+(defn relmorphisms [S T hom]
+   (morphisms one-to-many S T hom relmorphic?
+             (set (non-empty-subsets (multab/elts T)))))
+
+(defn isomorphisms [S T hom]
+  (morphisms one-to-one S T hom isomorphic?))
+
+
+(defn divisions [S T hom]
+  (mapcat
+   #(morphisms one-to-one S T hom relmorphic? (set %))
+   (big-enough-partitions S (multab/elts T))))
 
 (defn morphisms
   "S source multab
