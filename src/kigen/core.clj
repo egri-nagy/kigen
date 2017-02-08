@@ -11,12 +11,6 @@
             [kigen.morphism :as morphism])
   (:gen-class))
 
-;just for experimenting with
-(def T2 (multab/multab (sgp/sgp-by-gens (transf/full-ts-gens 2))))
-(def T3 (multab/multab (sgp/sgp-by-gens (transf/full-ts-gens 3))))
-(def S2 (multab/multab (sgp/sgp-by-gens (transf/symmetric-gens 2))))
-(def S3 (multab/multab (sgp/sgp-by-gens (transf/symmetric-gens 3))))
-
 (defn -main
   "just a main"
   [& args]
