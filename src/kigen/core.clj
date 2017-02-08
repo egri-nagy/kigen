@@ -12,6 +12,8 @@
   (:gen-class))
 
 (defn -main
-  "just a main"
+  "The first argument is a name of a file containing Clojure source code.
+  This main method evaluates the forms contained."
   [& args]
-  (println "REPL me please!"))
+  (load-file (first args))
+  (shutdown-agents))
