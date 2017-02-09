@@ -1,7 +1,7 @@
 (ns kigen.morphism
   "Constructing morphisms and morphic relations.
   input: two multiplication tables (source, target)
-  output: vectors describing morphisms"
+  output: vectors describing morphisms, index -> image"
   (:require [kigen.multab :as multab :refer [at]]
             [clojure.set :refer [subset?]]
             [clojure.math.combinatorics :refer [subsets partitions]]))
@@ -60,15 +60,15 @@
   "A backtrack search for constructing morphisms from a source multiplication
   table S to a target T. A partial morphism can be given to constrain the search
   (TODO the partial part is not done yet) or an empty vector to get all.
-  The predicate function accept? checks whether a new extension is morphic or not
-  according to the type of the morphism. The function cands-update-fn keeps track
-  of the possible candidates at each extension."
+  The predicate function accept? checks whether a new extension is morphic or
+  not according to the type of the morphism. The function cands-update-fn keeps
+  track of the possible candidates at each extension."
   [S,T,hom, cands, accept?, cands-update-fn]
   (letfn [(backtrack [hom dom cod cands]
             (if (= (count hom) (count S))
               [hom]
               (let [ndom (conj dom (count hom))
-                    extensions (map
+                    extensions (map ; creating argument vector for recursion
                                 (fn [x] [(conj hom x)
                                          (conj cod x)
                                          (cands-update-fn cands x)])
@@ -77,7 +77,7 @@
                                         (fn [[nhom ncod]]
                                           (accept? S T nhom ndom ncod))
                                         extensions)]
-                (mapcat
+                (mapcat ; recursion here
                  (fn [[nhom ncod tgs]] (backtrack nhom ndom ncod tgs))
                  morphic-extensions))))]
     (backtrack hom (vec (range (count hom))) (set hom) cands)))
@@ -141,5 +141,6 @@
 (defn big-enough-partitions
   "All partitions of T with at least |S| many elements. The elements are sets."
   [S T]
-  (filter #(<= (count S) (count %))
-          (map #(map set %) (partitions (seq T)))))
+  (map #(map set %)
+       (filter #(<= (count S) (count %))
+               (partitions (seq T)))))
