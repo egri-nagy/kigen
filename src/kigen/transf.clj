@@ -1,6 +1,6 @@
 (ns kigen.transf
   "Transformations and permutations. Several embeddings into partitioned
-  binary relations."
+  binary relations. Also, simple representation as a vector."
   (:require [kigen.pbr :as pbr]))
 
 (declare singleton?
@@ -72,6 +72,8 @@
 (defn ncycle [n] (concat (range 2 (inc n)) [1]))
 (defn collapsing [n] (concat [1 1] (range 3 (inc n))))
 
+
+;; STANDARD GENERATING SETS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn symmetric-gens
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
@@ -87,7 +89,10 @@
     (symmetric-gens n)
     (concat (symmetric-gens n) [(transf-> (collapsing n))])))
 
-;TODO 0 as partial!
+(defn transf-mul
+  "Right multiplication of transformations represented by vectors."
+  [s t]
+  (mapv t s)) ; as simple as that
 
 ;;acting as pbr, then shift back the resulting set to have a transformation of
 ;;the canonical set 1..n ; TODO does this work for both representations?
