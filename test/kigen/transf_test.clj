@@ -32,19 +32,19 @@
     (let [pow #(reduce * 1 (repeat %2 %1))]
       (doseq [n [1 2 3 4]]
         (is (= (pow n n)
-               (count(sgp/sgp-by-gens (transf/full-ts-gens n) pbr/mul))))))))
+               (count(sgp/sgp-by-gens (transf/full-ts-gens n) transf/mul))))))))
 
 (deftest pbr-full-ts-test
   (testing "Testing full transformation semigroups."
     (let [pow #(reduce * 1 (repeat %2 %1))]
       (doseq [n [1 2 3 4]]
         (is (= (pow n n)
-               (count(sgp/sgp-by-gens (transf/full-ts-gens n) pbr/mul))))))))
+               (count(sgp/sgp-by-gens (transf/full-ts-gens n) transf/mul))))))))
 
 (deftest pbr-transf-test
   (testing "Testing converting to image list and back."
-    (let [pred #(= (transf/transf-> (transf/->transf %)) %)]
+    (let [pred #(= (transf/->transf (transf/transf-> %)) %)]
       (doseq [n [1 2 3 4]]
         (is (= true
                (every? pred
-                       (sgp/sgp-by-gens (transf/full-ts-gens n) pbr/mul))))))))
+                       (sgp/sgp-by-gens (transf/full-ts-gens n) transf/mul))))))))

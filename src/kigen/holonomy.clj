@@ -8,7 +8,7 @@
 
 (defn finite-set
   "Returns the set of integers 1..n, canonical representation of finite sets."
-  [n] (set (range 1 (inc n))))
+  [n] (set (range n)))
 
 (defn subduction-function
   "P subduces Q if Q can be transformed by the actions to be a superset of P.
@@ -53,7 +53,7 @@
   [gens]
   (let [r-a-gens (o/right-actions t/act gens) ; right action generators
         subduction? (subduction-function r-a-gens)
-        stateset (finite-set (t/transf-degree (first gens)))
+        stateset (finite-set (count (first gens)))
         singletons (set (map hash-set stateset))
         images (o/full-orbit-bulk [stateset] (set-action r-a-gens))
         extd (into images singletons)
