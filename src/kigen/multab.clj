@@ -39,6 +39,17 @@
   [mt A B]
   (set (for [i A j B] (at mt i j))))
 
+(defn index-period
+  [mt x]
+  (letfn [(f [v] (conj v (at mt (peek v) x)))]
+    (let [orbit (first (drop-while
+                        #(apply distinct? %)
+                        (iterate f [x])))
+          repeated (peek orbit)
+          index  (inc (pos/position #(= repeated %) orbit))
+          period (- (count orbit) index)]
+      [index period])))
+
 (defn newelements
   "For a subsemigroup S and a subset X in mt this returns the elements
   (SX union XS) setminus (S union X)."
