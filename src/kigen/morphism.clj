@@ -142,6 +142,7 @@
                            (= XY (hom z))
                            (not (contains? cod XY)))))]
     (nil? (first (for [x dom y dom :when (not (good? x y))] [x y])))))
+                                        ; TODO reversing domain does not make it faster, why?
 
 ;;------------------------------------------------------------------------------
 ;; Constructing set valued candidates for relational morphisms.
