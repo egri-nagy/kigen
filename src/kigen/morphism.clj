@@ -49,7 +49,12 @@
 (defn isomorphisms
   "All isomorphisms from S to T."
   [S T]
-  (let [cands (set (multab/elts T))]
+  (let [cands (set (multab/elts T))
+        m (group-by #(multab/index-period T %) cands)
+        ippairs->Tsubsets (reduce #(update-in %1 [%2] set) m (keys m))
+        Sips (map #(multab/index-period S %)  (range (count S)))
+        cands-fn (mapv ippairs->Tsubsets Sips)]
+    (println cands-fn)
     (one-to-1-morphism-search S T [] cands isomorphic? (fn [x] cands))))
 
 
