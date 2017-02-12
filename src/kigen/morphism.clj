@@ -3,7 +3,7 @@
   input: two multiplication tables (source, target)
   output: vectors describing morphisms, index -> image"
   (:require [kigen.multab :as multab :refer [at]]
-            [clojure.set :refer [subset?]]
+            [clojure.set :refer [subset? difference]]
             [clojure.math.combinatorics :refer [subsets partitions]]))
 
 (declare many-to-1-morphism-search ; the backtrack search algorithm
@@ -59,23 +59,23 @@
   vector to get all. The predicate function accept? checks whether a new
   extension is morphic or not according to the type of the morphism."
   [S,T,hom, cands, accept?]
-  (letfn [(backtrack [hom dom cod ncands]
+  (letfn [(backtrack [hom dom cod used]
             (if (= (count hom) (count S))
               [hom]
               (let [ndom (conj dom (count hom))
                     extensions (map ; creating argument vector for recursion
                                 (fn [x] [(conj hom x)
                                          (conj cod x)
-                                         (disj ncands x)])
-                                ncands)
+                                         (conj used x)])
+                                (difference cands used))
                     morphic-extensions (filter
                                         (fn [[nhom ncod]]
                                           (accept? S T nhom ndom ncod))
                                         extensions)]
                 (mapcat ; recursion here
-                 (fn [[nhom ncod ncands]] (backtrack nhom ndom ncod ncands))
+                 (fn [[nhom ncod used]] (backtrack nhom ndom ncod used))
                  morphic-extensions))))]
-    (backtrack hom (vec (range (count hom))) (set hom) (set cands))))
+    (backtrack hom (vec (range (count hom))) (set hom) #{})))
 
 (defn many-to-1-morphism-search
   "A backtrack search for constructing lossy morphisms from a source multiplication
