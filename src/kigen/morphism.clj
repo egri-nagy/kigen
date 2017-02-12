@@ -39,15 +39,19 @@
   "All divisions from S to T."
   [S T]
   (mapcat
-   #(one-to-1-morphism-search S T []
-                     (set %)
-                     relmorphic?)
+   #(let [cands (set %)]
+      (one-to-1-morphism-search S T []
+                                cands
+                                relmorphic?
+                                (fn [x] cands)))
    (big-enough-partitions S (multab/elts T))))
 
 (defn isomorphisms
   "All isomorphisms from S to T."
   [S T]
-  (one-to-1-morphism-search S T [] (set (multab/elts T)) isomorphic?))
+  (let [cands (set (multab/elts T))]
+    (one-to-1-morphism-search S T [] cands isomorphic? (fn [x] cands))))
+
 
 ;;------------------------------------------------------------------------------
 ;; the generic search algorithms
@@ -58,7 +62,7 @@
   constrain the search (TODO the partial part is not done yet) or an empty
   vector to get all. The predicate function accept? checks whether a new
   extension is morphic or not according to the type of the morphism."
-  [S,T,hom, cands, accept?]
+  [S,T,hom, cands, accept? cand-fn]
   (letfn [(backtrack [hom dom cod used]
             (if (= (count hom) (count S))
               [hom]
@@ -67,7 +71,7 @@
                                 (fn [x] [(conj hom x)
                                          (conj cod x)
                                          (conj used x)])
-                                (difference cands used))
+                                (difference (cand-fn (peek ndom)) used))
                     morphic-extensions (filter
                                         (fn [[nhom ncod]]
                                           (accept? S T nhom ndom ncod))
