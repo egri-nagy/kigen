@@ -6,7 +6,8 @@
             [clojure.set :refer [subset?]]
             [clojure.math.combinatorics :refer [subsets partitions]]))
 
-(declare morphism-search ; the backtrack search algorithm
+(declare many-to-1-morphism-search ; the backtrack search algorithm
+         one-to-1-morphism-search
          ; high-level functions
          relmorphisms
          divisions
@@ -16,9 +17,6 @@
          relmorphic?
          morphic?
          isomorphic?
-         ; update functions for the set of candidates
-         one-to-one
-         one-to-many
          ; util functions for setting up set-valued candidates
          non-empty-subsets
          big-enough-partitions
@@ -29,58 +27,79 @@
 
 (defn relmorphisms "All relational morphisms from S to T."
   [S T]
-  (morphism-search S T []
-                   (set (non-empty-subsets (multab/elts T)))
-                   relmorphic?
-                   one-to-many))
+  (many-to-1-morphism-search S T []
+                             (set (non-empty-subsets (multab/elts T)))
+                             relmorphic?))
+
+(defn homomorphisms "All homomorphisms from S to T."
+  [S T]
+  (many-to-1-morphism-search S T [] (set (multab/elts T)) morphic?))
 
 (defn divisions
   "All divisions from S to T."
   [S T]
   (mapcat
-   #(morphism-search S T []
+   #(one-to-1-morphism-search S T []
                      (set %)
-                     relmorphic?
-                     one-to-one)
+                     relmorphic?)
    (big-enough-partitions S (multab/elts T))))
-
-(defn homomorphisms "All homomorphisms from S to T."
-  [S T]
-  (morphism-search S T [] (set (multab/elts T)) morphic? one-to-many))
 
 (defn isomorphisms
   "All isomorphisms from S to T."
   [S T]
-  (morphism-search S T [] (set (multab/elts T)) isomorphic? one-to-one))
+  (one-to-1-morphism-search S T [] (set (multab/elts T)) isomorphic?))
 
 ;;------------------------------------------------------------------------------
-;; the generic search algorithm
+;; the generic search algorithms
 
-(defn morphism-search
-  "A backtrack search for constructing morphisms from a source multiplication
-  table S to a target T. A partial morphism can be given to constrain the search
-  (TODO the partial part is not done yet) or an empty vector to get all.
-  The predicate function accept? checks whether a new extension is morphic or
-  not according to the type of the morphism. The function cands-update-fn keeps
-  track of the possible candidates at each extension."
-  [S,T,hom, cands, accept?, cands-update-fn]
-  (letfn [(backtrack [hom dom cod cands]
+(defn one-to-1-morphism-search
+  "A backtrack search for constructing lossless morphisms from a source
+  multiplicationctable S to a target T. A partial morphism can be given to
+  constrain the search (TODO the partial part is not done yet) or an empty
+  vector to get all. The predicate function accept? checks whether a new
+  extension is morphic or not according to the type of the morphism."
+  [S,T,hom, cands, accept?]
+  (letfn [(backtrack [hom dom cod ncands]
             (if (= (count hom) (count S))
               [hom]
               (let [ndom (conj dom (count hom))
                     extensions (map ; creating argument vector for recursion
                                 (fn [x] [(conj hom x)
                                          (conj cod x)
-                                         (cands-update-fn cands x)])
+                                         (disj ncands x)])
+                                ncands)
+                    morphic-extensions (filter
+                                        (fn [[nhom ncod]]
+                                          (accept? S T nhom ndom ncod))
+                                        extensions)]
+                (mapcat ; recursion here
+                 (fn [[nhom ncod ncands]] (backtrack nhom ndom ncod ncands))
+                 morphic-extensions))))]
+    (backtrack hom (vec (range (count hom))) (set hom) (set cands))))
+
+(defn many-to-1-morphism-search
+  "A backtrack search for constructing lossy morphisms from a source multiplication
+  table S to a target T. A partial morphism can be given to constrain the search
+  (TODO the partial part is not done yet) or an empty vector to get all.
+  The predicate function accept? checks whether a new extension is morphic or
+  not according to the type of the morphism."
+  [S,T,hom, cands, accept?]
+  (letfn [(backtrack [hom dom cod]
+            (if (= (count hom) (count S))
+              [hom]
+              (let [ndom (conj dom (count hom))
+                    extensions (map ; creating argument vector for recursion
+                                (fn [x] [(conj hom x)
+                                         (conj cod x)])
                                 cands)
                     morphic-extensions (filter
                                         (fn [[nhom ncod]]
                                           (accept? S T nhom ndom ncod))
                                         extensions)]
                 (mapcat ; recursion here
-                 (fn [[nhom ncod tgs]] (backtrack nhom ndom ncod tgs))
+                 (fn [[nhom ncod]] (backtrack nhom ndom ncod))
                  morphic-extensions))))]
-    (backtrack hom (vec (range (count hom))) (set hom) cands)))
+    (backtrack hom (vec (range (count hom))) (set hom))))
 
 ;;------------------------------------------------------------------------------
 ;; accepting predicates for backtrack, checking the 'morphicity' of the map
@@ -115,19 +134,6 @@
                            (= XY (hom z))
                            (not (contains? cod XY)))))]
     (nil? (first (for [x dom y dom :when (not (good? x y))] [x y])))))
-
-;;------------------------------------------------------------------------------
-;; functions for updating the set of candidates in backtrack when extending by x
-
-(defn one-to-many
-  "Candidate set update function. General morphisms allow the same image for
-  different elements, so candidate set just returned."
-  [cands x] cands)
-
-(defn one-to-one
-  "Candidate set update function. Isomorphisms/divisions need to have 1-to-1
-  maps. When extending with x, we need to disjoin x from candidates."
-  [targets x] (disj  targets x))
 
 ;;------------------------------------------------------------------------------
 ;; Constructing set valued candidates for relational morphisms.
