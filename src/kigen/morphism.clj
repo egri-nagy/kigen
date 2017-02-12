@@ -54,8 +54,7 @@
         ippairs->Tsubsets (reduce #(update-in %1 [%2] set) m (keys m))
         Sips (map #(multab/index-period S %)  (range (count S)))
         cands-fn (mapv ippairs->Tsubsets Sips)]
-    (println cands-fn)
-    (one-to-1-morphism-search S T [] cands isomorphic? (fn [x] cands))))
+    (one-to-1-morphism-search S T [] cands isomorphic? cands-fn)))
 
 
 ;;------------------------------------------------------------------------------
