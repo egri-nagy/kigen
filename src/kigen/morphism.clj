@@ -134,7 +134,7 @@
     (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
 
 (defn isomorphic?
-  "Decides whether the mapping hom from S to T is homomorphic or not."
+  "Decides whether the mapping hom from S to T is isomomorphic or not."
   [S T hom dom cod]
   (letfn [(good? [x y] (let [z (at S x y)
                              XY (at T (hom x) (hom y))]
