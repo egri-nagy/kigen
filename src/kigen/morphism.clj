@@ -115,10 +115,10 @@
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
   [S T hom dom cod]
-  (letfn [(fail? [x y] (let [z (at S x y)
+  (letfn [(fail? [x y] (let [xy (at S x y)
                          XY (at T (hom x) (hom y))]
                      (if (contains? cod XY)
-                       (and (contains? dom z) (not= XY (hom z)))
+                       (and (contains? dom xy) (not= XY (hom xy)))
                        (= (count dom) (count S)))))]
       (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
 
@@ -136,10 +136,10 @@
 (defn isomorphic?
   "Decides whether the mapping hom from S to T is isomomorphic or not."
   [S T hom dom cod]
-  (letfn [(good? [x y] (let [z (at S x y)
+  (letfn [(good? [x y] (let [xy (at S x y)
                              XY (at T (hom x) (hom y))]
-                         (if  (contains? dom z)
-                           (= XY (hom z))
+                         (if  (contains? dom xy)
+                           (= XY (hom xy))
                            (not (contains? cod XY)))))]
     (nil? (first (for [x dom y dom :when (not (good? x y))] [x y])))))
                                         ; TODO reversing domain does not make it faster, why?
