@@ -38,13 +38,14 @@
 (defn divisions
   "All divisions from S to T."
   [S T]
-  (mapcat
-   #(let [cands (set %)]
-      (one-to-1-morphism-search S T []
-                                cands
-                                relmorphic?
-                                (fn [x] cands)))
-   (big-enough-partitions S (multab/elts T))))
+  (distinct
+   (mapcat
+    #(let [cands (set %)]
+       (one-to-1-morphism-search S T []
+                                 cands
+                                 relmorphic?
+                                 (fn [x] cands)))
+    (big-enough-partitions S (multab/elts T)))))
 
 (defn isomorphisms
   "All isomorphisms from S to T."
