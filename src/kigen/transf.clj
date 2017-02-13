@@ -1,7 +1,8 @@
 (ns kigen.transf
   "Transformations and permutations. Several embeddings into partitioned
   binary relations. Also, simple representation as a vector."
-  (:require [kigen.pbr :as pbr]))
+  (:require [kigen.pbr :as pbr]
+            [kigen.sgp :as sgp]))
 
 (declare singleton?
          transf->binrel
@@ -93,6 +94,11 @@
   "Right multiplication of transformations represented by vectors."
   [s t]
   (mapv t s)) ; as simple as that
+
+(defn sgp-by-gens
+  "Transformation semigroup by generators. "
+  [gens]
+  (sgp/sgp-by-gens gens mul))
 
 ;;acting as pbr, then shift back the resulting set to have a transformation of
 ;;the canonical set 1..n ; TODO does this work for both representations?
