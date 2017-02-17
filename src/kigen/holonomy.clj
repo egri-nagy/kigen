@@ -7,8 +7,10 @@
             [kigen.transf :as t]))
 
 (defn finite-set
-  "Returns the set of integers 1..n, canonical representation of finite sets."
-  [n] (set (range n)))
+  "Returns the set of integers 0..n-1, canonical representation of an n-element
+   finite set."
+  [n]
+  (set (range n)))
 
 (defn subduction-function
   "P subduces Q if Q can be transformed by the actions to be a superset of P.

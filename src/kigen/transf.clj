@@ -102,8 +102,6 @@
   [gens]
   (sgp/sgp-by-gens gens mul))
 
-;;acting as pbr, then shift back the resulting set to have a transformation of
-;;the canonical set 1..n ; TODO does this work for both representations?
 (defn act
   [points t]
-  (map t points))
+  (set (map t points)))
