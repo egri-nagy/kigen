@@ -4,17 +4,40 @@
             [clojure.set :refer [subset? difference]]
             [clojure.math.combinatorics :refer [subsets partitions]]))
 
-(declare m2)
+(declare sxt m)
 
-(defn m2
+
+(defn f [phi Smul Tmul]
+  (m {:phi phi :stack (vec (keys phi))} (keys phi) Smul Tmul))
+
+;; single element extended by all generators
+(defn m [env gens Smul Tmul]
+  (let [st (:stack env)
+        phi (:phi env)]
+    (if (empty? st)
+      phi
+      (let [l (map
+               #(sxt phi (peek st)  % Smul Tmul)
+               gens)]
+        (if (some nil? l)
+          nil
+          (do
+(println phi st)
+            
+            (recur {:phi (into phi (remove empty? l)) :stack (pop st)} gens Smul Tmul)))))))
+
+;; single element extended by a single generator
+(defn sxt
   "phi - morphism represented as a map
-  x - element in frontline
-  s - generator of S"
-  [phi x s mulS mulT]
-  (let [xs (mulS x s)
-        XS (mulT (phi x) (phi s))]
-    (if (contains? phi xs)
-      (if (= XS (phi xs))
-        {}
+  a - element in frontline
+  b - generator of S"
+  [phi a b mulS mulT]
+  (let [ab (mulS a b)
+        AB (mulT (phi a) (phi b))]
+    (if (contains? phi ab)
+      (if (= AB (phi ab))
+        []
         nil)
-      {xs XS})))
+      [ab AB])))
+
+
