@@ -1,30 +1,31 @@
 (ns kigen.morph2
   "Constructing morphisms by generators."
-  (:require [kigen.multab :as multab :refer [at]]
-            [clojure.set :refer [subset? difference]]
-            [clojure.math.combinatorics :refer [subsets partitions]]))
+  (:require [clojure.math.combinatorics :refer [subsets partitions]]))
 
 (declare morph extend-by-gen extend-by-all-gens)
 
 (defn morph [phi Smul Tmul]
-  (let [gens (keys phi)]
-    (loop [env {:phi phi :stack (vec gens)}]
-      (if (empty? (:stack env))
-        (:phi env)
-        (let [nenv (extend-by-all-gens env (peek (:stack env)) gens Smul Tmul)]
-          (if (nil? nenv)
+  (let [gens (vec (keys phi))]
+    (loop [phi phi, stack (vec gens)]
+      (if (empty? stack)
+        phi
+        (let [result (extend-by-all-gens phi (peek stack) gens Smul Tmul)]
+          (if (nil? result)
             nil
-            (recur {:phi (:phi nenv) :stack (into (pop (:stack env)) (:stack nenv))})))))))
+            (recur (:phi result) (into (pop stack) (:new result)))))))))
 
-(defn extend-by-all-gens [env a gens Smul Tmul]
-  (let [phi (:phi env)
-        stack []]
+(defn extend-by-all-gens [phi a gens Smul Tmul]
+  (loop [phi phi, incoming [], gens gens]
     (if (empty? gens)
-      env
+      {:phi phi :new incoming}
       (let [p (extend-by-gen phi a (first gens) Smul Tmul)]
         (cond (nil? p) nil
-              (empty? p) (recur {:phi phi :stack stack} a  (rest gens) Smul Tmul)
-              :else (recur {:phi (conj phi p) :stack (conj stack (first p))} a (rest gens) Smul Tmul))))))
+              (empty? p) (recur phi
+                                incoming
+                                (rest gens))
+              :else (recur (conj phi p)
+                           (conj incoming (first p))
+                           (rest gens)))))))
 
 (defn extend-by-gen
   "Extends a single element of S by a single generator.
