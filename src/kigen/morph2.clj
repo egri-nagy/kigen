@@ -4,27 +4,27 @@
             [clojure.set :refer [subset? difference]]
             [clojure.math.combinatorics :refer [subsets partitions]]))
 
-(declare sxt m)
-
+(declare sxt extendt)
 
 (defn f [phi Smul Tmul]
-  (m {:phi phi :stack (vec (keys phi))} (keys phi) Smul Tmul))
+  (let [gens (keys phi)]
+    (loop [env {:phi phi :stack (vec gens)}]
+      (if (empty? (:stack env))
+        (:phi env)
+        (let [nenv (extendt env (peek (:stack env)) gens Smul Tmul)]
+          (if (nil? nenv)
+            nil
+            (recur {:phi (:phi nenv) :stack (into (pop (:stack env)) (:stack nenv))})))))))
 
-;; single element extended by all generators
-(defn m [env gens Smul Tmul]
-  (let [st (:stack env)
-        phi (:phi env)]
-    (if (empty? st)
-      phi
-      (let [l (map
-               #(sxt phi (peek st)  % Smul Tmul)
-               gens)]
-        (if (some nil? l)
-          nil
-          (do
-(println phi st)
-            
-            (recur {:phi (into phi (remove empty? l)) :stack (pop st)} gens Smul Tmul)))))))
+(defn extendt [env a gens Smul Tmul]
+  (let [phi (:phi env)
+        stack []]
+    (if (empty? gens)
+      env
+      (let [p (sxt phi a  (first gens) Smul Tmul)]
+        (cond (nil? p) nil
+              (empty? p) (recur {:phi phi :stack stack} a  (rest gens) Smul Tmul)
+              :else (recur {:phi (conj phi p) :stack (conj stack (first p))} a (rest gens) Smul Tmul))))))
 
 ;; single element extended by a single generator
 (defn sxt
