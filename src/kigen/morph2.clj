@@ -4,8 +4,10 @@
 
 (declare morph extend-by-gen extend-by-all-gens)
 
-(defn morph [phi Smul Tmul]
-  (let [gens (vec (keys phi))]
+(defn morph
+  "Extends the given morphism if possible, otherwise nil."
+  [phi Smul Tmul]
+  (let [gens (keys phi)]
     (loop [phi phi, stack (vec gens)]
       (if (empty? stack)
         phi
@@ -14,7 +16,10 @@
             nil
             (recur (:phi result) (into (pop stack) (:new result)))))))))
 
-(defn extend-by-all-gens [phi a gens Smul Tmul]
+(defn extend-by-all-gens
+  "Extending a single element by all generators.
+  Returns the updated morphism phi and the newly added elements."
+  [phi a gens Smul Tmul]
   (loop [phi phi, incoming [], gens gens]
     (if (empty? gens)
       {:phi phi :new incoming}
@@ -38,9 +43,5 @@
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
-      (if (= AB (phi ab))
-        []
-        nil)
+      (if (= AB (phi ab)) [] nil)
       [ab AB])))
-
-
