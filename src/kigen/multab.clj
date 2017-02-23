@@ -40,6 +40,7 @@
   (set (for [i A j B] (at mt i j))))
 
 (defn index-period
+  "The index-period pair of integers in a vector."
   [mt x]
   (letfn [(f [v] (conj v (at mt (peek v) x)))]
     (let [orbit (first (drop-while
