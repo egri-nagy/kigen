@@ -1,9 +1,20 @@
 (ns kigen.morph2
   "Constructing morphisms by generators."
-  (:require [clojure.math.combinatorics :refer [subsets partitions]]))
+  (:require [clojure.math.combinatorics :refer [subsets
+                                                partitions
+                                                cartesian-product]]
+            [kigen.sgp :as sgp]))
 
 (declare morph extend-by-gen extend-by-all-gens)
 
+(defn possible-gens
+  [Sgens T Smul Tmul]
+  (let [classes (group-by #(sgp/index-period % Tmul) T)]
+    (map (fn [l] (zipmap Sgens l))
+         (apply cartesian-product (map #(classes (sgp/index-period % Smul))
+                                       Sgens)))))
+
+;; Cayley graph morph matching
 (defn morph
   "Extends the given morphism if possible, otherwise nil."
   [phi Smul Tmul]
