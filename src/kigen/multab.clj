@@ -8,7 +8,8 @@
   (:require [clojure.set :refer [difference union subset?]]
             [kigen.orbit :as orbit]
             [kigen.pbr :as pbr]
-            [kigen.pos :as pos]))
+            [kigen.pos :as pos]
+            [kigen.sgp :as sgp]))
 
 (defmacro at
   "Convenient accessing of matrix elements."
@@ -40,16 +41,9 @@
   (set (for [i A j B] (at mt i j))))
 
 (defn index-period
-  "The index-period pair of integers in a vector."
+  "The index-period pair of integers in a vector in a multiplication table."
   [mt x]
-  (letfn [(f [v] (conj v (at mt (peek v) x)))]
-    (let [orbit (first (drop-while
-                        #(apply distinct? %)
-                        (iterate f [x])))
-          repeated (peek orbit)
-          index  (inc (pos/position #(= repeated %) orbit))
-          period (- (count orbit) index)]
-      [index period])))
+  (sgp/index-period x (fn [x y] (at mt x y))))
 
 (defn newelements
   "For a subsemigroup S and a subset X in mt this returns the elements
