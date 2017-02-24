@@ -81,9 +81,9 @@
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
   [n]
-  (if (= 1 n)
-    [[0]]
-    [(transposition n) (ncycle n)]))
+  (cond (= 1 n) [[0]]
+        (= 2 n) [(transposition n)]
+        :else [(transposition n) (ncycle n)]))
 
 (defn full-ts-gens
   "Generators of the full transformation semigroup of degree n."
