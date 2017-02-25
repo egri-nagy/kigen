@@ -2,12 +2,20 @@
   "Constructing morphisms by generators."
   (:require [clojure.math.combinatorics :refer [subsets
                                                 partitions
+                                                combinations
                                                 cartesian-product]]
             [kigen.sgp :as sgp]))
 
 (declare morph extend-by-gen extend-by-all-gens)
 
-(defn possible-gens
+(defn lossy-morph-seeds
+  [Sgens T Smul Tmul]
+  (map (fn [l] (zipmap Sgens l))
+       (combinations (seq  T) (count Sgens))))
+
+(defn lossless-morph-seeds
+  "Given a generator set this returns the sequence of all possible morphism
+  seeds (meaning that they are index-period checked)."
   [Sgens T Smul Tmul]
   (let [classes (group-by #(sgp/index-period % Tmul) T)]
     (map (fn [l] (zipmap Sgens l))
