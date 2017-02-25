@@ -22,6 +22,11 @@
          (apply cartesian-product (map #(classes (sgp/index-period % Smul))
                                        Sgens)))))
 
+(defn isoms [Sgens T Smul Tmul]
+  (filter #(apply distinct? (vals %))
+          (remove nil?
+                  (map #(morph % Smul Tmul) (lossless-morph-seeds Sgens T Smul Tmul)))))
+
 ;; Cayley graph morph matching
 (defn morph
   "Extends the given morphism if possible, otherwise nil."
