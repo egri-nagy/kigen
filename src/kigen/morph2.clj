@@ -28,9 +28,8 @@
 (defn morph
   "Extends the given morphism if possible, otherwise nil."
   [phi Smul Tmul]
-  (let [gens (keys phi)
-        img (set (vals phi))]
-    (loop [phi (conj phi [:img img]), stack (vec gens)]
+  (let [gens (keys phi)]
+    (loop [phi phi, stack (vec gens)]
       (if (empty? stack)
         phi
         (let [result (extend-by-all-gens phi (peek stack) gens Smul Tmul)]
@@ -50,7 +49,7 @@
               (empty? p) (recur phi
                                 incoming
                                 (rest gens))
-              :else (recur (update-in (conj phi p) [:img] #(conj % (second p)))
+              :else (recur (conj phi p)
                            (conj incoming (first p))
                            (rest gens)))))))
 
@@ -65,9 +64,5 @@
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
-      (if (= AB (phi ab))
-        []
-        nil)
-      (if (contains? (:img phi) AB)
-        nil
-        [ab AB]))))
+      (if (= AB (phi ab)) [] nil)
+      [ab AB])))
