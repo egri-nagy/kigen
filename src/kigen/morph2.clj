@@ -8,10 +8,6 @@
 
 (declare morph extend-by-gen extend-by-all-gens)
 
-(defn lossy-morph-seeds
-  [Sgens T Smul Tmul]
-  (map (fn [l] (zipmap Sgens l))
-       (combinations (seq  T) (count Sgens))))
 
 (defn lossless-morph-seeds
   "Given a generator set this returns the sequence of all possible morphism
@@ -25,7 +21,8 @@
 (defn isoms [Sgens T Smul Tmul]
   (filter #(apply distinct? (vals %))
           (remove nil?
-                  (map #(morph % Smul Tmul) (lossless-morph-seeds Sgens T Smul Tmul)))))
+                  (map #(morph % Smul Tmul)
+                       (lossless-morph-seeds Sgens T Smul Tmul)))))
 
 ;; Cayley graph morph matching
 (defn morph
