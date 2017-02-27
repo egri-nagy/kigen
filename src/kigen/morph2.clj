@@ -4,13 +4,12 @@
                                                 partitions
                                                 combinations
                                                 cartesian-product]]
-            [kigen.sgp :as sgp]
-            [kigen.pos :as pos]))
+            [kigen.sgp :as sgp]))
 
 (declare morph extend-by-gen extend-by-all-gens)
 
 (defn gentab
-  
+  "part of the multiplication table only with generators"
   [gens mul]
   (let [S (sgp/sgp-by-gens gens mul)
         genset (set gens)

@@ -7,8 +7,6 @@
   so multiplication is just look up."
   (:require [clojure.set :refer [difference union subset?]]
             [kigen.orbit :as orbit]
-            [kigen.pbr :as pbr]
-            [kigen.pos :as pos]
             [kigen.sgp :as sgp]))
 
 (defmacro at
@@ -18,16 +16,16 @@
 
 (defn multab
   "Returns the multiplication table of the elements xs by the function mul.
-  The default is PBR multiplication. Computation is done by rows in parallel."
-  ([xs] (multab xs pbr/mul))
-  ([xs mul]
-   (let [vxs (vec xs)]
-     (vec (pmap
-           (fn [x] (->> xs
-                        (map #(mul % x)) ;left multiplication by x
-                        (map #(pos/index vxs %)) ;elt -> index
-                        (vec)))
-           xs)))))
+  Computation is done by rows in parallel."
+  [xs mul]
+  (let [vxs (vec xs)
+        indx (zipmap vxs (range (count vxs)))]
+    (vec (pmap
+          (fn [x] (->> xs
+                       (map #(mul % x)) ;left multiplication by x
+                       (map #(indx %)) ;elt -> index
+                       (vec)))
+          xs))))
 
 (defn elts
   "Returns the elements of the given multiplication table.
