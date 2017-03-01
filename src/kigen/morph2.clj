@@ -15,14 +15,15 @@
   (let [S (sgp/sgp-by-gens gens mul)
         genset (set gens)
         elts (vec (concat gens (remove genset S)))
-        indx (zipmap elts (range (count elts)))]
+        indices (zipmap elts (range (count elts)))]
     {:gentab (vec (pmap
                    (fn [x] (->> gens
                                 (map #(mul x %))
-                                (map #(indx %))
+                                (map #(indices %))
                                 (vec)))
                    elts))
-     :lookup elts}))
+     :elts elts
+     :indices indices}))
 
 (defn embedding-seeds
   "Given a generator set this returns the sequence of all possible seed maps
