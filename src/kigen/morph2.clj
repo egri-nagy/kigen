@@ -13,6 +13,7 @@
   order, generators in front"
   [gens mul]
   (let [S (sgp/sgp-by-gens gens mul)
+        classes (group-by #(sgp/index-period % mul) S)
         genset (set gens)
         elts (vec (concat gens (remove genset S)))
         indices (zipmap elts (range (count elts)))]
@@ -23,7 +24,9 @@
                                 (vec)))
                    elts))
      :elts elts
-     :indices indices}))
+     :indices indices
+     :classes (into {}
+                    (map (fn [[key val]] [key (map indices val)]) classes))}))
 
 (defn embedding-seeds
   "Given a generator set this returns the sequence of all possible seed maps
