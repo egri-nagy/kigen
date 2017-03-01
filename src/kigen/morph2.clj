@@ -16,34 +16,41 @@
         classes (group-by #(sgp/index-period % mul) S)
         genset (set gens)
         elts (vec (concat gens (remove genset S)))
-        indices (zipmap elts (range (count elts)))]
-    {:gentab (vec (pmap
-                   (fn [x] (->> gens
-                                (map #(mul x %))
-                                (map #(indices %))
-                                (vec)))
-                   elts))
+        indices (zipmap elts (range (count elts)))
+        gentab (vec (pmap
+                     (fn [x] (->> gens
+                                  (map #(mul x %))
+                                  (map #(indices %))
+                                  (vec)))
+                     elts))]
+    {:gens (range (count gens))
+     :gentab gentab
      :elts elts
      :indices indices
      :classes (into {}
-                    (map (fn [[key val]] [key (map indices val)]) classes))}))
+                    (map (fn [[key val]] [key (map indices val)]) classes))
+     :genmul (fn [x y] ((gentab x ) y))}))
 
 (defn embedding-seeds
   "Given a generator set this returns the sequence of all possible seed maps
   for embeddings (meaning that they are index-period checked)."
-  [Sgens T Smul Tmul]
-  (let [classes (group-by #(sgp/index-period % Tmul) T)]
-    (map (fn [l] (zipmap Sgens l))
-         (apply cartesian-product (map #(classes (sgp/index-period % Smul))
-                                       Sgens)))))
+  [Sgentab Tgentab]
+  (let [Sgenips (map #(sgp/index-period % (:genmul Sgentab)) (:gens Sgentab))]
+    (println Sgenips)
+    (map (fn [l] (zipmap (:gens Sgentab) l))
+         (apply cartesian-product (map
+                                   #((:classes Tgentab) %)
+                                   Sgenips)))))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens T Smul Tmul]
-  (filter #(apply distinct? (vals %))
-          (remove nil?
-                  (map #(morph % Smul Tmul)
-                       (embedding-seeds Sgens T Smul Tmul)))))
+  [Sgens Tgens Smul Tmul]
+  (let [Sgentab (gentab Sgens Smul)
+        Tgentab (gentab Tgens Tmul)]
+    (filter #(apply distinct? (vals %))
+            (remove nil?
+                    (map #(morph % (:genmul Sgentab) (:genmul Tgentab))
+                         (embedding-seeds Sgentab Tgentab))))))
 
 ;; Cayley graph morph matching
 (defn morph
