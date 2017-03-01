@@ -9,19 +9,20 @@
 (declare morph extend-by-gen extend-by-all-gens)
 
 (defn gentab
-  "part of the multiplication table only with generators"
+  "part of the multiplication table only with generators and the elements in
+  order, generators in front"
   [gens mul]
   (let [S (sgp/sgp-by-gens gens mul)
         genset (set gens)
         elts (vec (concat gens (remove genset S)))
         indx (zipmap elts (range (count elts)))]
-    (vec (pmap
-          (fn [x] (->> gens
-                       (map #(mul x %)) 
-                       (map #(indx %))
-                       (vec)))
-          elts))))
-
+    {:gentab (vec (pmap
+                   (fn [x] (->> gens
+                                (map #(mul x %))
+                                (map #(indx %))
+                                (vec)))
+                   elts))
+     :lookup elts}))
 
 (defn embedding-seeds
   "Given a generator set this returns the sequence of all possible seed maps
