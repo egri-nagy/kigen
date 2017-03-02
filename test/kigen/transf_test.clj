@@ -52,7 +52,11 @@
 (deftest transf-inverse-test
   (testing "Inverses of bijective transformations in S7."
     (let [S7 (transf/sgp-by-gens (transf/symmetric-gens 7))]
-      (every? #(and
-                (= [0 1 2 3 4 5] (transf/mul % (transf/inverse %)))
-                (= [0 1 2 3 4 5] (transf/mul (transf/inverse %) %)))
-              S7))))
+      (is (every? #(and
+                    (= [0 1 2 3 4 5] (transf/mul % (transf/inverse %)))
+                    (= [0 1 2 3 4 5] (transf/mul (transf/inverse %) %)))
+                  S7)))))
+
+(deftest transf-inverse-test
+  (testing "Conjugates."
+    (is (= [4 3 0 3 1] (transf/conjugate [1 4 3 3 2] [2 0 1 3 4])))))

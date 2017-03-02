@@ -10,7 +10,7 @@
 
 ;; cli dump for getting conjreps of seeds
 
-(defn conjugate [t p] (transf/mul (transf/mul (transf/inverse p) t) p))
+
 
 (defn conjseq [coll p] (mapv #(conjugate % p) coll))
 

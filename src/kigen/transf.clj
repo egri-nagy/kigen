@@ -114,3 +114,8 @@
   (mapv second
         (sort (map (fn [x] [(t x) x])
                    (range (count t))))))
+
+(defn conjugate
+  "The conjugate of a transformation by a permutation."
+  [t p]
+  (mul (mul (inverse p) t) p))
