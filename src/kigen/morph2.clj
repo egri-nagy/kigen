@@ -60,6 +60,16 @@
                                  #((:classes trgt) %)
                                  (:genips src)))))
 
+(defn embedding-seeds-conj
+  "Given a generator set this returns the sequence of all possible seed maps
+  for embeddings (meaning that they are index-period checked)."
+  [src trgt G]
+  (map (fn [l] (zipmap (:gens src) l))
+       (filter #(conjrep? % G)
+               (apply cartesian-product (map
+                                         #((:classes trgt) %)
+                                         (:genips src))))))
+
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul]
@@ -69,6 +79,17 @@
             (remove number?
                     (map #(morph % (:mul src) (:mul trgt))
                          (embedding-seeds src trgt))))))
+
+(defn embeddings-conj
+  "All morphisms from embedding seeds, but lossy ones filtered out."
+  [Sgens Smul Tgens Tmul G]
+  (let [src (source Sgens Smul)
+        trgt (target Tgens Tmul)]
+    (filter #(apply distinct? (vals %))
+            (remove number?
+                    (map #(morph % (:mul src) (:mul trgt))
+                         (embedding-seeds-conj src trgt G))))))
+
 
 ;; Cayley graph morph matching
 (defn morph
