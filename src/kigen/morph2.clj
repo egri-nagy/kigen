@@ -55,7 +55,7 @@
   (let [src (source Sgens Smul)
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
-            (remove nil?
+            (remove number?
                     (map #(morph % (:mul src) (:mul trgt))
                          (embedding-seeds src trgt))))))
 
@@ -68,8 +68,8 @@
       (if (empty? stack)
         phi
         (let [result (extend-by-all-gens phi (peek stack) gens Smul Tmul)]
-          (if (nil? result)
-            nil
+          (if (number? result)
+            result
             (recur (:phi result) (into (pop stack) (:new result)))))))))
 
 (defn extend-by-all-gens
@@ -80,7 +80,7 @@
     (if (empty? gens)
       {:phi phi :new incoming}
       (let [p (extend-by-gen phi a (first gens) Smul Tmul)]
-        (cond (nil? p) nil
+        (cond (number? p) p
               (empty? p) (recur phi
                                 incoming
                                 (rest gens))
@@ -99,5 +99,5 @@
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
-      (if (= AB (phi ab)) [] nil)
+      (if (= AB (phi ab)) [] (count phi))
       [ab AB])))
