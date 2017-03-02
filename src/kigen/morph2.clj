@@ -12,32 +12,28 @@
   "data items of source semigroup"
   [gens mul]
   (let [S (sgp/sgp-by-gens gens mul)
-        genset (set gens)
-        elts (vec (concat gens (remove genset S)))
+        elts (vec (concat gens (remove (set gens) S)))
         indices (zipmap elts (range (count elts)))
         gentab (vec (pmap
                      (fn [x] (->> gens
                                   (map #(mul x %))
                                   (map #(indices %))
                                   (vec)))
-                     elts))
-        Sgenips (map #(sgp/index-period % mul) gens)]
+                     elts))]
     {:gens (range (count gens))
      :gentab gentab
      :elts elts
      :indices indices
-     :mul (fn [x y] ((gentab x ) y))
-     :genips Sgenips}))
+     :mul (fn [x y] ((gentab x) y))
+     :genips (map #(sgp/index-period % mul) gens)}))
 
 (defn target
   "data items of target semigroup"
   [gens mul]
   (let [S (sgp/sgp-by-gens gens mul)
         classes (group-by #(sgp/index-period % mul) S)
-        genset (set gens)
-        elts (vec (concat gens (remove genset S)))
-        indices (zipmap elts (range (count elts)))
-        ]
+        elts (vec (concat gens (remove (set gens) S)))
+        indices (zipmap elts (range (count elts)))]
     {:gens gens
      :mul mul
      :elts elts
