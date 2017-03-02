@@ -105,3 +105,12 @@
 (defn act
   [points t]
   (set (map t points)))
+
+;;TODO bit of confusion, since this should in the permutation namespace,
+;; but that is still PBR
+(defn inverse
+  "Inverse of a bijective transformation."
+  [t]
+  (mapv second
+        (sort (map (fn [x] [(t x) x])
+                   (range (count t))))))

@@ -48,3 +48,11 @@
         (is (= true
                (every? pred
                        (sgp/sgp-by-gens (transf/full-ts-gens n) transf/mul))))))))
+
+(deftest transf-inverse-test
+  (testing "Inverses of bijective transformations in S7."
+    (let [S7 (transf/sgp-by-gens (transf/symmetric-gens 7))]
+      (every? #(and
+                (= [0 1 2 3 4 5] (transf/mul % (transf/inverse %)))
+                (= [0 1 2 3 4 5] (transf/mul (transf/inverse %) %)))
+              S7))))
