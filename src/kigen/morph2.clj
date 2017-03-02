@@ -8,6 +8,17 @@
 
 (declare morph extend-by-gen extend-by-all-gens)
 
+;; cli dump for getting conjreps of seeds
+
+(defn conjugate [t p] (transf/mul (transf/mul (transf/inverse p) t) p))
+
+(defn conjseq [coll p] (mapv #(conjugate % p) coll))
+
+(defn conjbyS3 [l] (vec (mapv #(conjseq l %) S3)))
+
+(first (sort (conjbyS3 [[0 1 0 ] [0 1 1]])))
+
+
 (defn source
   "data items of source semigroup"
   [gens mul]
