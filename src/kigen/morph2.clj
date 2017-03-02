@@ -4,7 +4,8 @@
                                                 partitions
                                                 combinations
                                                 cartesian-product]]
-            [kigen.sgp :as sgp]))
+            [kigen.sgp :as sgp]
+            [kigen.transf :as transf]))
 
 (declare morph extend-by-gen extend-by-all-gens)
 
@@ -12,12 +13,11 @@
 
 
 
-(defn conjseq [coll p] (mapv #(conjugate % p) coll))
+(defn conjseq [coll p] (mapv #(transf/conjugate % p) coll))
 
-(defn conjbyS3 [l] (vec (mapv #(conjseq l %) S3)))
+(defn conjclass [l G] (vec (set (map #(conjseq l %) G))))
 
-(first (sort (conjbyS3 [[0 1 0 ] [0 1 1]])))
-
+(defn conjrep? [l G] (= l (first (sort (conjclass l G)))))
 
 (defn source
   "data items of source semigroup"
