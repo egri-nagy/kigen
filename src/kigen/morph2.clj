@@ -21,7 +21,7 @@
 (defn conjrep [l G]
   (first
     (reduce (fn [env t] (let [ [mint perms] (minconjugators t (second env))]
-                             [(conj (first env ) mint) perms]))
+                             [(conj (first env) mint) perms]))
             [[] G]
             l)))
 ;another conjrep
@@ -59,24 +59,24 @@
      :indices indices
      :classes classes}))
 
+(defn targets [src trgt] (map #((:classes trgt) %)
+                              (:genips src)))
+
 (defn embedding-seeds
   "Given a generator set this returns the sequence of all possible seed maps
   for embeddings (meaning that they are index-period checked)."
   [src trgt]
   (map (fn [l] (zipmap (:gens src) l))
-       (apply cartesian-product (map
-                                 #((:classes trgt) %)
-                                 (:genips src)))))
+       (apply cartesian-product (targets src trgt))))
 
 (defn embedding-seeds-conj
   "Given a generator set this returns the sequence of all possible seed maps
   for embeddings (meaning that they are index-period checked)."
   [src trgt G]
+  (println (count  ((:classes trgt) (first (:genips src)))))
   (map (fn [l] (zipmap (:gens src) l))
        (filter #(conjrep? % G)
-               (apply cartesian-product (map
-                                         #((:classes trgt) %)
-                                         (:genips src))))))
+               (apply cartesian-product (targets src trgt)))))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
