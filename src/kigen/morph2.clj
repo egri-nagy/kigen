@@ -18,12 +18,16 @@
         mint (first (sort (map first conjugations)))]
     [mint  (map second (filter #(= mint (first %)) conjugations))]))
 
+(defn conj-conj
+  [[cl G] t]
+  (let [[mint nG] (minconjugators t G)]
+    [(conj cl mint) nG]))
+
 (defn conjrep [l G]
   (first
-    (reduce (fn [env t] (let [ [mint perms] (minconjugators t (second env))]
-                             [(conj (first env) mint) perms]))
-            [[] G]
-            l)))
+    (reduce conj-conj [[] G] l)))
+
+
 ;another conjrep
 (defn conjrep? [l G] (= l (conjrep l G)))
 
