@@ -73,7 +73,6 @@
   "Given a generator set this returns the sequence of all possible seed maps
   for embeddings (meaning that they are index-period checked)."
   [src trgt G]
-  (println (count  ((:classes trgt) (first (:genips src)))))
   (map (fn [l] (zipmap (:gens src) l))
        (filter #(conjrep? % G)
                (apply cartesian-product (targets src trgt)))))
