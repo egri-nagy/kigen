@@ -9,15 +9,23 @@
 
 (declare morph extend-by-gen extend-by-all-gens)
 
-;; cli dump for getting conjreps of seeds
-
-
-
 (defn conjseq [coll p] (mapv #(transf/conjugate % p) coll))
 
 (defn conjclass [l G] (vec (set (map #(conjseq l %) G))))
 
-(defn conjrep? [l G] (= l (first (sort (conjclass l G)))))
+(defn minconjugators [t G]
+  (let [conjugations (map (fn [p] [(transf/conjugate t p) p]) G)
+        mint (first (sort (map first conjugations)))]
+    [mint  (map second (filter #(= mint (first %)) conjugations))]))
+
+(defn conjrep [l G]
+  (let []
+    (reduce (fn [env t] (let [ [mint perms] (minconjugators t (second env))]
+                             [(conj (first env ) mint) perms]))
+            [[] G]
+            l)))
+;another conjrep
+(defn conjrep? [l G] (= l (conjrep l G)))
 
 (defn source
   "data items of source semigroup"
