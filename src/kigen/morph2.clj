@@ -27,7 +27,6 @@
   (first
     (reduce conj-conj [[] G] l)))
 
-
 ;another conjrep
 (defn conjrep? [l G] (= l (conjrep l G)))
 
@@ -77,9 +76,10 @@
   "Given a generator set this returns the sequence of all possible seed maps
   for embeddings (meaning that they are index-period checked)."
   [src trgt G]
-  (map (fn [l] (zipmap (:gens src) l))
-       (filter #(conjrep? % G)
-               (apply cartesian-product (targets src trgt)))))
+  (let [tgs (targets src trgt)]
+    (map (fn [l] (zipmap (:gens src) l))
+         (filter #(conjrep? % G)
+                 (apply cartesian-product tgs)))))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
