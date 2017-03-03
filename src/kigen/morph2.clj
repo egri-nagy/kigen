@@ -9,9 +9,9 @@
 
 (declare morph extend-by-gen extend-by-all-gens)
 
-(defn conjseq [coll p] (mapv #(transf/conjugate % p) coll))
+(defn conjclass [l G] (vec (sort (set (map #(mapv (fn [x] (transf/conjugate x %)) l) G)))))
 
-(defn conjclass [l G] (vec (set (map #(conjseq l %) G))))
+(defn conjrep-shadow [l G] (first (conjclass l G)))
 
 (defn minconjugators [t G]
   (let [conjugations (map (fn [p] [(transf/conjugate t p) p]) G)
@@ -19,7 +19,7 @@
     [mint  (map second (filter #(= mint (first %)) conjugations))]))
 
 (defn conjrep [l G]
-  (let []
+  (first
     (reduce (fn [env t] (let [ [mint perms] (minconjugators t (second env))]
                              [(conj (first env ) mint) perms]))
             [[] G]
