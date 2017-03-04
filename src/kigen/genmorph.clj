@@ -112,7 +112,7 @@
     (filter #(apply distinct? (vals %))
             (remove number?
                     (map #(morph % (:gens src) (:mul src) (:mul trgt))
-                         (conj-seeds Sgens Smul Tgens Tmul G))))))
+                         (conj-seeds2 src trgt G))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
