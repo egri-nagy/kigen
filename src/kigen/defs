@@ -1,0 +1,19 @@
+(def S2 (transf/sgp-by-gens (transf/symmetric-gens 2)))
+(def S3 (transf/sgp-by-gens (transf/symmetric-gens 3)))
+(def S4 (transf/sgp-by-gens (transf/symmetric-gens 4)))
+(def S5 (transf/sgp-by-gens (transf/symmetric-gens 5)))
+(def S6 (transf/sgp-by-gens (transf/symmetric-gens 6)))
+(def S7 (transf/sgp-by-gens (transf/symmetric-gens 7)))
+
+(def T2 (transf/sgp-by-gens (transf/full-ts-gens 2)))
+(def T3 (transf/sgp-by-gens (transf/full-ts-gens 3)))
+(def T4 (transf/sgp-by-gens (transf/full-ts-gens 4)))
+(def T5 (transf/sgp-by-gens (transf/full-ts-gens 5)))
+(def T6 (transf/sgp-by-gens (transf/full-ts-gens 6)))
+;(def T7 (transf/sgp-by-gens (transf/full-ts-gens 7)))
+
+(def srcT3 (gmorph/source (transf/full-ts-gens 3) transf/mul))
+
+(def trgT4 (gmorph/target (transf/full-ts-gens 4) transf/mul))
+
+(def cands  (gmorph/targets srcT3 trgT4))
