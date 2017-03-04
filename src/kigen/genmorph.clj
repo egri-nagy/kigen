@@ -34,10 +34,10 @@
 
 (defn setconjrep
   [coll G]
-  (let [ccl (map #(sort (mapv (fn [x] (transf/conjugate x %))
-                                coll))
+  (let [ccl (map #(vec (sort (mapv (fn [x] (transf/conjugate x %))
+                                   coll)))
                    G)]
-    (first (vec (sorted-set ccl)))))
+    (first (vec  (sort (set ccl))))))
 
 ;another conjrep
 (defn conjrep? [l G] (= l (conjrep l G)))
