@@ -1,4 +1,4 @@
-(ns kigen.morph2
+(ns kigen.genmorph
   "Constructing morphisms by generators."
   (:require [clojure.math.combinatorics :refer [subsets
                                                 partitions
@@ -80,6 +80,17 @@
     (map (fn [l] (zipmap (:gens src) l))
          (filter #(conjrep? % G)
                  (apply cartesian-product tgs)))))
+
+(defn morphs-conj
+  [Sgens Smul Tgens Tmul G]
+  (let [src (source Sgens Smul)
+        trgt (target Tgens Tmul)
+        tgs (targets src trgt)
+        singletons (map #(conj-conj [[] G] %) (first tgs))]
+    (loop [x  singletons y (rest tgs)]
+      (if (empty? y)
+        (map first x)
+        (recur (map #(conj-conj )) (rest y))))))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."

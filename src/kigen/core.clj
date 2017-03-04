@@ -8,7 +8,8 @@
             [kigen.multab :as multab]
             [kigen.igs :as igs]
             [kigen.orbit :as orbit]
-            [kigen.morphism :as morphism])
+            [kigen.morphism :as morphism]
+            [kigen.genmorph :as gmorph])
   (:gen-class))
 
 (defn -main
