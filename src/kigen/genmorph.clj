@@ -72,7 +72,7 @@
   (map (fn [l] (zipmap (:gens src) l))
        (apply cartesian-product (targets src trgt))))
 
-(defn embedding-seeds-conj
+(defn conj-seeds
   "Given a generator set this returns the sequence of all possible seed maps
   for embeddings (meaning that they are index-period checked)."
   [src trgt G]
@@ -81,16 +81,18 @@
          (filter #(conjrep? % G)
                  (apply cartesian-product tgs)))))
 
-(defn morphs-conj
-  [Sgens Smul Tgens Tmul G]
-  (let [src (source Sgens Smul)
-        trgt (target Tgens Tmul)
-        tgs (targets src trgt)
-        singletons (map #(conj-conj [[] G] %) (first tgs))]
-    (loop [x  singletons y (rest tgs)]
-      (if (empty? y)
-        (map first x)
-        (recur (map #(conj-conj )) (rest y))))))
+(defn conj-seeds2
+  [src trgt G]
+  (let [tgs (targets src trgt)
+        singletons (map #(conj-conj [[] G] %) (first tgs))
+        seeds (loop [x  singletons
+                     y (rest tgs)]
+                (if (empty? y)
+                  (map first x)
+                  (let [X (cartesian-product x (first y))]
+                    (recur (map (fn [[a b]] (conj-conj a b)) X)
+                           (rest y)))))]
+    (map (fn [l] (zipmap (:gens src) l)) (set seeds))))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
@@ -110,12 +112,12 @@
     (filter #(apply distinct? (vals %))
             (remove number?
                     (map #(morph % (:gens src) (:mul src) (:mul trgt))
-                         (embedding-seeds-conj src trgt G))))))
+                         (conj-seeds Sgens Smul Tgens Tmul G))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Cayley graph morph matching - next 3 functions are nested, top to bottom
-
+;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn morph
   "Extends the morphism if possible, otherwise number of matched elements."
   [phi Sgens Smul Tmul]
