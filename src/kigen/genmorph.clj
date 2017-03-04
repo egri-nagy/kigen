@@ -7,7 +7,7 @@
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]))
 
-(declare morph extend-by-gen extend-by-all-gens)
+(declare morph add-edge extend-node)
 
 (defn conjclass [l G] (vec (sort (set (map #(mapv (fn [x] (transf/conjugate x %)) l) G)))))
 
@@ -113,27 +113,29 @@
                          (embedding-seeds-conj src trgt G))))))
 
 
-;; Cayley graph morph matching
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Cayley graph morph matching - next 3 functions are nested, top to bottom
+
 (defn morph
-  "Extends the given morphism if possible, otherwise nil."
+  "Extends the morphism if possible, otherwise number of matched elements."
   [phi Smul Tmul]
   (let [gens (keys phi)]
     (loop [phi phi, stack (vec gens)]
       (if (empty? stack)
         phi
-        (let [result (extend-by-all-gens phi (peek stack) gens Smul Tmul)]
+        (let [result (extend-node phi (peek stack) gens Smul Tmul)]
           (if (number? result)
             result
             (recur (:phi result) (into (pop stack) (:new result)))))))))
 
-(defn extend-by-all-gens
+(defn extend-node
   "Extending a single element by all generators.
-  Returns the updated morphism phi and the newly added elements."
+  Returns the updated morphism phi and the newly added nodes."
   [phi a gens Smul Tmul]
   (loop [phi phi, incoming [], gens gens]
     (if (empty? gens)
       {:phi phi :new incoming}
-      (let [p (extend-by-gen phi a (first gens) Smul Tmul)]
+      (let [p (add-edge phi a (first gens) Smul Tmul)]
         (cond (number? p) p
               (empty? p) (recur phi
                                 incoming
@@ -142,16 +144,19 @@
                            (conj incoming (first p))
                            (rest gens)))))))
 
-(defn extend-by-gen
-  "Extends a single element of S by a single generator.
+(defn add-edge
+  "Extends the morphism phi by applying a generator b to a single element a.
   phi - morphism represented as a map
   a - element to be extended
   b - generator of S
-  returns nil if it is not homomorphic, [] when homomorphic but no new element,
-  [ab AB] where AB is the newly assigned image of the product ab"
+  It returns the number of matched elements so if it is not homomorphic,
+  [] when homomorphic but no new element,
+  [ab AB] where AB is the newly assigned image of the product ab."
   [phi a b mulS mulT]
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
-      (if (= AB (phi ab)) [] (count phi))
+      (if (= AB (phi ab))
+        []
+        (count phi))
       [ab AB])))
