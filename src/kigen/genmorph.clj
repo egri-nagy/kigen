@@ -99,7 +99,7 @@
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
             (remove number?
-                    (map #(morph % (:mul src) (:mul trgt))
+                    (map #(morph % (:gens src) (:mul src) (:mul trgt))
                          (embedding-seeds src trgt))))))
 
 (defn embeddings-conj
@@ -109,7 +109,7 @@
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
             (remove number?
-                    (map #(morph % (:mul src) (:mul trgt))
+                    (map #(morph % (:gens src) (:mul src) (:mul trgt))
                          (embedding-seeds-conj src trgt G))))))
 
 
@@ -118,15 +118,14 @@
 
 (defn morph
   "Extends the morphism if possible, otherwise number of matched elements."
-  [phi Smul Tmul]
-  (let [gens (keys phi)]
-    (loop [phi phi, stack (vec gens)]
-      (if (empty? stack)
-        phi
-        (let [result (extend-node phi (peek stack) gens Smul Tmul)]
-          (if (number? result)
-            result
-            (recur (:phi result) (into (pop stack) (:new result)))))))))
+  [phi Sgens Smul Tmul]
+  (loop [phi phi, stack (vec Sgens)]
+    (if (empty? stack)
+      phi
+      (let [result (extend-node phi (peek stack) Sgens Smul Tmul)]
+        (if (number? result)
+          result
+          (recur (:phi result) (into (pop stack) (:new result))))))))
 
 (defn extend-node
   "Extending a single element by all generators.
