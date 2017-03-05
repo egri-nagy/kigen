@@ -9,12 +9,13 @@
 
 (declare morph add-edge extend-node)
 
+(def sortedvec (comp vec sort set))
+
 (defn conjclass
   [l G]
-  (vec (sort (set
-              (map #(mapv (fn [x] (transf/conjugate x %))
-                          l)
-                   G)))))
+  (sortedvec (map #(mapv (fn [x] (transf/conjugate x %))
+                         l)
+                  G)))
 
 (defn conjrep-shadow [l G] (first (conjclass l G)))
 
@@ -36,10 +37,10 @@
   [coll G]
   (let [ccl (map #(vec (sort (mapv (fn [x] (transf/conjugate x %))
                                    coll)))
-                   G)]
-    (first (vec  (sort (set ccl))))))
+                 G)]
+    (first (sortedvec ccl))))
 
-;another conjrep
+                                        ;another conjrep
 (defn conjrep? [l G] (= l (conjrep l G)))
 
 (defn source
