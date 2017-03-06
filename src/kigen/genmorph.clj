@@ -133,7 +133,8 @@
         trgt (target Tgens Tmul)
         tgs (zipmap (:gens src)
                     (map #((:classes trgt) %)
-                         (:genips src)))]
+                         (:genips src)))
+        ]
 
 
     (filter #(apply distinct? (vals %))
@@ -160,8 +161,8 @@
 ;; all nodes 1 new generator
 (defn add-gen
   " "
-  [phi gen Smul Tmul]
-  (loop [phi phi, incoming [], front (vals phi)]
+  [phi gen phiofgen Smul Tmul]
+  (loop [phi (conj phi [gen phiofgen]), incoming [], front (conj  (keys phi) gen)]
     (if (empty? front)
       {:phi phi :new incoming}
       (let [p (add-edge phi (first front) gen Smul Tmul)]
