@@ -9,13 +9,12 @@
 
 (declare extend-morph add-edge extend-node add-gen-and-close)
 
-(def sortedvec (comp vec sort set))
+;; sorting with duplicates removed, like UNIX's sort -u 
+(def sort-u (comp vec sort set))
 
 (defn conjclass
-  [l G]
-  (sortedvec (map #(mapv (fn [x] (transf/conjugate x %))
-                         l)
-                  G)))
+  [L G]
+  (sort-u (map #(mapv (fn [x] (transf/conjugate x %)) L) G)))
 
 (defn conjrep-shadow [l G] (first (conjclass l G)))
 
@@ -38,7 +37,7 @@
   (let [ccl (map #(vec (sort (mapv (fn [x] (transf/conjugate x %))
                                    coll)))
                  G)]
-    (first (sortedvec ccl))))
+    (first (sort-u ccl))))
 
                                         ;another conjrep
 (defn conjrep? [l G] (= l (conjrep l G)))
