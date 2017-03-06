@@ -7,7 +7,7 @@
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]))
 
-(declare extend-morph add-edge extend-node)
+(declare extend-morph add-edge extend-node add-gen-and-close)
 
 (def sortedvec (comp vec sort set))
 
@@ -131,16 +131,18 @@
   [Sgens Smul Tgens Tmul G]
   (let [src (source Sgens Smul)
         trgt (target Tgens Tmul)
-        tgs (zipmap (:gens src)
-                    (map #((:classes trgt) %)
-                         (:genips src)))
-        ]
-
-
-    (filter #(apply distinct? (vals %))
-            (remove number?
-                    (map #(extend-morph % (:gens src) (:gens src) (:mul src) (:mul trgt))
-                         (conj-seeds2 src trgt G))))))
+        tgs (targets src trgt)]
+    (loop [numofgens 0, morphs [[{} [[] G]]]]
+      (if (= numofgens (count Sgens))
+          (map first morphs)
+          (let [ngens (nth tgs numofgens)
+                nmorphs (mapcat (fn [[phi congee]]
+                               (let [ ncongs (set (map
+                                                   #(conj-conj congee %)
+                                                   ngens))]
+                                 (map (fn [cng]  [(add-gen-and-close phi numofgens (last (first cng)) (take (inc numofgens) (:gens src)) (:mul src) Tmul) cng])  ncongs)))
+                                morphs)]
+            (recur ( inc numofgens) (remove (comp number? first) nmorphs) ))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -172,7 +174,19 @@
                                 (rest front))
               :else (recur (conj phi p)
                            (conj incoming (first p))
-                           (rest front))))))) ;TODO same logic as extend-node
+                           (rest front)))))))
+
+(defn add-gen-and-close
+  " "
+  [phi gen phiofgen Sgens Smul Tmul]
+  ;;(println  "agac" phi gen phiofgen Sgens)
+  (let [res (add-gen phi gen phiofgen Smul Tmul)]
+    ;;(println "RES" res)
+    (if (number? res)
+      res
+      (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
+
+
 
 ;; 1-node all generators
 (defn extend-node
@@ -200,6 +214,7 @@
   [] when homomorphic but no new element,
   [ab AB] where AB is the newly assigned image of the product ab."
   [phi a b mulS mulT]
+  ;;(println "AE" phi a b)
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
