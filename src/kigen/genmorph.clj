@@ -7,7 +7,7 @@
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]))
 
-(declare morph add-edge extend-node)
+(declare extend-morph add-edge extend-node)
 
 (def sortedvec (comp vec sort set))
 
@@ -97,14 +97,13 @@
 (defn conj-seeds2
   [src trgt G]
   (let [tgs (targets src trgt)
-        singletons (map #(conj-conj [[] G] %) (first tgs))
-        seeds (loop [x  singletons
-                     y (rest tgs)]
-                (if (empty? y)
-                  (map first x)
-                  (let [X (cartesian-product x (first y))]
+        seeds (loop [pseeds  [ [[] G] ]
+                     candsets tgs]
+                (if (empty? candsets)
+                  (map first pseeds)
+                  (let [X (cartesian-product pseeds (first candsets))]
                     (recur (map (fn [[a b]] (conj-conj a b)) X)
-                           (rest y)))))]
+                           (rest candsets)))))]
     (map (fn [l] (zipmap (:gens src) l)) (set seeds))))
 
 (defn embeddings
@@ -114,7 +113,7 @@
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
             (remove number?
-                    (map #(morph % (:gens src)  (:gens src) (:mul src) (:mul trgt))
+                    (map #(extend-morph % (:gens src)  (:gens src) (:mul src) (:mul trgt))
                          (embedding-seeds src trgt))))))
 
 (defn embeddings-conj
@@ -124,15 +123,31 @@
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
             (remove number?
-                    (map #(morph % (:gens src) (:gens src) (:mul src) (:mul trgt))
+                    (map #(extend-morph % (:gens src) (:gens src) (:mul src) (:mul trgt))
+                         (conj-seeds2 src trgt G))))))
+
+(defn embeddings-conj2
+  "All morphisms from embedding seeds, but lossy ones filtered out."
+  [Sgens Smul Tgens Tmul G]
+  (let [src (source Sgens Smul)
+        trgt (target Tgens Tmul)
+        tgs (zipmap (:gens src)
+                    (map #((:classes trgt) %)
+                         (:genips src)))]
+
+
+    (filter #(apply distinct? (vals %))
+            (remove number?
+                    (map #(extend-morph % (:gens src) (:gens src) (:mul src) (:mul trgt))
                          (conj-seeds2 src trgt G))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn morph
-  "Extends the morphism if possible, otherwise number of matched elements."
+(defn extend-morph
+  "Extends partial morphism systematically by the generators starting at the
+  frontline. If morphism is not possible, returns the number of matchings."
   [phi front Sgens Smul Tmul]
   (loop [phi phi, stack (vec front)]
     (if (empty? stack)
@@ -142,6 +157,23 @@
           result
           (recur (:phi result) (into (pop stack) (:new result))))))))
 
+;; all nodes 1 new generator
+(defn add-gen
+  " "
+  [phi gen Smul Tmul]
+  (loop [phi phi, incoming [], front (vals phi)]
+    (if (empty? front)
+      {:phi phi :new incoming}
+      (let [p (add-edge phi (first front) gen Smul Tmul)]
+        (cond (number? p) p
+              (empty? p) (recur phi
+                                incoming
+                                (rest front))
+              :else (recur (conj phi p)
+                           (conj incoming (first p))
+                           (rest front))))))) ;TODO same logic as extend-node
+
+;; 1-node all generators
 (defn extend-node
   "Extending a single element by all generators.
   Returns the updated morphism phi and the newly added nodes."
@@ -157,7 +189,7 @@
               :else (recur (conj phi p)
                            (conj incoming (first p))
                            (rest gens)))))))
-
+;; 1-node 1-generator
 (defn add-edge
   "Extends the morphism phi by applying a generator b to a single element a.
   phi - morphism represented as a map
