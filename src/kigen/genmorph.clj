@@ -142,6 +142,9 @@
                                                    ngens))]
                                  (map (fn [cng]  [(add-gen-and-close phi numofgens (last (first cng)) (take (inc numofgens) (:gens src)) (:mul src) Tmul) cng])  ncongs)))
                                 morphs)]
+            (println (count nmorphs)
+                     (count (remove (comp number? first) nmorphs) )
+                     (count (filter  #(apply distinct? (vals (first %))) (remove (comp number? first) nmorphs))) )
             (recur ( inc numofgens) (remove (comp number? first) nmorphs) ))))))
 
 
@@ -164,7 +167,7 @@
 (defn add-gen
   " "
   [phi gen phiofgen Smul Tmul]
-  (loop [phi (conj phi [gen phiofgen]), incoming [], front (conj  (keys phi) gen)]
+  (loop [phi (conj phi [gen phiofgen]), incoming [gen], front (conj  (keys phi) gen)]
     (if (empty? front)
       {:phi phi :new incoming}
       (let [p (add-edge phi (first front) gen Smul Tmul)]
