@@ -132,20 +132,23 @@
   (let [src (source Sgens Smul)
         trgt (target Tgens Tmul)
         tgs (targets src trgt)]
-    (loop [numofgens 0, morphs [[{} [[] G]]]]
-      (if (= numofgens (count Sgens))
-          (map first morphs)
-          (let [ngens (nth tgs numofgens)
-                nmorphs (mapcat (fn [[phi congee]]
-                               (let [ ncongs (set (map
-                                                   #(conj-conj congee %)
-                                                   ngens))]
-                                 (map (fn [cng]  [(add-gen-and-close phi numofgens (last (first cng)) (take (inc numofgens) (:gens src)) (:mul src) Tmul) cng])  ncongs)))
-                                morphs)]
-            (println (count nmorphs)
-                     (count (remove (comp number? first) nmorphs) )
-                     (count (filter  #(apply distinct? (vals (first %))) (remove (comp number? first) nmorphs))) )
-            (recur ( inc numofgens) (remove (comp number? first) nmorphs) ))))))
+    (loop [n 0, morphs [[{} [[] G]]]]
+      (if (= n (count Sgens))
+        (map first (vals (group-by
+                          #(setconjrep (vals  %) G) (distinct (map first morphs)))))
+        (let [ngens (nth tgs n)
+              nmorphs (mapcat (fn [[phi congee]]
+                                (let [ ncongs (set (map
+                                                    #(conj-conj congee %)
+                                                    ngens))]
+                                  (map (fn [cng]  [(add-gen-and-close phi n (last (first cng)) (take (inc n) (:gens src)) (:mul src) Tmul) cng])  ncongs)))
+                              morphs)]
+          (println (count nmorphs)
+                   (count (remove (comp number? first) nmorphs) )
+                   (count (filter  #(apply distinct? (vals (first %))) (remove (comp number? first) nmorphs))) )
+          (recur (inc n)
+                 (filter #(apply distinct? (vals (first %)))
+                         (remove (comp number? first) nmorphs))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
