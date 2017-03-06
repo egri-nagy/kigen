@@ -114,7 +114,7 @@
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
             (remove number?
-                    (map #(morph % (:gens src) (:mul src) (:mul trgt))
+                    (map #(morph % (:gens src)  (:gens src) (:mul src) (:mul trgt))
                          (embedding-seeds src trgt))))))
 
 (defn embeddings-conj
@@ -124,7 +124,7 @@
         trgt (target Tgens Tmul)]
     (filter #(apply distinct? (vals %))
             (remove number?
-                    (map #(morph % (:gens src) (:mul src) (:mul trgt))
+                    (map #(morph % (:gens src) (:gens src) (:mul src) (:mul trgt))
                          (conj-seeds2 src trgt G))))))
 
 
@@ -133,8 +133,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn morph
   "Extends the morphism if possible, otherwise number of matched elements."
-  [phi Sgens Smul Tmul]
-  (loop [phi phi, stack (vec Sgens)]
+  [phi front Sgens Smul Tmul]
+  (loop [phi phi, stack (vec front)]
     (if (empty? stack)
       phi
       (let [result (extend-node phi (peek stack) Sgens Smul Tmul)]
