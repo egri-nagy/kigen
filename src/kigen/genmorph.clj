@@ -129,9 +129,9 @@
 (defn embeddings-conj2
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul G]
-  (let [src (source Sgens Smul)
-        trgt (target Tgens Tmul)
-        tgs (targets src trgt)]
+  (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
+                                 trgt (target Tgens Tmul)]
+                             [(targets src trgt), (:gens src) (:mul src)])]
     (loop [n 0, morphs [[{} [[] G]]]]
       (if (= n (count Sgens))
         (map first (vals (group-by
@@ -142,9 +142,8 @@
                                   (reduce (fn [morphs cng]
                                             (let [nmorph (add-gen-and-close phi n
                                                                             (last (first cng))
-                                                                            (take (inc n)
-                                                                                  (:gens src))
-                                                                            (:mul src)
+                                                                            (take (inc n) mSgens)
+                                                                            mSmul
                                                                             Tmul)]
                                               (if (and (coll? nmorph)
                                                        (apply distinct? (vals nmorph)))
