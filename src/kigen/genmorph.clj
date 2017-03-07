@@ -38,7 +38,7 @@
 
 (defn setconjrep
   [coll G]
-  (let [ccl (map #(vec (sort (map (fn [x] (transf/conjugate x %))
+  (let [ccl (pmap #(vec (sort (map (fn [x] (transf/conjugate x %))
                                   coll)))
                  G)]
     (first (sort-u ccl))))
@@ -132,31 +132,32 @@
   (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])]
-    (loop [n 0, morphs [[{} [[] G]]]]
-      (println (count morphs) " in")
+    (loop [n 0, morphs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
         (map first (vals (group-by
                           #(setconjrep (vals  %) G) (distinct (map first morphs)))))
         (let [ngens (nth tgs n)
               nmorphs (mapcat (fn [[phi cL]]
                                 (let [ncongs (map #(conj-conj cL %) ngens)]
-                                  (reduce (fn [morphs cng]
-                                            (let [nmorph (add-gen-and-close phi n
-                                                                            (last (first cng))
-                                                                            (take (inc n) mSgens)
-                                                                            mSmul
-                                                                            Tmul)]
-                                              (if (and (coll? nmorph)
-                                                       (apply distinct? (vals nmorph)))
-                                                (conj morphs [nmorph cng])
-                                                morphs)))
-                                          []
-                                          ncongs)
+                                  (first (reduce (fn [[morphs imgs] cng]
+                                                   (let [nmorph (add-gen-and-close phi n
+                                                                                   (last (first cng))
+                                                                                   (take (inc n) mSgens)
+                                                                                   mSmul
+                                                                                   Tmul)]
+                                                     (if (and (coll? nmorph)
+                                                              (apply distinct? (vals nmorph)))
+                                                       (let [img (setconjrep (vals nmorph) G)]
+                                                         (if (contains? imgs img)
+                                                           [morphs imgs]
+                                                           [(conj morphs [nmorph cng]) (conj imgs img)]))
+                                                       [morphs imgs])))
+                                                 [[] #{}]
+                                                 ncongs))
                                   ))
                               morphs)]
-          (println (count nmorphs) " out")
-          (recur (inc n) (map first  (vals (group-by
-                                            #(setconjrep (vals  (first %)) G) nmorphs)))))))))
+          (println (count nmorphs) "on" n)
+          (recur (inc n) nmorphs))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
