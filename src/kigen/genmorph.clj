@@ -139,10 +139,8 @@
         (map first (vals (group-by
                           #(setconjrep (vals  %) G) (distinct (map first morphs)))))
         (let [ngens (nth tgs n)
-              nmorphs (mapcat (fn [[phi congee]]
-                                (let [ ncongs (set (map
-                                                    #(conj-conj congee %)
-                                                    ngens))]
+              nmorphs (mapcat (fn [[phi cL]]
+                                (let [ncongs (map #(conj-conj cL %) ngens)]
                                   (map (fn [cng]
                                          [(add-gen-and-close phi n
                                                              (last (first cng))
