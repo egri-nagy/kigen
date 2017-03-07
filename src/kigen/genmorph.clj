@@ -133,6 +133,7 @@
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])]
     (loop [n 0, morphs [[{} [[] G]]]]
+      (println (count morphs) " in")
       (if (= n (count Sgens))
         (map first (vals (group-by
                           #(setconjrep (vals  %) G) (distinct (map first morphs)))))
@@ -153,8 +154,9 @@
                                           ncongs)
                                   ))
                               morphs)]
-          (println (count nmorphs))
-          (recur (inc n) nmorphs))))))
+          (println (count nmorphs) " out")
+          (recur (inc n) (map first  (vals (group-by
+                                            #(setconjrep (vals  (first %)) G) nmorphs)))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
