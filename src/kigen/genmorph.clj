@@ -12,19 +12,27 @@
 ;; sorting with duplicates removed, like UNIX's sort -u
 (def sort-u (comp vec sort set))
 
-(defn minconjugators [t G]
-  (let [conjugations (map (fn [p] [(transf/conjugate t p) p]) G)
+(defn minconjugators
+  "Finds the minimal conjugate transformation of t under permutations G.
+  Also returns the subset of G that takes t to the rep."
+  [t G]
+  (let [conjugations (map
+                      (fn [p] [(transf/conjugate t p) p])
+                      G)
         mint (first (sort (map first conjugations)))]
-    [mint  (map second (filter #(= mint (first %)) conjugations))]))
+    [mint, (map second (filter #(= mint (first %)) conjugations))]))
 
 (defn conj-conj
-  [[cl G] t]
+  "A conjugated list is a sequence of transformation and a set of permutations.
+  The list is extended by a new transformation, conjugated to make it minimal
+  in the conjugacy class. Set of possible conjugators reduced accordingly."
+  [[L G] t]
   (let [[mint nG] (minconjugators t G)]
-    [(conj cl mint) nG]))
+    [(conj L mint) nG]))
 
-(defn conjrep [l G]
+(defn conjrep [L G]
   (first
-    (reduce conj-conj [[] G] l)))
+    (reduce conj-conj [[] G] L)))
 
 (defn conjrep? [l G] (= l (conjrep l G)))
 
@@ -124,7 +132,7 @@
   (let [src (source Sgens Smul)
         trgt (target Tgens Tmul)
         tgs (targets src trgt)
-        nonmorphic? (comp number? first)
+        morphic? (comp coll? first)
         lossless? #(apply distinct? (vals (first %)))]
     (loop [n 0, morphs [[{} [[] G]]]]
       (if (= n (count Sgens))
@@ -135,14 +143,22 @@
                                 (let [ ncongs (set (map
                                                     #(conj-conj congee %)
                                                     ngens))]
-                                  (map (fn [cng]  [(add-gen-and-close phi n (last (first cng)) (take (inc n) (:gens src)) (:mul src) Tmul) cng])  ncongs)))
+                                  (map (fn [cng]
+                                         [(add-gen-and-close phi n
+                                                             (last (first cng))
+                                                             (take (inc n)
+                                                                   (:gens src))
+                                                             (:mul src)
+                                                             Tmul)
+                                          cng])
+                                       ncongs)))
                               morphs)]
           (println (count nmorphs)
-                   (count (remove  nonmorphic? nmorphs))
+                   (count (filter  morphic? nmorphs))
                    (count (filter  lossless? (remove (comp number? first) nmorphs))) )
           (recur (inc n)
                  (filter lossless?
-                         (remove nonmorphic? nmorphs))))))))
+                         (filter morphic? nmorphs))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
