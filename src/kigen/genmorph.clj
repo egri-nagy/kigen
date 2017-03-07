@@ -132,14 +132,15 @@
   (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])]
-    (loop [n 0, morphs [ [ {}, [[] G] ] ]]
+    (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
         (map first (vals (group-by
-                          #(setconjrep (vals  %) G) (distinct (map first morphs)))))
+                          #(setconjrep (vals  %) G)
+                          (distinct (map first morphconjpairs)))))
         (let [ngens (nth tgs n)
-              nmorphs (mapcat (fn [[phi cL]]
+              nmcprs (mapcat (fn [[phi cL]]
                                 (let [ncongs (map #(conj-conj cL %) ngens)]
-                                  (first (reduce (fn [[morphs imgs] cng]
+                                  (first (reduce (fn [[mcprs imgs] cng]
                                                    (let [nmorph (add-gen-and-close phi n
                                                                                    (last (first cng))
                                                                                    (take (inc n) mSgens)
@@ -149,15 +150,15 @@
                                                               (apply distinct? (vals nmorph)))
                                                        (let [img (setconjrep (vals nmorph) G)]
                                                          (if (contains? imgs img)
-                                                           [morphs imgs]
-                                                           [(conj morphs [nmorph cng]) (conj imgs img)]))
-                                                       [morphs imgs])))
+                                                           [mcprs imgs]
+                                                           [(conj mcprs [nmorph cng]) (conj imgs img)]))
+                                                       [mcprs imgs])))
                                                  [[] #{}]
                                                  ncongs))
                                   ))
-                              morphs)]
-          (println (count nmorphs) "on" n)
-          (recur (inc n) nmorphs))))))
+                              morphconjpairs)]
+          (println (count nmcprs) "on" n)
+          (recur (inc n) nmcprs))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
