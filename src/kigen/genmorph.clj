@@ -9,14 +9,8 @@
 
 (declare extend-morph add-edge extend-node add-gen-and-close)
 
-;; sorting with duplicates removed, like UNIX's sort -u 
+;; sorting with duplicates removed, like UNIX's sort -u
 (def sort-u (comp vec sort set))
-
-(defn conjclass
-  [L G]
-  (sort-u (map #(mapv (fn [x] (transf/conjugate x %)) L) G)))
-
-(defn conjrep-shadow [l G] (first (conjclass l G)))
 
 (defn minconjugators [t G]
   (let [conjugations (map (fn [p] [(transf/conjugate t p) p]) G)
@@ -32,15 +26,14 @@
   (first
     (reduce conj-conj [[] G] l)))
 
+(defn conjrep? [l G] (= l (conjrep l G)))
+
 (defn setconjrep
   [coll G]
-  (let [ccl (map #(vec (sort (mapv (fn [x] (transf/conjugate x %))
-                                   coll)))
+  (let [ccl (map #(vec (sort (map (fn [x] (transf/conjugate x %))
+                                  coll)))
                  G)]
     (first (sort-u ccl))))
-
-                                        ;another conjrep
-(defn conjrep? [l G] (= l (conjrep l G)))
 
 (defn source
   "data items of source semigroup"
@@ -130,7 +123,9 @@
   [Sgens Smul Tgens Tmul G]
   (let [src (source Sgens Smul)
         trgt (target Tgens Tmul)
-        tgs (targets src trgt)]
+        tgs (targets src trgt)
+        nonmorphic? (comp number? first)
+        lossless? #(apply distinct? (vals (first %)))]
     (loop [n 0, morphs [[{} [[] G]]]]
       (if (= n (count Sgens))
         (map first (vals (group-by
@@ -143,11 +138,11 @@
                                   (map (fn [cng]  [(add-gen-and-close phi n (last (first cng)) (take (inc n) (:gens src)) (:mul src) Tmul) cng])  ncongs)))
                               morphs)]
           (println (count nmorphs)
-                   (count (remove (comp number? first) nmorphs) )
-                   (count (filter  #(apply distinct? (vals (first %))) (remove (comp number? first) nmorphs))) )
+                   (count (remove  nonmorphic? nmorphs))
+                   (count (filter  lossless? (remove (comp number? first) nmorphs))) )
           (recur (inc n)
-                 (filter #(apply distinct? (vals (first %)))
-                         (remove (comp number? first) nmorphs))))))))
+                 (filter lossless?
+                         (remove nonmorphic? nmorphs))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -227,3 +222,10 @@
         []
         (count phi))
       [ab AB])))
+
+;; shadow
+(defn conjclass
+  [L G]
+  (sort-u (map #(mapv (fn [x] (transf/conjugate x %)) L) G)))
+
+(defn conjrep-shadow [l G] (first (conjclass l G)))
