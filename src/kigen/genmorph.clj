@@ -138,28 +138,29 @@
                           #(setconjrep (vals  %) G)
                           (distinct (map first morphconjpairs)))))
         (let [ngens (nth tgs n)
-              nmcprs (mapcat (fn [[phi cL]]
-                                (let [ncongs (map #(conj-conj cL %) ngens)]
-                                  (first (reduce (fn [[mcprs imgs] cng]
-                                                   (let [nmorph (add-gen-and-close phi n
-                                                                                   (last (first cng))
-                                                                                   (take (inc n) mSgens)
-                                                                                   mSmul
-                                                                                   Tmul)]
-                                                     (if (and (coll? nmorph)
-                                                              (apply distinct? (vals nmorph)))
-                                                       (let [img (setconjrep (vals nmorph) G)]
-                                                         (if (contains? imgs img)
-                                                           [mcprs imgs]
-                                                           [(conj mcprs [nmorph cng]) (conj imgs img)]))
-                                                       [mcprs imgs])))
-                                                 [[] #{}]
-                                                 ncongs))
-                                  ))
-                              morphconjpairs)]
+              nmcprs (mapcat
+                      (fn [[phi cL]]
+                        (let [ncongs (map #(conj-conj cL %) ngens)
+                              f (fn [[mcprs imgs] cng]
+                                  (let [nmorph (add-gen-and-close
+                                                phi
+                                                n
+                                                (last (first cng))
+                                                (take (inc n) mSgens)
+                                                mSmul
+                                                Tmul)]
+                                    (if (and (coll? nmorph)
+                                             (apply distinct? (vals nmorph)))
+                                      (let [img (setconjrep (vals nmorph) G)]
+                                        (if (contains? imgs img)
+                                          [mcprs imgs]
+                                          [(conj mcprs [nmorph cng])
+                                           (conj imgs img)]))
+                                      [mcprs imgs])))]
+                          (first (reduce f [[] #{}] ncongs))))
+                      morphconjpairs)]
           (println (count nmcprs) "on" n)
           (recur (inc n) nmcprs))))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
