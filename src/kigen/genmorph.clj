@@ -131,9 +131,7 @@
   [Sgens Smul Tgens Tmul G]
   (let [src (source Sgens Smul)
         trgt (target Tgens Tmul)
-        tgs (targets src trgt)
-        morphic? (comp coll? first)
-        lossless? #(apply distinct? (vals (first %)))]
+        tgs (targets src trgt)]
     (loop [n 0, morphs [[{} [[] G]]]]
       (if (= n (count Sgens))
         (map first (vals (group-by
@@ -141,22 +139,23 @@
         (let [ngens (nth tgs n)
               nmorphs (mapcat (fn [[phi cL]]
                                 (let [ncongs (map #(conj-conj cL %) ngens)]
-                                  (map (fn [cng]
-                                         [(add-gen-and-close phi n
-                                                             (last (first cng))
-                                                             (take (inc n)
-                                                                   (:gens src))
-                                                             (:mul src)
-                                                             Tmul)
-                                          cng])
-                                       ncongs)))
+                                  (reduce (fn [morphs cng]
+                                            (let [nmorph (add-gen-and-close phi n
+                                                                            (last (first cng))
+                                                                            (take (inc n)
+                                                                                  (:gens src))
+                                                                            (:mul src)
+                                                                            Tmul)]
+                                              (if (and (coll? nmorph)
+                                                       (apply distinct? (vals nmorph)))
+                                                (conj morphs [nmorph cng])
+                                                morphs)))
+                                          []
+                                          ncongs)
+                                  ))
                               morphs)]
-          (println (count nmorphs)
-                   (count (filter  morphic? nmorphs))
-                   (count (filter  lossless? (remove (comp number? first) nmorphs))) )
-          (recur (inc n)
-                 (filter lossless?
-                         (filter morphic? nmorphs))))))))
+          (println (count nmorphs))
+          (recur (inc n) nmorphs))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
