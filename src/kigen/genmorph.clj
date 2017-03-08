@@ -109,14 +109,12 @@
                              [(targets src trgt), (:gens src) (:mul src)])]
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
-        (map first (vals (group-by ;since conj. morphs from different branches
-                          #(setconjrep (vals  %) G)
-                          (map first morphconjpairs))))
+        (map first morphconjpairs)
         (let [ngens (nth tgs n)
-              nmcprs (mapcat
+              maps (map
                       (fn [[phi cL]]
                         (let [ncongs (map #(conj-conj cL %) ngens)
-                              f (fn [[mcprs imgs] cng]
+                              f (fn [[umcprs imgs] cng]
                                   (let [nmorph (add-gen-and-close
                                                 phi
                                                 n
@@ -128,17 +126,18 @@
                                              (apply distinct? (vals nmorph)))
                                       (let [img (setconjrep (vals nmorph) G)]
                                         (if (contains? imgs img)
-                                          [mcprs imgs]
-                                          [(conj mcprs [nmorph cng])
+                                          [umcprs imgs]
+                                          [(conj umcprs [img  [nmorph cng]])
                                            (conj imgs img)]))
-                                      [mcprs imgs])))]
-                          (first (reduce f [[] #{}] ncongs))))
-                      morphconjpairs)]
+                                      [umcprs imgs])))]
+                          (first (reduce f [{} #{}] ncongs))))
+                      morphconjpairs)
+              nmcprs (vals (apply merge maps))]
           (println (count nmcprs) "on" n)
           (recur (inc n) nmcprs))))))
 
 (defn Tm->Tn [m n]
-  (gmorph/embeddings-conj (transf/full-ts-gens m) transf/mul (transf/full-ts-gens n) transf/mul (transf/sgp-by-gens (transf/symmetric-gens n))))
+  (embeddings-conj (transf/full-ts-gens m) transf/mul (transf/full-ts-gens n) transf/mul (transf/sgp-by-gens (transf/symmetric-gens n))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
