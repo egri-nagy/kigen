@@ -30,11 +30,17 @@
   (let [[mint nG] (minconjugators t G)]
     [(conj L mint) nG]))
 
-(defn conjrep [L G]
+(defn conjrep
+  "The conjugacy class representative of a sequence of transformations L under
+  permutations G."
+  [L G]
   (first
     (reduce conj-conj [[] G] L)))
 
-(defn conjrep? [l G] (= l (conjrep l G)))
+(defn conjrep?
+  "True, if the given sequence of transformations is its conjugacy class rep."
+  [L G]
+  (= L (conjrep L G)))
 
 (defn setconjrep
   [coll G]
@@ -134,7 +140,7 @@
                              [(targets src trgt), (:gens src) (:mul src)])]
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
-        (map first (vals (group-by
+        (map first (vals (group-by ;why do we need to do this?
                           #(setconjrep (vals  %) G)
                           (distinct (map first morphconjpairs)))))
         (let [ngens (nth tgs n)
