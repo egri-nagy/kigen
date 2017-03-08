@@ -91,27 +91,6 @@
   (map (fn [l] (zipmap (:gens src) l))
        (apply cartesian-product (targets src trgt))))
 
-(defn conj-seeds
-  "Given a generator set this returns the sequence of all possible seed maps
-  for embeddings (meaning that they are index-period checked)."
-  [src trgt G]
-  (let [tgs (targets src trgt)]
-    (map (fn [l] (zipmap (:gens src) l))
-         (filter #(conjrep? % G)
-                 (apply cartesian-product tgs)))))
-
-(defn conj-seeds2
-  [src trgt G]
-  (let [tgs (targets src trgt)
-        seeds (loop [pseeds  [ [[] G] ]
-                     candsets tgs]
-                (if (empty? candsets)
-                  (map first pseeds)
-                  (let [X (cartesian-product pseeds (first candsets))]
-                    (recur (map (fn [[a b]] (conj-conj a b)) X)
-                           (rest candsets)))))]
-    (map (fn [l] (zipmap (:gens src) l)) (set seeds))))
-
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul]
@@ -123,16 +102,6 @@
                          (embedding-seeds src trgt))))))
 
 (defn embeddings-conj
-  "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens Smul Tgens Tmul G]
-  (let [src (source Sgens Smul)
-        trgt (target Tgens Tmul)]
-    (filter #(apply distinct? (vals %))
-            (remove number?
-                    (map #(extend-morph % (:gens src) (:gens src) (:mul src) (:mul trgt))
-                         (conj-seeds2 src trgt G))))))
-
-(defn embeddings-conj2
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul G]
   (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
