@@ -140,9 +140,9 @@
                              [(targets src trgt), (:gens src) (:mul src)])]
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
-        (map first (vals (group-by ;why do we need to do this?
+        (map first (vals (group-by ;since conj. morphs from different branches
                           #(setconjrep (vals  %) G)
-                          (distinct (map first morphconjpairs)))))
+                          (map first morphconjpairs))))
         (let [ngens (nth tgs n)
               nmcprs (mapcat
                       (fn [[phi cL]]
