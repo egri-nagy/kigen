@@ -133,7 +133,7 @@
                           (first (reduce f [{} #{}] ncongs))))
                       morphconjpairs)
               nmcprs (vals (apply merge maps))]
-          (println (count nmcprs) "on" n)
+          (println (count nmcprs) "morphs" (inc n) "generators")
           (recur (inc n) nmcprs))))))
 
 (defn Tm->Tn [m n]
