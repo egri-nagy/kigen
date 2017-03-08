@@ -137,6 +137,9 @@
           (println (count nmcprs) "on" n)
           (recur (inc n) nmcprs))))))
 
+(defn Tm->Tn [m n]
+  (gmorph/embeddings-conj (transf/full-ts-gens m) transf/mul (transf/full-ts-gens n) transf/mul (transf/sgp-by-gens (transf/symmetric-gens n))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
