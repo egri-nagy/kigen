@@ -42,6 +42,9 @@
   [L G]
   (= L (conjrep L G)))
 
+(defn tconjrep [t G]
+  (first (sort-u (map #(transf/conjugate t %) G))))
+
 (defn setconjrep
   [coll G]
   (let [ccl (map #(vec (sort (map (fn [x] (transf/conjugate x %))
@@ -104,9 +107,10 @@
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul G]
-  (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
+  (let [[ts mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
-                             [(targets src trgt), (:gens src) (:mul src)])]
+                             [(targets src trgt), (:gens src) (:mul src)])
+        tgs (cons (map #(tconjrep % G) (first ts)) (rest ts))]
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
         (map first morphconjpairs)
@@ -137,7 +141,9 @@
           (recur (inc n) nmcprs))))))
 
 (defn Tm->Tn [m n]
-  (embeddings-conj (transf/full-ts-gens m) transf/mul (transf/full-ts-gens n) transf/mul (transf/sgp-by-gens (transf/symmetric-gens n))))
+  (embeddings-conj (transf/full-ts-gens m) transf/mul
+                   (transf/full-ts-gens n) transf/mul
+                   (transf/sgp-by-gens (transf/symmetric-gens n))))
 
 (defn Tm->Tn-table []
   (let [pairs (for [i (range 1 (inc 7)) j (range 1 (inc i)) ] [j i])]
