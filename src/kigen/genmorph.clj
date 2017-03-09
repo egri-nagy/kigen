@@ -43,7 +43,14 @@
   (= L (conjrep L G)))
 
 (defn tconjrep [t G]
-  (first (sort-u (map #(transf/conjugate t %) G))))
+  (letfn [(f [mint p]
+            (let [nt (transf/conjugate t p)]
+              (if (< (compare t nt) 0)
+                nt
+                t)))]
+    (reduce f t G))
+  ;(first (sort-u (map #(transf/conjugate t %) G)))
+  )
 
 (defn setconjrep
   [coll G]
