@@ -44,7 +44,7 @@
 
 (defn setconjrep
   [coll G]
-  (let [ccl (pmap #(vec (sort (map (fn [x] (transf/conjugate x %))
+  (let [ccl (map #(vec (sort (map (fn [x] (transf/conjugate x %))
                                   coll)))
                  G)]
     (first (sort-u ccl))))
@@ -111,7 +111,7 @@
       (if (= n (count Sgens))
         (map first morphconjpairs)
         (let [ngens (nth tgs n)
-              maps (map
+              maps (pmap
                       (fn [[phi cL]]
                         (let [ncongs (map #(conj-conj cL %) ngens)
                               f (fn [[umcprs imgs] cng]
