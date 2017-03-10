@@ -116,6 +116,7 @@
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])
         tgs (cons (map #(transf-conjrep % G) (first ts)) (rest ts))]
+    (println (count (first tgs)) " candidate(s) for 1st generator")
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
         (map first morphconjpairs)
@@ -144,7 +145,7 @@
                           (first (reduce f [{} #{}] ncongs))))
                       morphconjpairs)
               nmcprs (vals (apply merge maps))]
-          (println (count nmcprs) "morphs" (inc n) "generators")
+          (println (inc n) (count nmcprs) "morph(s)")
           (recur (inc n) nmcprs))))))
 
 (defn Tm->Tn [m n]
