@@ -9,9 +9,6 @@
 
 (declare extend-morph add-edge extend-node add-gen-and-close)
 
-;; sorting with duplicates removed, like UNIX's sort -u
-(def sort-u (comp vec sort set))
-
 (defn minconjugators
   "Finds the minimal conjugate transformation of t under permutations G.
   Also returns the subset of G that takes t to the rep."
@@ -45,19 +42,21 @@
 (defn tconjrep [t G]
   (letfn [(f [mint p]
             (let [nt (transf/conjugate t p)]
-              (if (< (compare t nt) 0)
+              (if (< (compare nt mint) 0)
                 nt
-                t)))]
-    (reduce f t G))
-  ;(first (sort-u (map #(transf/conjugate t %) G)))
-  )
+                mint)))]
+    (reduce f t G)))
 
 (defn setconjrep
   [coll G]
-  (let [ccl (map #(vec (sort (map (fn [x] (transf/conjugate x %))
-                                  coll)))
-                 G)]
-    (first (sort-u ccl))))
+  (letfn [(collconj [p]
+            (vec (sort (map (fn [x] (transf/conjugate x p)) coll))))
+          (f [mincoll p]
+            (let [ncoll (collconj p)]
+              (if (< (compare ncoll mincoll) 0)
+                ncoll
+                mincoll)))]
+    (reduce f (vec (sort coll)) G)))
 
 (defn source
   "data items of source semigroup"
@@ -235,6 +234,9 @@
       [ab AB])))
 
 ;; shadow
+;; sorting with duplicates removed, like UNIX's sort -u
+(def sort-u (comp vec sort set))
+
 (defn conjclass
   [L G]
   (sort-u (map #(mapv (fn [x] (transf/conjugate x %)) L) G)))
