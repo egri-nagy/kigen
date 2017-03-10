@@ -119,7 +119,8 @@
     (println (count (first tgs)) " candidate(s) for 1st generator")
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
-        (map first morphconjpairs)
+        (map (fn [m] (zipmap Sgens (map m mSgens)))
+             (map first morphconjpairs))
         (let [ngens (nth tgs n)
               maps (pmap
                       (fn [[phi cL]]
@@ -154,7 +155,7 @@
                                 (transf/full-ts-gens n) transf/mul
                                 (transf/sgp-by-gens
                                  (transf/symmetric-gens n)))]
-    (map (fn [m] (zipmap Tmgens (map m (range (count Tmgens))))) result)))
+    result))
 
 (defn Tm->Tn-table []
   (let [pairs (for [i (range 1 (inc 7)) j (range 1 (inc i)) ] [j i])]
