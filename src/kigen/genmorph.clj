@@ -27,18 +27,6 @@
   (let [[mint nG] (minconjugators t G)]
     [(conj L mint) nG]))
 
-(defn conjrep
-  "The conjugacy class representative of a sequence of transformations L under
-  permutations G."
-  [L G]
-  (first
-    (reduce conj-conj [[] G] L)))
-
-(defn conjrep?
-  "True, if the given sequence of transformations is its conjugacy class rep."
-  [L G]
-  (= L (conjrep L G)))
-
 (defn conjrep-general
   [thing symmetries conjugation-function]
   (letfn [(f [minimal-thing sym]
@@ -59,6 +47,15 @@
                      (vec
                       (sort
                        (map (fn [x] (transf/conjugate x p)) X))))))
+
+(defn transf-seq-conjrep
+  "The conjugacy class representative of a sequence of transformations L under
+  permutations G."
+  [L G]
+  (conjrep-general L
+                   G
+                   (fn [L] (first
+                            (reduce conj-conj [[] G] L)))))
 
 (defn source
   "data items of source semigroup"
