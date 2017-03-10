@@ -92,6 +92,21 @@
     (symmetric-gens n)
     (concat (symmetric-gens n) [(collapsing n)])))
 
+(defn pts-gens
+  "Generators of the partial transformation semigroup of degree n."
+  [n]
+  (let [ftsg (full-ts-gens n)]
+    (concat (map #(conj % n) ftsg)
+            [(vec (concat [n] (range 1 n) [n]))])))
+
+(defn sym-inv-gens
+  "Generators of the symmetric inverse monoid of degree n."
+  [n]
+  (let [ftsg (symmetric-gens n)]
+    (concat (map #(conj % n) ftsg)
+            [(vec (concat [n] (range 1 n) [n]))])))
+
+
 (defn mul
   "Right multiplication of transformations represented by vectors."
   [s t]
