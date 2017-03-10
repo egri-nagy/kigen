@@ -39,24 +39,26 @@
   [L G]
   (= L (conjrep L G)))
 
+(defn conjrep-general
+  [thing symmetries conjugation-function]
+  (letfn [(f [minimal-thing sym]
+            (let [new-thing (conjugation-function thing sym)]
+              (if (< (compare new-thing minimal-thing) 0)
+                new-thing
+                minimal-thing)))]
+    (reduce f thing symmetries)))
+
 (defn tconjrep [t G]
-  (letfn [(f [mint p]
-            (let [nt (transf/conjugate t p)]
-              (if (< (compare nt mint) 0)
-                nt
-                mint)))]
-    (reduce f t G)))
+  (conjrep-general t G transf/conjugate))
 
 (defn setconjrep
   [coll G]
-  (letfn [(collconj [p]
-            (vec (sort (map (fn [x] (transf/conjugate x p)) coll))))
-          (f [mincoll p]
-            (let [ncoll (collconj p)]
-              (if (< (compare ncoll mincoll) 0)
-                ncoll
-                mincoll)))]
-    (reduce f (vec (sort coll)) G)))
+  (conjrep-general (vec (sort coll))
+                   G
+                   (fn [X p]
+                     (vec
+                      (sort
+                       (map (fn [x] (transf/conjugate x p)) X))))))
 
 (defn source
   "data items of source semigroup"
@@ -147,9 +149,12 @@
           (recur (inc n) nmcprs))))))
 
 (defn Tm->Tn [m n]
-  (embeddings-conj (transf/full-ts-gens m) transf/mul
-                   (transf/full-ts-gens n) transf/mul
-                   (transf/sgp-by-gens (transf/symmetric-gens n))))
+  (let [Tmgens (transf/full-ts-gens m)
+        result (embeddings-conj Tmgens transf/mul
+                                (transf/full-ts-gens n) transf/mul
+                                (transf/sgp-by-gens
+                                 (transf/symmetric-gens n)))]
+    (map (fn [m] (zipmap Tmgens (map m (range (count Tmgens))))) result)))
 
 (defn Tm->Tn-table []
   (let [pairs (for [i (range 1 (inc 7)) j (range 1 (inc i)) ] [j i])]
