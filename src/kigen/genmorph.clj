@@ -48,10 +48,10 @@
                 minimal-thing)))]
     (reduce f thing symmetries)))
 
-(defn tconjrep [t G]
+(defn transf-conjrep [t G]
   (conjrep-general t G transf/conjugate))
 
-(defn setconjrep
+(defn transf-set-conjrep
   [coll G]
   (conjrep-general (vec (sort coll))
                    G
@@ -118,7 +118,7 @@
   (let [[ts mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])
-        tgs (cons (map #(tconjrep % G) (first ts)) (rest ts))]
+        tgs (cons (map #(transf-conjrep % G) (first ts)) (rest ts))]
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
         (map first morphconjpairs)
@@ -136,7 +136,9 @@
                                                 Tmul)]
                                     (if (and (coll? nmorph)
                                              (apply distinct? (vals nmorph)))
-                                      (let [img (setconjrep (vals nmorph) G)]
+                                      (let [img (transf-set-conjrep
+                                                 (vals nmorph)
+                                                 G)]
                                         (if (contains? imgs img)
                                           [umcprs imgs]
                                           [(conj umcprs [img  [nmorph cng]])
