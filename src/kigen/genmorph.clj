@@ -115,7 +115,7 @@
   (let [[ts mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])
-        tgs (cons (map #(transf-conjrep % G) (first ts)) (rest ts))]
+        tgs (cons (pmap #(transf-conjrep % G) (first ts)) (rest ts))]
     (println (count (first tgs)) " candidate(s) for 1st generator")
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
       (if (= n (count Sgens))
