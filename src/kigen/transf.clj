@@ -83,7 +83,7 @@
   [n]
   (cond (= 1 n) [[0]]
         (= 2 n) [(transposition n)]
-        :else [(transposition n) (ncycle n)]))
+        :else [(ncycle n) (transposition n)]))
 
 (defn full-ts-gens
   "Generators of the full transformation semigroup of degree n."
