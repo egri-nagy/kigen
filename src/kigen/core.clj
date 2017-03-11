@@ -9,7 +9,8 @@
             [kigen.igs :as igs]
             [kigen.orbit :as orbit]
             [kigen.morphism :as morphism]
-            [kigen.genmorph :as gmorph])
+            [kigen.genmorph :as gmorph]
+            [kigen.gentab :as gentab])
   (:gen-class))
 
 (defn -main

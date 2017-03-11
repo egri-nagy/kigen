@@ -5,7 +5,8 @@
                                                 combinations
                                                 cartesian-product]]
             [kigen.sgp :as sgp]
-            [kigen.transf :as transf]))
+            [kigen.transf :as transf]
+            [kigen.gentab :refer [gentab]]))
 
 (declare extend-morph add-edge extend-node add-gen-and-close)
 
@@ -57,24 +58,6 @@
                    (fn [L] (first
                             (reduce conj-conj [[] G] L)))))
 
-(defn source
-  "data items of source semigroup"
-  [gens mul]
-  (let [S (sgp/sgp-by-gens gens mul)
-        elts (vec (concat gens (remove (set gens) S)))
-        indices (zipmap elts (range (count elts)))
-        gentab (vec (pmap
-                     (fn [x] (->> gens
-                                  (map #(mul x %))
-                                  (map #(indices %))
-                                  (vec)))
-                     elts))]
-    {:gens (range (count gens))
-     :gentab gentab
-     :elts elts
-     :indices indices
-     :mul (fn [x y] ((gentab x) y))
-     :genips (map #(sgp/index-period % mul) gens)}))
 
 (defn target
   "data items of target semigroup"
@@ -90,12 +73,12 @@
      :classes classes}))
 
 (defn targets [src trgt] (map #((:classes trgt) %)
-                              (:genips src)))
+                              (map #(sgp/index-period % (:mul src)) (:gens src))))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul]
-  (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
+  (let [[tgs mSgens mSmul] (let [src (gentab Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])]
     (loop [n 0, tgs tgs, morphs [{}]]
@@ -117,7 +100,7 @@
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul G]
-  (let [[ts mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
+  (let [[ts mSgens mSmul] (let [src (gentab Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])
         tgs (cons (pmap #(transf-conjrep % G) (first ts)) (rest ts))]
