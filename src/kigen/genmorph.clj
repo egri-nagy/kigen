@@ -92,22 +92,28 @@
 (defn targets [src trgt] (map #((:classes trgt) %)
                               (:genips src)))
 
-(defn embedding-seeds
-  "Given a generator set this returns the sequence of all possible seed maps
-  for embeddings (meaning that they are index-period checked)."
-  [src trgt]
-  (map (fn [l] (zipmap (:gens src) l))
-       (apply cartesian-product (targets src trgt))))
-
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul]
-  (let [src (source Sgens Smul)
-        trgt (target Tgens Tmul)]
-    (filter #(apply distinct? (vals %))
-            (remove number?
-                    (map #(extend-morph % (:gens src)  (:gens src) (:mul src) (:mul trgt))
-                         (embedding-seeds src trgt))))))
+  (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
+                                 trgt (target Tgens Tmul)]
+                             [(targets src trgt), (:gens src) (:mul src)])]
+    (println tgs)
+    (loop [n 0, tgs tgs, morphs [{}]]
+      (if (empty? tgs)
+        morphs
+        (let [nmorphs (apply concat (pmap #(map (fn [m]
+                                            (add-gen-and-close m
+                                                               n
+                                                               %
+                                                               (take (inc n) mSgens)
+                                                               mSmul
+                                                               Tmul))
+                                          morphs)
+                                    (first tgs)))]
+          (println nmorphs)
+          (recur (inc n) (rest tgs) (filter #(apply distinct? (vals %))
+                                            (remove number? nmorphs))))))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
