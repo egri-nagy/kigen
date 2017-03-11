@@ -98,20 +98,19 @@
   (let [[tgs mSgens mSmul] (let [src (source Sgens Smul) ;not to keep src, trgt
                                  trgt (target Tgens Tmul)]
                              [(targets src trgt), (:gens src) (:mul src)])]
-    (println tgs)
     (loop [n 0, tgs tgs, morphs [{}]]
+      (println (count morphs))
       (if (empty? tgs)
         morphs
-        (let [nmorphs (apply concat (pmap #(map (fn [m]
-                                            (add-gen-and-close m
-                                                               n
-                                                               %
-                                                               (take (inc n) mSgens)
-                                                               mSmul
-                                                               Tmul))
-                                          morphs)
-                                    (first tgs)))]
-          (println nmorphs)
+        (let [nmorphs (mapcat #(pmap (fn [m]
+                                      (add-gen-and-close m
+                                                         n
+                                                         %
+                                                         (take (inc n) mSgens)
+                                                         mSmul
+                                                         Tmul))
+                                    morphs)
+                              (first tgs))]
           (recur (inc n) (rest tgs) (filter #(apply distinct? (vals %))
                                             (remove number? nmorphs))))))))
 
