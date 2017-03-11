@@ -206,14 +206,10 @@
 (defn add-gen-and-close
   " "
   [phi gen phiofgen Sgens Smul Tmul]
-  ;;(println  "agac" phi gen phiofgen Sgens)
   (let [res (add-gen phi gen phiofgen Smul Tmul)]
-    ;;(println "RES" res)
     (if (number? res)
       res
       (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
-
-
 
 ;; 1-node all generators
 (defn extend-node
