@@ -234,14 +234,14 @@
 ;; 1-node 1-generator
 (defn add-edge
   "Extends the morphism phi by applying a generator b to a single element a.
+  This is where the homomorphism condition is checked.
   phi - morphism represented as a map
-  a - element to be extended
-  b - generator of S
-  It returns the number of matched elements so if it is not homomorphic,
-  [] when homomorphic but no new element,
+  a - an elementof S to be extended, already in phi
+  b - a generator of S, already in phi
+  It returns the number of matched elements so far if it is not homomorphic,
+  [] when homomorphic but no new element generated,
   [ab AB] where AB is the newly assigned image of the product ab."
   [phi a b mulS mulT]
-  ;;(println "AE" phi a b)
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
