@@ -59,28 +59,26 @@
                             (reduce conj-conj [[] G] L)))))
 
 
-(defn target
-  "data items of target semigroup"
-  [gens mul]
-  (let [S (sgp/sgp-by-gens gens mul)
-        classes (group-by #(sgp/index-period % mul) S)
-        elts (vec (concat gens (remove (set gens) S)))
-        indices (zipmap elts (range (count elts)))]
-    {:gens gens
-     :mul mul
-     :elts elts
-     :indices indices
-     :classes classes}))
-
-(defn targets [src trgt] (map #((:classes trgt) %)
-                              (map #(sgp/index-period % (:mul src)) (:gens src))))
+(defn targets
+  [srcgens srcmul trgens trgmul]
+  (let [T (sgp/sgp-by-gens trgens trgmul)
+        genips (map #(sgp/index-period % srcmul) srcgens)
+        genipset (set genips)
+        m (zipmap genipset (repeat []))
+        nm (reduce (fn [m t]
+                     (let [ip (sgp/index-period t trgmul)]
+                       (if (contains? genipset ip)
+                         (update m ip (fn [v x] (conj v x)) t)
+                         m)))
+                   m
+                   T)]
+    (map nm genips)))
 
 (defn embeddings
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul]
-  (let [[tgs mSgens mSmul] (let [src (gentab Sgens Smul) ;not to keep src, trgt
-                                 trgt (target Tgens Tmul)]
-                             [(targets src trgt), (:gens src) (:mul src)])]
+  (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
+        tgs (targets Sgens Smul Tgens Tmul)]
     (loop [n 0, tgs tgs, morphs [{}]]
       (println (count morphs))
       (if (empty? tgs)
@@ -100,9 +98,8 @@
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul G]
-  (let [[ts mSgens mSmul] (let [src (gentab Sgens Smul) ;not to keep src, trgt
-                                 trgt (target Tgens Tmul)]
-                             [(targets src trgt), (:gens src) (:mul src)])
+  (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
+        ts (targets Sgens Smul Tgens Tmul)
         tgs (cons (pmap #(transf-conjrep % G) (first ts)) (rest ts))]
     (println (count (first tgs)) " candidate(s) for 1st generator")
     (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
