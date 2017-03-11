@@ -217,7 +217,8 @@
 
 ;; 1-node all generators
 (defn extend-node
-  "Extending a single element by all generators.
+  "Extending a single element by all generators one-by-one, so breach of
+  morphism gets detected immediately.
   Returns the updated morphism phi and the newly added nodes."
   [phi a gens Smul Tmul]
   (loop [phi phi, incoming [], gens gens]
@@ -225,9 +226,7 @@
       {:phi phi :new incoming}
       (let [p (add-edge phi a (first gens) Smul Tmul)]
         (cond (number? p) p
-              (empty? p) (recur phi
-                                incoming
-                                (rest gens))
+              (empty? p) (recur phi incoming (rest gens))
               :else (recur (conj phi p)
                            (conj incoming (first p))
                            (rest gens)))))))
