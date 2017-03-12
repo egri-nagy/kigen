@@ -6,7 +6,8 @@
                                                 cartesian-product]]
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]
-            [kigen.gentab :refer [gentab]]))
+            [kigen.gentab :refer [gentab]]
+            [kigen.conjugacy :refer [conjrep-general]]))
 
 (declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
 
@@ -27,15 +28,6 @@
   [[L G] t]
   (let [[mint nG] (minconjugators t G)]
     [(conj L mint) nG]))
-
-(defn conjrep-general
-  [thing symmetries conjugation-function]
-  (letfn [(f [minimal-thing sym]
-            (let [new-thing (conjugation-function thing sym)]
-              (if (< (compare new-thing minimal-thing) 0)
-                new-thing
-                minimal-thing)))]
-    (reduce f thing symmetries)))
 
 (defn transf-conjrep [t G]
   (conjrep-general t G transf/conjugate))
