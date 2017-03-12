@@ -118,7 +118,7 @@
                           f (fn [[umcprs imgs] cng]
                               (let [nmorph (add-gen-and-close
                                             phi
-                                            n
+                                            (nth Sgens n)
                                             (last (first cng))
                                             (take (inc n) Sgens)
                                             Smul
