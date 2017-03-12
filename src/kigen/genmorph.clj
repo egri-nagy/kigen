@@ -122,6 +122,7 @@
                                              (apply distinct? (vals nmorph)))
                                       (let [img (transf-set-conjrep
                                                  (vals nmorph)
+                                                 ;(map nmorph (take (inc n) mSgens)) ;faster but leaves duplicates 
                                                  G)]
                                         (if (contains? imgs img)
                                           [umcprs imgs]
