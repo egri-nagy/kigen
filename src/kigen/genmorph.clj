@@ -8,7 +8,7 @@
             [kigen.transf :as transf]
             [kigen.gentab :refer [gentab]]))
 
-(declare extend-morph add-edge extend-node add-gen-and-close)
+(declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
 
 (defn minconjugators
   "Finds the minimal conjugate transformation of t under permutations G.
