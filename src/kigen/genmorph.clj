@@ -82,12 +82,12 @@
 (defn sgp-embeddings-by-gens
   "Prepares the semigroups for calling embeddings-conj. Gentabbing and finding
   conj candidates."
-  [Sgens Smul Tgens Tmul G]
+  [Sgens Smul Tgens Tmul G f]
   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
         ts (targets Sgens Smul Tgens Tmul)
         tgs (cons (pmap #(transf-conjrep % G) (first ts)) (rest ts))]
     (map (fn [m] (zipmap Sgens (map m mSgens)))
-     (embeddings-conj mSgens mSmul Tgens Tmul tgs G))))
+     (f mSgens mSmul Tgens Tmul tgs G))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
@@ -124,6 +124,45 @@
             nmcprs (vals (apply merge maps))]
         (println (inc n) (count nmcprs) "morph(s)")
         (recur (inc n) nmcprs)))))
+
+(defn embeddings-conj2
+  "All morphisms from embedding seeds, but lossy ones filtered out."
+  [Sgens Smul Tgens Tmul tgs G]
+  (println (count (first tgs)) " candidate(s) for 1st generator")
+  (loop [n 0, morphs [{}] ]
+    (if (= n (count Sgens))
+      morphs
+      (recur (inc n)
+              (apply concat (map
+                             (fn [phi] (first (let [currentgens
+                                                        (if (empty? phi)
+                                                          []
+                                                          (mapv phi
+                                                                (take n Sgens)))
+                                                        ngens (map last
+                                                                   (map (fn [L] (transf-seq-conjrep L G))
+                                                                        (map #(conj currentgens %) (nth tgs n))))
+                                                        f (fn [[nmorphs imgs] ngen]
+                                                            (let [nmorph (add-gen-and-close
+                                                                          phi
+                                                                          (nth Sgens n)
+                                                                          ngen
+                                                                          (take (inc n) Sgens)
+                                                                          Smul
+                                                                          Tmul)]
+                                                              (if (and (coll? nmorph)
+                                                                       (apply distinct? (vals nmorph)))
+                                                                (let [img (transf-set-conjrep
+                                                                           (vec (sort (vals nmorph)))
+                                                                           G)]
+                                                                  (if (contains? imgs img)
+                                                                    [nmorphs imgs]
+                                                                    [(conj nmorphs nmorph)
+                                                                     (conj imgs img)]))
+                                                                [nmorphs imgs])))]
+                                                    (reduce f [[] #{}] ngens))))
+                             morphs))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
