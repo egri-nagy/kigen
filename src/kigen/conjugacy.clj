@@ -3,7 +3,7 @@
   representatives.")
 
 (defn conjrep-general
-  [thing symmetries conjugation-function]
+  [conjugation-function thing symmetries]
   (letfn [(f [minimal-thing sym]
             (let [new-thing (conjugation-function thing sym)]
               (if (< (compare new-thing minimal-thing) 0)

@@ -29,17 +29,13 @@
   (let [[mint nG] (minconjugators t G)]
     [(conj L mint) nG]))
 
-(defn transf-conjrep [t G]
-  (conjrep-general t G transf/conjugate))
+(def transf-conjrep (partial conjrep-general transf/conjugate))
 
-(defn transf-set-conjrep
-  [coll G]
-  (conjrep-general (vec (sort coll))
-                   G
-                   (fn [X p]
-                     (vec
-                      (sort
-                       (map (fn [x] (transf/conjugate x p)) X))))))
+(def transf-set-conjrep
+  (partial conjrep-general (fn [X p]
+                             (vec
+                              (sort
+                               (map (fn [x] (transf/conjugate x p)) X))))))
 
 (defn transf-seq-conjrep
   "The conjugacy class representative of a sequence of transformations L under
@@ -115,7 +111,7 @@
                                 (if (and (coll? nmorph)
                                          (apply distinct? (vals nmorph)))
                                   (let [img (transf-set-conjrep
-                                             (vals nmorph)
+                                             (vec (sort (vals nmorph)))
                                         ;(map nmorph (take (inc n) mSgens)) ;faster but leaves duplicates 
                                              G)]
                                     (if (contains? imgs img)
