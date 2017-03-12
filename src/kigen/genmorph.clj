@@ -45,10 +45,7 @@
   "The conjugacy class representative of a sequence of transformations L under
   permutations G."
   [L G]
-  (conjrep-general L
-                   G
-                   (fn [L] (first
-                            (reduce conj-conj [[] G] L)))))
+  (first (reduce conj-conj [[] G] L)))
 
 
 (defn targets
