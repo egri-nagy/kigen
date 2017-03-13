@@ -7,7 +7,7 @@
     result))
 
 (defn Tm->Tn-table []
-  (let [pairs (for [i (range 1 (inc 6)) j (range 1 (inc i)) ] [j i])]
+  (let [pairs (for [i (range 1 (inc 6)) j (range 1 i) ] [j i])]
     (map (fn [[m n]] [m n (count (Tm->Tn m n))]) pairs)))
 
 ;;just print this

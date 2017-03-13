@@ -11,14 +11,12 @@
 
 (declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
 
-(def tcj (memoize transf/conjugate))
-
 (defn minconjugators
   "Finds the minimal conjugate transformation of t under permutations G.
   Also returns the subset of G that takes t to the rep."
   [t G]
   (let [conjugations (map
-                      (fn [p] [(tcj t p) p])
+                      (fn [p] [(transf/conjugate t p) p])
                       G)
         mint (first (sort (map first conjugations)))]
     [mint, (map second (filter #(= mint (first %)) conjugations))]))
@@ -33,7 +31,7 @@
 
 
 
-(def transf-conjrep (partial conjrep-general tcj))
+(def transf-conjrep (partial conjrep-general transf/conjugate))
 
 
 
@@ -41,7 +39,7 @@
   (partial conjrep-general (fn [X p]
                              (vec
                               (sort
-                               (map (fn [x] (tcj x p)) X))))))
+                               (map (fn [x] (transf/conjugate x p)) X))))))
 
 (defn transf-seq-conjrep
   "The conjugacy class representative of a sequence of transformations L under
