@@ -11,12 +11,14 @@
 
 (declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
 
+(def tcj (memoize transf/conjugate))
+
 (defn minconjugators
   "Finds the minimal conjugate transformation of t under permutations G.
   Also returns the subset of G that takes t to the rep."
   [t G]
   (let [conjugations (map
-                      (fn [p] [(transf/conjugate t p) p])
+                      (fn [p] [(tcj t p) p])
                       G)
         mint (first (sort (map first conjugations)))]
     [mint, (map second (filter #(= mint (first %)) conjugations))]))
@@ -29,13 +31,17 @@
   (let [[mint nG] (minconjugators t G)]
     [(conj L mint) nG]))
 
-(def transf-conjrep (partial conjrep-general transf/conjugate))
+
+
+(def transf-conjrep (partial conjrep-general tcj))
+
+
 
 (def transf-set-conjrep
   (partial conjrep-general (fn [X p]
                              (vec
                               (sort
-                               (map (fn [x] (transf/conjugate x p)) X))))))
+                               (map (fn [x] (tcj x p)) X))))))
 
 (defn transf-seq-conjrep
   "The conjugacy class representative of a sequence of transformations L under
@@ -107,19 +113,19 @@
                              (map (comp last first)
                                   (map #(conj-conj partconj %) (nth tgs n))))
                       check-gen (fn [imgs2morphs ngen]
-                                  (let [nmorph (add-gen-and-close
+                                  (let [gens (take (inc n) Sgens)
+                                        nmorph (add-gen-and-close
                                                 phi
                                                 (nth Sgens n)
                                                 ngen
-                                                (take (inc n) Sgens)
+                                                gens
                                                 Smul
                                                 Tmul)]
                                     (if (and (coll? nmorph)
                                              (apply distinct? (vals nmorph)))
                                       (let [img (transf-set-conjrep
                                         ; (vec (sort (vals nmorph)))
-                                                 (vec(sort(map nmorph
-                                                               (take (inc n) Sgens))))
+                                                 (vec (sort (map nmorph gens)))
                                                  G)]
                                         (if (contains? imgs2morphs img)
                                           imgs2morphs
