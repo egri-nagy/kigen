@@ -82,50 +82,14 @@
 (defn sgp-embeddings-by-gens
   "Prepares the semigroups for calling embeddings-conj. Gentabbing and finding
   conj candidates."
-  [Sgens Smul Tgens Tmul G f]
+  [Sgens Smul Tgens Tmul G]
   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
         ts (targets Sgens Smul Tgens Tmul)
         tgs (cons (pmap #(transf-conjrep % G) (first ts)) (rest ts))]
     (map (fn [m] (zipmap Sgens (map m mSgens)))
-     (f mSgens mSmul Tgens Tmul tgs G))))
+     (embeddings-conj mSgens mSmul Tgens Tmul tgs G))))
 
 (defn embeddings-conj
-  "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens Smul Tgens Tmul tgs G]
-  (println (count (first tgs)) " candidate(s) for 1st generator")
-  (loop [n 0, morphconjpairs [ [ {}, [[] G] ] ]]
-    (if (= n (count Sgens))
-      (map first morphconjpairs)
-      (let [ngens (nth tgs n)
-            maps (pmap
-                  (fn [[phi cL]]
-                    (let [ncongs (map #(conj-conj cL %) ngens)
-                          f (fn [[umcprs imgs] cng]
-                              (let [nmorph (add-gen-and-close
-                                            phi
-                                            (nth Sgens n)
-                                            (last (first cng))
-                                            (take (inc n) Sgens)
-                                            Smul
-                                            Tmul)]
-                                (if (and (coll? nmorph)
-                                         (apply distinct? (vals nmorph)))
-                                  (let [img (transf-set-conjrep
-                                             (vec (sort (vals nmorph)))
-                                        ;(map nmorph (take (inc n) mSgens)) ;faster but leaves duplicates
-                                             G)]
-                                    (if (contains? imgs img)
-                                      [umcprs imgs]
-                                      [(conj umcprs [img  [nmorph cng]])
-                                       (conj imgs img)]))
-                                  [umcprs imgs])))]
-                      (first (reduce f [{} #{}] ncongs))))
-                  morphconjpairs)
-            nmcprs (vals (apply merge maps))]
-        (println (inc n) (count nmcprs) "morph(s)")
-        (recur (inc n) nmcprs)))))
-
-(defn embeddings-conj2
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul Tgens Tmul tgs G]
   (println (count (first tgs)) " candidate(s) for 1st generator")
