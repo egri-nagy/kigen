@@ -2,6 +2,7 @@
   (let [Tmgens (transf/full-ts-gens m)
         result (gmorph/sgp-embeddings-by-gens Tmgens transf/mul
                                               (transf/full-ts-gens n) transf/mul
+                                              transf/conjugate
                                               (transf/sgp-by-gens
                                                (transf/symmetric-gens n)))]
     result))
