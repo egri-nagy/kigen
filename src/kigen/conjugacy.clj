@@ -33,3 +33,15 @@
                       G)
         mint (first (sort (map first conjugations)))]
     [mint, (map second (filter #(= mint (first %)) conjugations))]))
+
+(defn conj-conj
+  "Conjoing a new element to a conjugate rep sequence."
+  [conjugation-function [L G] t]
+  (let [[mint nG] (minconjugators conjugation-function t G)]
+    [(conj L mint) nG]))
+
+(defn seqconjrep
+  "The conjugacy class representative of a sequence of elements L under
+  permutations G."
+  [conjugation-function L G]
+  (first (reduce (partial conj-conj conjugation-function) [[] G] L)))

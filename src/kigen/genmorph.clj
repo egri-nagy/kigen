@@ -14,20 +14,8 @@
 (def minconjugators (partial conjugacy/minconjugators transf/conjugate))
 (def transf-conjrep (partial conjugacy/conjrep transf/conjugate))
 (def transf-set-conjrep (partial conjugacy/setconjrep transf/conjugate))
-
-(defn conj-conj
-  "A conjugated list is a sequence of transformation and a set of permutations.
-  The list is extended by a new transformation, conjugated to make it minimal
-  in the conjugacy class. Set of possible conjugators reduced accordingly."
-  [[L G] t]
-  (let [[mint nG] (minconjugators t G)]
-    [(conj L mint) nG]))
-
-(defn transf-seq-conjrep
-  "The conjugacy class representative of a sequence of transformations L under
-  permutations G."
-  [L G]
-  (first (reduce conj-conj [[] G] L)))
+(def conj-conj (partial conjugacy/conj-conj transf/conjugate))
+(def transf-seq-conjrep (partial conjugacy/seqconjrep transf/conjugate))
 
 (defn targets
   [srcgens srcmul trgens trgmul]
@@ -73,7 +61,7 @@
         tgs (cons (distinct (pmap #(transf-conjrep % G) (first ts))) (rest ts))
         ]
     (map (fn [m] (zipmap Sgens (map m mSgens)))
-     (embeddings-conj mSgens mSmul  Tmul tgs G))))
+     (embeddings-conj mSgens mSmul Tmul tgs G))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
