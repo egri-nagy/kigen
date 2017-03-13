@@ -162,8 +162,9 @@
                                     (conj imgs img)]))
                                [nmorphs imgs])))]
                    (reduce f [[] #{}] ngens))))]
-        (println (count morphs))
-        (recur (inc n) (apply concat (pmap f morphs)))))))
+        (let [nmorphs (apply concat (pmap f morphs))]
+          (println "gens:" (inc n) "morphs:" (count nmorphs))
+          (recur (inc n) nmorphs))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
