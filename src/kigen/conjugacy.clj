@@ -2,7 +2,7 @@
   "Abstract function for calculating conjugate elements, conjugacy classes,
   representatives.")
 
-(defn conjrep-general
+(defn conjrep
   [conjugation-function thing symmetries]
   (letfn [(f [minimal-thing sym]
             (let [new-thing (conjugation-function thing sym)]
@@ -11,7 +11,20 @@
                 minimal-thing)))]
     (reduce f thing symmetries)))
 
-(defn minconjugators-general
+(defn conjugateset
+  [conjugation-function things sym]
+  (vec
+   (sort
+    (map (fn [x] (conjugation-function x sym))
+         things))))
+
+(defn setconjrep
+  [conjugation-function things symmetries]
+  (conjrep (partial conjugateset conjugation-function)
+           things
+           symmetries))
+
+(defn minconjugators
   "Finds the minimal conjugate transformation of t under permutations G.
   Also returns the subset of G that takes t to the rep."
   [conjugation-function t G]

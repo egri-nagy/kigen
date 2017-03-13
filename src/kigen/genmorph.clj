@@ -7,11 +7,13 @@
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]
             [kigen.gentab :refer [gentab]]
-            [kigen.conjugacy :refer [conjrep-general minconjugators-general]]))
+            [kigen.conjugacy :as conjugacy]))
 
 (declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
 
-(def minconjugators (partial minconjugators-general transf/conjugate))
+(def minconjugators (partial conjugacy/minconjugators transf/conjugate))
+(def transf-conjrep (partial conjugacy/conjrep transf/conjugate))
+(def transf-set-conjrep (partial conjugacy/setconjrep transf/conjugate))
 
 (defn conj-conj
   "A conjugated list is a sequence of transformation and a set of permutations.
@@ -20,18 +22,6 @@
   [[L G] t]
   (let [[mint nG] (minconjugators t G)]
     [(conj L mint) nG]))
-
-
-
-(def transf-conjrep (partial conjrep-general transf/conjugate))
-
-
-
-(def transf-set-conjrep
-  (partial conjrep-general (fn [X p]
-                             (vec
-                              (sort
-                               (map (fn [x] (transf/conjugate x p)) X))))))
 
 (defn transf-seq-conjrep
   "The conjugacy class representative of a sequence of transformations L under
