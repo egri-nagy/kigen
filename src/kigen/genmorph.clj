@@ -132,36 +132,38 @@
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
       morphs
-      (recur (inc n)
-              (apply concat (map
-                             (fn [phi] (first (let [currentgens
-                                                        (if (empty? phi)
-                                                          []
-                                                          (mapv phi
-                                                                (take n Sgens)))
-                                                        ngens (map last
-                                                                   (map (fn [L] (transf-seq-conjrep L G))
-                                                                        (map #(conj currentgens %) (nth tgs n))))
-                                                        f (fn [[nmorphs imgs] ngen]
-                                                            (let [nmorph (add-gen-and-close
-                                                                          phi
-                                                                          (nth Sgens n)
-                                                                          ngen
-                                                                          (take (inc n) Sgens)
-                                                                          Smul
-                                                                          Tmul)]
-                                                              (if (and (coll? nmorph)
-                                                                       (apply distinct? (vals nmorph)))
-                                                                (let [img (transf-set-conjrep
-                                                                           (vec (sort (vals nmorph)))
-                                                                           G)]
-                                                                  (if (contains? imgs img)
-                                                                    [nmorphs imgs]
-                                                                    [(conj nmorphs nmorph)
-                                                                     (conj imgs img)]))
-                                                                [nmorphs imgs])))]
-                                                    (reduce f [[] #{}] ngens))))
-                             morphs))))))
+      (letfn [(f [phi]
+                (first
+                 (let [currentgens(if (empty? phi)
+                                    []
+                                    (mapv phi
+                                          (take n Sgens)))
+                       partconj (if (empty? currentgens) [[] G]
+                                    (reduce conj-conj [[] G] currentgens))
+                       ngens (distinct
+                              (map (comp last first)
+                                   (map #(conj-conj partconj %) (nth tgs n))))
+                       f (fn [[nmorphs imgs] ngen]
+                           (let [nmorph (add-gen-and-close
+                                         phi
+                                         (nth Sgens n)
+                                         ngen
+                                         (take (inc n) Sgens)
+                                         Smul
+                                         Tmul)]
+                             (if (and (coll? nmorph)
+                                      (apply distinct? (vals nmorph)))
+                               (let [img (transf-set-conjrep
+                                          (vec (sort (vals nmorph)))
+                                          G)]
+                                 (if (contains? imgs img)
+                                   [nmorphs imgs]
+                                   [(conj nmorphs nmorph)
+                                    (conj imgs img)]))
+                               [nmorphs imgs])))]
+                   (reduce f [[] #{}] ngens))))]
+        (println (count morphs))
+        (recur (inc n) (apply concat (pmap f morphs)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
