@@ -7,19 +7,11 @@
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]
             [kigen.gentab :refer [gentab]]
-            [kigen.conjugacy :refer [conjrep-general]]))
+            [kigen.conjugacy :refer [conjrep-general minconjugators-general]]))
 
 (declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
 
-(defn minconjugators
-  "Finds the minimal conjugate transformation of t under permutations G.
-  Also returns the subset of G that takes t to the rep."
-  [t G]
-  (let [conjugations (map
-                      (fn [p] [(transf/conjugate t p) p])
-                      G)
-        mint (first (sort (map first conjugations)))]
-    [mint, (map second (filter #(= mint (first %)) conjugations))]))
+(def minconjugators (partial minconjugators-general transf/conjugate))
 
 (defn conj-conj
   "A conjugated list is a sequence of transformation and a set of permutations.
