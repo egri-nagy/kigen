@@ -73,11 +73,11 @@
         tgs (cons (distinct (pmap #(transf-conjrep % G) (first ts))) (rest ts))
         ]
     (map (fn [m] (zipmap Sgens (map m mSgens)))
-     (embeddings-conj mSgens mSmul Tgens Tmul tgs G))))
+     (embeddings-conj mSgens mSmul  Tmul tgs G))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens Smul Tgens Tmul tgs G]
+  [Sgens Smul Tmul tgs G]
   (println (count (first tgs)) " candidate(s) for 1st generator")
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
