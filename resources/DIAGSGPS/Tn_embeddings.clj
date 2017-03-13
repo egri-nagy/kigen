@@ -1,13 +1,13 @@
 (defn Tm->Tn [m n]
   (let [Tmgens (transf/full-ts-gens m)
-        result (gmorph/embeddings-conj Tmgens transf/mul
-                                       (transf/full-ts-gens n) transf/mul
-                                       (transf/sgp-by-gens
-                                        (transf/symmetric-gens n)))]
+        result (gmorph/sgp-embeddings-by-gens Tmgens transf/mul
+                                              (transf/full-ts-gens n) transf/mul
+                                              (transf/sgp-by-gens
+                                               (transf/symmetric-gens n)))]
     result))
 
 (defn Tm->Tn-table []
-  (let [pairs (for [i (range 1 (inc 7)) j (range 1 (inc i)) ] [j i])]
+  (let [pairs (for [i (range 1 (inc 6)) j (range 1 (inc i)) ] [j i])]
     (map (fn [[m n]] [m n (count (Tm->Tn m n))]) pairs)))
 
 ;;just print this

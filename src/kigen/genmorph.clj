@@ -43,7 +43,6 @@
   [L G]
   (first (reduce conj-conj [[] G] L)))
 
-
 (defn targets
   [srcgens srcmul trgens trgmul]
   (let [T (sgp/sgp-by-gens trgens trgmul)
@@ -85,7 +84,8 @@
   [Sgens Smul Tgens Tmul G]
   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
         ts (targets Sgens Smul Tgens Tmul)
-        tgs (cons (pmap #(transf-conjrep % G) (first ts)) (rest ts))]
+        tgs (cons (distinct (pmap #(transf-conjrep % G) (first ts))) (rest ts))
+        ]
     (map (fn [m] (zipmap Sgens (map m mSgens)))
      (embeddings-conj mSgens mSmul Tgens Tmul tgs G))))
 
@@ -95,7 +95,7 @@
   (println (count (first tgs)) " candidate(s) for 1st generator")
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
-      morphs
+      (map first (vals (group-by #(transf-set-conjrep (vec (vals %)) G) morphs)))
       (letfn [(extend-phi [phi]
                 (let [currentgens(if (empty? phi)
                                    []
@@ -117,7 +117,9 @@
                                     (if (and (coll? nmorph)
                                              (apply distinct? (vals nmorph)))
                                       (let [img (transf-set-conjrep
-                                                 (vec (sort (vals nmorph)))
+                                        ; (vec (sort (vals nmorph)))
+                                                 (vec(sort(map nmorph
+                                                               (take (inc n) Sgens))))
                                                  G)]
                                         (if (contains? imgs2morphs img)
                                           imgs2morphs
