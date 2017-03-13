@@ -96,7 +96,7 @@
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
       morphs
-      (letfn [(f [phi]
+      (letfn [(extend-phi [phi]
                 (let [currentgens(if (empty? phi)
                                    []
                                    (mapv phi
@@ -106,25 +106,25 @@
                       ngens (distinct
                              (map (comp last first)
                                   (map #(conj-conj partconj %) (nth tgs n))))
-                      f (fn [imgs2morphs ngen]
-                          (let [nmorph (add-gen-and-close
-                                        phi
-                                        (nth Sgens n)
-                                        ngen
-                                        (take (inc n) Sgens)
-                                        Smul
-                                        Tmul)]
-                            (if (and (coll? nmorph)
-                                     (apply distinct? (vals nmorph)))
-                              (let [img (transf-set-conjrep
-                                         (vec (sort (vals nmorph)))
-                                         G)]
-                                (if (contains? imgs2morphs img)
-                                  imgs2morphs
-                                  (assoc imgs2morphs img nmorph)))
-                              imgs2morphs)))]
-                  (reduce f {} ngens)))]
-        (let [nmorphs (vals (apply merge (pmap f morphs)))]
+                      check-gen (fn [imgs2morphs ngen]
+                                  (let [nmorph (add-gen-and-close
+                                                phi
+                                                (nth Sgens n)
+                                                ngen
+                                                (take (inc n) Sgens)
+                                                Smul
+                                                Tmul)]
+                                    (if (and (coll? nmorph)
+                                             (apply distinct? (vals nmorph)))
+                                      (let [img (transf-set-conjrep
+                                                 (vec (sort (vals nmorph)))
+                                                 G)]
+                                        (if (contains? imgs2morphs img)
+                                          imgs2morphs
+                                          (assoc imgs2morphs img nmorph)))
+                                      imgs2morphs)))]
+                  (reduce check-gen {} ngens)))]
+        (let [nmorphs (vals (apply merge (pmap extend-phi morphs)))]
           (println "gens:" (inc n) "morphs:" (count nmorphs))
           (recur (inc n) nmorphs))))))
 
