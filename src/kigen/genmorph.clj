@@ -27,15 +27,18 @@
     (map nm genips)))
 
 (defn sgp-embeddings-by-gens
-  "Prepares the semigroups for calling embeddings-conj. Gentabbing and finding
-  conj candidates."
-  ([Sgens Smul Tgens Tmul]
+  "Computes all embeddings from source semigroup to target semigroup.
+  Semigroups are given by generators and their multiplication functions. Source
+  semigroup is replaced by its generation table. It returns a list of maps
+  containing the images of the source generators, or an empty list.  
+  Results are up to conjugation if conjugation action and symmetries are given."
+  ([Sgens Smul Tgens Tmul] ; all embeddings
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)]
                           [(:gens src) (:mul src)])
          tgs (targets mSgens mSmul Tgens Tmul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings mSgens mSmul tgs Tmul))))
-  ([Sgens Smul Tgens Tmul Tconj G]
+  ([Sgens Smul Tgens Tmul Tconj G] ; embeddings up to conjugation
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
          ts (targets mSgens mSmul Tgens Tmul)
          conjrep (partial conjugacy/conjrep Tconj)
@@ -44,7 +47,8 @@
           (embeddings-conj mSgens mSmul tgs Tmul Tconj G)))))
 
 (defn embeddings
-  "All morphisms from embedding seeds, but lossy ones filtered out."
+  "All embeddings of source semigroup into target induced by the possible
+  images of the generators."
   [Sgens Smul tgs Tmul]
   (loop [n 0, tgs tgs, morphs [{}]]
     (println (count morphs))
