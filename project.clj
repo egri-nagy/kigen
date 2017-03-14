@@ -1,4 +1,4 @@
-(defproject kigen "0.1.0-SNAPSHOT"
+(defproject kigen "17.03.14-SNAPSHOT"
   :description "Computing with diagram semigroups based on partitioned binary relations"
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"

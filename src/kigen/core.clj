@@ -13,9 +13,15 @@
             [kigen.gentab :as gentab])
   (:gen-class))
 
+;; to save compile time property into a runtime one
+(defmacro get-version []
+  (System/getProperty "kigen.version"))
+
 (defn -main
   "The first argument is a name of a file containing Clojure source code.
   This main method evaluates the forms contained."
   [& args]
+  (println "KIGEN Computational Semigroup Theory Software System Version"
+           (get-version))
   (load-file (first args))
   (shutdown-agents))
