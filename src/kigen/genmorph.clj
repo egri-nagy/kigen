@@ -9,7 +9,7 @@
             [kigen.gentab :refer [gentab]]
             [kigen.conjugacy :as conjugacy]))
 
-(declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj)
+(declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj embeddings)
 
 (defn targets
   [srcgens srcmul trgens trgmul]
@@ -26,36 +26,41 @@
                    T)]
     (map nm genips)))
 
-(defn embeddings
-  "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens Smul Tgens Tmul]
-  (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
-        tgs (targets Sgens Smul Tgens Tmul)]
-    (loop [n 0, tgs tgs, morphs [{}]]
-      (println (count morphs))
-      (if (empty? tgs)
-        morphs
-        (let [nmorphs (mapcat #(pmap (fn [m]
-                                      (add-gen-and-close m
-                                                         n
-                                                         %
-                                                         (take (inc n) mSgens)
-                                                         mSmul
-                                                         Tmul))
-                                    morphs)
-                              (first tgs))]
-          (recur (inc n) (rest tgs) (filter #(apply distinct? (vals %))
-                                            (remove number? nmorphs))))))))
 (defn sgp-embeddings-by-gens
   "Prepares the semigroups for calling embeddings-conj. Gentabbing and finding
   conj candidates."
-  [Sgens Smul Tgens Tmul Tconj G]
-  (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
-        ts (targets Sgens Smul Tgens Tmul)
-        conjrep (partial conjugacy/conjrep Tconj)
-        tgs (cons (distinct (pmap #(conjrep % G) (first ts))) (rest ts))]
-    (map (fn [m] (zipmap Sgens (map m mSgens)))
-     (embeddings-conj mSgens mSmul tgs Tmul Tconj G))))
+  ([Sgens Smul Tgens Tmul]
+   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)]
+                          [(:gens src) (:mul src)])
+         tgs (targets mSgens mSmul Tgens Tmul)]
+     (map (fn [m] (zipmap Sgens (map m mSgens)))
+          (embeddings mSgens mSmul tgs Tmul))))
+  ([Sgens Smul Tgens Tmul Tconj G]
+   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
+         ts (targets mSgens mSmul Tgens Tmul)
+         conjrep (partial conjugacy/conjrep Tconj)
+         tgs (cons (distinct (pmap #(conjrep % G) (first ts))) (rest ts))]
+     (map (fn [m] (zipmap Sgens (map m mSgens)))
+          (embeddings-conj mSgens mSmul tgs Tmul Tconj G)))))
+
+(defn embeddings
+  "All morphisms from embedding seeds, but lossy ones filtered out."
+  [Sgens Smul tgs Tmul]
+  (loop [n 0, tgs tgs, morphs [{}]]
+    (println (count morphs))
+    (if (empty? tgs)
+      morphs
+      (let [nmorphs (mapcat #(pmap (fn [m]
+                                     (add-gen-and-close m
+                                                        n
+                                                        %
+                                                        (take (inc n) Sgens)
+                                                        Smul
+                                                        Tmul))
+                                   morphs)
+                            (first tgs))]
+        (recur (inc n) (rest tgs) (filter #(apply distinct? (vals %))
+                                          (remove number? nmorphs)))))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
