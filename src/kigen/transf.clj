@@ -2,7 +2,8 @@
   "Transformations and permutations. Several embeddings into partitioned
   binary relations. Also, simple representation as a vector."
   (:require [kigen.pbr :as pbr]
-            [kigen.sgp :as sgp]))
+            [kigen.sgp :as sgp]
+            [kigen.pos :as pos]))
 
 (declare singleton?
          transf->binrel
@@ -135,8 +136,8 @@
   [t p]
   (mul (mul (inverse p) t) p))
 
-(defn typ [t]
- (let [n (count t)]
-   (map (fn [i]
-          [(mod (- (t i) i) n)
-           (- (mod (- i (t i)) n))]) (range n))))
+(defn conjugators
+  "The conjugate of a transformation by a permutation."
+  [t conjdt G]
+  (filter #(= conjdt (conjugate t %)) G)
+)
