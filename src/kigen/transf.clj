@@ -161,11 +161,12 @@
 (defn cim ;;check individual map
   "m - mapping, d - desired mapping, p - current permutation bindings
   returns the extended p if possible, otherwise nil"
-  [m d p ]
-  (let [nmappings (mapv vector m d)]
-    (println "cim" nmappings)
+  [m d p]
+
+  (let [nmappings (vec (distinct (map vector m d)))]
+    (print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
     (if (and
-         (distinct? (map second) nmappings)
+         (apply distinct? (map second nmappings))
          (every?
           (fn [[a b]]
             (or
@@ -174,38 +175,18 @@
              (and (not (contains? p a))
                   (empty? (filter #(= b %) (vals p))))))
           nmappings))
-      (into p nmappings)
-      nil)))
+      (do (println "GOOD!")
+          (into p nmappings))
+      (do (println "NIX!") nil))))
 
-(defn cuki
-  [maps ; the available individual maps from the original
-   p ; the conjugator partial permutation but as a map
-   rep ; the representative so far, we are trying to add 1 more
-   j ; the hypothetical new element in rep
-   n ; the size of transformation
-   ]
-  (println "cuki" maps p rep j)
-  (cond
-    (= n (count rep)) p
-    (> j n) nil
-    :else (let [i (count rep); so we try to get an individual map i -> j
-                newps (remove (comp nil? first) (map (fn [m]
-                                                        [(cim m [i j] p) m])
-                                                      maps))]
-            (if (empty? newps)
-              (cuki maps p rep (inc j) n) ;try higher target
-              (first
-               (drop-while nil?
-                           (map (fn [[np m]] (cuki
-                                              (remove #(= m %) maps)
-                                              np
-                                              (conj  rep j)
-                                              0
-                                              n))
-                                newps)))))))
+(defn add-a-map
+  [[mappings p] i j]
+  (println "add" mappings p)
+   (remove (comp nil? second)
+             (map (fn [m] [(remove #(= % m) mappings)  (cim m [i j] p)])
+                  mappings)))
 
 (defn conjrep [t]
   (let [n (count t)
-        mappings (map vector (range n) t)
-        pm (cuki mappings {} [] 0 n)]
-    (conjugate t (mapv pm (range n)))))
+        mappings (map vector (range n) t)]
+    (add-a-map [mappings {}] 0 0)))
