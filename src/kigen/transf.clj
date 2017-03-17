@@ -142,7 +142,7 @@
   (filter #(= conjdt (conjugate t %)) G)
 )
 
-(defn conjrep
+(defn cjr
   [t]
   (let [n (count t)
         groupedmaps (group-by
@@ -162,32 +162,50 @@
   "m - mapping, d - desired mapping, p - current permutation bindings
   returns the extended p if possible, otherwise nil"
   [m d p ]
-  (let [nmappings (mapv vector m d)])
-  (if (every
-       (fn [[a b]]
-         (or
-          (and (contains? p a)
-               (= (p a) b))
-          ()))
-       nmappings)
-    (into p nmappings)
-    nil))
+  (let [nmappings (mapv vector m d)]
+    (println "cim" nmappings)
+    (if (and
+         (distinct? (map second) nmappings)
+         (every?
+          (fn [[a b]]
+            (or
+             (and (contains? p a)
+                  (= (p a) b))
+             (and (not (contains? p a))
+                  (empty? (filter #(= b %) (vals p))))))
+          nmappings))
+      (into p nmappings)
+      nil)))
 
-(defn extend
+(defn cuki
   [maps ; the available individual maps from the original
    p ; the conjugator partial permutation but as a map
    rep ; the representative so far, we are trying to add 1 more
    j ; the hypothetical new element in rep
    n ; the size of transformation
    ]
+  (println "cuki" maps p rep j)
   (cond
     (= n (count rep)) p
     (> j n) nil
-    :else (
-           ;;here we go through all the maps and try to find one that works
-           (let [i (count rep); so we try to get an individual map i -> j
-                 ]
-             ;; if it works for at least one, then return that
+    :else (let [i (count rep); so we try to get an individual map i -> j
+                newps (remove (comp nil? first) (map (fn [m]
+                                                        [(cim m [i j] p) m])
+                                                      maps))]
+            (if (empty? newps)
+              (cuki maps p rep (inc j) n) ;try higher target
+              (first
+               (drop-while nil?
+                           (map (fn [[np m]] (cuki
+                                              (remove #(= m %) maps)
+                                              np
+                                              (conj  rep j)
+                                              0
+                                              n))
+                                newps)))))))
 
-             ;;otherwise increase and recur
-             ))))
+(defn conjrep [t]
+  (let [n (count t)
+        mappings (map vector (range n) t)
+        pm (cuki mappings {} [] 0 n)]
+    (conjugate t (mapv pm (range n)))))
