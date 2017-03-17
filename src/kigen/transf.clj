@@ -134,3 +134,9 @@
   "The conjugate of a transformation by a permutation."
   [t p]
   (mul (mul (inverse p) t) p))
+
+(defn typ [t]
+ (let [n (count t)]
+   (map (fn [i]
+          [(mod (- (t i) i) n)
+           (- (mod (- i (t i)) n))]) (range n))))
