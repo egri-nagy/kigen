@@ -141,3 +141,53 @@
   [t conjdt G]
   (filter #(= conjdt (conjugate t %)) G)
 )
+
+(defn conjrep
+  [t]
+  (let [n (count t)
+        groupedmaps (group-by
+                     (fn [[i j]] (= i j))
+                     (map vector (range n) t))
+        fixedmaps (groupedmaps true)
+        fixedpts (map first fixedmaps)
+        ;; fixed points can be relabeled to the first or one of the lasts
+        fixed-relabs (set (concat [0]
+                                  (range (inc (- n (count fixedmaps))) n)))
+        movedmaps (groupedmaps false)
+        movedpts (map first movedmaps)]
+    (println fixedmaps movedmaps)
+    (count fixedmaps)))
+
+(defn cim ;;check individual map
+  "m - mapping, d - desired mapping, p - current permutation bindings
+  returns the extended p if possible, otherwise nil"
+  [m d p ]
+  (let [nmappings (mapv vector m d)])
+  (if (every
+       (fn [[a b]]
+         (or
+          (and (contains? p a)
+               (= (p a) b))
+          ()))
+       nmappings)
+    (into p nmappings)
+    nil))
+
+(defn extend
+  [maps ; the available individual maps from the original
+   p ; the conjugator partial permutation but as a map
+   rep ; the representative so far, we are trying to add 1 more
+   j ; the hypothetical new element in rep
+   n ; the size of transformation
+   ]
+  (cond
+    (= n (count rep)) p
+    (> j n) nil
+    :else (
+           ;;here we go through all the maps and try to find one that works
+           (let [i (count rep); so we try to get an individual map i -> j
+                 ]
+             ;; if it works for at least one, then return that
+
+             ;;otherwise increase and recur
+             ))))
