@@ -195,25 +195,25 @@
 ;; so a triple [rep mappings pperm] contains a rep with the last element unrealized
 ;; partially defined permutation (the conjugator) and the available mappings not yet used
 (defn f [stack n]
-  (let [[rep mappings pperm] (peek stack)
+  (let [[rep psols] (peek stack)
         nstack (pop stack)
         pts (range n)
-        psols (add-a-map [mappings pperm] (dec (count rep)) (peek rep))]
-    ;(println " ** "  stack)
-    (if (empty? psols)
+        npsols (mapcat (fn [[mappings pperm]]
+                      (add-a-map [mappings pperm] (dec (count rep)) (peek rep)))
+                    psols)]
+    
+    (if (empty? npsols)
       (recur nstack n)
       (if (and (= n (count rep)) true)
         rep
         (if (< (count rep) n)
           (let [newreps (reverse (map #(conj rep %) pts))
-                newtasks (mapcat (fn [rep]
-                                   (map (fn [[mpps pp]] [rep mpps pp]) psols))
-                                 newreps)]
+                newtasks (map (fn [rep] [rep npsols]) newreps)]
             (recur (into nstack newtasks) n)))))))
 
 
 (defn conjrep [t]
   (let [n (count t)
         mappings (single-maps t)
-        stack (mapv (fn [i] [[i]  mappings {}]) (reverse (range n)))]
+        stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse (range n)))]
     (f stack n)))
