@@ -164,7 +164,7 @@
   [m d p]
 
   (let [nmappings (vec (distinct (map vector m d)))]
-    ;(print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
+    (print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
     (if (and
          (apply distinct? (map second nmappings))
          (every?
@@ -175,9 +175,9 @@
              (and (not (contains? p a))
                   (empty? (filter #(= b %) (vals p))))))
           nmappings))
-      (do ;(println "GOOD!")
+      (do (println "GOOD!")
           (into p nmappings))
-      (do ;(println "NIX!")
+      (do (println "NIX!")
         nil
         ))))
 
@@ -188,38 +188,28 @@
           (map (fn [m] [(remove #(= % m) mappings)  (cim m [i j] p)])
                mappings)))
 
-(defn nextrep [rep n]
-  (cond (< (count rep) n) (conj rep 0)
-        (< (peek rep) (dec n)) (conj (pop rep)
-                                     (inc (peek rep)))
-        :else (loop [redrep (pop rep)]
-                (cond (empty? redrep) nil
-                      (< (peek redrep) (dec n)) (conj (pop redrep)
-                                                          (inc (peek redrep)))
-                      :else (recur (pop redrep))))))
-
-
+;; so a triple [rep mappings pperm] contains a rep with the last element unrealized
+;; partially defined permutation (the conjugator) and the available mappings not yet used
 (defn f [stack n]
-  (if (empty? stack)
-    nil
-    (let [rep (peek stack)
-          nstack (pop stack)
-          pts (range n)]
-      (do (println rep)
-          (if (< (count rep) n)
-            (recur (into nstack
-                         (reverse (map #(conj rep %) pts))) n)
-            (recur nstack n))))))
+  (let [[rep mappings pperm] (peek stack)
+        nstack (pop stack)
+        pts (range n)
+        psols (add-a-map [mappings pperm] (count rep) (peek rep))]
+    ;(println stack psols)
+    (if (empty? psols)
+      (recur nstack n)
+      (if (and (= n (count rep)) true)
+        rep
+        (if (< (count rep) n)
+          (let [newreps (reverse (map #(conj rep %) pts))
+                newtasks (mapcat (fn [[mpps pp]]
+                                   (map (fn [rep] [rep mpps pp]) newreps))
+                                 psols)]
+            (recur (into nstack newtasks) n)))))))
+
 
 (defn conjrep [t]
   (let [n (count t)
         mappings (map vector (range n) t)
-        pts (range n)
-        backtrack (fn f [stack]
-                    (let [ [rep mappings p] (peek stack)
-                          remaining (pop stack)]
-                      )
-                    
-                    
-                    )]
-    (backtrack [[[]  mappings {}]])))
+        stack (mapv (fn [i] [[i]  mappings {}]) (reverse (range n)))]
+    (f stack n)))
