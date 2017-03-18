@@ -198,6 +198,19 @@
                                                           (inc (peek redrep)))
                       :else (recur (pop redrep))))))
 
+
+(defn f [stack n]
+  (if (empty? stack)
+    nil
+    (let [rep (peek stack)
+          nstack (pop stack)
+          pts (range n)]
+      (do (println rep)
+          (if (< (count rep) n)
+            (recur (into nstack
+                         (reverse (map #(conj rep %) pts))) n)
+            (recur nstack n))))))
+
 (defn conjrep [t]
   (let [n (count t)
         mappings (map vector (range n) t)
