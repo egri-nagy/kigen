@@ -164,7 +164,7 @@
   [m d p]
 
   (let [nmappings (vec (distinct (map vector m d)))]
-    (print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
+    ;(print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
     (if (and
          (apply distinct? (map second nmappings))
          (every?
@@ -175,18 +175,38 @@
              (and (not (contains? p a))
                   (empty? (filter #(= b %) (vals p))))))
           nmappings))
-      (do (println "GOOD!")
+      (do ;(println "GOOD!")
           (into p nmappings))
-      (do (println "NIX!") nil))))
+      (do ;(println "NIX!")
+        nil
+        ))))
 
 (defn add-a-map
   [[mappings p] i j]
-  (println "add" mappings p)
-   (remove (comp nil? second)
-             (map (fn [m] [(remove #(= % m) mappings)  (cim m [i j] p)])
-                  mappings)))
+  ;(println "add" i "->" j "to" mappings p)
+  (remove (comp nil? second)
+          (map (fn [m] [(remove #(= % m) mappings)  (cim m [i j] p)])
+               mappings)))
+
+(defn nextrep [rep n]
+  (cond (< (count rep) n) (conj rep 0)
+        (< (peek rep) (dec n)) (conj (pop rep)
+                                     (inc (peek rep)))
+        :else (loop [redrep (pop rep)]
+                (cond (empty? redrep) nil
+                      (< (peek redrep) (dec n)) (conj (pop redrep)
+                                                          (inc (peek redrep)))
+                      :else (recur (pop redrep))))))
 
 (defn conjrep [t]
   (let [n (count t)
-        mappings (map vector (range n) t)]
-    (add-a-map [mappings {}] 0 0)))
+        mappings (map vector (range n) t)
+        pts (range n)
+        backtrack (fn f [stack]
+                    (let [ [rep mappings p] (peek stack)
+                          remaining (pop stack)]
+                      )
+                    
+                    
+                    )]
+    (backtrack [[[]  mappings {}]])))
