@@ -142,32 +142,17 @@
   (filter #(= conjdt (conjugate t %)) G)
 )
 
-(defn single-maps [t]
+;; 'native' conjugacy class representative calculation
+(defn single-maps
+  "All mappings of of a transformation in the form of [src img]."
+  [t]
   (map vector (range (count t)) t))
 
-(defn cjr
-  [t]
-  (let [n (count t)
-        groupedmaps (group-by
-                     (fn [[i j]] (= i j))
-                     (map vector (range n) t))
-        fixedmaps (groupedmaps true)
-        fixedpts (map first fixedmaps)
-        ;; fixed points can be relabeled to the first or one of the lasts
-        fixed-relabs (set (concat [0]
-                                  (range (inc (- n (count fixedmaps))) n)))
-        movedmaps (groupedmaps false)
-        movedpts (map first movedmaps)]
-    (println fixedmaps movedmaps)
-    (count fixedmaps)))
-
-(defn cim ;;check individual map
+(defn realize-a-mapping ;;check individual map
   "m - mapping, d - desired mapping, p - current permutation bindings
   returns the extended p if possible, otherwise nil"
   [m d p]
-
   (let [nmappings (vec (distinct (map vector m d)))]
-    ;(print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
     (if (and
          (apply distinct? (map second nmappings))
          (every?
@@ -178,42 +163,37 @@
              (and (not (contains? p a))
                   (empty? (filter #(= b %) (vals p))))))
           nmappings))
-      (do ;(println "GOOD!")
-          (into p nmappings))
-      (do ;(println "NIX!")
-        nil
-        ))))
+      (into p nmappings)
+      nil)))
 
-(defn add-a-map
-  [[mappings p] i j]
-  ;(println "add" i "->" j "to" mappings p)
+(defn all-realizations
+  [[mappings p] d]
   (remove (comp nil? second)
           (map (fn [m]
-                 [(remove #(= % m) mappings) (cim m [i j] p)])
+                 [(remove #(= % m) mappings) (realize-a-mapping m d p)])
                mappings)))
-
-;; so a triple [rep mappings pperm] contains a rep with the last element unrealized
-;; partially defined permutation (the conjugator) and the available mappings not yet used
-(defn f [stack n]
-  (let [[rep psols] (peek stack)
-        nstack (pop stack)
-        pts (range n)
-        npsols (mapcat (fn [[mappings pperm]]
-                      (add-a-map [mappings pperm] (dec (count rep)) (peek rep)))
-                    psols)]
-    
-    (if (empty? npsols)
-      (recur nstack n)
-      (if (and (= n (count rep)) true)
-        rep
-        (if (< (count rep) n)
-          (let [newreps (reverse (map #(conj rep %) pts))
-                newtasks (map (fn [rep] [rep npsols]) newreps)]
-            (recur (into nstack newtasks) n)))))))
-
 
 (defn conjrep [t]
   (let [n (count t)
         mappings (single-maps t)
-        stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse (range n)))]
-    (f stack n)))
+        ;; [rep mappings pperm] contains a rep realized by a partially defined
+        ;; permutation (as a map) and the available mappings not yet used
+        stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse (range n)))
+        search (fn [stack]
+                 (let [[rep psols] (peek stack)
+                       nstack (pop stack)
+                       pts (range n)
+                       npsols (mapcat (fn [[mappings pperm]]
+                                        (all-realizations [mappings pperm]
+                                                          [(dec (count rep))
+                                                           (peek rep)]))
+                                      psols)]
+                   (if (empty? npsols)
+                     (recur nstack)
+                     (if (and (= n (count rep)) true)
+                       rep
+                       (if (< (count rep) n)
+                         (let [newreps (reverse (map #(conj rep %) pts))
+                               newtasks (map (fn [rep] [rep npsols]) newreps)]
+                           (recur (into nstack newtasks))))))))]
+    (search stack)))
