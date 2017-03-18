@@ -164,7 +164,7 @@
   [m d p]
 
   (let [nmappings (vec (distinct (map vector m d)))]
-    (print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
+    ;(print "cim trying to map" m "to" d "so new" nmappings "to be added to" p)
     (if (and
          (apply distinct? (map second nmappings))
          (every?
@@ -175,9 +175,9 @@
              (and (not (contains? p a))
                   (empty? (filter #(= b %) (vals p))))))
           nmappings))
-      (do (println "GOOD!")
+      (do ;(println "GOOD!")
           (into p nmappings))
-      (do (println "NIX!")
+      (do ;(println "NIX!")
         nil
         ))))
 
@@ -194,7 +194,7 @@
   (let [[rep mappings pperm] (peek stack)
         nstack (pop stack)
         pts (range n)
-        psols (add-a-map [mappings pperm] (count rep) (peek rep))]
+        psols (add-a-map [mappings pperm] (dec (count rep)) (peek rep))]
     ;(println stack psols)
     (if (empty? psols)
       (recur nstack n)
