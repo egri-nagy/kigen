@@ -142,6 +142,9 @@
   (filter #(= conjdt (conjugate t %)) G)
 )
 
+(defn single-maps [t]
+  (map vector (range (count t)) t))
+
 (defn cjr
   [t]
   (let [n (count t)
@@ -185,7 +188,8 @@
   [[mappings p] i j]
   ;(println "add" i "->" j "to" mappings p)
   (remove (comp nil? second)
-          (map (fn [m] [(remove #(= % m) mappings)  (cim m [i j] p)])
+          (map (fn [m]
+                 [(remove #(= % m) mappings) (cim m [i j] p)])
                mappings)))
 
 ;; so a triple [rep mappings pperm] contains a rep with the last element unrealized
@@ -195,21 +199,21 @@
         nstack (pop stack)
         pts (range n)
         psols (add-a-map [mappings pperm] (dec (count rep)) (peek rep))]
-    ;(println stack psols)
+    ;(println " ** "  stack)
     (if (empty? psols)
       (recur nstack n)
       (if (and (= n (count rep)) true)
         rep
         (if (< (count rep) n)
           (let [newreps (reverse (map #(conj rep %) pts))
-                newtasks (mapcat (fn [[mpps pp]]
-                                   (map (fn [rep] [rep mpps pp]) newreps))
-                                 psols)]
+                newtasks (mapcat (fn [rep]
+                                   (map (fn [[mpps pp]] [rep mpps pp]) psols))
+                                 newreps)]
             (recur (into nstack newtasks) n)))))))
 
 
 (defn conjrep [t]
   (let [n (count t)
-        mappings (map vector (range n) t)
+        mappings (single-maps t)
         stack (mapv (fn [i] [[i]  mappings {}]) (reverse (range n)))]
     (f stack n)))
