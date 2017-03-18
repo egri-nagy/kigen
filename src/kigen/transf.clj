@@ -167,15 +167,20 @@
       nil)))
 
 (defn all-realizations
+  "All realizations of desired map d using available mappings, induced by p."
   [[mappings p] d]
-  (remove (comp nil? second)
-          (map (fn [m]
-                 [(remove #(= % m) mappings) (realize-a-mapping m d p)])
-               mappings)))
+  (reduce
+   (fn [psols m]
+     (let [res (realize-a-mapping m d p)]
+       (if (nil? res)
+         psols
+         (conj psols [(disj mappings m) res]))))
+   []
+   mappings))
 
 (defn conjrep [t]
   (let [n (count t)
-        mappings (single-maps t)
+        mappings (set (single-maps t))
         ;; [rep mappings pperm] contains a rep realized by a partially defined
         ;; permutation (as a map) and the available mappings not yet used
         stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse (range n)))
