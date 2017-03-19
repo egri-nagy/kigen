@@ -2,7 +2,7 @@
 
 (ns kigen.perm
   (:require [kigen.pbr :as pbr]
-            [kigen.transf :refer [binrel-transf?]]))
+            [kigen.transf-pbr :refer [binrel-transf?]]))
 
 ;;pbr is a permutation if images of elements of the domain yield the codomain
 (defn binrel-perm?
