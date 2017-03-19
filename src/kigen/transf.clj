@@ -12,8 +12,6 @@
 (defn ncycle [n] (vec (concat (range 1 n) [0])))
 (defn collapsing [n] (vec (concat [0 0] (range 2 n))))
 
-(defn cyclic-gen [n] [(ncycle n)])
-
 (defn symmetric-gens
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
@@ -43,7 +41,6 @@
     (concat (map #(conj % n) ftsg)
             [(vec (concat [n] (range 1 n) [n]))])))
 
-
 (defn mul
   "Right multiplication of transformations represented by vectors."
   [s t]
@@ -55,6 +52,7 @@
   (sgp/sgp-by-gens gens mul))
 
 (defn act
+  "Transformation t acting on a set of points."
   [points t]
   (set (map t points)))
 
@@ -71,12 +69,6 @@
   "The conjugate of a transformation by a permutation."
   [t p]
   (mul (mul (inverse p) t) p))
-
-(defn conjugators
-  "The conjugate of a transformation by a permutation."
-  [t conjdt G]
-  (filter #(= conjdt (conjugate t %)) G)
-)
 
 ;; 'native' conjugacy class representative calculation
 (defn single-maps
@@ -114,13 +106,15 @@
    []
    mappings))
 
-(defn conjrep [t]
+(defn conjrep
+  "Direct construction of conjugacy class representative of transformation t."
+  [t]
   (let [n (count t)
         mappings (set (single-maps t))
         ;; [rep mappings pperm] contains a rep realized by a partially defined
         ;; permutation (as a map) and the available mappings not yet used
         stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse (range n)))
-        search (fn [stack]
+        search (fn [stack] ; TODO this is just another bfs, use abstract code
                  (let [[rep psols] (peek stack)
                        nstack (pop stack)
                        pts (range n)
