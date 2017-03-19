@@ -20,6 +20,14 @@
         (is (= (pow n n)
                (count (t/sgp-by-gens (t/full-ts-gens n)))))))))
 
+(deftest transf-pts-test
+  (testing "Testing partial transformation monoids."
+    (let [pow #(reduce * 1 (repeat %2 %1))]
+      (doseq [n [1 2 3 4]]
+        (is (= (pow (inc n) n)
+               (count (t/sgp-by-gens (t/pts-gens n)))))))))
+
+
 (deftest transf-symmetric-group-test
   (testing "Testing symmetric groups."
     (let [factorial #(reduce * 1 (range 1 (inc %)))]
