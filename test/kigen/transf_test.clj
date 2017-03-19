@@ -20,6 +20,19 @@
         (is (= (pow n n)
                (count (t/sgp-by-gens (t/full-ts-gens n)))))))))
 
+(deftest transf-symmetric-group-test
+  (testing "Testing symmetric groups."
+    (let [factorial #(reduce * 1 (range 1 (inc %)))]
+      (doseq [n [1 2 3 4 5 6]]
+        (is (= (factorial n)
+               (count (t/sgp-by-gens (t/symmetric-gens n)))))))))
+
+(deftest transf-symmetric-inverse-monoid-test
+  (testing "Testing symmetric inverse monoids."
+    (is (= [2 7 34 209 1546]
+           (map #(count (t/sgp-by-gens (t/sym-inv-gens %)))
+                [1 2 3 4 5])))))
+
 (deftest transf-inverse-test
   (testing "Inverses of bijective transformations in S7."
     (let [S7 (t/sgp-by-gens (t/symmetric-gens 7))
