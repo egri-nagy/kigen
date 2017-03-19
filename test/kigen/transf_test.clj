@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [kigen.transf :as transf]
             [kigen.sgp :as sgp]
-            [kigen.pbr :as pbr]))
+            [kigen.pbr :as pbr]
+            [kigen.conjugacy :as conjugacy]))
 
 (deftest transf-singleton-test
   (testing "Testing the singleton predicate."
@@ -60,3 +61,12 @@
 (deftest transf-inverse-test
   (testing "Conjugates."
     (is (= [4 3 0 3 1] (transf/conjugate [1 4 3 3 2] [2 0 1 3 4])))))
+
+(deftest transf-conjrep-test
+  (testing "Conjugacy class representatives, direct search vs. naive method."
+    (let [S5 (transf/sgp-by-gens (transf/symmetric-gens 5))
+          T5 (transf/sgp-by-gens (transf/full-ts-gens 5))]
+      (is (every? #(and
+                    (transf/conjrep %)
+                    (conjugacy/conjrep transf/conjugate % S5))
+                  T5)))))
