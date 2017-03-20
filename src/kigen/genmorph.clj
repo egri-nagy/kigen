@@ -1,10 +1,7 @@
 (ns kigen.genmorph
-  "Constructing morphisms by generators."
-  (:require [clojure.math.combinatorics :refer [subsets
-                                                partitions
-                                                combinations
-                                                cartesian-product]]
-            [kigen.sgp :as sgp]
+  "Constructing morphisms by generators, i.e. searching for an automorphism of
+  Cayley-graphs."
+  (:require [kigen.sgp :as sgp]
             [kigen.transf :as transf]
             [kigen.gentab :refer [gentab]]
             [kigen.conjugacy :as conjugacy]))
@@ -30,7 +27,7 @@
   "Computes all embeddings from source semigroup to target semigroup.
   Semigroups are given by generators and their multiplication functions. Source
   semigroup is replaced by its generation table. It returns a list of maps
-  containing the images of the source generators, or an empty list.  
+  containing the images of the source generators, or an empty list.
   Results are up to conjugation if conjugation action and symmetries are given."
   ([Sgens Smul Tgens Tmul] ; all embeddings
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)]
