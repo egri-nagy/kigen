@@ -11,7 +11,7 @@
         gentab (vec (pmap
                      (fn [x] (->> gens
                                   (map #(mul x %))
-                                  (map #(indices %))
+                                  (map indices)
                                   (vec)))
                      elts))]
     {:gens (range (count gens))
@@ -19,4 +19,3 @@
      :elts elts
      :indices indices
      :mul (fn [x y] ((gentab x) y))}))
-

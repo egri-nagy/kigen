@@ -23,7 +23,7 @@
     (vec (pmap
           (fn [x] (->> xs
                        (map #(mul % x)) ;left multiplication by x
-                       (map #(indx %)) ;elt -> index
+                       (map indx) ;elt -> index
                        (vec)))
           xs))))
 

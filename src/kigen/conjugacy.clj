@@ -6,7 +6,7 @@
   [conjugation-function thing symmetries]
   (letfn [(f [minimal-thing sym]
             (let [new-thing (conjugation-function thing sym)]
-              (if (< (compare new-thing minimal-thing) 0)
+              (if (neg? (compare new-thing minimal-thing))
                 new-thing
                 minimal-thing)))]
     (reduce f thing symmetries)))

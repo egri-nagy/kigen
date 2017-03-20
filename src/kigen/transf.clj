@@ -81,7 +81,7 @@
   returns the extended p if possible, otherwise nil"
   [m d p]
   (let [nmappings (vec (distinct (map vector m d)))]
-    (if (and
+    (when (and
          (apply distinct? (map second nmappings))
          (every?
           (fn [[a b]]
@@ -91,8 +91,7 @@
              (and (not (contains? p a))
                   (empty? (filter #(= b %) (vals p))))))
           nmappings))
-      (into p nmappings)
-      nil)))
+      (into p nmappings))))
 
 (defn all-realizations
   "All realizations of desired map d using available mappings, induced by p."

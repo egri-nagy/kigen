@@ -17,7 +17,7 @@
         nm (reduce (fn [m t]
                      (let [ip (sgp/index-period t trgmul)]
                        (if (contains? genipset ip)
-                         (update m ip (fn [v x] (conj v x)) t)
+                         (update m ip conj t)
                          m)))
                    m
                    T)]
