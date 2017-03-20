@@ -19,6 +19,6 @@
                     (comp t/conjrep reverse)
                     (take-while #(not (= (vec  (reverse %)) (maxcnj m)))
                                 (iterate #(nxt % m) (zerovec m)))))
-                  (zerovec m)))
+                  (maxcnj m)))
 
 (spit "x" (vec (g 3)))
