@@ -3,6 +3,10 @@
   representatives.")
 
 (defn conjrep
+  "Naive brute force implementation of finding the conjugacy class
+  representative of a thing by  some symmetries using a conjugation function.
+  The latter has the form: [thing symmetry] -> conjugated thing.
+  Assumption is that things can be compared."
   [conjugation-function thing symmetries]
   (letfn [(f [minimal-thing sym]
             (let [new-thing (conjugation-function thing sym)]
