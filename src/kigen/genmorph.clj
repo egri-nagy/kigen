@@ -5,7 +5,14 @@
             [kigen.gentab :refer [gentab]]
             [kigen.conjugacy :as conjugacy]))
 
-(declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj embeddings)
+(declare extend-morph ;; low-level morphism checking/extending functions
+         add-edge
+         extend-node
+         add-gen-and-close
+         embeddings ;; high-level function for finding embeddings
+         embeddings-conj
+         sgp-embeddings-by-gens ;;main entry point
+         index-period-matched)
 
 (defn index-period-matched
   "Returns for each generator in S, the elements of T matching with matching
@@ -110,6 +117,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn extend-morph
   "Extends partial morphism systematically by the generators starting at the
   frontline. If morphism is not possible, returns the number of matchings."
