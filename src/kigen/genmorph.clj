@@ -8,18 +8,19 @@
 
 (declare extend-morph add-edge extend-node add-gen-and-close embeddings-conj embeddings)
 
-(defn targets
-  [srcgens srcmul trgens trgmul]
-  (let [T (sgp/sgp-by-gens trgens trgmul)
-        genips (map #(sgp/index-period % srcmul) srcgens)
+(defn index-period-matched
+  "Returns for each generator in S, the elements of T matching with matching
+  index-period values."
+  [Sgens Smul Tgens Tmul]
+  (let [T (sgp/sgp-by-gens Tgens Tmul)
+        genips (map #(sgp/index-period % Smul) Sgens)
         genipset (set genips)
-        m (zipmap genipset (repeat []))
         nm (reduce (fn [m t]
-                     (let [ip (sgp/index-period t trgmul)]
+                     (let [ip (sgp/index-period t Tmul)]
                        (if (contains? genipset ip)
                          (update m ip conj t)
                          m)))
-                   m
+                   (zipmap genipset (repeat []))
                    T)]
     (map nm genips)))
 
@@ -32,12 +33,12 @@
   ([Sgens Smul Tgens Tmul] ; all embeddings
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)]
                           [(:gens src) (:mul src)])
-         tgs (targets mSgens mSmul Tgens Tmul)]
+         tgs (index-period-matched mSgens mSmul Tgens Tmul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings mSgens mSmul tgs Tmul))))
   ([Sgens Smul Tgens Tmul Tconj G] ; embeddings up to conjugation
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
-         ts (targets mSgens mSmul Tgens Tmul)
+         ts (index-period-matched mSgens mSmul Tgens Tmul)
          conjrep (partial conjugacy/conjrep Tconj)
          tgs (cons (distinct (pmap #(conjrep % G) (first ts))) (rest ts))]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
