@@ -2,7 +2,6 @@
   "Constructing morphisms by generators, i.e. searching for an automorphism of
   Cayley-graphs."
   (:require [kigen.sgp :as sgp]
-            [kigen.transf :as transf]
             [kigen.gentab :refer [gentab]]
             [kigen.conjugacy :as conjugacy]))
 
@@ -180,13 +179,3 @@
         []
         (count phi))
       [ab AB])))
-
-;; shadow
-;; sorting with duplicates removed, like UNIX's sort -u
-(def sort-u (comp vec sort set))
-
-(defn conjclass
-  [L G]
-  (sort-u (map #(mapv (fn [x] (transf/conjugate x %)) L) G)))
-
-(defn conjrep-shadow [l G] (first (conjclass l G)))
