@@ -109,14 +109,14 @@
   "Direct construction of conjugacy class representative of transformation t."
   [t]
   (let [n (count t)
+        pts (range n)
         mappings (set (single-maps t))
         ;; [rep mappings pperm] contains a rep realized by a partially defined
         ;; permutation (as a map) and the available mappings not yet used
-        stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse (range n)))
-        search (fn [stack] ; TODO this is just another bfs, use abstract code
+        stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse pts))
+        search (fn [stack] ; TODO this is just another dfs, use abstract code
                  (let [[rep psols] (peek stack)
                        nstack (pop stack)
-                       pts (range n)
                        npsols (mapcat (fn [[mappings pperm]]
                                         (all-realizations [mappings pperm]
                                                           [(dec (count rep))
