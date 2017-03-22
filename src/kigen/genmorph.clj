@@ -15,8 +15,8 @@
          index-period-matched)
 
 (defn index-period-matched
-  "Returns for each generator in S, the elements of T matching with matching
-  index-period values."
+  "Returns for each generator in S, the elements of T with matching index-period
+  values. It fully enumerates T."
   [Sgens Smul Tgens Tmul]
   (let [T (sgp/sgp-by-gens Tgens Tmul)
         genips (map #(sgp/index-period % Smul) Sgens)
