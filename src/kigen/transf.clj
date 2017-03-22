@@ -2,7 +2,8 @@
   "Transformations and permutations. Several embeddings into partitioned
   binary relations. Also, simple representation as a vector."
   (:require [kigen.sgp :as sgp]
-            [kigen.orbit :as o]))
+            [kigen.orbit :as o]
+            [kigen.conjugacy :as conjugacy]))
 
 (defn singleton? [coll] (= 1 (count coll)))
 
@@ -148,3 +149,12 @@
            (fn [perm] (= (count t) (count perm)))     
            (map (fn [[_ _ perm]] perm)
                 (o/full-orbit-bulk [ [tmaps rmaps {}] ] f)))))))
+
+(defn test-minconjgs
+  [n]
+  (let [Tn (sgp-by-gens (full-ts-gens n))
+        Sn (sgp-by-gens (symmetric-gens n))]
+    (filter
+     (fn [t] (not (= (set (minconjgs t (conjrep t)))
+                     (set (second (conjugacy/minconjugators conjugate t Sn))))))
+     Tn)))
