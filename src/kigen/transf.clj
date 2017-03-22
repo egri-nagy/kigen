@@ -1,7 +1,8 @@
 (ns kigen.transf
   "Transformations and permutations. Several embeddings into partitioned
   binary relations. Also, simple representation as a vector."
-  (:require [kigen.sgp :as sgp]))
+  (:require [kigen.sgp :as sgp]
+            [kigen.orbit :as o]))
 
 (defn singleton? [coll] (= 1 (count coll)))
 
@@ -131,3 +132,19 @@
                                newtasks (map (fn [rep] [rep npsols]) newreps)]
                            (recur (into nstack newtasks))))))))]
     (search stack)))
+
+(defn minconjgs [t r]
+  (let [tmaps (set (single-maps t)) ; 
+        rmaps (set  (single-maps r))
+        f (fn [[tmaps rmaps perm]]
+            (let [tm (first tmaps)]
+              (set (for [ rm rmaps
+                         :let [res (realize-a-mapping tm rm perm)]
+                         :when (not (nil? res))]
+                     [(rest tmaps) (disj rmaps rm) res]))))]
+    (distinct
+     (map #(mapv % (range (count t)))
+          (filter
+           (fn [perm] (= (count t) (count perm)))     
+           (map (fn [[_ _ perm]] perm)
+                (o/full-orbit-bulk [ [tmaps rmaps {}] ] f)))))))
