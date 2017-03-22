@@ -53,6 +53,9 @@
 (spit "experiments/DIAGSGPS/T8conjreps" (vec (sort (full-Tm+1-conjreps 7))))
 
 ;; this can be slurped back by
-;; (def T8conjreps (load-file "experiments/DIAGSGPS/T8conjreps"))
+;; (def T8conjreps (clojure.edn/read-string
+;;                   (slurp "experiments/DIAGSGPS/T8conjreps")))
 
-
+;; checked against data from
+;; http://www-groups.mcs.st-andrews.ac.uk/~jamesm/data.php
+;; 2017.03.22.
