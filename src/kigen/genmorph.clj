@@ -101,8 +101,10 @@
                                       (if (and (coll? nmorph)
                                                (apply distinct? (vals nmorph)))
                                         (let [img (setconjrep
-                                        ; (vec (sort (vals nmorph)))
-                                                   (vec (sort (map nmorph gens)))
+                                        ;we need to keep distinct generator sets
+                                                   (vec
+                                                    (sort
+                                                     (map nmorph gens)))
                                                    G)]
                                           (if (contains? imgs2morphs img)
                                             imgs2morphs
@@ -112,7 +114,6 @@
           (let [nmorphs (vals (apply merge (pmap extend-phi morphs)))]
             (println "gens:" (inc n) "morphs:" (count nmorphs))
             (recur (inc n) nmorphs)))))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
@@ -130,11 +131,13 @@
           result
           (recur (:phi result) (into (pop stack) (:new result))))))))
 
-;; all nodes 1 new generator
 (defn add-gen
-  " "
+  "Extends partial morphism phi by adding one  new generator, i.e. multiplying
+  all existing nodes. The morphic image of the generator is also needed."
   [phi gen phiofgen Smul Tmul]
-  (loop [phi (conj phi [gen phiofgen]), incoming [gen], front (conj  (keys phi) gen)]
+  (loop [phi (conj phi [gen phiofgen])
+         incoming [gen]
+         front (conj  (keys phi) gen)]
     (if (empty? front)
       {:phi phi :new incoming}
       (let [p (add-edge phi (first front) gen Smul Tmul)]
@@ -147,14 +150,13 @@
                            (rest front)))))))
 
 (defn add-gen-and-close
-  " "
+  "Add a new generator and close the Cayley-graph."
   [phi gen phiofgen Sgens Smul Tmul]
   (let [res (add-gen phi gen phiofgen Smul Tmul)]
     (if (number? res)
       res
       (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
 
-;; 1-node all generators
 (defn extend-node
   "Extending a single element by all generators one-by-one, so breach of
   morphism gets detected immediately.
@@ -169,7 +171,7 @@
               :else (recur (conj phi p)
                            (conj incoming (first p))
                            (rest gens)))))))
-;; 1-node 1-generator
+
 (defn add-edge
   "Extends the morphism phi by applying a generator b to a single element a.
   This is where the homomorphism condition is checked.
