@@ -1,5 +1,5 @@
 (ns kigen.genmorph
-  "Constructing morphisms by generators, i.e. searching for an automorphism of
+  "Constructing morphisms by generators, i.e. searching for an isoomorphisms of
   Cayley-graphs."
   (:require [kigen.sgp :as sgp]
             [kigen.gentab :refer [gentab]]
@@ -12,23 +12,23 @@
          embeddings ;; high-level function for finding embeddings
          embeddings-conj
          sgp-embeddings-by-gens ;;main entry point
-         index-period-matched)
+         index-period-matched) ;;preparation
 
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
-  values. It fully enumerates T."
+  values. WARNING: It fully enumerates T."
   [Sgens Smul Tgens Tmul]
   (let [T (sgp/sgp-by-gens Tgens Tmul)
         genips (map #(sgp/index-period % Smul) Sgens)
         genipset (set genips)
-        nm (reduce (fn [m t]
-                     (let [ip (sgp/index-period t Tmul)]
-                       (if (contains? genipset ip)
-                         (update m ip conj t)
-                         m)))
-                   (zipmap genipset (repeat []))
-                   T)]
-    (map nm genips)))
+        Sgenips->Tsets (reduce (fn [m t]
+                                 (let [ip (sgp/index-period t Tmul)]
+                                   (if (contains? genipset ip)
+                                     (update m ip conj t)
+                                     m)))
+                               (zipmap genipset (repeat []))
+                               T)]
+    (map Sgenips->Tsets genips)))
 
 (defn sgp-embeddings-by-gens
   "Computes all embeddings from source semigroup to target semigroup.
@@ -36,13 +36,12 @@
   semigroup is replaced by its generation table. It returns a list of maps
   containing the images of the source generators, or an empty list.
   Results are up to conjugation if conjugation action and symmetries are given."
-  ([Sgens Smul Tgens Tmul] ; all embeddings
-   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)]
-                          [(:gens src) (:mul src)])
+  ([Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
+   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
          tgs (index-period-matched mSgens mSmul Tgens Tmul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings mSgens mSmul tgs Tmul))))
-  ([Sgens Smul Tgens Tmul Tconj G] ; embeddings up to conjugation
+  ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
          ts (index-period-matched mSgens mSmul Tgens Tmul)
          conjrep (partial conjugacy/conjrep Tconj)
@@ -54,21 +53,22 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (loop [n 0, tgs tgs, morphs [{}]]
+  (loop [n 0, morphs [{}]]
     (println (count morphs))
-    (if (empty? tgs)
+    (if (= n (count Sgens))
       morphs
-      (let [nmorphs (mapcat #(pmap (fn [m]
-                                     (add-gen-and-close m
-                                                        n
-                                                        %
-                                                        (take (inc n) Sgens)
-                                                        Smul
-                                                        Tmul))
-                                   morphs)
-                            (first tgs))]
-        (recur (inc n) (rest tgs) (filter #(apply distinct? (vals %))
-                                          (remove number? nmorphs)))))))
+      (let [nmorphs (mapcat #(pmap
+                              (fn [m]
+                                (add-gen-and-close m
+                                                   (nth Sgens n)
+                                                   %
+                                                   (take (inc n) Sgens)
+                                                   Smul
+                                                   Tmul))
+                              morphs)
+                            (nth tgs n))]
+        (recur (inc n) (filter #(apply distinct? (vals %))
+                               (remove number? nmorphs)))))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
