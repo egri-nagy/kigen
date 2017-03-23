@@ -80,12 +80,10 @@
       (if (= n (count Sgens))
         (map first (vals (group-by #(setconjrep (vec (vals %)) G) morphs)))
         (letfn [(extend-phi [phi]
-                  (let [currentgens(if (empty? phi)
-                                     []
-                                     (mapv phi
-                                           (take n Sgens)))
-                        partconj (if (empty? currentgens) [[] G]
-                                     (reduce conj-conj [[] G] currentgens))
+                  (let [currentgens (if (empty? phi)
+                                      []
+                                      (mapv phi (take n Sgens)))
+                        partconj (reduce conj-conj [[] G] currentgens)
                         ngens (distinct
                                (map (comp last first)
                                     (map #(conj-conj partconj %) (nth tgs n))))
