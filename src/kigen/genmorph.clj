@@ -75,10 +75,10 @@
   [Sgens Smul tgs Tmul Tconj G]
   (println (count (first tgs)) " candidate(s) for 1st generator")
   (let [conj-conj (partial conjugacy/conj-conj Tconj)
-        setconjrep (partial conjugacy/setconjrep Tconj)]
+        setconjrep #((partial conjugacy/setconjrep Tconj) % G)]
     (loop [n 0, morphs [{}] ]
       (if (= n (count Sgens))
-        (map first (vals (group-by #(setconjrep (vec (vals %)) G) morphs)))
+        (map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
         (letfn [(extend-phi [phi]
                   (let [currentgens (if (empty? phi)
                                       []
@@ -102,8 +102,7 @@
                                         ;we need to keep distinct generator sets
                                                    (vec
                                                     (sort
-                                                     (map nmorph gens)))
-                                                   G)]
+                                                     (map nmorph gens))))]
                                           (if (contains? imgs2morphs img)
                                             imgs2morphs
                                             (assoc imgs2morphs img nmorph)))
