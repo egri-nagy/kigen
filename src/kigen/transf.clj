@@ -135,19 +135,20 @@
     (search stack)))
 
 (defn minconjgs [t r]
-  (let [tmaps (set (single-maps t)) ; 
+  (let [tmaps (set (single-maps t))
         rmaps (set  (single-maps r))
         f (fn [[tmaps rmaps perm]]
             (let [tm (first tmaps)]
-              (set (for [ rm rmaps
+              (set (for [rm rmaps
                          :let [res (realize-a-mapping tm rm perm)]
                          :when (not (nil? res))]
                      [(rest tmaps) (disj rmaps rm) res]))))]
     (distinct
      (map #(mapv % (range (count t)))
-          (filter
-           (fn [perm] (= (count t) (count perm)))     
-           (map (fn [[_ _ perm]] perm)
+          (map (fn [[_ _ perm]] perm)
+               (filter
+                (fn [[tmaps]] (empty? tmaps))
+
                 (o/full-orbit-bulk [ [tmaps rmaps {}] ] f)))))))
 
 (defn test-minconjgs
