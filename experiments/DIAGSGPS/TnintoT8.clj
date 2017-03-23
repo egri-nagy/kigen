@@ -1,6 +1,6 @@
 ;; embedding T3 into T8
 ;; computed 736 distinct embeddings 2017.03.23 for T3 -> T8
-
+;; 48 for T4->T8
 
 (def T8conjreps (clojure.edn/read-string
                  (slurp "experiments/DIAGSGPS/T8conjreps")))
@@ -10,7 +10,7 @@
 (def index-period-lookup
   (group-by #(sgp/index-period % t/mul) T8conjreps))
 
-(def n 4)
+(def n 5)
 
 (def Tngens (t/full-ts-gens n))
 (def Tnips (map #(sgp/index-period % t/mul) Tngens))
