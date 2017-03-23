@@ -172,6 +172,6 @@
   (let [Tn (sgp-by-gens (full-ts-gens n))
         Sn (sgp-by-gens (symmetric-gens n))]
     (filter
-     (fn [t] (not (= (set (minconjgs t (conjrep t)))
-                     (set (second (conjugacy/minconjugators conjugate t Sn))))))
+     (fn [t] (not= (set (minconjgs t (conjrep t)))
+                   (set (second (conjugacy/minconjugators conjugate t Sn)))))
      Tn)))
