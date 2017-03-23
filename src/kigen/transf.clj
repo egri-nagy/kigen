@@ -151,6 +151,22 @@
 
                 (o/full-orbit-bulk [ [tmaps rmaps {}] ] f)))))))
 
+(defn setconjrep
+  [T]
+  (let [T->reps (group-by conjrep T)
+        minimal (reduce
+                 (fn [minimal other]
+                   (if (neg? (compare minimal other))
+                     minimal
+                     other))
+                 (first (keys T->reps))
+                 (keys T->reps) )
+        symmetries (distinct (mapcat
+                              #(minconjgs % minimal)
+                              (T->reps minimal)))]
+    (println minimal (count symmetries))
+    (conjugacy/setconjrep conjugate T symmetries)))
+
 (defn test-minconjgs
   [n]
   (let [Tn (sgp-by-gens (full-ts-gens n))
