@@ -167,6 +167,15 @@
     (println minimal (count symmetries))
     (conjugacy/setconjrep conjugate T symmetries)))
 
+(defn conj-conj
+  "Conjoins a transformation to a conjugacy class representative
+  sequence, based on the minimal conjugators of the sequence. "
+  ([t] (let [r (conjrep t)]
+         [ [r] (minconjgs t r)]))
+  ([[L G] t]
+   (let [[r nG] (conjugacy/minconjugators conjugate t G)]
+     [(conj  L r) nG])))
+
 (defn test-minconjgs
   [n]
   (let [Tn (sgp-by-gens (full-ts-gens n))
