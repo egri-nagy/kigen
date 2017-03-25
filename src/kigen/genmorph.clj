@@ -49,7 +49,8 @@
          setconjrep #(conjugacy/setconjrep Tconj % G)
          conj-conj (conjugacy/conj-conj-fn Tconj G)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
-          (embeddings-conj mSgens mSmul tgs Tmul conjrep conj-conj setconjrep)))))
+          (embeddings-conj mSgens mSmul tgs Tmul
+                           conjrep conj-conj setconjrep)))))
 
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible

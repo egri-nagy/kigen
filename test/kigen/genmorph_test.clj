@@ -16,5 +16,9 @@
       (is (= 1 (count
                 (sgp-embeddings-by-gens T3gens tmul
                                         T3gens tmul
+                                        tconj S3))))
+      (is (= 3 (count
+                (sgp-embeddings-by-gens T2gens tmul
+                                        T3gens tmul
                                         tconj S3)))))))
       
