@@ -164,7 +164,7 @@
         symmetries (distinct (mapcat
                               #(minconjgs % minimal)
                               (T->reps minimal)))]
-    (println minimal (count symmetries))
+    ;;(println minimal (count symmetries))
     (conjugacy/setconjrep conjugate T symmetries)))
 
 (defn conj-conj
