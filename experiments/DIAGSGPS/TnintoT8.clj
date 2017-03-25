@@ -10,7 +10,7 @@
 (def index-period-lookup
   (group-by #(sgp/index-period % t/mul) T8conjreps))
 
-(def n 5)
+(def n 4)
 
 (def Tngens (t/full-ts-gens n))
 (def Tnips (map #(sgp/index-period % t/mul) Tngens))
@@ -27,4 +27,5 @@
 
 (println
   (count
-   (gmorph/embeddings-conj Tngens t/mul targets t/mul t/conjugate S8)))
+   (gmorph/embeddings-conj Tngens t/mul targets t/mul
+                           t/conjrep t/conj-conj t/setconjrep)))
