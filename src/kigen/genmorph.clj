@@ -44,10 +44,12 @@
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
    (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
          ts (index-period-matched mSgens mSmul Tgens Tmul)
-         conjrep (partial conjugacy/conjrep Tconj)
-         tgs (cons (distinct (pmap #(conjrep % G) (first ts))) (rest ts))]
+         conjrep #(conjugacy/conjrep Tconj % G)
+         tgs (cons (distinct (pmap conjrep (first ts))) (rest ts))
+         setconjrep #(conjugacy/setconjrep Tconj % G)
+         conj-conj (conjugacy/conj-conj-fn Tconj G)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
-          (embeddings-conj mSgens mSmul tgs Tmul Tconj G)))))
+          (embeddings-conj mSgens mSmul tgs Tmul conjrep conj-conj setconjrep)))))
 
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
@@ -72,45 +74,46 @@
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens Smul tgs Tmul Tconj G]
+  [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
   (println (count (first tgs)) " candidate(s) for 1st generator")
-  (let [conj-conj (partial conjugacy/conj-conj Tconj)
-        setconjrep #((partial conjugacy/setconjrep Tconj) % G)]
-    (loop [n 0, morphs [{}] ]
-      (if (= n (count Sgens))
-        (map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
-        (letfn [(extend-phi [phi]
-                  (let [currentgens (if (empty? phi)
-                                      []
-                                      (mapv phi (take n Sgens)))
-                        partconj (reduce conj-conj [[] G] currentgens)
-                        ngens (distinct
-                               (map (comp last first)
-                                    (map #(conj-conj partconj %) (nth tgs n))))
-                        check-gen (fn [imgs2morphs ngen]
-                                    (let [gens (take (inc n) Sgens)
-                                          nmorph (add-gen-and-close
-                                                  phi
-                                                  (nth Sgens n)
-                                                  ngen
-                                                  gens
-                                                  Smul
-                                                  Tmul)]
-                                      (if (and (coll? nmorph)
-                                               (apply distinct? (vals nmorph)))
-                                        (let [img (setconjrep
+  (loop [n 0, morphs [{}] ]
+    (if (= n (count Sgens))
+      (map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
+      (letfn [(extend-phi [phi]
+                (let [ngens (if (zero? n)
+                              (map repconj (first tgs))
+                              (let [gens (mapv phi (take n Sgens))
+                                    partconj (reduce conj-conj
+                                                     (conj-conj (first gens))
+                                                     (rest gens))]
+                                (distinct
+                                 (map (comp last first)
+                                      (map #(conj-conj partconj %)
+                                           (nth tgs n))))))
+                      check-gen (fn [imgs2morphs ngen]
+                                  (let [gens (take (inc n) Sgens)
+                                        nmorph (add-gen-and-close
+                                                phi
+                                                (nth Sgens n)
+                                                ngen
+                                                gens
+                                                Smul
+                                                Tmul)]
+                                    (if (and (coll? nmorph)
+                                             (apply distinct? (vals nmorph)))
+                                      (let [img (setconjrep
                                         ;we need to keep distinct generator sets
-                                                   (vec
-                                                    (sort
-                                                     (map nmorph gens))))]
-                                          (if (contains? imgs2morphs img)
-                                            imgs2morphs
-                                            (assoc imgs2morphs img nmorph)))
-                                        imgs2morphs)))]
-                    (reduce check-gen {} ngens)))]
-          (let [nmorphs (vals (apply merge (pmap extend-phi morphs)))]
-            (println "gens:" (inc n) "morphs:" (count nmorphs))
-            (recur (inc n) nmorphs)))))))
+                                                 (vec
+                                                  (sort
+                                                   (map nmorph gens))))]
+                                        (if (contains? imgs2morphs img)
+                                          imgs2morphs
+                                          (assoc imgs2morphs img nmorph)))
+                                      imgs2morphs)))]
+                  (reduce check-gen {} ngens)))]
+        (let [nmorphs (vals (apply merge (pmap extend-phi morphs)))]
+          (println "gens:" (inc n) "morphs:" (count nmorphs))
+          (recur (inc n) nmorphs))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
