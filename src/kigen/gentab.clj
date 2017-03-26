@@ -8,14 +8,14 @@
   (let [S (sgp-by-gens gens mul)
         elts (vec (concat gens (remove (set gens) S)))
         indices (zipmap elts (range (count elts)))
-        gentab (vec (pmap
-                     (fn [x] (->> gens
-                                  (map #(mul x %))
-                                  (map indices)
-                                  (vec)))
-                     elts))]
+        gt (vec (pmap
+                 (fn [x] (->> gens
+                              (map #(mul x %))
+                              (map indices)
+                              (vec)))
+                 elts))]
     {:gens (range (count gens))
-     :tab gentab
+     :tab gt
      :elts elts
      :indices indices
-     :mul (fn [x y] ((gentab x) y))}))
+     :mul (fn [x y] ((gt x) y))}))
