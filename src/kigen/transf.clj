@@ -82,7 +82,7 @@
   "m - mapping, d - desired mapping, p - current permutation bindings
   returns the extended p if possible, otherwise nil"
   [m d p]
-  (let [nmappings (vec (distinct (map vector m d)))]
+  (let [nmappings (distinct (map vector m d))]
     (when (and
            (apply distinct? (map second nmappings))
            (every?
