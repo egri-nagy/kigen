@@ -175,12 +175,3 @@
   ([[L G] t]
    (let [[r nG] (conjugacy/minconjugators conjugate t G)]
      [(conj  L r) nG])))
-
-(defn test-minconjgs
-  [n]
-  (let [Tn (sgp-by-gens (full-ts-gens n))
-        Sn (sgp-by-gens (symmetric-gens n))]
-    (filter
-     (fn [t] (not= (set (minconjgs t (conjrep t)))
-                   (set (second (conjugacy/minconjugators conjugate t Sn)))))
-     Tn)))
