@@ -84,15 +84,15 @@
   [m d p]
   (let [nmappings (vec (distinct (map vector m d)))]
     (when (and
-         (apply distinct? (map second nmappings))
-         (every?
-          (fn [[a b]]
-            (or
-             (and (contains? p a)
-                  (= (p a) b))
-             (and (not (contains? p a))
-                  (empty? (filter #(= b %) (vals p))))))
-          nmappings))
+           (apply distinct? (map second nmappings))
+           (every?
+            (fn [[a b]]
+              (or
+               (and (contains? p a)
+                    (= (p a) b))
+               (and (not (contains? p a))
+                    (empty? (filter #(= b %) (vals p))))))
+            nmappings))
       (into p nmappings))))
 
 (defn all-realizations
