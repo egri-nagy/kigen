@@ -134,9 +134,11 @@
                            (recur (into nstack newtasks))))))))]
     (search stack)))
 
-(defn minconjgs [t r]
+(defn conjugators
+  "All permutations that take t to r by conjugation."
+  [t r]
   (let [tmaps (set (single-maps t))
-        rmaps (set  (single-maps r))
+        rmaps (set (single-maps r))
         f (fn [[tmaps rmaps perm]]
             (let [tm (first tmaps)]
               (set (for [rm rmaps
@@ -148,7 +150,6 @@
           (map (fn [[_ _ perm]] perm)
                (filter
                 (fn [[tmaps]] (empty? tmaps))
-
                 (o/full-orbit-bulk [ [tmaps rmaps {}] ] f)))))))
 
 (defn setconjrep
@@ -162,7 +163,7 @@
                  (first (keys T->reps))
                  (keys T->reps) )
         symmetries (distinct (mapcat
-                              #(minconjgs % minimal)
+                              #(conjugators % minimal)
                               (T->reps minimal)))]
     ;;(println minimal (count symmetries))
     (conjugacy/setconjrep conjugate T symmetries)))
@@ -171,7 +172,7 @@
   "Conjoins a transformation to a conjugacy class representative
   sequence, based on the minimal conjugators of the sequence. "
   ([t] (let [r (conjrep t)]
-         [ [r] (minconjgs t r)]))
+         [ [r] (conjugators t r)]))
   ([[L G] t]
    (let [[r nG] (conjugacy/minconjugators conjugate t G)]
      [(conj  L r) nG])))

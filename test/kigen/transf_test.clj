@@ -63,13 +63,13 @@
                     (conjugacy/conjrep t/conjugate % S5))
                   T5)))))
 
-(deftest transf-test-minconjgs
+(deftest transf-test-conjugators
   (testing "Minimal conjugators."
     (let [T4 (t/sgp-by-gens (t/full-ts-gens 4))
           S4 (t/sgp-by-gens (t/symmetric-gens 4))]
       (is (empty?
            (filter
-            (fn [x] (not= (set (t/minconjgs x (t/conjrep x)))
+            (fn [x] (not= (set (t/conjugators x (t/conjrep x)))
                           (set (second
                                 (conjugacy/minconjugators
                                  t/conjugate
