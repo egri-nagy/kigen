@@ -5,6 +5,8 @@
             [kigen.orbit :as o]
             [kigen.conjugacy :as conjugacy]))
 
+(declare single-maps)
+
 (defn singleton? [coll] (= 1 (count coll)))
 
 ;; STANDARD GENERATING SETS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -71,6 +73,14 @@
   "The conjugate of a transformation by a permutation."
   [t p]
   (mul (mul (inverse p) t) p))
+
+(defn relabel
+  "More direct conjugation by relabelling." ;bit slower
+  [t p]
+  (mapv second
+        (sort (map
+               (fn [[src img]] [(p src) (p img)])
+               (single-maps t)))))
 
 ;; 'native' conjugacy class representative calculation
 (defn single-maps
