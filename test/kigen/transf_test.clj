@@ -52,7 +52,8 @@
 
 (deftest transf-conjugate-test
   (testing "Conjugates."
-    (is (= [4 3 0 3 1] (t/conjugate [1 4 3 3 2] [2 0 1 3 4])))))
+    (is (= [4 3 0 3 1] (t/conjugate [1 4 3 3 2] [2 0 1 3 4])))
+    (is (= [4 3 0 3 1] (t/conjugate-by-definition [1 4 3 3 2] [2 0 1 3 4])))))
 
 (deftest transf-conjrep-test
   (testing "Conjugacy class representatives, direct search vs. naive method."

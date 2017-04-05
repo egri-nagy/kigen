@@ -68,18 +68,16 @@
   (let [pts (range (count t))]
     (mapv (zipmap t pts) pts)))
 
-(defn conjugate
+(defn conjugate-by-definition
   "The conjugate of a transformation by a permutation."
   [t p]
   (mul (mul (inverse p) t) p))
 
-(defn relabel
+(defn conjugate
   "More direct conjugation by relabelling." ;bit slower
   [t p]
-  (mapv second
-        (sort (map
-               (fn [[src img]] [(p src) (p img)])
-               (single-maps t)))))
+  (let [pts (range (count t))]
+    (mapv (zipmap (map p pts) (map p t)) pts)))
 
 ;; 'native' conjugacy class representative calculation
 (defn single-maps
@@ -173,7 +171,6 @@
         symmetries (distinct (mapcat
                               #(conjugators % minimal)
                               (T->reps minimal)))]
-    ;;(println minimal (count symmetries))
     (conjugacy/setconjrep conjugate T symmetries)))
 
 (defn conj-conj
