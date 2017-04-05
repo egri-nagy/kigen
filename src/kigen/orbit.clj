@@ -14,17 +14,18 @@
          first-solution-bulk)
 
 (defn right-action
-  "Returns a right action from a binary function and an argument."
+  "Returns a right action from a binary function and an argument.
+  For left actions, the function partial can be used."
   [binaryfunc arg]
   (fn [x] (binaryfunc x arg)))
 
 (defn right-actions
-  "Applying right-action to a collection of arguments."
+  "Produces a right-action function for each arguments."
   [binaryfunc args]
   (map (partial right-action binaryfunc) args))
 
 (defn set-action
-  "Combining several action functions into a single set-valued function."
+  "Combines several action functions into a single set-valued function."
   [afs]
   (fn [x]
     (set (for [f afs] (f x)))))
@@ -34,7 +35,7 @@
   "Applies action to all elements in one go. Returns the empty set as
   unprocessed elements."
   [elts action]
-  [(mapcat action elts) #{}])
+  [(distinct (mapcat action elts)) #{}])
 
 (defn single-step
   "Produces elements by applying the set-valued action to a single element

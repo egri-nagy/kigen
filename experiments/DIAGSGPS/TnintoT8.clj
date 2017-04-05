@@ -10,7 +10,7 @@
 (def index-period-lookup
   (group-by #(sgp/index-period % t/mul) T8conjreps))
 
-(def n 4)
+(def n 7)
 
 (def Tngens (t/full-ts-gens n))
 (def Tnips (map #(sgp/index-period % t/mul) Tngens))
