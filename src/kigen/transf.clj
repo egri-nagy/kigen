@@ -155,12 +155,11 @@
                          :let [res (realize-a-mapping tm rm perm)]
                          :when (not (nil? res))]
                      [(rest tmaps) (disj rmaps rm) res]))))]
-    (distinct
-     (map #(mapv % (range (count t)))
-          (map (fn [[_ _ perm]] perm)
-               (filter
-                (fn [[tmaps]] (empty? tmaps))
-                (o/full-orbit-bulk [ [tmaps rmaps {}] ] f)))))))
+    (map #(mapv % (range (count t))) ;creating the permutation vector
+         (map (fn [[_ _ perm]] perm) ;extracting the map
+              (o/acyclic-search-bulk [ [tmaps rmaps {}] ]
+                                     f
+                                     #(empty? (first %)))))))
 
 (defn setconjrep
   [T]
