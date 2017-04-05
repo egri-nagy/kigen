@@ -74,26 +74,17 @@
                                (remove number? nmorphs)))))))
 
 (defn morph-distinguisher
-  "Returns the distinct morphs up to conjugation in an efficient way."
+  "Returns the distinct morphs up to conjugation in an efficient way by
+  calculating the frequencies of conjugacy class representatives. S4 -> S7
+  shows that this is just a heuristics."
   [morphs repconj setconjrep]
-  (let [find-max (fn [coll] (reduce (fn [m t]
-                                      (let [r (repconj t)]
-                                        (if (pos? (compare r m))
-                                          r
-                                          m)))
-                                    (first coll)
-                                    (rest coll)))
-        f (fn [coll] (reduce (fn [reps t]
-                               (conj reps (repconj t)))
-                             #{}
-                             coll))
-        g (fn [coll] (frequencies (map repconj coll)))
-        maxclasses (group-by #(g (vals %)) morphs)
-        easykeys (filter #(= 1 (count (maxclasses %)))  (keys maxclasses))
-        hardkeys (filter #(< 1 (count (maxclasses %)))  (keys maxclasses))
-        hard (mapcat maxclasses hardkeys)]
-    (println (map count (vals maxclasses)))
-    (concat (mapcat maxclasses easykeys)
+  (let [conjrepfreqs (fn [coll] (frequencies (map repconj coll)))
+        classes (group-by #(conjrepfreqs (vals %)) morphs)
+        easykeys (filter #(= 1 (count (classes %)))  (keys classes))
+        hardkeys (filter #(< 1 (count (classes %)))  (keys classes))
+        hard (mapcat classes hardkeys)]
+    (println (map count (vals classes)))
+    (concat (mapcat classes easykeys)
             (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
 
 (defn embeddings-conj
