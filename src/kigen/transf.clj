@@ -94,14 +94,14 @@
   [m d p]
   (let [nmappings (distinct (map vector m d))]
     (when (and
-           (apply distinct? (map second nmappings))
+           (or
+            (= 1 (count nmappings))
+            (apply distinct? (map second nmappings)))
            (every?
             (fn [[a b]]
-              (or
-               (and (contains? p a)
-                    (= (p a) b))
-               (and (not (contains? p a))
-                    (empty? (filter #(= b %) (vals p))))))
+              (if (contains? p a)
+                (= (p a) b)
+                (empty? (drop-while #(not= b %) (vals p)))))
             nmappings))
       (into p nmappings))))
 
