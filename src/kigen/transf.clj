@@ -65,9 +65,8 @@
 (defn inverse
   "Inverse of a bijective transformation."
   [t]
-  (mapv second
-        (sort (map (fn [x] [(t x) x])
-                   (range (count t))))))
+  (let [pts (range (count t))]
+    (mapv (zipmap t pts) pts)))
 
 (defn conjugate
   "The conjugate of a transformation by a permutation."
