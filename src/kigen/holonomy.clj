@@ -1,6 +1,7 @@
 (ns kigen.holonomy
   (:require [clojure.set :as set :refer [subset?]]
             [kigen.orbit :as o :refer [set-action]]
+            [kigen.cayley-graph :refer [scc cayley-graph]]
             [kigen.pos :as pos]
             [kigen.poset :as p]
             [kigen.chain :as chain]
@@ -59,8 +60,8 @@
         singletons (set (map hash-set stateset))
         images (o/full-orbit-bulk [stateset] (set-action r-a-gens))
         extd (into images singletons)
-        c-g (o/cayley-graph images r-a-gens)
-        sccs (o/scc images c-g)
+        c-g (cayley-graph images r-a-gens)
+        sccs (scc images c-g)
         scc-heights (calc-heights sccs subduction?)
         scc-heights-full (conj scc-heights [(set singletons) 0])
         heights (expand-set-keyed-map scc-heights-full)]
