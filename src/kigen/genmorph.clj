@@ -73,13 +73,37 @@
         (recur (inc n) (filter #(apply distinct? (vals %))
                                (remove number? nmorphs)))))))
 
+(defn morph-distinguisher
+  "Returns the distinct morphs up to conjugation in an efficient way."
+  [morphs repconj setconjrep]
+  (let [find-max (fn [coll] (reduce (fn [m t]
+                                      (let [r (repconj t)]
+                                        (if (pos? (compare r m))
+                                          r
+                                          m)))
+                                    (first coll)
+                                    (rest coll)))
+        f (fn [coll] (reduce (fn [reps t]
+                               (conj reps (repconj t)))
+                             #{}
+                             coll))
+        g (fn [coll] (frequencies (map repconj coll)))
+        maxclasses (group-by #(g (vals %)) morphs)
+        easykeys (filter #(= 1 (count (maxclasses %)))  (keys maxclasses))
+        hardkeys (filter #(< 1 (count (maxclasses %)))  (keys maxclasses))
+        hard (mapcat maxclasses hardkeys)]
+    (println (map count (vals maxclasses)))
+    (concat (mapcat maxclasses easykeys)
+            (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
+
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
   (println (count (first tgs)) " candidate(s) for 1st generator")
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
-      (map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
+      ;(map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
+      (morph-distinguisher morphs repconj setconjrep)
       (letfn [(extend-phi [phi]
                 (let [ngens (if (zero? n)
                               (map repconj (first tgs))

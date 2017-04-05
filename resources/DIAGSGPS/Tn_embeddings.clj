@@ -1,10 +1,10 @@
 (defn Tm->Tn [m n]
-  (let [Tmgens (transf/full-ts-gens m)
-        result (gmorph/sgp-embeddings-by-gens Tmgens transf/mul
-                                              (transf/full-ts-gens n) transf/mul
-                                              transf/conjugate
-                                              (transf/sgp-by-gens
-                                               (transf/symmetric-gens n)))]
+  (let [Tmgens (t/full-ts-gens m)
+        result (gmorph/sgp-embeddings-by-gens Tmgens t/mul
+                                              (t/full-ts-gens n) t/mul
+                                              t/conjugate
+                                              (t/sgp-by-gens
+                                               (t/symmetric-gens n)))]
     result))
 
 (defn Tm->Tn-table []
