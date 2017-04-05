@@ -160,17 +160,18 @@
 
 (defn setconjrep
   [T]
-  (let [T->reps (group-by conjrep T)
-        minimal (reduce
-                 (fn [minimal other]
-                   (if (neg? (compare minimal other))
-                     minimal
-                     other))
-                 (first (keys T->reps))
-                 (keys T->reps) )
+  (let [[minimal minclass] (reduce
+                            (fn [[m mc :as db] t]
+                              (let [r (conjrep t)
+                                    flag (compare r m)]
+                                (cond (neg? flag) [r [t]]
+                                      (zero? flag) [m (conj mc t)]
+                                      :else db)))
+                            [(conjrep (first T)) [(first T)]]
+                            (rest T))
         symmetries (distinct (mapcat
                               #(conjugators % minimal)
-                              (T->reps minimal)))]
+                              minclass))]
     (conjugacy/setconjrep conjugate T symmetries)))
 
 (defn conj-conj
