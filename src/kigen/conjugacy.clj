@@ -25,7 +25,7 @@
 (defn setconjrep
   [conjugation-function things symmetries]
   (conjrep (partial conjugateset conjugation-function)
-           things
+           (vec (sort things))
            symmetries))
 
 (defn minconjugators
