@@ -74,7 +74,7 @@
   (mul (mul (inverse p) t) p))
 
 (defn conjugate
-  "More direct conjugation by relabelling." ;bit slower
+  "More direct conjugation by relabelling."
   [t p]
   (let [pts (range (count t))]
     (mapv (zipmap (map p pts) (map p t)) pts)))
@@ -158,17 +158,44 @@
                                      f
                                      #(empty? (first %)))))))
 
+;; conjrepfunc could be t/conjrep
+;; or
+;; (conjugacy/conjrep conjugate t syms)
+(defn min-rep-and-class
+  "Finds the minimal conjugacy class representative and its class
+  using the given function for calculating representatives in the
+  collection T."
+  [T conjrepfunc]
+  (reduce
+   (fn [[m mc :as db] t]
+     (let [r (conjrepfunc t)
+           flag (compare r m)]
+       (cond (neg? flag) [r [t]]
+             (zero? flag) [m (conj mc t)]
+             :else db)))
+   [(conjrep (first T)) [(first T)]]
+   (rest T)))
+
+(defn syms [[minimal minclass]]
+  (distinct (mapcat
+             #(conjugators % minimal)
+             minclass)))
+
+(defn nxt
+  [[minimal conjclass elts]]
+  (map #(min-rep-and-class
+         (disj elts %)
+         (fn [t]
+           (conjugacy/conjrep
+            conjugate
+            t
+            (conjugators % minimal))))
+       conjclass))
+
+
 (defn setconjrep
   [T]
-  (let [[minimal minclass] (reduce
-                            (fn [[m mc :as db] t]
-                              (let [r (conjrep t)
-                                    flag (compare r m)]
-                                (cond (neg? flag) [r [t]]
-                                      (zero? flag) [m (conj mc t)]
-                                      :else db)))
-                            [(conjrep (first T)) [(first T)]]
-                            (rest T))
+  (let [[minimal minclass] (min-rep-and-class T conjrep)
         symmetries (distinct (mapcat
                               #(conjugators % minimal)
                               minclass))]
