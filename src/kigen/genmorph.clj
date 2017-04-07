@@ -78,11 +78,14 @@
   calculating the frequencies of conjugacy class representatives. S4 -> S7
   shows that this is just a heuristics."
   [morphs repconj setconjrep]
-  (let [conjrepfreqs (fn [coll] (frequencies (map repconj coll)))
-        classes (group-by #(conjrepfreqs (vals %)) morphs)
+  (let [selected (map first
+                      (vals (group-by #(set (vec (vals %)))morphs)))
+        conjrepfreqs (fn [coll] (frequencies (map repconj coll)))
+        classes (group-by #(conjrepfreqs (vals %)) selected)
         easykeys (filter #(= 1 (count (classes %)))  (keys classes))
         hardkeys (filter #(< 1 (count (classes %)))  (keys classes))
         hard (mapcat classes hardkeys)]
+    (println (count morphs) "->" (count selected))
     (println (map count (vals classes)))
     (concat (mapcat classes easykeys)
             (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
