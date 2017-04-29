@@ -1,9 +1,9 @@
 (ns kigen.orbit
   "Calculating orbits by graph search algorithms.")
 
-(declare right-action
-         right-actions ;operators as functions
-         set-action ;combining actions into a single function
+(declare right-action ; binary function to single argument operator
+         right-actions ; bulk creation of single argument operators
+         set-action ; combining actions into a single set-valued function
          single-step
          bulk-step
          full-orbit
@@ -45,7 +45,7 @@
 
 ; FULL ORBIT ALGORITHMS
 (defn full-orbit
-  "Generic graph-search for poducing the full orbit from seeds
+  "Generic graph-search for producing the full orbit from seeds
   by applying set valued action sa. The order of the enumeration
   is determined by the step function."
   [seeds sa stepf]
