@@ -194,6 +194,9 @@
 
 
 (defn setconjrep
+  "Setwise conjugacy class representative of T.
+  Using conjugacy/setconjrep, but only with symmetries that take
+  produce the minimal conjrep."
   [T]
   (let [[minimal minclass] (min-rep-and-class T conjrep)
         symmetries (distinct (mapcat
