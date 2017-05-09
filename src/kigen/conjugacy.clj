@@ -17,13 +17,16 @@
     (reduce f thing symmetries)))
 
 (defn conjugateset
-  [conjugation-function things sym] ;;todo: can this have duplicates?
+  "Generalized conjugation function for sets."
+  [conjugation-function things sym]
   (vec
    (sort
     (map (fn [x] (conjugation-function x sym))
          things))))
 
 (defn setconjrep
+  "Given a set of things, it returns the conjugacy class representative set
+  (the minimal possible in lexicographic order)."
   [conjugation-function things symmetries]
   (conjrep (partial conjugateset conjugation-function)
            (vec (sort things))
