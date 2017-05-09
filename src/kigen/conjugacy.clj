@@ -3,8 +3,9 @@
   representatives.")
 
 (defn conjrep
-  "Naive brute force implementation of finding the conjugacy class
-  representative of a thing by  some symmetries using a conjugation function.
+  "Naive brute force implementation of finding the minimal conjugacy class
+  as the representative of a thing by going through all the given symmetries
+  using a conjugation function.
   The latter has the form: [thing symmetry] -> conjugated thing.
   Assumption is that things can be compared."
   [conjugation-function thing symmetries]
@@ -16,7 +17,7 @@
     (reduce f thing symmetries)))
 
 (defn conjugateset
-  [conjugation-function things sym]
+  [conjugation-function things sym] ;;todo: can this have duplicates?
   (vec
    (sort
     (map (fn [x] (conjugation-function x sym))

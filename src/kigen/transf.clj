@@ -69,17 +69,22 @@
     (mapv (zipmap t pts) pts)))
 
 (defn conjugate-by-definition
-  "The conjugate of a transformation by a permutation."
+  "The conjugate of a transformation by a permutation according to the
+  definition, i.e. multiplying by inverse on the left and p on the right."
   [t p]
   (mul (mul (inverse p) t) p))
 
 (defn conjugate
-  "More direct conjugation by relabelling."
+  "The conjugate of a transformation by direct relabeling according to p."
   [t p]
   (let [pts (range (count t))]
     (mapv (zipmap (map p pts) (map p t)) pts)))
 
-;; 'native' conjugacy class representative calculation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 'native' conjugacy class representative calculation ;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Transformations are separated into single point mappings. A permutation is
+;; constructed by finding the minimal relabeling of a transformation.
+
 (defn single-maps
   "All mappings of of a transformation in the form of [src img]."
   [t]
