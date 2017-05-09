@@ -36,11 +36,15 @@
   "Finds the minimal conjugate transformation of t under permutations G.
   Also returns the subset of G that takes t to the rep."
   [conjugation-function t G]
-  (let [conjugations (map
-                      (fn [p] [(conjugation-function t p) p])
-                      G)
-        mint (first (sort (map first conjugations)))]
-    [mint, (map second (filter #(= mint (first %)) conjugations))]))
+  (reduce (fn [r p]
+            (let [nt (conjugation-function t p)
+                  mint (first r)
+                  comparison-result (compare nt mint)]
+              (cond  (neg? comparison-result) [nt [p]]
+                     (zero? comparison-result) [mint (conj (second r) p)]
+                     :else r)))
+          [(conjugation-function t (first G)) [(first G)]]
+          (rest G)))
 
 (defn conj-conj
 
