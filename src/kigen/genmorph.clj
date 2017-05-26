@@ -3,7 +3,8 @@
   Cayley-graphs."
   (:require [kigen.sgp :as sgp]
             [kigen.gentab :refer [gentab]]
-            [kigen.conjugacy :as conjugacy]))
+            [kigen.conjugacy :as conjugacy]
+            [clojure.core.reducers :as r]))
 
 (declare extend-morph ;; low-level morphism checking/extending functions
          add-edge
@@ -105,10 +106,10 @@
                                     partconj (reduce conj-conj
                                                      (conj-conj (first gens))
                                                      (rest gens))]
-                                (distinct
-                                 (map (comp last first)
-                                      (map #(conj-conj partconj %)
-                                           (nth tgs n))))))
+                                (into #{}
+                                      (r/map (comp last first)
+                                             (r/map #(conj-conj partconj %)
+                                                    (nth tgs n))))))
                       check-gen (fn [imgs2morphs ngen]
                                   (let [gens (take (inc n) Sgens)
                                         nmorph (add-gen-and-close
