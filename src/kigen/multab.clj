@@ -7,7 +7,8 @@
   so multiplication is just look up."
   (:require [clojure.set :refer [difference union subset?]]
             [kigen.orbit :as orbit]
-            [kigen.sgp :as sgp]))
+            [kigen.sgp :as sgp]
+            [clojure.core.reducers :as r]))
 
 (defmacro at
   "Convenient accessing of matrix elements."
@@ -80,12 +81,16 @@
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
   [mt elts closedsub]
-  (pmap #(closure mt closedsub #{%})
-        (remove closedsub elts)))
+  (let [reducef (fn ([] #{})
+                  ([acc x]  (conj acc (closure mt closedsub #{x}))))
+        combinef (fn ([] #{})
+                   ([acc x] (into acc x)))]
+      (r/fold 32 combinef reducef
+            (r/remove closedsub elts))))
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
   table"
   [mt]
-  (let [elts (elts mt)]
+  (let [elts (vec (elts mt))]
     (orbit/full-orbit-single [#{}] (partial min-extensions mt elts))))
