@@ -79,12 +79,13 @@
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
-  [mt closedsub]
-  (let [complement (difference (elts mt) closedsub)]
-    (set (pmap #(closure mt closedsub #{%}) complement))))
+  [mt elts closedsub]
+  (pmap #(closure mt closedsub #{%})
+        (remove closedsub elts)))
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
   table"
   [mt]
-  (orbit/full-orbit-single [#{}] (partial min-extensions mt)))
+  (let [elts (elts mt)]
+    (orbit/full-orbit-single [#{}] (partial min-extensions mt elts))))
