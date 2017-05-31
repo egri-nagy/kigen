@@ -1,5 +1,6 @@
 (ns kigen.orbit
-  "Calculating orbits by graph search algorithms.")
+  "Calculating orbits by graph search algorithms."
+  (:require [clojure.core.reducers :as r]))
 
 (declare single-step
          bulk-step
@@ -13,6 +14,12 @@
          acyclic-search-bulk)
 
 ;; EXTENSION STRATEGIES
+(defn parallel-step
+  "Applies action to all elements in parallel using reducers."
+  [elts action]
+  [(into #{} (r/mapcat action elts)) #{}])
+
+
 (defn bulk-step
   "Applies action to all elements in one go. Returns the empty set as
   unprocessed elements."
@@ -44,7 +51,7 @@
   "Bulk-extension search starting from the elements in seeds using a single
   set-valued action function producing new elements."
   [seeds sa]
-  (full-orbit seeds sa bulk-step))
+  (full-orbit seeds sa parallel-step))
 
 (defn full-orbit-single
   "Single extension search starting from the elements in seeds using a single
