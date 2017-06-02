@@ -14,10 +14,15 @@
          acyclic-search-bulk)
 
 ;; EXTENSION STRATEGIES
+(defn cf
+  ([] #{})
+  ([coll x] (into coll x)))
+
 (defn parallel-step
-  "Applies action to all elements in parallel using reducers."
+  "Applies action to all elements in parallel using reducers.
+  It has to turn elts into a vector, otherwise fold does not  kick in."
   [elts action]
-  [(into #{} (r/mapcat action elts)) #{}])
+  [(r/fold  cf (fn [coll x] (conj coll x))   (r/mapcat action (vec elts))) #{}])
 
 
 (defn bulk-step
@@ -45,13 +50,18 @@
             newelts (remove orbit extensions)]
         (recur (into unprocessed newelts) (into orbit newelts))))))
 
+(defn full-orbit-parallel
+  [seeds sa]
+  (full-orbit seeds sa parallel-step))
+
+
 ;; seeds - elements to act on
 ;; sa - set action function
 (defn full-orbit-bulk
   "Bulk-extension search starting from the elements in seeds using a single
   set-valued action function producing new elements."
   [seeds sa]
-  (full-orbit seeds sa parallel-step))
+  (full-orbit seeds sa bulk-step))
 
 (defn full-orbit-single
   "Single extension search starting from the elements in seeds using a single
