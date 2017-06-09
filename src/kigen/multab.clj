@@ -6,7 +6,7 @@
   The tables are vectors of vectors (the rows of the table),
   so multiplication is just look up."
   (:require [clojure.set :refer [difference union subset?]]
-            [kigen.orbit :as orbit]
+            [orbit.core :as orbit]
             [kigen.sgp :as sgp]
             [clojure.core.reducers :as r]))
 

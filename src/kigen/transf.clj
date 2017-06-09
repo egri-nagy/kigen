@@ -2,7 +2,7 @@
   "Transformations and permutations. Several embeddings into partitioned
   binary relations. Also, simple representation as a vector."
   (:require [kigen.sgp :as sgp]
-            [kigen.orbit :as o]
+            [orbit.core :as o]
             [kigen.conjugacy :as conjugacy]))
 
 (declare single-maps)

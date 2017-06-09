@@ -1,6 +1,6 @@
 (ns kigen.chain
   "Chains in partially ordered sets."
- (:require [kigen.orbit :as o]
+ (:require [orbit.core :as o]
            [clojure.set :refer [union]]))
 
 ;; search is done with a FULL-ORBIT-BULK

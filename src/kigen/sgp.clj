@@ -3,8 +3,8 @@
   and the operation need to be supplied."
   (:require [clojure.math.combinatorics :as combinatorics]
             [kigen.pos :as pos]
-            [kigen.orbit :refer [full-orbit-bulk]]
-            [kigen.action :refer [right-actions set-action]]))
+            [orbit.core :refer [full-orbit-bulk]]
+            [orbit.action :refer [right-actions set-action]]))
 
 (declare sgp-by-gens
          commutative?

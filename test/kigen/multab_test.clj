@@ -1,7 +1,6 @@
 (ns kigen.multab-test
   (:require [clojure.test :refer :all]
             [kigen.multab :as mt]
-            [kigen.orbit :as o]
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]
             [kigen.pbr :as pbr]))

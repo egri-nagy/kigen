@@ -1,7 +1,7 @@
 (ns kigen.holonomy
   (:require [clojure.set :as set :refer [subset?]]
-            [kigen.orbit :as o]
-            [kigen.action :refer [set-action right-actions]]
+            [orbit.core :as o]
+            [orbit.action :refer [set-action right-actions]]
             [kigen.cayley-graph :refer [scc cayley-graph]]
             [kigen.pos :as pos]
             [kigen.poset :as p]

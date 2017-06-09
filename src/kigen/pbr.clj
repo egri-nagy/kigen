@@ -4,7 +4,7 @@
    for degree n, domain is 1..n, codomain is n+1..2n
    e.g. degree 3, domain is {1,2,3}, codomain is {4,5,6}"
   (:require [clojure.set :refer [union]]
-            [kigen.orbit :refer [full-orbit-single]]))
+            [orbit.core :refer [full-orbit-single]]))
 
 ;; RANDOM PARTITIONED BINARY RELATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declare rand-pbr
