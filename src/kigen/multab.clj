@@ -1,4 +1,3 @@
-;;TODO consider using immutable bitsets from https://github.com/clojure/data.int-map
 (ns kigen.multab
   "Functions for dealing with abstract multiplication tables,
   i.e. multiplicative elements are represented by their indices in a
@@ -17,12 +16,11 @@
   `((~mt ~i) ~j))
 
 (defn multab
-  "Returns the multiplication table of the elements xs by the function mul.
-  Computation is done by rows in parallel."
+  "Returns the multiplication table of the elements xs by the function mul."
   [xs mul]
   (let [vxs (vec xs)
         indx (zipmap vxs (range (count vxs)))]
-    (vec (pmap
+    (vec (map
           (fn [x] (->> xs
                        (map #(mul % x)) ;left multiplication by x
                        (map indx) ;elt -> index
@@ -51,7 +49,7 @@
   [mt S X]
   (if (subset? X S)
     (i/int-set)
-    (let [T (i/int-set (union S X))]
+    (let [T (i/union S X)]
       (i/int-set (remove T (i/union (set-mul mt T X)
                                     (set-mul mt X T)))))))
 
@@ -62,7 +60,7 @@
    (letfn
        [(finished? [[_ exts]] (empty? exts))
         (extend [[base exts]]
-          #{[(i/int-set (union base exts)) (newelements mt base exts)]})]
+          #{[(i/union base exts) (newelements mt base exts)]})]
      (first
       (orbit/first-solution-single [base exts] extend (fn [x] true) finished?)))))
 
@@ -83,7 +81,7 @@
   multiplication table mt."
   [mt elts closedsub]
   (let [reducef (fn ([] #{})
-                  ([acc x]  (conj acc (closure mt closedsub #{x}))))]
+                  ([acc x]  (conj acc (closure mt closedsub (i/int-set [x])))))]
       (r/reduce reducef
             (r/remove closedsub elts))))
 
