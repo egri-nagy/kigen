@@ -8,7 +8,8 @@
   (:require [clojure.set :refer [difference union subset?]]
             [orbit.core :as orbit]
             [kigen.sgp :as sgp]
-            [clojure.core.reducers :as r]))
+            [clojure.core.reducers :as r]
+            [clojure.data.int-map :as i]))
 
 (defmacro at
   "Convenient accessing of matrix elements."
@@ -82,10 +83,8 @@
   multiplication table mt."
   [mt elts closedsub]
   (let [reducef (fn ([] #{})
-                  ([acc x]  (conj acc (closure mt closedsub #{x}))))
-        combinef (fn ([] #{})
-                   ([acc x] (into acc x)))]
-      (r/fold 32 combinef reducef
+                  ([acc x]  (conj acc (closure mt closedsub #{x}))))]
+      (r/reduce reducef
             (r/remove closedsub elts))))
 
 (defn subsgps
