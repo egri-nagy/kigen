@@ -33,12 +33,12 @@
   "Returns the elements of the given multiplication table.
   The elements are just the set of indices from 0 to n-1."
   [mt]
-  (set (range (count mt))))
+  (i/int-set (range (count mt))))
 
 (defn set-mul
   "Setwise multiplication of subsets of a multab. For A and B it returns AB."
   [mt A B]
-  (set (for [i A j B] (at mt i j))))
+  (i/int-set (for [i A j B] (at mt i j))))
 
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."
@@ -50,19 +50,19 @@
   (SX union XS) setminus (S union X)."
   [mt S X]
   (if (subset? X S)
-    #{}
-    (let [T (union S X)]
-      (remove T (union (set-mul mt T X)
-                       (set-mul mt X T))))))
+    (i/int-set)
+    (let [T (i/int-set (union S X))]
+      (i/int-set (remove T (i/union (set-mul mt T X)
+                                    (set-mul mt X T)))))))
 
 (defn closure
   "It calculates the closure of base with elements in the set exts."
-  ([mt exts] (closure mt #{} exts))
+  ([mt exts] (closure mt (i/int-set) exts))
   ([mt base exts]
    (letfn
        [(finished? [[_ exts]] (empty? exts))
         (extend [[base exts]]
-          #{[(set  (union base exts)) (set (newelements mt base exts))]})]
+          #{[(i/int-set (union base exts)) (newelements mt base exts)]})]
      (first
       (orbit/first-solution-single [base exts] extend (fn [x] true) finished?)))))
 
@@ -91,5 +91,5 @@
   "All subsemigroups of an abstract semigroup given by its multiplication
   table"
   [mt]
-  (let [elts (vec (elts mt))]
-    (orbit/full-orbit-single [#{}] (partial min-extensions mt elts))))
+  (let [elts (elts mt)]
+    (orbit/full-orbit-single [(i/int-set)] (partial min-extensions mt elts))))
