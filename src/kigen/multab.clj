@@ -50,8 +50,9 @@
   (if (subset? X S)
     (i/int-set)
     (let [T (i/union S X)]
-      (i/int-set (remove T (i/union (set-mul mt T X)
-                                    (set-mul mt X T)))))))
+      (i/difference  (i/union (set-mul mt T X)
+                              (set-mul mt X T))
+                     T))))
 
 (defn closure
   "It calculates the closure of base with elements in the set exts."
