@@ -65,6 +65,7 @@
      (first
       (orbit/first-solution-single [base exts] extend (fn [x] true) finished?)))))
 
+;TODO this should be int-mapped as well
 (defn in-closure?
   "Returns true if an element x is in the closure of sgp by gens"
   ([mt gens x] (in-closure? mt #{} gens x))
