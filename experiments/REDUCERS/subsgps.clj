@@ -18,7 +18,7 @@
   table"
     [mt]
     (let [elts (multab/elts mt)]
-      (orbit/full-orbit-parallel [(i/int-set)] (partial min-extensions mt multab/elts))))
+      (orbit/full-orbit-parallel [(i/int-set)] (partial multab/min-extensions mt elts))))
   
 
 (println "Single")
