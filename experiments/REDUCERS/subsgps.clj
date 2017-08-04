@@ -19,13 +19,13 @@
     [mt]
     (let [elts (multab/elts mt)]
       (orbit/full-orbit-parallel [(i/int-set)] (partial multab/min-extensions mt elts))))
-  
+
 
 (println "Single")
 
 
 
-  
+
   (bench
    (subsgps-single mtS))
 
@@ -35,7 +35,7 @@
   (bench
    (subsgps-parallel mtS))
 
-  
+
 (println "Parallel 32")
 
 (binding [orbit.core/*task-size* 32]
