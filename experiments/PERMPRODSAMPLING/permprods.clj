@@ -6,8 +6,11 @@
   [n]
   (shuffle (vec (range n))))
 
+(defn product [v]
+  (reduce transf/mul v))
+
 (defn sample [n m k]
-  (count (into #{}
-               (map #(reduce transf/mul %)
-                    (combinatorics/selections (repeatedly m #(rand-perm n))
-                                              k)))))
+  (let [rnd-perms (repeatedly m #(rand-perm n))
+        k-tuples (combinatorics/selections rnd-perms k)
+        num-of-classes (count (into #{} (map product k-tuples)))]
+    (/ num-of-classes (Math/pow m k))))
