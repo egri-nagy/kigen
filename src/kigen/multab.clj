@@ -34,7 +34,7 @@
   (i/int-set (range (count mt))))
 
 (defn set-mul
-  "Setwise multiplication of subsets of a multab. For A and B it returns AB."
+  "Set-wise multiplication of subsets of a multab. For A and B it returns AB."
   [mt A B]
   (i/int-set (for [i A j B] (at mt i j))))
 
@@ -83,13 +83,15 @@
   multiplication table mt."
   [mt elts closedsub]
   (let [reducef (fn ([] #{})
-                  ([acc x]  (conj acc (closure mt closedsub (i/int-set [x])))))]
-      (r/reduce reducef
-            (r/remove closedsub elts))))
+                  ([acc x]
+                   (conj acc
+                         (closure mt closedsub (i/int-set [x])))))]
+    (r/reduce reducef
+              (r/remove closedsub elts))))
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
   table"
   [mt]
   (let [elts (elts mt)]
-    (orbit/full-orbit-single [(i/int-set)] (partial min-extensions mt elts))))
+    (orbit/full-orbit-parallel [(i/int-set)] (partial min-extensions mt elts))))
