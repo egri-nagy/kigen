@@ -12,7 +12,7 @@
   "Makes an implicit relation explicit. Works for finite set of elements."
   [elts rel?]
   (into {} (map
-            #(vector % (set (filter (partial  rel? %) elts)))
+            (fn [x] [x (set (filter (partial  rel? x) elts))])
             elts)))
 
 (defn inverse
@@ -37,14 +37,18 @@
   "The covering relation of a partial order as a graph
   (map: element -> set of covers), given by the elements and a predicate."
   [elts rel?]
-  (let [emptytab (into {} (for [e elts] [e #{}]))
+  (let [emptytab (into {} (for [e elts] [e #{}])) ;empty relation
         recalc-covers (fn [covers newval] ;recalculate the set of covers
                         (if (some #(rel? % newval) covers)
                           covers ;newval is below some of covers, no change
                           (conj
-                           (set (filter #(not (rel? newval %)) covers))
+                           (set (remove (partial rel? newval) covers))
                            newval))) ;the subset of covers not below and newval
-        insert (fn [cr e] ;insert an element into the graph by updating covers
-                 (let [xs (filter #(and (not= e %) (rel? % e)) elts)]
-                   (reduce #(update-in % [%2] recalc-covers e) cr xs)))]
+        insert (fn [tab e] ;insert an element into the graph by updating covers
+                 (let [xs (filter #(and (not= % e)
+                                        (rel? % e))
+                                  elts)]
+                   (reduce #(update-in %1 [%2] recalc-covers e)
+                           tab
+                           xs)))]
     (reduce insert emptytab elts)))
