@@ -12,7 +12,7 @@
   "Makes an implicit relation explicit. Works for finite set of elements."
   [elts rel?]
   (into {} (map
-            #(vector % (set (filter (partial  rel? %) elts)))
+            (fn [x] [x (set (filter (partial  rel? x) elts))])
             elts)))
 
 (defn inverse
