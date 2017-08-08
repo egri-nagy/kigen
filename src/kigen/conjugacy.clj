@@ -1,12 +1,12 @@
 (ns kigen.conjugacy
-  "Abstract function for calculating conjugate elements, conjugacy classes,
-  representatives.")
+  "Abstract functions for calculating conjugate elements, conjugacy classes,
+  and representatives.")
 
 (defn conjrep
   "Naive brute force implementation of finding the minimal conjugacy class
-  as the representative of a thing by going through all the given symmetries
-  using a conjugation function.
-  The latter has the form: [thing symmetry] -> conjugated thing.
+  as the representative of a thing by going through all its conjugates
+  induced by the given symmetries using a conjugation function.
+  The conjugation function has the form: [thing symmetry] -> conjugated thing.
   Assumption is that things can be compared."
   [conjugation-function thing symmetries]
   (letfn [(f [minimal-thing sym]
