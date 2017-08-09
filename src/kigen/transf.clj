@@ -129,26 +129,27 @@
         mappings (set (single-maps t))
         ;; [rep mappings pperm] contains a rep realized by a partially defined
         ;; permutation (as a map) and the available mappings not yet used
-        stack (mapv (fn [i]
-                      [ [i] [ [mappings {}] ] ])
-                    (reverse pts))
-        search (fn [stack]
-                 (let [[rep psols] (peek stack)
-                       nstack (pop stack)
+        queue (into clojure.lang.PersistentQueue/EMPTY
+                    (map (fn [i]
+                           [ [i] [ [mappings {}] ] ])
+                         pts))
+        search (fn [queue]
+                 (let [[rep psols] (peek queue)
+                       nqueue (pop queue)
                        npsols (mapcat (fn [[mappings pperm]]
                                         (all-realizations mappings pperm
                                                           [(dec (count rep))
                                                            (peek rep)]))
                                       psols)]
                    (if (empty? npsols)
-                     (recur nstack)
+                     (recur nqueue)
                      (if (and (= n (count rep)) true)
                        rep
                        (if (< (count rep) n)
-                         (let [newreps (reverse (map #(conj rep %) pts))
+                         (let [newreps (map #(conj rep %) pts)
                                newtasks (map (fn [rep] [rep npsols]) newreps)]
-                           (recur (into nstack newtasks))))))))]
-    (search stack)))
+                           (recur (into nqueue newtasks))))))))]
+    (search queue)))
 
 (defn conjugators
   "All permutations that take t to r by conjugation."
