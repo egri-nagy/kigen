@@ -127,29 +127,26 @@
   (let [n (count t)
         pts (reverse (range n))
         mappings (set (single-maps t))
-        ;; [rep mappings pperm] contains a rep realized by a partially defined
-        ;; permutation (as a map) and the available mappings not yet used
-        stack (into []
-                    (map (fn [i]
-                           [ [i] [ [mappings {}] ] ])
-                         pts))
+        ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
+        initial_stack (into []
+                            (map (fn [i]
+                                   [ [] [ [mappings {}] ] i])
+                                 pts))
         search (fn [stack]
-                 (let [[rep psols] (peek stack)
-                       nstack (pop stack)
-                       npsols (mapcat (fn [[mappings pperm]]
-                                        (all-realizations mappings pperm
-                                                          [(dec (count rep))
-                                                           (peek rep)]))
-                                      psols)]
-                   (if (empty? npsols)
-                     (recur nstack)
-                     (if (= n (count rep))
-                       rep
-                       (if (< (count rep) n)
-                         (let [newreps (map #(conj rep %) pts)
-                               newtasks (map (fn [rep] [rep npsols]) newreps)]
-                           (recur (into nstack newtasks))))))))]
-    (search stack)))
+                 (let [[rep psols pt] (peek stack)
+                       k (count rep)]
+                   (if (= k n)
+                     rep
+                     (let [nstack (pop stack)
+                           npsols (mapcat (fn [[mappings pperm]]
+                                            (all-realizations mappings
+                                                              pperm
+                                                              [k pt]))
+                                          psols)
+                           ntasks (when (not-empty npsols)
+                                    (for [np pts] [(conj rep pt) npsols np]))]
+                       (recur (into nstack ntasks))))))]
+    (search initial_stack)))
 
 (defn conjugators
   "All permutations that take t to r by conjugation."
