@@ -129,8 +129,10 @@
         mappings (set (single-maps t))
         ;; [rep mappings pperm] contains a rep realized by a partially defined
         ;; permutation (as a map) and the available mappings not yet used
-        stack (mapv (fn [i] [ [i] [ [mappings {}] ]]) (reverse pts))
-        search (fn [stack] ; TODO this is just another dfs, use abstract code
+        stack (mapv (fn [i]
+                      [ [i] [ [mappings {}] ] ])
+                    (reverse pts))
+        search (fn [stack]
                  (let [[rep psols] (peek stack)
                        nstack (pop stack)
                        npsols (mapcat (fn [[mappings pperm]]
