@@ -125,9 +125,11 @@
   "Direct construction of conjugacy class representative of transformation t."
   [t]
   (let [n (count t)
-        pts (reverse (range n))
+        pts (reverse (range n)) ;we look for the minimal one and use stack
         mappings (set (single-maps t))
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
+        ;;a partial solution is a pair of available mappings and the
+        ;;corresponding partial permutation
         initial_stack (into []
                             (map (fn [i]
                                    [ [] [ [mappings {}] ] i])
