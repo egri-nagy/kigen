@@ -109,7 +109,8 @@
       (into p nmappings))))
 
 (defn all-realizations
-  "All realizations of desired map d using available mappings, induced by p."
+  "All realizations of desired map d using available mappings, compatible with
+  partial permutation p. Just systematically trying to realize all mappings."
   [mappings p d]
   (reduce
    (fn [psols m]
