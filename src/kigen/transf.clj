@@ -125,31 +125,31 @@
   "Direct construction of conjugacy class representative of transformation t."
   [t]
   (let [n (count t)
-        pts (range n)
+        pts (reverse (range n))
         mappings (set (single-maps t))
         ;; [rep mappings pperm] contains a rep realized by a partially defined
         ;; permutation (as a map) and the available mappings not yet used
-        queue (into clojure.lang.PersistentQueue/EMPTY
+        stack (into []
                     (map (fn [i]
                            [ [i] [ [mappings {}] ] ])
                          pts))
-        search (fn [queue]
-                 (let [[rep psols] (peek queue)
-                       nqueue (pop queue)
+        search (fn [stack]
+                 (let [[rep psols] (peek stack)
+                       nstack (pop stack)
                        npsols (mapcat (fn [[mappings pperm]]
                                         (all-realizations mappings pperm
                                                           [(dec (count rep))
                                                            (peek rep)]))
                                       psols)]
                    (if (empty? npsols)
-                     (recur nqueue)
-                     (if (and (= n (count rep)) true)
+                     (recur nstack)
+                     (if (= n (count rep))
                        rep
                        (if (< (count rep) n)
                          (let [newreps (map #(conj rep %) pts)
                                newtasks (map (fn [rep] [rep npsols]) newreps)]
-                           (recur (into nqueue newtasks))))))))]
-    (search queue)))
+                           (recur (into nstack newtasks))))))))]
+    (search stack)))
 
 (defn conjugators
   "All permutations that take t to r by conjugation."
