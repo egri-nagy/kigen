@@ -50,6 +50,19 @@
                     (= id7 (t/mul (t/inverse %) %)))
                   S7)))))
 
+;;CONJUGATION
+(deftest relaize-a-mapping-test
+  (testing "Realizing an individual map."
+    (is (= {1 3, 2 4} (t/realize-a-mapping [1 2] [3 4] {})))
+    (is (= nil (t/realize-a-mapping [1 2] [3 4] {1 2})))
+    (is (= {1 2, 2 1} (t/realize-a-mapping [1 2] [2 1] {})))
+    (is (= {1 1, 2 4} (t/realize-a-mapping [1 2] [1 4] {})))
+    (is (= {1 3, 2 2} (t/realize-a-mapping [1 2] [3 2] {})))
+    (is (= nil (t/realize-a-mapping [1 2] [3 2] {2 3})))
+    ))
+
+
+
 (deftest transf-conjugate-test
   (testing "Conjugates."
     (is (= [4 3 0 3 1] (t/conjugate [1 4 3 3 2] [2 0 1 3 4])))

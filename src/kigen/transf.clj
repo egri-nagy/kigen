@@ -90,9 +90,10 @@
   [t]
   (map vector (range (count t)) t))
 
-(defn realize-a-mapping ;;check individual map
-  "m - mapping, d - desired mapping, p - current permutation bindings
-  returns the extended p if possible, otherwise nil"
+(defn realize-a-mapping
+  "Given a mapping m and a desired mapping d, we try to turn m into d by
+  extending a partial permutation p represented as a hashmap.
+  An extended hashmap is returned if it is possible, otherwise nil."
   [m d p]
   (let [nmappings (distinct (map vector m d))]
     (when (and
@@ -103,7 +104,7 @@
             (fn [[a b]]
               (if (contains? p a)
                 (= (p a) b)
-                (empty? (drop-while #(not= b %) (vals p)))))
+                (empty? (filter (partial = b) (vals p)))))
             nmappings))
       (into p nmappings))))
 

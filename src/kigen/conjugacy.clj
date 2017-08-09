@@ -16,7 +16,7 @@
                 minimal-thing)))]
     (reduce f thing symmetries)))
 
-(defn conjugateset
+(defn conjugateset ;TODO why vector? genmorph assumes that
   "Generalized conjugation function for sets."
   [conjugation-function things sym]
   (vec
