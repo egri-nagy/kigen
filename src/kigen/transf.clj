@@ -110,7 +110,7 @@
 
 (defn all-realizations
   "All realizations of desired map d using available mappings, induced by p."
-  [[mappings p] d]
+  [mappings p d]
   (reduce
    (fn [psols m]
      (let [res (realize-a-mapping m d p)]
@@ -133,7 +133,7 @@
                  (let [[rep psols] (peek stack)
                        nstack (pop stack)
                        npsols (mapcat (fn [[mappings pperm]]
-                                        (all-realizations [mappings pperm]
+                                        (all-realizations mappings pperm
                                                           [(dec (count rep))
                                                            (peek rep)]))
                                       psols)]
