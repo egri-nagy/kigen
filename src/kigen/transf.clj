@@ -169,24 +169,6 @@
          (map (fn [[_ _ perm]] perm) ;extracting the permutation (as hashmap)
               solutions))))
 
-;; conjrepfunc could be t/conjrep
-;; or
-;; (conjugacy/conjrep conjugate t syms)
-(defn min-rep-and-class
-  "Finds the minimal conjugacy class representative and its class
-  using the given function for calculating representatives in the
-  collection T."
-  [T conjrepfunc]
-  (reduce
-   (fn [[m mc :as db] t]
-     (let [r (conjrepfunc t)
-           flag (compare r m)]
-       (cond (neg? flag) [r [t]]
-             (zero? flag) [m (conj mc t)]
-             :else db)))
-   [(conjrep (first T)) [(first T)]]
-   (rest T)))
-
 (defn syms [[minimal minclass]]
   (distinct (mapcat
              #(conjugators % minimal)
@@ -194,7 +176,7 @@
 
 (defn nxt
   [[minimal conjclass elts]]
-  (map #(min-rep-and-class
+  (map #(conjugacy/min-rep-and-class
          (disj elts %)
          (fn [t]
            (conjugacy/conjrep
@@ -209,7 +191,7 @@
   Using conjugacy/setconjrep, but only with symmetries that take
   produce the minimal conjrep."
   [T]
-  (let [[minimal minclass] (min-rep-and-class T conjrep)
+  (let [[minimal minclass] (conjugacy/min-rep-and-class T conjrep)
         symmetries (distinct (mapcat
                               #(conjugators % minimal)
                               minclass))]
