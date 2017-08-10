@@ -169,23 +169,6 @@
          (map (fn [[_ _ perm]] perm) ;extracting the permutation (as hashmap)
               solutions))))
 
-(defn syms [[minimal minclass]]
-  (distinct (mapcat
-             #(conjugators % minimal)
-             minclass)))
-
-(defn nxt
-  [[minimal conjclass elts]]
-  (map #(conjugacy/min-rep-and-class
-         (disj elts %)
-         (fn [t]
-           (conjugacy/conjrep
-            conjugate
-            t
-            (conjugators % minimal))))
-       conjclass))
-
-
 (defn setconjrep
   "Setwise conjugacy class representative of T.
   Using conjugacy/setconjrep, but only with symmetries that take
