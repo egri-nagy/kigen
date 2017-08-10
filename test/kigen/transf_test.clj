@@ -71,11 +71,19 @@
 (deftest transf-conjrep-test
   (testing "Conjugacy class representatives, direct search vs. naive method."
     (let [S5 (t/sgp-by-gens (t/symmetric-gens 5))
-          T5 (t/sgp-by-gens (t/full-ts-gens 5))]
+          T5 (t/sgp-by-gens (t/full-ts-gens 5))
+          sets [
+                [[1 2 1 2 1] [3 3 1 2 0] [4 1 3 0 2]]
+                [[3 3 1 2 0] [4 1 3 0 2]]
+                [[1 2 1 2 1] [0 0 1 2 0] [4 1 3 0 2] [1 2 1 2 1] [0 1 0 1 0]]
+                ]]
       (is (every? #(and
                     (t/conjrep %)
                     (conjugacy/conjrep t/conjugate % S5))
-                  T5)))))
+                  T5))
+      (is (every? #(= (t/setconjrep %)
+                      (conjugacy/setconjrep t/conjugate % S5))
+           sets)) )))
 
 (deftest transf-test-conjugators
   (testing "Minimal conjugators."

@@ -45,7 +45,7 @@
        (cond (neg? flag) [r [t]]
              (zero? flag) [m (conj mc t)]
              :else db)))
-   [(conjrep (first T)) [(first T)]]
+   [(conjrepfunc (first T)) [(first T)]]
    (rest T)))
 
 (defn minconjugators
