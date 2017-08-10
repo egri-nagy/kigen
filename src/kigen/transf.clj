@@ -155,17 +155,19 @@
   [t r]
   (let [tmaps (set (single-maps t))
         rmaps (set (single-maps r))
-        f (fn [[tmaps rmaps perm]]
-            (let [tm (first tmaps)]
-              (set (for [rm rmaps
-                         :let [res (realize-a-mapping tm rm perm)]
-                         :when (not (nil? res))]
-                     [(rest tmaps) (disj rmaps rm) res]))))]
-    (map #(mapv % (range (count t))) ;creating the permutation vector
-         (map (fn [[_ _ perm]] perm) ;extracting the map
-              (o/acyclic-search-bulk [ [tmaps rmaps {}] ]
-                                     f
-                                     #(empty? (first %)))))))
+        extend (fn [[tmaps rmaps perm]] ; extending a partial solution
+                 (let [tm (first tmaps)]
+                   (set (for [rm rmaps
+                              :let [res (realize-a-mapping tm rm perm)]
+                              :when (not (nil? res))]
+                          [(rest tmaps) (disj rmaps rm) res]))))
+        solutions (o/acyclic-search-bulk [ [tmaps rmaps {}] ]
+                                         extend
+                                         #(empty? (first %)))]
+    (map (fn [perm]
+           (mapv perm (range (count t)))) ;creating the permutation vector
+         (map (fn [[_ _ perm]] perm) ;extracting the permutation (as hashmap)
+              solutions))))
 
 ;; conjrepfunc could be t/conjrep
 ;; or
