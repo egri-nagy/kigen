@@ -65,10 +65,11 @@
                (i/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))
        mtS (mt/multab vS t/mul)]
     (orbit/full-orbit-parallel [(i/int-set)]
-                               (fn [sub] (min-extensions-up-to-conjugacy mtS
-                                                                         indices
-                                                                         sub
-                                                                         crf)))))
+                               (fn [sub]
+                                 (min-extensions-up-to-conjugacy mtS
+                                                                 indices
+                                                                 sub
+                                                                 crf)))))
 
 (def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
