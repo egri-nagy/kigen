@@ -33,22 +33,21 @@
 
 (defn subsgps-up-to-conjugacy2 [S G]
   (let [vS (vec (sort S))
-        mtS (mt/multab vS t/mul)
         n (count vS)
+        indices (vec (range n))
         t2i (clojure.set/map-invert (zipmap (range n) vS))
-        elts (mapv t2i vS)
+
         Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
         H (map Ghom G)
-        syms (map Ghom G)
         cf (fn [x p] (p x))
-        conjreps (zipmap elts
+        conjreps (zipmap indices
                          (map (fn [x] (t2i (t/conjrep (vS x))))
-                          elts))
-        minconjs (zipmap elts
+                          indices))
+        minconjs (zipmap indices
                          (map (fn [x] (set
                                        (second
                                         (conjugacy/minconjugators cf x H))))
-                              elts))
+                              indices))
         crf (fn [sub]
               (let [conjugators (reduce
                                  (fn [[m mcjs] x]
@@ -59,10 +58,12 @@
                                            :else [m mcjs])))
                                         [(inc n) #{}]
                                         sub)]
-                (i/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))]
+                (i/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))
+        mtS (mt/multab vS t/mul)]
+    (print indices)
     (orbit/full-orbit-parallel [(i/int-set)]
                                (fn [sub] (min-extensions-up-to-conjugacy mtS
-                                                                         elts
+                                                                         indices
                                                                          sub
                                                                          crf)))))
 
