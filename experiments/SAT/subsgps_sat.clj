@@ -68,3 +68,11 @@
         vS (vec (sort S))
         mtvS (multab/multab vS t/mul)]
     (spit-solutions (multabCNF mtvS) file)))
+
+(defn cnfDIMACS
+  [nliterals cnfs filename]
+  (with-open [w (clojure.java.io/writer  filename :append true)]
+    (.write w (str "p cnf " nliterals " " (count cnfs) \newline))
+    (doseq [v cnfs]
+      (.write w (str (clojure.string/join \space v)
+                     " 0" \newline)))))
