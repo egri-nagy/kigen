@@ -17,7 +17,7 @@
     (for [i (range n) j (range m)]
       [(- (inc i)) (- (inc j)) (inc (multab/at  tab i j))])))
 
-(defn conjCNF [gens]
+(defn conjCNF [gens G]
   (let [S (t/sgp-by-gens gens)
         vS (vec (sort S))
         mtvS (multab/multab vS t/mul)
@@ -30,5 +30,8 @@
                               indices))
         cjr2cjcl (group-by conjreps indices)
         r2l (into {} (map (fn [[k vs]] [(inc k) (mapv inc vs)]) cjr2cjcl))
-        orderedks (vec (sort (keys r2l)))]
-    orderedks))
+        orderedks (vec (sort (keys r2l)))
+        Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
+        H (map Ghom G)]
+    (multabCNF mtvS)
+    H))
