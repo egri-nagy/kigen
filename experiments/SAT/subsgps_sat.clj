@@ -54,9 +54,17 @@
   (let [Sdat (mtdat gens G)]
     (multabCNF (:multab Sdat))))
 
-(defn spitsubs [gens filename]
+(defn spit-solutions
+  "Given a conjunctive normal form, using the sat-solver it lazily
+  goes thorugh the solutions and spits them into the given file."
+  [cnf file]
+  (map #(spit file
+              (str (vec(remove neg? %)) \newline)
+              :append true)
+       (sat/solutions cnf)))
+
+(defn spit-subsgps [gens file]
   (let [S (t/sgp-by-gens gens)
         vS (vec (sort S))
         mtvS (multab/multab vS t/mul)]
-    (map #(spit filename (str (vec(remove neg? %)) \newline) :append true)
-         (sat/solutions (multabCNF mtvS)))))
+    (spit-solutions (multabCNF mtvS) file)))
