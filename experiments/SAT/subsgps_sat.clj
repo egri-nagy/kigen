@@ -17,7 +17,7 @@
     (for [i (range n) j (range m)]
       [(- (inc i)) (- (inc j)) (inc (multab/at  tab i j))])))
 
-(defn conjCNF [gens G]
+(defn mtdat [gens G]
   (let [S (t/sgp-by-gens gens)
         vS (vec (sort S))
         mtvS (multab/multab vS t/mul)
@@ -33,5 +33,23 @@
         orderedks (vec (sort (keys r2l)))
         Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
         H (map Ghom G)]
-    (multabCNF mtvS)
-    H))
+    {:sgp S
+     :sgp_ordered vS
+     :multab mtvS
+     :indices indices
+     :transf2index t2i
+     :conjreps conjreps
+     :conjrep2conjclass cjr2cjcl
+     :LOGICconjrep2conjclass r2l
+     :syms H}))
+
+(defn partition-transformation [t]
+  (let [m (group-by (fn [i] (compare (t i) i))
+                    (range (count t)))]
+    {:dec (m -1)
+     :fix (m 0)
+     :inc (m 1)}))
+
+(defn conjCNF [gens G]
+  (let [Sdat (mtdat gens G)]
+    (multabCNF (:multab Sdat))))
