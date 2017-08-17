@@ -53,3 +53,10 @@
 (defn conjCNF [gens G]
   (let [Sdat (mtdat gens G)]
     (multabCNF (:multab Sdat))))
+
+(defn spitsubs [gens filename]
+  (let [S (t/sgp-by-gens gens)
+        vS (vec (sort S))
+        mtvS (multab/multab vS t/mul)]
+    (map #(spit filename (str (vec(remove neg? %)) \newline) :append true)
+         (sat/solutions (multabCNF mtvS)))))
