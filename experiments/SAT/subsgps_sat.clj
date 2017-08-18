@@ -1,10 +1,36 @@
 (require '[rolling-stones.core :as sat :refer [! at-least at-most exactly]])
 
-(defn multabCNF [mt]
+(defn CNF-of-multab
+  "The conjunctive normal form of a multiplication table."
+  [mt]
   (let [n (count mt)
         elts (range n)]
     (for [i elts j elts]
       [(- (inc i)) (- (inc j)) (inc (multab/at mt i j))])))
+
+(defn CNF-of-multab-distinct
+  "The conjunctive normal form of a multiplication table,
+  but commuting pairs represented only once."
+  [mt]
+  (let [n (count mt)
+        elts (range n)]
+    (concat
+     (reduce
+      (fn [cnf [i j]]
+        (let [ij (inc (multab/at mt i j))
+              ncnf (conj cnf [(- (inc i)) (- (inc j)) ij])
+              ji (inc (multab/at mt j i))]
+          (if (= ji ij)
+            ncnf ; no need to add the second if they are the same
+            (conj ncnf [(- (inc j)) (- (inc i)) ji]))))
+      []
+      (for [i elts
+            j elts
+            :when (< i j)]
+        [i j]))
+     (map (fn [i] [(- (inc i)) (inc (multab/at mt i i))])
+          elts))))
+
 
 ;;(map (partial filter pos?) (sat/solutions mt))
 
