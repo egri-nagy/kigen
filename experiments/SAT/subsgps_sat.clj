@@ -1,5 +1,7 @@
 (require '[rolling-stones.core :as sat :refer [! at-least at-most exactly]])
 
+;;using full multabs, gentabs didn't give the same result
+
 (defn CNF-of-multab
   "The conjunctive normal form of a multiplication table."
   [mt]
@@ -15,6 +17,7 @@
   (let [n (count mt)
         elts (range n)]
     (concat
+     ; different i,j values
      (reduce
       (fn [cnf [i j]]
         (let [ij (inc (multab/at mt i j))
@@ -28,20 +31,11 @@
             j elts
             :when (< i j)]
         [i j]))
+     ; diagonal elements
      (map (fn [i] [(- (inc i)) (inc (multab/at mt i i))])
           elts))))
 
-
 ;;(map (partial filter pos?) (sat/solutions mt))
-
-;; this slows down the SAT-solver
-(defn gentabCNF [gens]
-  (let [gt (gentab/gentab gens t/mul)
-        m (count (:gens gt))
-        n (count (:tab gt))
-        tab (:tab gt)]
-    (for [i (range n) j (range m)]
-      [(- (inc i)) (- (inc j)) (inc (multab/at  tab i j))])))
 
 (defn mtdat [gens G]
   (let [S (t/sgp-by-gens gens)
