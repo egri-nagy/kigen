@@ -96,6 +96,11 @@
     (pr)
     (for [x elts] (concat prevs [(- x) r]))))
 
+(defn clauses-incers [Sdat]
+  (map #(map inc
+             (apply concat
+                        ((juxt :fix :inc)  (partition-transformation %))))
+       (:syms Sdat)))
 
 (defn spit-subsgps [gens file]
   (let [S (t/sgp-by-gens gens)
