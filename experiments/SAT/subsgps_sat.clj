@@ -86,11 +86,15 @@
 (defn clause-conjreps [Sdat]
   (keys (:LOGICconjrep2conjclass Sdat)))
 
-(defn clauses-conjclasses [Sdat]
-  (let [r (apply min
-                 (keys (:LOGICconjrep2conjclass Sdat)))
-        elts (remove #{r} ((:LOGICconjrep2conjclass Sdat) r))]
-    (for [x elts] [(- x) r])))
+(defn clauses-conjclasses [Sdat n]
+  (let [lcr2cl (:LOGICconjrep2conjclass Sdat)
+        sorted (map lcr2cl (sort (keys lcr2cl)))
+        prevs (map - (apply concat (take n sorted)))
+        cl (nth sorted n)
+        r (first cl)
+        elts (remove #{r} cl)]
+    (pr)
+    (for [x elts] (concat prevs [(- x) r]))))
 
 
 (defn spit-subsgps [gens file]
