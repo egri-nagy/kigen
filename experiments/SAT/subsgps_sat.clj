@@ -63,6 +63,16 @@
               :append true)
        (sat/solutions cnf)))
 
+(defn clause-conjreps [Sdat]
+  (keys (:LOGICconjrep2conjclass Sdat)))
+
+(defn clauses-conjclasses [Sdat]
+  (let [r (apply min
+                 (keys (:LOGICconjrep2conjclass Sdat)))
+        elts (remove #{r} ((:LOGICconjrep2conjclass Sdat) r))]
+    (for [x elts] [(- x) r])))
+
+
 (defn spit-subsgps [gens file]
   (let [S (t/sgp-by-gens gens)
         vS (vec (sort S))
@@ -76,3 +86,9 @@
     (doseq [v cnfs]
       (.write w (str (clojure.string/join \space v)
                      " 0" \newline)))))
+
+(def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
+(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
+
+(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
+(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
