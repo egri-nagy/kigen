@@ -70,10 +70,6 @@
      :fix (m 0)
      :inc (m 1)}))
 
-(defn conjCNF [gens G]
-  (let [Sdat (mtdat gens G)]
-    (multabCNF (:multab Sdat))))
-
 (defn spit-solutions
   "Given a conjunctive normal form, using the sat-solver it lazily
   goes thorugh the solutions and spits them into the given file."
@@ -106,7 +102,7 @@
   (let [S (t/sgp-by-gens gens)
         vS (vec (sort S))
         mtvS (multab/multab vS t/mul)]
-    (spit-solutions (multabCNF mtvS) file)))
+    (spit-solutions (CNF-of-multab mtvS) file)))
 
 (defn cnfDIMACS
   [nliterals cnfs filename]
