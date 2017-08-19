@@ -117,3 +117,7 @@
 
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
 (def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
+
+(defn clauses-conjugations [Sdat]
+  (mapcat #(for [i % j % :when (not= i j)] [(- i) j])
+          (vals (:LOGICconjrep2conjclass Sdat))))
