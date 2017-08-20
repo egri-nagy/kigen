@@ -105,6 +105,7 @@
     (spit-solutions (CNF-of-multab mtvS) file)))
 
 (defn cnfDIMACS
+  "Writes to file the given CNF in the standard  DIMACS format."
   [nliterals cnfs filename]
   (with-open [w (clojure.java.io/writer  filename :append true)]
     (.write w (str "p cnf " nliterals " " (count cnfs) \newline))
@@ -118,6 +119,9 @@
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
 (def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 
-(defn clauses-conjugations [Sdat]
+(defn clauses-conjugations
+  "Adding these to the multab CNF produces subsgps that contain full
+  conjugacy classes."
+  [Sdat]
   (mapcat #(for [i % j % :when (not= i j)] [(- i) j])
           (vals (:LOGICconjrep2conjclass Sdat))))
