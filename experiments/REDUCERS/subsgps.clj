@@ -38,7 +38,7 @@
 
 (println "Parallel 32")
 
-(binding [orbit.core/*task-size* 32]
+(binding [orbit.extension/*task-size* 32]
   (bench
    (subsgps-parallel mtS)))
 
