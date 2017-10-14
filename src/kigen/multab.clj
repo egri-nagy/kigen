@@ -68,13 +68,13 @@
 ;TODO this should be int-mapped as well
 (defn in-closure?
   "Returns true if an element x is in the closure of sgp by gens"
-  ([mt gens x] (in-closure? mt #{} gens x))
+  ([mt gens x] (in-closure? mt (i/int-set) gens x))
   ([mt sgp gens x]
    (letfn
        [(finished? [[sgp gens]]
           (or (contains? sgp x) (contains? gens x)))
         (extend [[sgp gens]]
-          #{[(set  (union sgp gens)) (set (newelements mt sgp gens))]})]
+          #{[(union sgp gens) (newelements mt sgp gens)]})]
      (some?
       (orbit/first-solution-single [sgp gens] extend (fn [x] true) finished?)))))
 
