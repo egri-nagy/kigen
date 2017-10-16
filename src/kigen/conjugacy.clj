@@ -4,7 +4,7 @@
 
 (defn conjrep
   "Naive brute force implementation of finding the minimal conjugacy class
-  as the representative of a thing by going through all its conjugates
+  representative of a thing by going through all its conjugates
   induced by the given symmetries using a conjugation function.
   The conjugation function has the form: [thing symmetry] -> conjugated thing.
   Assumption is that things can be compared."

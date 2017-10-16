@@ -1,6 +1,5 @@
 (ns kigen.transf
-  "Transformations and permutations. Several embeddings into partitioned
-  binary relations. Also, simple representation as a vector."
+  "Transformations and permutations simply representated as vectors."
   (:require [kigen.sgp :as sgp]
             [orbit.core :as o]
             [kigen.conjugacy :as conjugacy]))
