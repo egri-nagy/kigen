@@ -12,8 +12,10 @@
    A))
 
 (defn min-extensions
-  "All independent sets that are minimal extensions of the independent set I."
-  [mt I]
-  (let [complement (difference  (multab/elts mt) I)]
+  "All independent sets that are minimal extensions of the independent set I.
+  mt - multiplication table, elts - a subset of elements of the semigroup,
+  I - the set to be extended"
+  [mt elts I]
+  (let [complement (difference elts I)]
     (filter (partial independent? mt)
             (map (partial conj I) complement))))

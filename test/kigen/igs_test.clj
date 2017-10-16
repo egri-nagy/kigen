@@ -14,7 +14,11 @@
                             transf/mul)]
       (is (= 16 (count (orbit/full-orbit-bulk
                         [(int-set)]
-                        (partial igs/min-extensions mt3)))))
+                        (partial igs/min-extensions
+                                 mt3
+                                 (multab/elts mt3))))))
       (is (= 413 (count (orbit/full-orbit-bulk
                          [(int-set)]
-                         (partial igs/min-extensions mt4))))))))
+                         (partial igs/min-extensions
+                                  mt4
+                                  (multab/elts mt4)))))))))
