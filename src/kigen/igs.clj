@@ -1,4 +1,5 @@
 (ns kigen.igs
+  "Independent sets of semigroups represented by multiplication tables."
   (:require [clojure.data.int-map :refer [int-set union difference]]
             [kigen.multab :as multab]))
 
@@ -11,7 +12,7 @@
    A))
 
 (defn min-extensions
-  "All independent sets that are extensions of the independent set I."
+  "All independent sets that are minimal extensions of the independent set I."
   [mt I]
   (let [complement (difference  (multab/elts mt) I)]
     (filter (partial independent? mt)
