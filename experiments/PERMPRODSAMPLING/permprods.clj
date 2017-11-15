@@ -1,5 +1,17 @@
-(use '[clojure.math.combinatorics :as combinatorics])
-(use '[kigen.transf :as transf])
+(require '[clojure.math.combinatorics :as combinatorics])
+(require '[clojure.core.logic :as l])
+(require '[clojure.core.logic.fd :as fd])
+(require '[clojure.math.combinatorics :as combinatorics])
+(require '[kigen.transf :as transf])
+
+(defn latin-squares [n]
+  (let [tab (vec (repeatedly (* n n) l/lvar))
+        points  (fd/interval 0 (dec n))]
+    (l/run* [q]
+      (l/everyg #(fd/in % points) tab)
+      (fd/distinct tab)
+      (l/== q tab))))
+
 
 (defn rand-perm
   "A random permutation of degree n."
