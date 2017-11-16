@@ -31,3 +31,5 @@
         num-of-classes (count (into #{} (map product k-tuples)))
         num-of-tuples (Math/pow m k)]
     (/ num-of-classes num-of-tuples)))
+
+(time (do (def t (random-latin-squares 16 1)) (print t)))
