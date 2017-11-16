@@ -4,22 +4,23 @@
 (require '[clojure.math.combinatorics :as combinatorics])
 (require '[kigen.transf :as transf])
 
-(defn latin-squares [n]
-  (let [tab (vec (repeatedly (* n n) l/lvar))
+(defn rand-perm
+  "A random permutation of degree n."
+  [n]
+  (shuffle (vec (range n))))
+
+(defn random-latin-squares [n num]
+  (let [tab (into (rand-perm n)
+             (vec (repeatedly (* n (dec n)) l/lvar)))
         rows (partition n tab)
         cols (apply map vector rows)
         points  (fd/interval 0 (dec n))]
-    (l/run* [q]
+    (l/run num [q]
       (l/everyg #(fd/in % points) tab)
       (l/everyg fd/distinct rows)
       (l/everyg fd/distinct cols)
       (l/== q tab))))
 
-
-(defn rand-perm
-  "A random permutation of degree n."
-  [n]
-  (shuffle (vec (range n))))
 
 (defn product [v]
   (reduce transf/mul v))
