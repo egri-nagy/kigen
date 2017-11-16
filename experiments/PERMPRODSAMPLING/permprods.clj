@@ -6,10 +6,13 @@
 
 (defn latin-squares [n]
   (let [tab (vec (repeatedly (* n n) l/lvar))
+        rows (partition n tab)
+        cols (apply map vector rows)
         points  (fd/interval 0 (dec n))]
     (l/run* [q]
       (l/everyg #(fd/in % points) tab)
-      (fd/distinct tab)
+      (l/everyg fd/distinct rows)
+      (l/everyg fd/distinct cols)
       (l/== q tab))))
 
 
