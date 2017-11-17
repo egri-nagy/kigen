@@ -9,18 +9,24 @@
   [n]
   (shuffle (vec (range n))))
 
-(defn extend-latin-rectangle [rect n]
+(defn extend-latin-rectangle [n rect]
+  (print (/ (count rect) n) " ") (flush)
   (let [tab (into rect (vec (repeatedly n l/lvar)))
         rows (partition n tab)
         cols (apply map vector rows)
         points  (fd/interval 0 (dec n))]
-    (l/run 1 [q]
-      (l/everyg #(fd/in % points) tab)
-      (l/everyg fd/distinct rows)
-      (l/everyg fd/distinct cols)
-      (l/== q tab))))
+    (first (l/run 1 [q]
+             (l/everyg #(fd/in % points) tab)
+             (l/everyg fd/distinct rows)
+             (l/everyg fd/distinct cols)
+             (l/== q tab)))))
 
-;(defn random-latin-square [n])
+(defn random-latin-square [n]
+  (let [size (* n n)]
+    (first (drop-while (fn [sol] (not (or (nil? sol)
+                                          (= size (count sol)))))
+             (iterate (partial extend-latin-rectangle n)
+                      (rand-perm n))))))
 
 (defn product [v]
   (reduce transf/mul v))
@@ -32,4 +38,4 @@
         num-of-tuples (Math/pow m k)]
     (/ num-of-classes num-of-tuples)))
 
-;(time (do (def t (random-latin-squares 16 1)) (print t)))
+(time (do (def t (random-latin-square 16)) (print t)))
