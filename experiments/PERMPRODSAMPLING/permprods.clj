@@ -38,4 +38,4 @@
         num-of-tuples (Math/pow m k)]
     (/ num-of-classes num-of-tuples)))
 
-(time (do (def t (random-latin-square 16)) (print t)))
+(dotimes [n 1000]  (spit (str (gensym)) (random-latin-square 16)))
