@@ -4,7 +4,8 @@
   output: vectors describing morphisms, index -> image"
   (:require [kigen.multab :as multab :refer [at]]
             [clojure.set :refer [subset? difference]]
-            [clojure.math.combinatorics :refer [subsets partitions]]))
+            [kigen.combinatorics :refer [non-empty-subsets
+                                         big-enough-partitions]]))
 
 (declare many-to-1-morphism-search ; the backtrack search algorithm
          one-to-1-morphism-search
@@ -16,11 +17,7 @@
          ; predicates for deciding the morphic property
          relmorphic?
          morphic?
-         isomorphic?
-         ; util functions for setting up set-valued candidates
-         non-empty-subsets
-         big-enough-partitions
-         )
+         isomorphic?)
 
 ;;------------------------------------------------------------------------------
 ;; high-level, easy to call user functions for finding morphisms
@@ -44,7 +41,7 @@
        (one-to-1-morphism-search S T []
                                  relmorphic?
                                  (fn [x] cands)))
-    (big-enough-partitions S (multab/elts T)))))
+    (big-enough-partitions (multab/elts T) (count S)))))
 
 (defn isomorphisms
   "All isomorphisms from S to T."
@@ -143,19 +140,3 @@
                            (not (contains? cod XY)))))]
     (nil? (first (for [x dom y dom :when (not (good? x y))] [x y])))))
                                         ; TODO reversing domain does not make it faster, why?
-
-;;------------------------------------------------------------------------------
-;; Constructing set valued candidates for relational morphisms.
-
-(defn non-empty-subsets
-  "All subsets of T as sets, except the empty set."
-  [T]
-  (remove #{#{}}
-          (map set (subsets (seq T)))))
-
-(defn big-enough-partitions
-  "All partitions of T with at least |S| many elements. The elements are sets."
-  [S T]
-  (map #(map set %)
-       (filter #(<= (count S) (count %))
-               (partitions (seq T)))))
