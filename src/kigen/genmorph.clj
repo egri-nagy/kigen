@@ -1,5 +1,5 @@
 (ns kigen.genmorph
-  "Constructing morphisms by generators, i.e. searching for an isoomorphisms of
+  "Constructing morphisms by generators, i.e. searching for an isomorphisms of
   Cayley-graphs."
   (:require [kigen.sgp :as sgp]
             [kigen.gentab :refer [gentab]]
@@ -19,11 +19,13 @@
   "Returns for each generator in S, the elements of T with matching index-period
   values. WARNING: It fully enumerates T."
   [Sgens Smul Tgens Tmul]
-  (let [T (sgp/sgp-by-gens Tgens Tmul)
-        genips (map #(sgp/index-period % Smul) Sgens)
+  (let [S-index-period (fn [s] (sgp/index-period s Smul))
+        T-index-period (fn [t] (sgp/index-period t Tmul))
+        T (sgp/sgp-by-gens Tgens Tmul)
+        genips (map S-index-period Sgens)
         genipset (set genips)
         Sgenips->Tsets (reduce (fn [m t]
-                                 (let [ip (sgp/index-period t Tmul)]
+                                 (let [ip (T-index-period t)]
                                    (if (contains? genipset ip)
                                      (update m ip conj t)
                                      m)))
