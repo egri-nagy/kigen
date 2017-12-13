@@ -42,7 +42,6 @@
    (mapcat
     #(let [cands (set %)]
        (one-to-1-morphism-search S T []
-                                 cands
                                  relmorphic?
                                  (fn [x] cands)))
     (big-enough-partitions S (multab/elts T)))))
@@ -55,7 +54,7 @@
         ippairs->Tsubsets (reduce #(update-in %1 [%2] set) m (keys m))
         Sips (map #(multab/index-period S %)  (range (count S)))
         cands-fn (mapv ippairs->Tsubsets Sips)]
-    (one-to-1-morphism-search S T [] cands isomorphic? cands-fn)))
+    (one-to-1-morphism-search S T []  isomorphic? cands-fn)))
 
 
 ;;------------------------------------------------------------------------------
@@ -63,11 +62,11 @@
 
 (defn one-to-1-morphism-search
   "A backtrack search for constructing lossless morphisms from a source
-  multiplicationctable S to a target T. A partial morphism can be given to
+  multiplication table S to a target T. A partial morphism can be given to
   constrain the search (TODO the partial part is not done yet) or an empty
   vector to get all. The predicate function accept? checks whether a new
   extension is morphic or not according to the type of the morphism."
-  [S,T,hom, cands, accept? cand-fn]
+  [S,T,hom, accept? cand-fn]
   (letfn [(backtrack [hom dom cod used]
             (if (= (count hom) (count S))
               [hom]
