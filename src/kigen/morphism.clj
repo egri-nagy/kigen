@@ -112,31 +112,41 @@
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
   [S T hom dom cod]
-  (letfn [(fail? [x y] (let [xy (at S x y)
-                         XY (at T (hom x) (hom y))]
-                     (if (contains? cod XY)
-                       (and (contains? dom xy) (not= XY (hom xy)))
-                       (= (count dom) (count S)))))]
-      (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
-
+  (letfn [(fail?
+            [[x y]]
+            (let [xy (at S x y)
+                  XY (at T (hom x) (hom y))]
+              (if (contains? cod XY)
+                (and (contains? dom xy) (not= XY (hom xy)))
+                (= (count dom) (count S)))))]
+    (not-any? fail?
+              (for [x dom y dom]
+                [x y]))))
 
 (defn relmorphic?
   "Decides whether the (partial) mapping hom from S to T with given domain and
   codomainis a relational morphism or not."
   [S T hom dom cod]
-  (letfn [(fail? [x y] (let [xy (at S x y)
-                             XY (multab/set-mul T (hom x) (hom y))]
-                         (and (contains? dom xy)
-                              (not (subset? XY (hom xy))))))]
-    (nil? (first (for [x dom y dom :when (fail? x y)] [x y])))))
+  (letfn [(fail?
+            [[x y]]
+            (let [xy (at S x y)
+                  XY (multab/set-mul T (hom x) (hom y))]
+              (and (contains? dom xy)
+                   (not (subset? XY (hom xy))))))]
+    (not-any? fail?
+              (for [x dom y dom]
+                [x y]))))
 
 (defn isomorphic?
   "Decides whether the mapping hom from S to T is isomomorphic or not."
   [S T hom dom cod]
-  (letfn [(good? [x y] (let [xy (at S x y)
-                             XY (at T (hom x) (hom y))]
-                         (if  (contains? dom xy)
-                           (= XY (hom xy))
-                           (not (contains? cod XY)))))]
-    (nil? (first (for [x dom y dom :when (not (good? x y))] [x y])))))
-                                        ; TODO reversing domain does not make it faster, why?
+  (letfn [(good?
+            [[x y]]
+            (let [xy (at S x y)
+                  XY (at T (hom x) (hom y))]
+              (if  (contains? dom xy)
+                (= XY (hom xy))
+                (not (contains? cod XY)))))]
+    (every? good?
+            (for [x dom y dom]
+              [x y]))))
