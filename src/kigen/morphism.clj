@@ -107,7 +107,8 @@
     (backtrack hom (vec (range (count hom))) (set hom))))
 
 ;;------------------------------------------------------------------------------
-;; accepting predicates for backtrack, checking the 'morphicity' of the map
+;; Predicates for checking the 'morphicity' of a mapping.
+;; These rely on lazy evaluation, still they can be redundant in checks.
 
 (defn morphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
