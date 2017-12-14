@@ -15,5 +15,3 @@
 (defn Sn->Sm-table [n]
   (let [pairs (for [i (range 1 (inc n)) j (range 1 (inc i)) ] [j i])]
     (map (fn [[m n]] [[m n] (count (SnintoSm m n))]) pairs)))
-
-
