@@ -51,11 +51,13 @@
 (defn isomorphisms
   "All isomorphisms from S to T."
   [S T]
-  (let [m (group-by (partial multab/index-period T)
-                    (multab/elts T))
-        ippairs->Tsubsets (reduce #(update-in %1 [%2] set) m (keys m))
-        Sips (map #(multab/index-period S %)  (range (count S)))
-        cands-fn (mapv ippairs->Tsubsets Sips)]
+  (let [TbyIP (group-by (partial multab/index-period T)
+                        (multab/elts T))
+        TsetsbyIP (into {} (map (fn [k] [k (set (TbyIP k))])
+                                (keys TbyIP)))
+        Sips (map (partial multab/index-period S)
+                  (multab/elts S))
+        cands-fn (mapv TsetsbyIP Sips)]
     (one-to-1-morphism-search S T []  isomorphic? cands-fn)))
 
 
