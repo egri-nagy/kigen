@@ -60,7 +60,6 @@
         cands-fn (mapv TsetsbyIP Sips)]
     (one-to-1-morphism-search S T []  isomorphic? cands-fn)))
 
-
 ;;------------------------------------------------------------------------------
 ;; the generic search algorithms
 
@@ -68,9 +67,9 @@
   "A backtrack search for constructing lossless morphisms from a source
   multiplication table S to a target T. A partial morphism can be given to
   constrain the search (TODO the partial part is not done yet) or an empty
-  vector to get all. The predicate function accept? checks whether a new
+  vector to get all. The predicate function morphic? checks whether a new
   extension is morphic or not according to the type of the morphism."
-  [S,T,hom, accept? cand-fn]
+  [S T hom morphic? cand-fn]
   (letfn [(backtrack [hom dom cod used]
             (if (= (count hom) (count S))
               [hom]
@@ -82,7 +81,7 @@
                                 (difference (cand-fn (peek ndom)) used))
                     morphic-extensions (filter
                                         (fn [[nhom ncod]]
-                                          (accept? S T nhom ndom ncod))
+                                          (morphic? S T nhom ndom ncod))
                                         extensions)]
                 (mapcat ; recursion here
                  (fn [[nhom ncod used]] (backtrack nhom ndom ncod used))
@@ -93,9 +92,9 @@
   "A backtrack search for constructing lossy morphisms from a source multiplication
   table S to a target T. A partial morphism can be given to constrain the search
   (TODO the partial part is not done yet) or an empty vector to get all.
-  The predicate function accept? checks whether a new extension is morphic or
+  The predicate function morphic? checks whether a new extension is morphic or
   not according to the type of the morphism."
-  [S,T,hom, cands, accept?]
+  [S T hom cands morphic?]
   (letfn [(backtrack [hom dom cod]
             (if (= (count hom) (count S))
               [hom]
@@ -106,7 +105,7 @@
                                 cands)
                     morphic-extensions (filter
                                         (fn [[nhom ncod]]
-                                          (accept? S T nhom ndom ncod))
+                                          (morphic? S T nhom ndom ncod))
                                         extensions)]
                 (mapcat ; recursion here
                  (fn [[nhom ncod]] (backtrack nhom ndom ncod))
