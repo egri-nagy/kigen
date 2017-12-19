@@ -145,7 +145,7 @@
                 [x y]))))
 
 (defn isomorphic?
-  "Decides whether the mapping hom from S to T is isomomorphic or not."
+  "Decides whether the mapping hom from S to T is isomorphic or not."
   [S T hom dom cod]
   (letfn [(good?
             [[x y]]
@@ -157,3 +157,22 @@
     (every? good?
             (for [x dom y dom]
               [x y]))))
+
+(defn isomorphic2?
+  "Given a partial  isomorphic mapping from S to T it decides whether mapping
+  the next element in S to t is isomorphic or not."
+  [S T isom t]
+  (let [k (count isom)
+        dom (range k)
+        xcod (into (set isom) t)
+        good? (fn
+                [[x y]]
+                (let [xy (at S x y)
+                      XY (at T (isom x) (isom y))]
+                  (if (<= xy k) ;is the product in the extended domain?
+                    (= XY (isom xy))
+                    (not (contains? xcod XY)))))]
+    (and
+     (every? good? (for [x dom] [x t])) ;test the new element first
+     (every? good? (for [y dom] [t y]))
+     (every? good? (for [x dom y dom] [x y])))))
