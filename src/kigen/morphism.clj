@@ -1,7 +1,10 @@
 (ns kigen.morphism
   "Constructing morphisms and morphic relations.
   input: two multiplication tables (source, target)
-  output: vectors describing morphisms, index -> image"
+  output: vectors describing morphisms, index -> image
+
+  These functions are relatively inefficient (compared to generator table
+  methods). More for reference purposes, not for the high-end computations."
   (:require [kigen.multab :as multab :refer [at]]
             [clojure.set :refer [subset? difference]]
             [kigen.combinatorics :refer [non-empty-subsets
@@ -30,7 +33,9 @@
 
 (defn homomorphisms "All homomorphisms from S to T."
   [S T]
-  (many-to-1-morphism-search S T [] (set (multab/elts T)) morphic?))
+  (many-to-1-morphism-search S T []
+                             (set (multab/elts T))
+                             morphic?))
 
 (defn divisions
   "All divisions from S to T."
@@ -46,8 +51,8 @@
 (defn isomorphisms
   "All isomorphisms from S to T."
   [S T]
-  (let [cands (set (multab/elts T))
-        m (group-by #(multab/index-period T %) cands)
+  (let [m (group-by (partial multab/index-period T)
+                    (multab/elts T))
         ippairs->Tsubsets (reduce #(update-in %1 [%2] set) m (keys m))
         Sips (map #(multab/index-period S %)  (range (count S)))
         cands-fn (mapv ippairs->Tsubsets Sips)]
