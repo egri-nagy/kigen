@@ -59,25 +59,13 @@
                                 (keys TbyIP)))
         Sips (map (partial multab/index-period S)
                   (multab/elts S))
-        cands-fn (mapv TsetsbyIP Sips)]
-    (one-to-1-morphism-search S T []  isomorphic? cands-fn)))
-
-(defn isomorphisms2
-  "All isomorphisms from S to T."
-  [S T]
-  (let [TbyIP (group-by (partial multab/index-period T)
-                        (multab/elts T))
-        TsetsbyIP (into {} (map (fn [k] [k (set (TbyIP k))])
-                                (keys TbyIP)))
-        Sips (map (partial multab/index-period S)
-                  (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)
         sa (fn [hom]
              (if (= (count hom) (count S))
                #{}
                (let [ts (cands-fn (count hom))
                      rts (remove (set hom) ts)]
-                 (set (filter (partial isomorphic2? S T)
+                 (set (filter (partial isomorphic? S T)
                               (map (partial conj hom) rts))))))]
     (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
 
@@ -167,25 +155,10 @@
 
 (defn isomorphic?
   "Decides whether the mapping hom from S to T is isomorphic or not."
-  [S T hom dom cod]
-  (letfn [(good?
-            [[x y]]
-            (let [xy (at S x y)
-                  XY (at T (hom x) (hom y))]
-              (if  (contains? dom xy)
-                (= XY (hom xy))
-                (not (contains? cod XY)))))]
-    (every? good?
-            (for [x dom y dom]
-              [x y]))))
-
-(defn isomorphic2?
-  "Decides whether the mapping hom from S to T is isomorphic or not."
   [S T hom]
-  (println hom)
   (let [dom (set (range (count hom)))
         cod (set hom)
-        good? (fn [[x y]] (println x y)
+        good? (fn [[x y]]
                 (let [xy (at S x y)
                       XY (at T (hom x) (hom y))]
                   (if  (contains? dom xy)
