@@ -21,8 +21,7 @@
                                         ; predicates for deciding the morphic property
          relmorphic?
          morphic?
-         isomorphic?
-         isomorphic2?)
+         isomorphic?)
 
 ;;------------------------------------------------------------------------------
 ;; high-level, easy to call user functions for finding morphisms
