@@ -20,7 +20,7 @@
          isomorphisms
                                         ; predicates for deciding the morphic property
          relmorphic?
-         morphic?
+         homomorphic?
          isomorphic?)
 
 ;;------------------------------------------------------------------------------
@@ -36,7 +36,7 @@
   [S T]
   (many-to-1-morphism-search S T []
                              (set (multab/elts T))
-                             morphic?))
+                             homomorphic?))
 
 (defn divisions
   "All divisions from S to T."
@@ -124,7 +124,7 @@
 ;; Predicates for checking the 'morphicity' of a mapping.
 ;; These rely on lazy evaluation, still they can be redundant in checks.
 
-(defn morphic?
+(defn homomorphic?
   "Decides whether the mapping hom from S to T is homomorphic or not."
   [S T hom dom cod]
   (letfn [(fail?
