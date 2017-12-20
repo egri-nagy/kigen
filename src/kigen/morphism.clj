@@ -6,21 +6,23 @@
   These functions are relatively inefficient (compared to generator table
   methods). More for reference purposes, not for the high-end computations."
   (:require [kigen.multab :as multab :refer [at]]
+            [orbit.core :refer [acyclic-search-single]]
             [clojure.set :refer [subset? difference]]
             [kigen.combinatorics :refer [non-empty-subsets
                                          big-enough-partitions]]))
 
 (declare many-to-1-morphism-search ; the backtrack search algorithm
          one-to-1-morphism-search
-         ; high-level functions
+                                        ; high-level functions
          relmorphisms
          divisions
          morphisms
          isomorphisms
-         ; predicates for deciding the morphic property
+                                        ; predicates for deciding the morphic property
          relmorphic?
          morphic?
-         isomorphic?)
+         isomorphic?
+         isomorphic2?)
 
 ;;------------------------------------------------------------------------------
 ;; high-level, easy to call user functions for finding morphisms
@@ -59,6 +61,25 @@
                   (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)]
     (one-to-1-morphism-search S T []  isomorphic? cands-fn)))
+
+(defn isomorphisms2
+  "All isomorphisms from S to T."
+  [S T]
+  (let [TbyIP (group-by (partial multab/index-period T)
+                        (multab/elts T))
+        TsetsbyIP (into {} (map (fn [k] [k (set (TbyIP k))])
+                                (keys TbyIP)))
+        Sips (map (partial multab/index-period S)
+                  (multab/elts S))
+        cands-fn (mapv TsetsbyIP Sips)
+        sa (fn [hom]
+             (if (= (count hom) (count S))
+               #{}
+               (let [ts (cands-fn (count hom))
+                     rts (remove (set hom) ts)]
+                 (set (filter (partial isomorphic2? S T)
+                              (map (partial conj hom) rts))))))]
+    (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
 
 ;;------------------------------------------------------------------------------
 ;; the generic search algorithms
@@ -159,20 +180,17 @@
               [x y]))))
 
 (defn isomorphic2?
-  "Given a partial  isomorphic mapping from S to T it decides whether mapping
-  the next element in S to t is isomorphic or not."
-  [S T isom t]
-  (let [k (count isom)
-        dom (range k)
-        xcod (into (set isom) t)
-        good? (fn
-                [[x y]]
+  "Decides whether the mapping hom from S to T is isomorphic or not."
+  [S T hom]
+  (println hom)
+  (let [dom (set (range (count hom)))
+        cod (set hom)
+        good? (fn [[x y]] (println x y)
                 (let [xy (at S x y)
-                      XY (at T (isom x) (isom y))]
-                  (if (<= xy k) ;is the product in the extended domain?
-                    (= XY (isom xy))
-                    (not (contains? xcod XY)))))]
-    (and
-     (every? good? (for [x dom] [x t])) ;test the new element first
-     (every? good? (for [y dom] [t y]))
-     (every? good? (for [x dom y dom] [x y])))))
+                      XY (at T (hom x) (hom y))]
+                  (if  (contains? dom xy)
+                    (= XY (hom xy))
+                    (not (contains? cod XY)))))]
+    (every? good?
+            (for [x dom y dom]
+              [x y]))))
