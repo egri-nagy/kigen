@@ -20,18 +20,22 @@
          isomorphisms
                                         ; predicates for deciding the morphic property
          relmorphic?
-         homomorphic?
-         homomorphic2?
-         isomorphic?)
+         homomorphic?)
 
 ;;------------------------------------------------------------------------------
 ;; high-level, easy to call user functions for finding morphisms
 
-(defn relmorphisms "All relational morphisms from S to T."
+(defn relmorphisms
+  "All relational morphisms from S to T."
   [S T]
-  (many-to-1-morphism-search S T []
-                             (set (non-empty-subsets (multab/elts T)))
-                             relmorphic?))
+  (let [sa (fn [hom]
+             (if (= (count hom) (count S))
+               #{}
+               (set (filter (partial relmorphic? S T)
+                            (map (partial conj hom)
+                                 (set (non-empty-subsets (multab/elts T))))))))]
+    (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
+
 
 (defn homomorphisms
   "All homomorphisms from S to T."
@@ -96,36 +100,12 @@
                                 (difference (cand-fn (peek ndom)) used))
                     morphic-extensions (filter
                                         (fn [[nhom ncod]]
-                                          (morphic? S T nhom ndom ncod))
+                                          (morphic? S T nhom))
                                         extensions)]
                 (mapcat ; recursion here
                  (fn [[nhom ncod used]] (backtrack nhom ndom ncod used))
                  morphic-extensions))))]
     (backtrack hom (vec (range (count hom))) (set hom) #{})))
-
-(defn many-to-1-morphism-search
-  "A backtrack search for constructing lossy morphisms from a source multiplication
-  table S to a target T. A partial morphism can be given to constrain the search
-  (TODO the partial part is not done yet) or an empty vector to get all.
-  The predicate function morphic? checks whether a new extension is morphic or
-  not according to the type of the morphism."
-  [S T hom cands morphic?]
-  (letfn [(backtrack [hom dom cod]
-            (if (= (count hom) (count S))
-              [hom]
-              (let [ndom (conj dom (count hom))
-                    extensions (map ; creating argument vector for recursion
-                                (fn [x] [(conj hom x)
-                                         (conj cod x)])
-                                cands)
-                    morphic-extensions (filter
-                                        (fn [[nhom ncod]]
-                                          (morphic? S T nhom ndom ncod))
-                                        extensions)]
-                (mapcat ; recursion here
-                 (fn [[nhom ncod]] (backtrack nhom ndom ncod))
-                 morphic-extensions))))]
-    (backtrack hom (vec (range (count hom))) (set hom))))
 
 ;;------------------------------------------------------------------------------
 ;; Predicates for checking the 'morphicity' of a mapping.
@@ -133,23 +113,26 @@
 
 (defn relmorphic?
   "Decides whether the (partial) mapping hom from S to T with given domain and
-  codomainis a relational morphism or not."
-  [S T hom dom cod]
-  (letfn [(fail?
+  codomain is a relational morphism or not."
+  [S T hom]
+  (let [k (count hom)
+        dom (range k)
+        fail? (fn
             [[x y]]
             (let [xy (at S x y)
                   XY (multab/set-mul T (hom x) (hom y))]
-              (and (contains? dom xy)
+              (and (< xy k)
                    (not (subset? XY (hom xy))))))]
     (not-any? fail?
               (for [x dom y dom]
                 [x y]))))
 
+
 (defn homomorphic?
   "Decides whether the mapping hom from S to T is isomorphic or not."
   [S T hom]
   (let [k (count hom)
-        dom (range (count hom))
+        dom (range k)
         good? (fn [[x y]]
                 (let [xy (at S x y)] 
                   (if (< xy k) 
