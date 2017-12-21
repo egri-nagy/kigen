@@ -11,12 +11,11 @@
             [kigen.combinatorics :refer [non-empty-subsets
                                          big-enough-partitions]]))
 
-(declare many-to-1-morphism-search ; the backtrack search algorithm
-         one-to-1-morphism-search
+(declare one-to-1-morphism-search
                                         ; high-level functions
          relmorphisms
          divisions
-         morphisms
+         homomorphisms
          isomorphisms
                                         ; predicates for deciding the morphic property
          relmorphic?
