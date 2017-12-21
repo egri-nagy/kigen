@@ -33,19 +33,13 @@
                              (set (non-empty-subsets (multab/elts T)))
                              relmorphic?))
 
-(defn homomorphisms "All homomorphisms from S to T."
-  [S T]
-  (many-to-1-morphism-search S T []
-                             (set (multab/elts T))
-                             homomorphic?))
-
-(defn homomorphisms2
+(defn homomorphisms
   "All homomorphisms from S to T."
   [S T]
   (let [sa (fn [hom]
              (if (= (count hom) (count S))
                #{}
-               (set (filter (partial isomorphic? S T)
+               (set (filter (partial homomorphic? S T)
                             (map (partial conj hom)
                                  (multab/elts T))))))]
     (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
@@ -77,7 +71,7 @@
                #{}
                (let [ts (cands-fn (count hom))
                      rts (remove (set hom) ts)]
-                 (set (filter (partial isomorphic? S T)
+                 (set (filter (partial homomorphic? S T)
                               (map (partial conj hom) rts))))))]
     (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
 
@@ -152,36 +146,16 @@
                 [x y]))))
 
 (defn homomorphic?
-  "Decides whether the mapping hom from S to T is homomorphic or not."
-  [S T hom dom cod]
-  (letfn [(fail?
-            [[x y]]
-            (let [xy (at S x y)
-                  XY (at T (hom x) (hom y))]
-              (if (contains? cod XY)
-                (and (contains? dom xy) (not= XY (hom xy)))
-                (= (count dom) (count S)))))]
-    (not-any? fail?
-              (for [x dom y dom]
-                [x y]))))
-
-(defn isomorphic?
   "Decides whether the mapping hom from S to T is isomorphic or not."
   [S T hom]
-  (let [dom (range (count hom))
-        cod (set hom)
-        totally? (fn [[x y]]
-                   (= (hom (at S x y))
-                      (at T (hom x) (hom y))))
-        partially? (fn [[x y]]
-                     (let [xy (at S x y)
-                           XY (at T (hom x) (hom y))]
-                       (if (contains? hom xy) ;key containment
-                         (= XY (hom xy))
-                         true)));(not (contains? cod XY)))))
-        good? (if (= (count hom) (count S))
-                totally?
-                partially?)]
+  (let [k (count hom)
+        dom (range (count hom))
+        good? (fn [[x y]]
+                (let [xy (at S x y)] 
+                  (if (< xy k) 
+                    (= (hom xy)
+                       (at T (hom x) (hom y)))
+                    true)))]
     (every? good?
             (for [x dom y dom]
               [x y]))))
