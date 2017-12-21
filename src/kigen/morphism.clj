@@ -44,7 +44,7 @@
   [S T]
   (let [sa (fn [hom]
              (if (= (count hom) (count S))
-               #{} 
+               #{}
                (set (filter (partial isomorphic? S T)
                             (map (partial conj hom)
                                  (multab/elts T))))))]
@@ -168,14 +168,20 @@
 (defn isomorphic?
   "Decides whether the mapping hom from S to T is isomorphic or not."
   [S T hom]
-  (let [dom (set (range (count hom)))
+  (let [dom (range (count hom))
         cod (set hom)
-        good? (fn [[x y]]
-                (let [xy (at S x y)
-                      XY (at T (hom x) (hom y))]
-                  (if  (contains? dom xy)
-                    (= XY (hom xy))
-                    (not (contains? cod XY)))))]
+        totally? (fn [[x y]]
+                   (= (hom (at S x y))
+                      (at T (hom x) (hom y))))
+        partially? (fn [[x y]]
+                     (let [xy (at S x y)
+                           XY (at T (hom x) (hom y))]
+                       (if (contains? hom xy) ;key containment
+                         (= XY (hom xy))
+                         true)));(not (contains? cod XY)))))
+        good? (if (= (count hom) (count S))
+                totally?
+                partially?)]
     (every? good?
             (for [x dom y dom]
               [x y]))))
