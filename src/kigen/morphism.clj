@@ -21,6 +21,7 @@
                                         ; predicates for deciding the morphic property
          relmorphic?
          homomorphic?
+         homomorphic2?
          isomorphic?)
 
 ;;------------------------------------------------------------------------------
@@ -37,6 +38,18 @@
   (many-to-1-morphism-search S T []
                              (set (multab/elts T))
                              homomorphic?))
+
+(defn homomorphisms2
+  "All homomorphisms from S to T."
+  [S T]
+  (let [sa (fn [hom]
+             (if (= (count hom) (count S))
+               #{} 
+               (set (filter (partial isomorphic? S T)
+                            (map (partial conj hom)
+                                 (multab/elts T))))))]
+    (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
+
 
 (defn divisions
   "All divisions from S to T."
@@ -124,20 +137,6 @@
 ;; Predicates for checking the 'morphicity' of a mapping.
 ;; These rely on lazy evaluation, still they can be redundant in checks.
 
-(defn homomorphic?
-  "Decides whether the mapping hom from S to T is homomorphic or not."
-  [S T hom dom cod]
-  (letfn [(fail?
-            [[x y]]
-            (let [xy (at S x y)
-                  XY (at T (hom x) (hom y))]
-              (if (contains? cod XY)
-                (and (contains? dom xy) (not= XY (hom xy)))
-                (= (count dom) (count S)))))]
-    (not-any? fail?
-              (for [x dom y dom]
-                [x y]))))
-
 (defn relmorphic?
   "Decides whether the (partial) mapping hom from S to T with given domain and
   codomainis a relational morphism or not."
@@ -148,6 +147,20 @@
                   XY (multab/set-mul T (hom x) (hom y))]
               (and (contains? dom xy)
                    (not (subset? XY (hom xy))))))]
+    (not-any? fail?
+              (for [x dom y dom]
+                [x y]))))
+
+(defn homomorphic?
+  "Decides whether the mapping hom from S to T is homomorphic or not."
+  [S T hom dom cod]
+  (letfn [(fail?
+            [[x y]]
+            (let [xy (at S x y)
+                  XY (at T (hom x) (hom y))]
+              (if (contains? cod XY)
+                (and (contains? dom xy) (not= XY (hom xy)))
+                (= (count dom) (count S)))))]
     (not-any? fail?
               (for [x dom y dom]
                 [x y]))))
