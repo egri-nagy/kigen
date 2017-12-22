@@ -29,11 +29,10 @@
   (let [generator (fn [hom]
                     (if (= (count hom) (count S))
                       #{}
-                      (set (filter (partial relmorphic? S T)
-                                   (map (partial conj hom)
-                                        (set (non-empty-subsets (multab/elts T))))))))]
+                      (filter (partial relmorphic? S T)
+                              (map (partial conj hom)
+                                   (non-empty-subsets (multab/elts T))))))]
     (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
-
 
 (defn homomorphisms
   "All homomorphisms from S to T."
@@ -41,9 +40,9 @@
   (let [generator (fn [hom]
              (if (= (count hom) (count S))
                #{}
-               (set (filter (partial homomorphic? S T)
-                            (map (partial conj hom)
-                                 (multab/elts T))))))]
+               (filter (partial homomorphic? S T)
+                       (map (partial conj hom)
+                            (multab/elts T)))))]
     (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
 
 (defn divisions
@@ -56,8 +55,8 @@
              (if (= (count hom) (count S))
                #{}
                (let [rts (remove (set hom) partition)]
-                 (set (filter (partial relmorphic? S T)
-                              (map (partial conj hom) rts))))))]
+                 (filter (partial relmorphic? S T)
+                         (map (partial conj hom) rts)))))]
         (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
     (big-enough-partitions (multab/elts T) (count S)))))
 
@@ -76,8 +75,8 @@
                #{}
                (let [ts (cands-fn (count hom))
                      rts (remove (set hom) ts)]
-                 (set (filter (partial homomorphic? S T)
-                              (map (partial conj hom) rts))))))]
+                 (filter (partial homomorphic? S T)
+                         (map (partial conj hom) rts)))))]
     (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
 
 ;;------------------------------------------------------------------------------
