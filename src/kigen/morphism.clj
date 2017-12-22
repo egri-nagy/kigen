@@ -1,7 +1,7 @@
 (ns kigen.morphism
   "Constructing morphisms and morphic relations.
   input: two multiplication tables (source, target)
-  output: vectors describing morphisms, index -> image
+  output: vectors describing morphisms, index i -> image
 
   These functions are relatively inefficient (compared to generator table
   methods). More for reference purposes, not for the high-end computations."
@@ -11,41 +11,40 @@
             [kigen.combinatorics :refer [non-empty-subsets
                                          big-enough-partitions]]))
 
-(declare one-to-1-morphism-search
-                                        ; high-level functions
-         relmorphisms
+(declare relmorphisms ; high-level functions
          divisions
          homomorphisms
          isomorphisms
-                                        ; predicates for deciding the morphic property
-         relmorphic?
+         relmorphic? ; predicates for deciding the morphic property
          homomorphic?)
 
 ;;------------------------------------------------------------------------------
-;; high-level, easy to call user functions for finding morphisms
+;; high-level functions for finding all morphisms of a given type
+;; only the soruce and target multiplication tables needs to be given
 
 (defn relmorphisms
-  "All relational morphisms from S to T."
+  "All relational morphisms from S to T. These are one-to-many set-valued
+  morphic mappings."
   [S T]
-  (let [sa (fn [hom]
-             (if (= (count hom) (count S))
-               #{}
-               (set (filter (partial relmorphic? S T)
-                            (map (partial conj hom)
-                                 (set (non-empty-subsets (multab/elts T))))))))]
-    (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
+  (let [generator (fn [hom]
+                    (if (= (count hom) (count S))
+                      #{}
+                      (set (filter (partial relmorphic? S T)
+                                   (map (partial conj hom)
+                                        (set (non-empty-subsets (multab/elts T))))))))]
+    (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
 
 
 (defn homomorphisms
   "All homomorphisms from S to T."
   [S T]
-  (let [sa (fn [hom]
+  (let [generator (fn [hom]
              (if (= (count hom) (count S))
                #{}
                (set (filter (partial homomorphic? S T)
                             (map (partial conj hom)
                                  (multab/elts T))))))]
-    (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
+    (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
 
 (defn divisions
   "All divisions from S to T."
@@ -53,13 +52,13 @@
   (distinct
    (mapcat
     (fn [partition]
-      (let [sa (fn [hom]
+      (let [generator (fn [hom]
              (if (= (count hom) (count S))
                #{}
                (let [rts (remove (set hom) partition)]
                  (set (filter (partial relmorphic? S T)
                               (map (partial conj hom) rts))))))]
-        (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
+        (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
     (big-enough-partitions (multab/elts T) (count S)))))
 
 (defn isomorphisms
@@ -72,14 +71,14 @@
         Sips (map (partial multab/index-period S)
                   (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)
-        sa (fn [hom]
+        generator (fn [hom]
              (if (= (count hom) (count S))
                #{}
                (let [ts (cands-fn (count hom))
                      rts (remove (set hom) ts)]
                  (set (filter (partial homomorphic? S T)
                               (map (partial conj hom) rts))))))]
-    (acyclic-search-single [[]] sa (fn [v] (= (count v) (count S))))))
+    (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
 
 ;;------------------------------------------------------------------------------
 ;; Predicates for checking the 'morphicity' of a mapping.
@@ -103,7 +102,8 @@
 
 
 (defn homomorphic?
-  "Decides whether the mapping hom from S to T is isomorphic or not."
+  "Decides whether the partial mapping hom from S to T is homomorphic or not.
+  It lazily checks all products."
   [S T hom]
   (let [k (count hom)
         dom (range k)
