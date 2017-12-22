@@ -23,16 +23,8 @@
         S-index-period (ipfunc Smul)
         T-index-period (ipfunc Tmul)
         T (sgp/sgp-by-gens Tgens Tmul)
-        genips (map S-index-period Sgens)
-        genipset (set genips)
-        Sgenips->Tsets (reduce (fn [m t]
-                                 (let [ip (T-index-period t)]
-                                   (if (contains? genipset ip)
-                                     (update m ip conj t)
-                                     m)))
-                               (zipmap genipset (repeat []))
-                               T)]
-    (map Sgenips->Tsets genips)))
+        Tip->Tset (group-by T-index-period T)]
+    (map Tip->Tset (map  S-index-period Sgens))))
 
 (defn sgp-embeddings-by-gens
   "Computes all embeddings from source semigroup to target semigroup.
