@@ -4,7 +4,13 @@
   output: vectors describing morphisms, index i -> image
 
   These functions are relatively inefficient (compared to generator table
-  methods). More for reference purposes, not for the high-end computations."
+  methods). More for reference purposes, not for the high-end computations.
+
+  This is a reference implementation for the paper:
+  Finite Computational Structures and Implementations: Semigroups and
+  Morphic Relations
+  International Journal of Networking and Computing,
+  Volume 7, Number 2, pages 318–335, July 2017"
   (:require [kigen.multab :as multab :refer [at]]
             [orbit.core :refer [acyclic-search-single]]
             [clojure.set :refer [subset? difference]]
