@@ -19,8 +19,9 @@
   "Returns for each generator in S, the elements of T with matching index-period
   values. WARNING: It fully enumerates T."
   [Sgens Smul Tgens Tmul]
-  (let [S-index-period (fn [s] (sgp/index-period s Smul))
-        T-index-period (fn [t] (sgp/index-period t Tmul))
+  (let [ipfunc (fn [mul] (fn [x] (sgp/index-period x mul)))
+        S-index-period (ipfunc Smul)
+        T-index-period (ipfunc Tmul)
         T (sgp/sgp-by-gens Tgens Tmul)
         genips (map S-index-period Sgens)
         genipset (set genips)
