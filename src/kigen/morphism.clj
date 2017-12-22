@@ -22,28 +22,37 @@
 ;; high-level functions for finding all morphisms of a given type
 ;; only the soruce and target multiplication tables needs to be given
 
+(defn total?
+  "Returns true if the given morphism is total, false if it is partial."
+  [S hom]
+  (= (count S) (count hom)))
+
 (defn relmorphisms
   "All relational morphisms from S to T. These are one-to-many set-valued
   morphic mappings."
   [S T]
   (let [generator (fn [hom]
-                    (if (= (count hom) (count S))
+                    (if (total? S hom)
                       #{}
                       (filter (partial relmorphic? S T)
                               (map (partial conj hom)
                                    (non-empty-subsets (multab/elts T))))))]
-    (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
+    (acyclic-search-single [[]]
+                           generator
+                           (fn [v] (total? S v)))))
 
 (defn homomorphisms
   "All homomorphisms from S to T."
   [S T]
   (let [generator (fn [hom]
-             (if (= (count hom) (count S))
+             (if (total? S hom)
                #{}
                (filter (partial homomorphic? S T)
                        (map (partial conj hom)
                             (multab/elts T)))))]
-    (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
+    (acyclic-search-single [[]]
+                           generator
+                           (fn [v] (total? S v)))))
 
 (defn divisions
   "All divisions from S to T."
@@ -52,12 +61,14 @@
    (mapcat
     (fn [partition]
       (let [generator (fn [hom]
-             (if (= (count hom) (count S))
+             (if (total? S hom)
                #{}
                (let [rts (remove (set hom) partition)]
                  (filter (partial relmorphic? S T)
                          (map (partial conj hom) rts)))))]
-        (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
+        (acyclic-search-single [[]]
+                               generator
+                               (fn [v] (total? S v)))))
     (big-enough-partitions (multab/elts T) (count S)))))
 
 (defn isomorphisms
@@ -71,13 +82,15 @@
                   (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)
         generator (fn [hom]
-             (if (= (count hom) (count S))
+             (if (total? S hom)
                #{}
                (let [ts (cands-fn (count hom))
                      rts (remove (set hom) ts)]
                  (filter (partial homomorphic? S T)
                          (map (partial conj hom) rts)))))]
-    (acyclic-search-single [[]] generator (fn [v] (= (count v) (count S))))))
+    (acyclic-search-single [[]]
+                           generator
+                           (fn [v] (total? S v)))))
 
 ;;------------------------------------------------------------------------------
 ;; Predicates for checking the 'morphicity' of a mapping.
