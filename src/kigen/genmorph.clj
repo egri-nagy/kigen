@@ -2,8 +2,8 @@
   "Constructing morphisms by generators, i.e. searching for an isomorphisms of
   Cayley-graphs."
   (:require [kigen.sgp :as sgp]
-            [kigen.gentab :refer [gentab]]
             [kigen.conjugacy :as conjugacy]
+            [kigen.sgp :refer [sgp-by-gens]]
             [clojure.core.reducers :as r]))
 
 (declare extend-morph ;; low-level morphism checking/extending functions
@@ -14,6 +14,23 @@
          embeddings-conj
          sgp-embeddings-by-gens ;;main entry point
          index-period-matched) ;;preparation
+
+(defn gentab
+  "Right generation table for semigroup given by generator elements and
+  multiplication."
+  [gens mul]
+  (let [S (sgp-by-gens gens mul)
+        elts (vec (concat gens (remove (set gens) S))) ; why putting the generators in the front?
+        indices (zipmap elts (range (count elts)))
+        gt (vec (pmap
+                 (fn [x] (->> gens
+                              (map #(mul x %))
+                              (map indices)
+                              (vec)))
+                 elts))]
+    [(range (count gens)) ;generators
+     (fn [x y] ((gt x) y))])) ;multiplication
+
 
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
@@ -33,12 +50,12 @@
   containing the images of the source generators, or an empty list.
   Results are up to conjugation if conjugation action and symmetries are given."
   ([Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
-   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
+   (let [[mSgens mSmul] (gentab Sgens Smul)
          tgs (index-period-matched mSgens mSmul Tgens Tmul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings mSgens mSmul tgs Tmul))))
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
-   (let [[mSgens mSmul] (let [src (gentab Sgens Smul)] [(:gens src) (:mul src)])
+   (let [[mSgens mSmul] (gentab Sgens Smul)
          ts (index-period-matched mSgens mSmul Tgens Tmul)
          conjrep #(conjugacy/conjrep Tconj % G)
          tgs (cons (distinct (pmap conjrep (first ts))) (rest ts))
