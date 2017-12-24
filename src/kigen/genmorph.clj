@@ -9,6 +9,7 @@
 
 (declare extend-morph ;; low-level morphism checking/extending functions
          add-edge
+         add-gen
          extend-node
          add-gen-and-close
          embeddings ;; high-level function for finding embeddings
@@ -71,8 +72,8 @@
   images of the generators."
   [Sgens Smul tgs Tmul]
   (let [solution? (fn [[n m]] (= n (count Sgens)))
-        generator (fn [[n m]]
-                    (if (= n (count Sgens))
+        generator (fn [[n m :as v]]
+                    (if (solution? v)
                       []
                       (let [nmorphs (map
                                      (fn [g]
@@ -85,7 +86,7 @@
                                         Tmul))
                                      (nth tgs n))
                             filtered (filter #(apply distinct? (vals %))
-                                             (remove number? nmorphs))]
+                                             (remove nil? nmorphs))]
                         (map (fn [x] [(inc n) x]) filtered))))]
     (map second (acyclic-search-single [[0 {}]]
                            generator
@@ -156,17 +157,13 @@
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn extend-morph
-  "Extends partial morphism systematically by the generators starting at the
-  frontline. If morphism is not possible, returns the number of matchings."
-  [phi front Sgens Smul Tmul]
-  (loop [phi phi, stack (vec front)]
-    (if (empty? stack)
-      phi
-      (let [result (extend-node phi (peek stack) Sgens Smul Tmul)]
-        (if (number? result)
-          result
-          (recur (:phi result) (into (pop stack) (:new result))))))))
+(defn add-gen-and-close
+  "Add a new generator and close the Cayley-graph."
+  [phi gen phiofgen Sgens Smul Tmul]
+  (let [res (add-gen phi gen phiofgen Smul Tmul)]
+    (if (nil? res)
+      res
+      (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
 
 (defn add-gen
   "Extends partial morphism phi by adding one  new generator, i.e. multiplying
@@ -178,7 +175,7 @@
     (if (empty? front)
       {:phi phi :new incoming}
       (let [p (add-edge phi (first front) gen Smul Tmul)]
-        (cond (number? p) p
+        (cond (nil? p) p
               (empty? p) (recur phi
                                 incoming
                                 (rest front))
@@ -186,13 +183,18 @@
                            (conj incoming (first p))
                            (rest front)))))))
 
-(defn add-gen-and-close
-  "Add a new generator and close the Cayley-graph."
-  [phi gen phiofgen Sgens Smul Tmul]
-  (let [res (add-gen phi gen phiofgen Smul Tmul)]
-    (if (number? res)
-      res
-      (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
+(defn extend-morph
+  "Extends partial morphism systematically by the generators starting at the
+  frontline. If morphism is not possible, returns the number of matchings."
+  [phi front Sgens Smul Tmul]
+  (loop [phi phi, stack (vec front)]
+    (if (empty? stack)
+      phi
+      (let [result (extend-node phi (peek stack) Sgens Smul Tmul)]
+        (if (nil? result)
+          result
+          (recur (:phi result) (into (pop stack) (:new result))))))))
+
 
 (defn extend-node
   "Extending a single element by all generators one-by-one, so breach of
@@ -203,7 +205,7 @@
     (if (empty? gens)
       {:phi phi :new incoming}
       (let [p (add-edge phi a (first gens) Smul Tmul)]
-        (cond (number? p) p
+        (cond (nil? p) p
               (empty? p) (recur phi incoming (rest gens))
               :else (recur (conj phi p)
                            (conj incoming (first p))
@@ -213,7 +215,7 @@
   "Extends the morphism phi by applying a generator b to a single element a.
   This is where the homomorphism condition is checked.
   phi - morphism represented as a map
-  a - an elementof S to be extended, already in phi
+  a - an elementof S to be extended, already in phi (TODO better logic here)
   b - a generator of S, already in phi
   It returns the number of matched elements so far if it is not homomorphic,
   [] when homomorphic but no new element generated,
@@ -224,5 +226,5 @@
     (if (contains? phi ab)
       (if (= AB (phi ab))
         []
-        (count phi))
+        nil)
       [ab AB])))
