@@ -8,7 +8,7 @@
             [clojure.core.reducers :as r]))
 
 (declare extend-morph ;; low-level morphism checking/extending functions
-         add-edge
+         new-mapping
          add-gen
          extend-node
          add-gen-and-close
@@ -156,7 +156,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;; there are two phases for adding a new generator
+;; 1. we multiply everything (including itself by the new generator)
+;; 2. for any new elements generated we go thorogu with all generators so far
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph."
   [phi gen phiofgen Sgens Smul Tmul]
@@ -165,23 +167,6 @@
       res
       (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
 
-(defn add-gen
-  "Extends partial morphism phi by adding one  new generator, i.e. multiplying
-  all existing nodes. The morphic image of the generator is also needed."
-  [phi gen phiofgen Smul Tmul]
-  (loop [phi (conj phi [gen phiofgen])
-         incoming [gen]
-         front (conj  (keys phi) gen)]
-    (if (empty? front)
-      {:phi phi :new incoming}
-      (let [p (add-edge phi (first front) gen Smul Tmul)]
-        (cond (nil? p) p
-              (empty? p) (recur phi
-                                incoming
-                                (rest front))
-              :else (recur (conj phi p)
-                           (conj incoming (first p))
-                           (rest front)))))))
 
 (defn extend-morph
   "Extends partial morphism systematically by the generators starting at the
@@ -195,6 +180,23 @@
           result
           (recur (:phi result) (into (pop stack) (:new result))))))))
 
+(defn add-gen
+  "Extends partial morphism phi by adding one  new generator, i.e. multiplying
+  all existing nodes. The morphic image of the generator is also needed."
+  [phi gen phiofgen Smul Tmul]
+  (loop [phi (conj phi [gen phiofgen])
+         incoming [gen]
+         front (conj  (keys phi) gen)]
+    (if (empty? front)
+      {:phi phi :new incoming}
+      (let [p (new-mapping phi (first front) gen Smul Tmul)]
+        (cond (nil? p) p
+              (empty? p) (recur phi
+                                incoming
+                                (rest front))
+              :else (recur (conj phi p)
+                           (conj incoming (first p))
+                           (rest front)))))))
 
 (defn extend-node
   "Extending a single element by all generators one-by-one, so breach of
@@ -204,22 +206,21 @@
   (loop [phi phi, incoming [], gens gens]
     (if (empty? gens)
       {:phi phi :new incoming}
-      (let [p (add-edge phi a (first gens) Smul Tmul)]
+      (let [p (new-mapping phi a (first gens) Smul Tmul)]
         (cond (nil? p) p
               (empty? p) (recur phi incoming (rest gens))
               :else (recur (conj phi p)
                            (conj incoming (first p))
                            (rest gens)))))))
 
-(defn add-edge
-  "Extends the morphism phi by applying a generator b to a single element a.
-  This is where the homomorphism condition is checked.
+(defn new-mapping
+  "Extends the morphism phi by multiplying a by b and finding phi(a,b) if
+  the map is homomorphic, if not it returns nil.
+  If phi(a,b) is already known, then it returns an empty vector. If it is newly
+  found, it gives a vector [ab phi(a,b)], that can be conjoined to phi.
   phi - morphism represented as a map
-  a - an elementof S to be extended, already in phi (TODO better logic here)
-  b - a generator of S, already in phi
-  It returns the number of matched elements so far if it is not homomorphic,
-  [] when homomorphic but no new element generated,
-  [ab AB] where AB is the newly assigned image of the product ab."
+  a,b - elements of S  already in phi
+  mulS, mulT - multiplication in S and T"
   [phi a b mulS mulT]
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
