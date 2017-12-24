@@ -104,15 +104,15 @@
         easykeys (filter #(= 1 (count (classes %)))  (keys classes))
         hardkeys (filter #(< 1 (count (classes %)))  (keys classes))
         hard (mapcat classes hardkeys)]
-    (println (count morphs) "->" (count selected))
-    (println (map count (vals classes)))
+    ;(println (count morphs) "->" (count selected))
+    ;(println (map count (vals classes)))
     (concat (mapcat classes easykeys)
             (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
-  (println (count (first tgs)) " candidate(s) for 1st generator")
+  ;(println (count (first tgs)) " candidate(s) for 1st generator")
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
       ;(map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
@@ -150,23 +150,22 @@
                                       imgs2morphs)))]
                   (reduce check-gen {} ngens)))]
         (let [nmorphs (vals (apply merge (pmap extend-phi morphs)))]
-          (println "gens:" (inc n) "morphs:" (count nmorphs))
+          ;(println "gens:" (inc n) "morphs:" (count nmorphs))
           (recur (inc n) nmorphs))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Cayley graph morph matching - next 3 functions are nested, top to bottom ;;;;
+;; Cayley graph morph matching                                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; there are two phases for adding a new generator
 ;; 1. we multiply everything (including itself by the new generator)
-;; 2. for any new elements generated we go thorogu with all generators so far
+;; 2. for any new elements generated we go through with all generators so far
+
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph."
   [phi gen phiofgen Sgens Smul Tmul]
   (let [res (add-gen phi gen phiofgen Smul Tmul)]
-    (if (nil? res)
-      res
+    (when-not (nil? res)
       (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
-
 
 (defn extend-morph
   "Extends partial morphism systematically by the generators starting at the
@@ -176,9 +175,11 @@
     (if (empty? stack)
       phi
       (let [result (extend-node phi (peek stack) Sgens Smul Tmul)]
-        (if (nil? result)
-          result
+        (when-not (nil? result)
           (recur (:phi result) (into (pop stack) (:new result))))))))
+
+;; add-gen and extend-node are the same, but they recur on different arguments
+;; it's unclear how to abstract this
 
 (defn add-gen
   "Extends partial morphism phi by adding one  new generator, i.e. multiplying
@@ -203,7 +204,9 @@
   morphism gets detected immediately.
   Returns the updated morphism phi and the newly added nodes."
   [phi a gens Smul Tmul]
-  (loop [phi phi, incoming [], gens gens]
+  (loop [phi phi,
+         incoming [],
+         gens gens]
     (if (empty? gens)
       {:phi phi :new incoming}
       (let [p (new-mapping phi a (first gens) Smul Tmul)]
@@ -225,7 +228,5 @@
   (let [ab (mulS a b)
         AB (mulT (phi a) (phi b))]
     (if (contains? phi ab)
-      (if (= AB (phi ab))
-        []
-        nil)
+      (when (= AB (phi ab)) [])
       [ab AB])))
