@@ -4,6 +4,7 @@
   (:require [kigen.sgp :as sgp]
             [kigen.conjugacy :as conjugacy]
             [kigen.sgp :refer [sgp-by-gens]]
+            [orbit.core :refer [acyclic-search-single]]
             [clojure.core.reducers :as r]))
 
 (declare extend-morph ;; low-level morphism checking/extending functions
@@ -20,7 +21,7 @@
   multiplication."
   [gens mul]
   (let [S (sgp-by-gens gens mul)
-        elts (vec (concat gens (remove (set gens) S))) ; why putting the generators in the front?
+        elts (vec (concat gens (remove (set gens) S))) ; why putting the generators in the front? confirmed: someone does assume order
         indices (zipmap elts (range (count elts)))
         gt (vec (pmap
                  (fn [x] (->> gens
@@ -69,22 +70,26 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (loop [n 0, morphs [{}]]
-    (println (count morphs))
-    (if (= n (count Sgens))
-      morphs
-      (let [nmorphs (mapcat #(pmap
-                              (fn [m]
-                                (add-gen-and-close m
-                                                   (nth Sgens n)
-                                                   %
-                                                   (take (inc n) Sgens)
-                                                   Smul
-                                                   Tmul))
-                              morphs)
-                            (nth tgs n))]
-        (recur (inc n) (filter #(apply distinct? (vals %))
-                               (remove number? nmorphs)))))))
+  (let [solution? (fn [[n m]] (= n (count Sgens)))
+        generator (fn [[n m]]
+                    (if (= n (count Sgens))
+                      []
+                      (let [nmorphs (map
+                                     (fn [g]
+                                       (add-gen-and-close
+                                        m
+                                        (nth Sgens n)
+                                        g                                                            
+                                        (take (inc n) Sgens)
+                                        Smul
+                                        Tmul))
+                                     (nth tgs n))
+                            filtered (filter #(apply distinct? (vals %))
+                                             (remove number? nmorphs))]
+                        (map (fn [x] [(inc n) x]) filtered))))]
+    (map second (acyclic-search-single [[0 {}]]
+                           generator
+                           solution?))))
 
 (defn morph-distinguisher
   "Returns the distinct morphs up to conjugation in an efficient way by
