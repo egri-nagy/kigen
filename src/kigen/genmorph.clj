@@ -7,10 +7,8 @@
             [orbit.core :refer [acyclic-search-single]]
             [clojure.core.reducers :as r]))
 
-(declare extend-morph ;; low-level morphism checking/extending functions
-abstract         new-mapping
-         add-gen
-         extend-node
+(declare sys-mul;; low-level morphism checking/extending functions
+         new-mapping
          add-gen-and-close
          embeddings ;; high-level function for finding embeddings
          embeddings-conj
@@ -164,16 +162,16 @@ abstract         new-mapping
   "Add a new generator and close the Cayley-graph."
   [phi gen phiofgen Sgens Smul Tmul]
   (let [ephi (conj phi [gen phiofgen])
-        res (abstract ephi (keys ephi) [gen] Smul Tmul)]
+        res (sys-mul ephi (keys ephi) [gen] Smul Tmul)]
     (when-not (nil? res)
       (loop [phi (:phi res) newelts (conj (:new res) gen)]
         (if (empty? newelts)
           phi
-          (let [res (abstract phi newelts Sgens Smul Tmul)]
+          (let [res (sys-mul phi newelts Sgens Smul Tmul)]
             (when-not (nil? res)
               (recur (:phi res) (:new res)))))))))
 
-(defn abstract
+(defn sys-mul
   "Systematic right multiplication  elts by gens and collecting new elements.
   Elts and gens are all in phi already. Phi is being built along the way
   but new elements need proper extension, that's why they are collected."
