@@ -8,7 +8,7 @@
             [clojure.core.reducers :as r]))
 
 (declare extend-morph ;; low-level morphism checking/extending functions
-         new-mapping
+abstract         new-mapping
          add-gen
          extend-node
          add-gen-and-close
@@ -163,23 +163,15 @@
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph."
   [phi gen phiofgen Sgens Smul Tmul]
-  (let [res (add-gen (conj phi [gen phiofgen]) gen Smul Tmul)]
+  (let [ephi (conj phi [gen phiofgen])
+        res (abstract ephi (keys ephi) [gen] Smul Tmul)]
     (when-not (nil? res)
-      (extend-morph (:phi res) (conj (:new res) gen) Sgens Smul Tmul))))
-
-(defn extend-morph
-  "Extends partial morphism systematically by the generators starting at the
-  frontline. If morphism is not possible, returns the number of matchings."
-  [phi front Sgens Smul Tmul]
-  (loop [phi phi, stack (vec front)]
-    (if (empty? stack)
-      phi
-      (let [result (extend-node phi (peek stack) Sgens Smul Tmul)]
-        (when-not (nil? result)
-          (recur (:phi result) (into (pop stack) (:new result))))))))
-
-;; add-gen and extend-node are the same, but they recur on different arguments
-;; it's unclear how to abstract this
+      (loop [phi (:phi res) newelts (conj (:new res) gen)]
+        (if (empty? newelts)
+          phi
+          (let [res (abstract phi newelts Sgens Smul Tmul)]
+            (when-not (nil? res)
+              (recur (:phi res) (:new res)))))))))
 
 (defn abstract
   "Systematic right multiplication  elts by gens and collecting new elements.
@@ -200,24 +192,6 @@
               :else (recur (conj phi p)
                            (conj elts (first p))
                            (rest pairs)))))))
-
-(defn add-gen
-  "Extends partial morphism phi by adding one  new generator, i.e. multiplying
-  all existing nodes. The morphic image of the generator is also needed."
-  [phi gen Smul Tmul]
-    (abstract phi
-              (keys phi)
-              [gen]
-              Smul Tmul))
-
-(defn extend-node
-  "Extends partial morphism phi by adding one  new generator, i.e. multiplying
-  all existing nodes. The morphic image of the generator is also needed."
-  [phi a gens Smul Tmul]
-    (abstract phi
-              [a]
-              gens
-              Smul Tmul))
 
 (defn new-mapping
   "Extends the morphism phi by multiplying a by b and finding phi(a,b) if
