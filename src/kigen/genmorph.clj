@@ -165,7 +165,7 @@
   [phi gen phiofgen Sgens Smul Tmul]
   (let [res (add-gen phi gen phiofgen Smul Tmul)]
     (when-not (nil? res)
-      (extend-morph (:phi res) (:new res) Sgens Smul Tmul))))
+      (extend-morph (:phi res) (conj (:new res) gen) Sgens Smul Tmul))))
 
 (defn extend-morph
   "Extends partial morphism systematically by the generators starting at the
@@ -181,40 +181,43 @@
 ;; add-gen and extend-node are the same, but they recur on different arguments
 ;; it's unclear how to abstract this
 
+(defn abstract
+  "Systematic right multiplication  elts by gens and collecting new elements.
+  Elts and gens are all in phi already. Phi is being built along the way
+  but new elements need proper extension, that's why they are collected."
+  [phi elts gens Smul Tmul]
+  (loop [phi phi
+         newelts []
+         pairs (for [a elts b gens] [a b])]
+    (if (empty? pairs)
+      {:phi phi :new newelts}
+      (let [v (first pairs)
+            p (new-mapping phi (first v) (second v) Smul Tmul)]
+        (cond (nil? p) p
+              (empty? p) (recur phi
+                                newelts
+                                (rest pairs))
+              :else (recur (conj phi p)
+                           (conj elts (first p))
+                           (rest pairs)))))))
+
 (defn add-gen
   "Extends partial morphism phi by adding one  new generator, i.e. multiplying
   all existing nodes. The morphic image of the generator is also needed."
   [phi gen phiofgen Smul Tmul]
-  (loop [phi (conj phi [gen phiofgen])
-         incoming [gen]
-         front (conj  (keys phi) gen)]
-    (if (empty? front)
-      {:phi phi :new incoming}
-      (let [p (new-mapping phi (first front) gen Smul Tmul)]
-        (cond (nil? p) p
-              (empty? p) (recur phi
-                                incoming
-                                (rest front))
-              :else (recur (conj phi p)
-                           (conj incoming (first p))
-                           (rest front)))))))
+    (abstract (conj phi [gen phiofgen])
+              (conj  (keys phi) gen)
+              [gen]
+              Smul Tmul))
 
 (defn extend-node
-  "Extending a single element by all generators one-by-one, so breach of
-  morphism gets detected immediately.
-  Returns the updated morphism phi and the newly added nodes."
+  "Extends partial morphism phi by adding one  new generator, i.e. multiplying
+  all existing nodes. The morphic image of the generator is also needed."
   [phi a gens Smul Tmul]
-  (loop [phi phi,
-         incoming [],
-         gens gens]
-    (if (empty? gens)
-      {:phi phi :new incoming}
-      (let [p (new-mapping phi a (first gens) Smul Tmul)]
-        (cond (nil? p) p
-              (empty? p) (recur phi incoming (rest gens))
-              :else (recur (conj phi p)
-                           (conj incoming (first p))
-                           (rest gens)))))))
+    (abstract phi
+              [a]
+              gens
+              Smul Tmul))
 
 (defn new-mapping
   "Extends the morphism phi by multiplying a by b and finding phi(a,b) if
