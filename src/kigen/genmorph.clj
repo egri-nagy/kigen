@@ -163,7 +163,7 @@
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph."
   [phi gen phiofgen Sgens Smul Tmul]
-  (let [res (add-gen phi gen phiofgen Smul Tmul)]
+  (let [res (add-gen (conj phi [gen phiofgen]) gen Smul Tmul)]
     (when-not (nil? res)
       (extend-morph (:phi res) (conj (:new res) gen) Sgens Smul Tmul))))
 
@@ -204,9 +204,9 @@
 (defn add-gen
   "Extends partial morphism phi by adding one  new generator, i.e. multiplying
   all existing nodes. The morphic image of the generator is also needed."
-  [phi gen phiofgen Smul Tmul]
-    (abstract (conj phi [gen phiofgen])
-              (conj  (keys phi) gen)
+  [phi gen Smul Tmul]
+    (abstract phi
+              (keys phi)
               [gen]
               Smul Tmul))
 
