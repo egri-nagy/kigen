@@ -117,6 +117,7 @@
           conjed_seqs (r/map first
                              (r/map (partial conj-conj partconj)
                                     (nth tgs n)))
+          ;we need to keep distinct generator sets
           cc (r/map (comp first second)
                     (group-by set conjed_seqs))]
       (into #{} (r/map last cc)))))
@@ -129,7 +130,7 @@
       (morph-distinguisher morphs repconj setconjrep)
       (letfn [(extend-phi [phi]
                 (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj)
-                      check-gen (fn [imgs2morphs ngen]
+                      check-gen (fn [newmorphs ngen]
                                   (let [gens (take (inc n) Sgens)
                                         nmorph (add-gen-and-close
                                                 phi
@@ -140,17 +141,10 @@
                                                 Tmul)]
                                     (if (and (coll? nmorph)
                                              (apply distinct? (vals nmorph)))
-                                      (let [img (setconjrep
-                                        ;we need to keep distinct generator sets
-                                                 (vec
-                                                  (sort
-                                                   (map nmorph gens))))]
-                                        (if (contains? imgs2morphs img)
-                                          imgs2morphs
-                                          (assoc imgs2morphs img nmorph)))
-                                      imgs2morphs)))]
+                                      (conj newmorphs nmorph)
+                                      newmorphs)))]
                   (reduce check-gen {} ngens)))]
-        (let [nmorphs (vals (apply merge (pmap extend-phi morphs)))]
+        (let [nmorphs (map extend-phi morphs)]
           ;(println "gens:" (inc n) "morphs:" (count nmorphs))
           (recur (inc n) nmorphs))))))
 
