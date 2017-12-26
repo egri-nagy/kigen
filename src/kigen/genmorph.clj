@@ -113,11 +113,13 @@
     (let [gens (mapv phi (take n Sgens))
           partconj (reduce conj-conj
                            (conj-conj (first gens))
-                           (rest gens))]
-      (into #{}
-            (r/map (comp last first)
-                   (r/map #(conj-conj partconj %)
-                          (nth tgs n)))))))
+                           (rest gens))
+          conjed_seqs (r/map first
+                             (r/map (partial conj-conj partconj)
+                                    (nth tgs n)))
+          cc (r/map (comp first second)
+                    (group-by set conjed_seqs))]
+      (into #{} (r/map last cc)))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
