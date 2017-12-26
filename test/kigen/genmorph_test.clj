@@ -5,7 +5,8 @@
 
 (deftest test-multab
   (testing "Testing embeddings by generators."
-    (let [T2gens (transf/full-ts-gens 2)
+    (let [T1gens (transf/full-ts-gens 1)
+          T2gens (transf/full-ts-gens 2)
           T3gens (transf/full-ts-gens 3)
           T4gens (transf/full-ts-gens 4)
           S3 (transf/sgp-by-gens (transf/symmetric-gens 3))
@@ -29,6 +30,10 @@
                                         tconj S4))))
       (is (= 4 (count
                 (sgp-embeddings-by-gens T3gens tmul
+                                        T4gens tmul
+                                        tconj S4))))
+      (is (= 5 (count
+                (sgp-embeddings-by-gens T1gens tmul
                                         T4gens tmul
                                         tconj S4)))))))
       
