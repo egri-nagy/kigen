@@ -96,7 +96,7 @@
   shows that this is just a heuristics."
   [morphs repconj setconjrep]
   (let [selected (map first
-                      (vals (group-by #(set (vec (vals %)))morphs)))
+                      (vals (group-by #(set (vals %)) morphs)))
         conjrepfreqs (fn [coll] (frequencies (map repconj coll)))
         classes (group-by #(conjrepfreqs (vals %)) selected)
         easykeys (filter #(= 1 (count (classes %)))  (keys classes))
