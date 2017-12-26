@@ -107,6 +107,19 @@
     (concat (mapcat classes easykeys)
             (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
 
+(defn new-generator-conjreps
+  [phi n Sgens tgs repconj conj-conj]
+  (if (zero? n)
+    (map repconj (first tgs)) ;;order dependenc here?
+    (let [gens (mapv phi (take n Sgens))
+          partconj (reduce conj-conj
+                           (conj-conj (first gens))
+                           (rest gens))]
+      (into #{}
+            (r/map (comp last first)
+                   (r/map #(conj-conj partconj %)
+                          (nth tgs n)))))))
+
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
@@ -116,16 +129,7 @@
       ;(map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
       (morph-distinguisher morphs repconj setconjrep)
       (letfn [(extend-phi [phi]
-                (let [ngens (if (zero? n)
-                              (map repconj (first tgs))
-                              (let [gens (mapv phi (take n Sgens))
-                                    partconj (reduce conj-conj
-                                                     (conj-conj (first gens))
-                                                     (rest gens))]
-                                (into #{}
-                                      (r/map (comp last first)
-                                             (r/map #(conj-conj partconj %)
-                                                    (nth tgs n))))))
+                (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj)
                       check-gen (fn [imgs2morphs ngen]
                                   (let [gens (take (inc n) Sgens)
                                         nmorph (add-gen-and-close
