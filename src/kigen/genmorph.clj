@@ -118,9 +118,9 @@
                              (r/map (partial conj-conj partconj)
                                     (nth tgs n)))
           ;we need to keep distinct generator sets
-          cc (r/map (comp first second)
+          selected_seqs (r/map (comp first second)
                     (group-by set conjed_seqs))]
-      (into #{} (r/map last cc)))))
+      (into #{} (r/map last selected_seqs)))))
 
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
@@ -144,7 +144,7 @@
                                       (conj newmorphs nmorph)
                                       newmorphs)))]
                   (reduce check-gen [] ngens)))]
-        (let [nmorphs (mapcat extend-phi morphs)]
+        (let [nmorphs (r/mapcat extend-phi morphs)]
           ;(println "gens:" (inc n) "morphs:" (count nmorphs))
           (recur (inc n) nmorphs))))))
 
