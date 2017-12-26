@@ -154,31 +154,31 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching                                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; there are two phases for adding a new generator
-;; 1. we multiply everything (including itself by the new generator)
-;; 2. for any new elements generated we go through with all generators so far
 
 (defn add-gen-and-close
-  "Add a new generator and close the Cayley-graph."
+  "Add a new generator and close the Cayley-graph.
+  There are two phases for adding a new generator
+  1. we multiply everything (including itself by the new generator)
+  2. for any new elements generated we go through with all generators so far"
   [phi gen phiofgen Sgens Smul Tmul]
   (let [ephi (conj phi [gen phiofgen])
-        res (sys-mul ephi (keys ephi) [gen] Smul Tmul)]
+        res (sys-mul ephi (keys ephi) [gen] Smul Tmul)] ;phase 1
     (when-not (nil? res)
       (loop [phi (:phi res) newelts (conj (:new res) gen)]
         (if (empty? newelts)
           phi
-          (let [res (sys-mul phi newelts Sgens Smul Tmul)]
+          (let [res (sys-mul phi newelts Sgens Smul Tmul)] ;phase 2, iteration
             (when-not (nil? res)
               (recur (:phi res) (:new res)))))))))
 
 (defn sys-mul
-  "Systematic right multiplication  elts by gens and collecting new elements.
+  "Systematic right multiplication of elts by gens and collecting new elements.
   Elts and gens are all in phi already. Phi is being built along the way
-  but new elements need proper extension, that's why they are collected."
+  but new elements need proper extension later, that's why they are collected."
   [phi elts gens Smul Tmul]
   (loop [phi phi
-         newelts []
-         pairs (for [a elts b gens] [a b])]
+         newelts [] ;newly generated elements
+         pairs (for [a elts b gens] [a b])] ;possible a,b pairs for products
     (if (empty? pairs)
       {:phi phi :new newelts}
       (let [v (first pairs)
