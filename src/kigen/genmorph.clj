@@ -69,7 +69,7 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (let [solution? (fn [[n m]] (= n (count Sgens)))
+  (let [solution? (fn [[n m]] (= n (count Sgens))) ;n - #generators, m - morphs
         generator (fn [[n m :as v]]
                     (if (solution? v)
                       []
@@ -160,14 +160,14 @@
 
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph."
-  [phi gen phiofgen Sgens Smul Tmul]
+  [phi gen phiofgen gens Smul Tmul]
   (let [ephi (conj phi [gen phiofgen])
         res (sys-mul ephi (keys ephi) [gen] Smul Tmul)]
     (when-not (nil? res)
       (loop [phi (:phi res) newelts (conj (:new res) gen)]
         (if (empty? newelts)
           phi
-          (let [res (sys-mul phi newelts Sgens Smul Tmul)]
+          (let [res (sys-mul phi newelts gens Smul Tmul)]
             (when-not (nil? res)
               (recur (:phi res) (:new res)))))))))
 
