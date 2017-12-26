@@ -143,8 +143,8 @@
                                              (apply distinct? (vals nmorph)))
                                       (conj newmorphs nmorph)
                                       newmorphs)))]
-                  (reduce check-gen {} ngens)))]
-        (let [nmorphs (map extend-phi morphs)]
+                  (reduce check-gen [] ngens)))]
+        (let [nmorphs (mapcat extend-phi morphs)]
           ;(println "gens:" (inc n) "morphs:" (count nmorphs))
           (recur (inc n) nmorphs))))))
 
