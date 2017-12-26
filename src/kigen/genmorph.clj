@@ -109,7 +109,7 @@
 (defn new-generator-conjreps
   [phi n Sgens tgs repconj conj-conj]
   (if (zero? n)
-    (map repconj (first tgs)) ;;order dependenc here?
+    (set (map repconj (first tgs)))
     (let [gens (mapv phi (take n Sgens))
           partconj (reduce conj-conj
                            (conj-conj (first gens))
@@ -122,7 +122,6 @@
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
-  ;(println (count (first tgs)) " candidate(s) for 1st generator")
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
       (morph-distinguisher morphs repconj setconjrep)
