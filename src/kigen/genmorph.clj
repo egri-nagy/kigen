@@ -56,9 +56,8 @@
           (embeddings mSgens mSmul tgs Tmul))))
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
    (let [[mSgens mSmul] (gentab Sgens Smul)
-         ts (index-period-matched mSgens mSmul Tgens Tmul)
+         tgs (index-period-matched mSgens mSmul Tgens Tmul)
          conjrep #(conjugacy/conjrep Tconj % G)
-         tgs (cons (distinct (pmap conjrep (first ts))) (rest ts))
          setconjrep #(conjugacy/setconjrep Tconj % G)
          conj-conj (conjugacy/conj-conj-fn Tconj G)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
@@ -126,7 +125,6 @@
   ;(println (count (first tgs)) " candidate(s) for 1st generator")
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
-      ;(map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
       (morph-distinguisher morphs repconj setconjrep)
       (letfn [(extend-phi [phi]
                 (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj)
