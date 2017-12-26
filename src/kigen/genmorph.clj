@@ -69,7 +69,7 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (let [solution? (fn [[n m]] (= n (count Sgens)))
+  (let [solution? (fn [[n m]] (= n (count Sgens))) ;n - #generators, m - morphs
         generator (fn [[n m :as v]]
                     (if (solution? v)
                       []
@@ -96,7 +96,7 @@
   shows that this is just a heuristics."
   [morphs repconj setconjrep]
   (let [selected (map first
-                      (vals (group-by #(set (vec (vals %)))morphs)))
+                      (vals (group-by #(set (vals %)) morphs)))
         conjrepfreqs (fn [coll] (frequencies (map repconj coll)))
         classes (group-by #(conjrepfreqs (vals %)) selected)
         easykeys (filter #(= 1 (count (classes %)))  (keys classes))
@@ -107,6 +107,19 @@
     (concat (mapcat classes easykeys)
             (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
 
+(defn new-generator-conjreps
+  [phi n Sgens tgs repconj conj-conj]
+  (if (zero? n)
+    (map repconj (first tgs)) ;;order dependenc here?
+    (let [gens (mapv phi (take n Sgens))
+          partconj (reduce conj-conj
+                           (conj-conj (first gens))
+                           (rest gens))]
+      (into #{}
+            (r/map (comp last first)
+                   (r/map #(conj-conj partconj %)
+                          (nth tgs n)))))))
+
 (defn embeddings-conj
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
@@ -116,16 +129,7 @@
       ;(map first (vals (group-by #(setconjrep (vec (vals %))) morphs)))
       (morph-distinguisher morphs repconj setconjrep)
       (letfn [(extend-phi [phi]
-                (let [ngens (if (zero? n)
-                              (map repconj (first tgs))
-                              (let [gens (mapv phi (take n Sgens))
-                                    partconj (reduce conj-conj
-                                                     (conj-conj (first gens))
-                                                     (rest gens))]
-                                (into #{}
-                                      (r/map (comp last first)
-                                             (r/map #(conj-conj partconj %)
-                                                    (nth tgs n))))))
+                (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj)
                       check-gen (fn [imgs2morphs ngen]
                                   (let [gens (take (inc n) Sgens)
                                         nmorph (add-gen-and-close
@@ -160,14 +164,14 @@
   There are two phases for adding a new generator
   1. we multiply everything (including itself by the new generator)
   2. for any new elements generated we go through with all generators so far"
-  [phi gen phiofgen Sgens Smul Tmul]
+  [phi gen phiofgen gens Smul Tmul]
   (let [ephi (conj phi [gen phiofgen])
         res (sys-mul ephi (keys ephi) [gen] Smul Tmul)] ;phase 1
     (when-not (nil? res)
       (loop [phi (:phi res) newelts (conj (:new res) gen)]
         (if (empty? newelts)
           phi
-          (let [res (sys-mul phi newelts Sgens Smul Tmul)] ;phase 2, iteration
+          (let [res (sys-mul phi newelts gens Smul Tmul)]
             (when-not (nil? res)
               (recur (:phi res) (:new res)))))))))
 
