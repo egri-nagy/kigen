@@ -89,25 +89,15 @@
                            generator
                            solution?))))
 
-(defn morph-distinguisher
-  "Returns the distinct morphs up to conjugation in an efficient way by
-  calculating the frequencies of conjugacy class representatives. S4 -> S7
-  shows that this is just a heuristics."
+(defn morphisms-up-to-conjugation
+  "Returns the distinct morphs up to conjugation."
   [morphs repconj setconjrep]
-  (let [selected (map first
-                      (vals (group-by #(set (vals %)) morphs)))
-        conjrepfreqs (fn [coll] (frequencies (map repconj coll)))
-        classes (group-by #(conjrepfreqs (vals %)) selected)
-        easykeys (filter #(= 1 (count (classes %)))  (keys classes))
-        hardkeys (filter #(< 1 (count (classes %)))  (keys classes))
-        hard (mapcat classes hardkeys)]
-    ;(println (count morphs) "->" (count selected))
-    ;(println (map count (vals classes)))
-    (concat (mapcat classes easykeys)
-            (map first (vals (group-by #(setconjrep (vec (vals %))) hard))))))
+  (let [up-to-equality (map first
+                            (vals (group-by #(set (vals %)) morphs)))]
+    (map first (vals (group-by #(setconjrep (vals %)) up-to-equality)))))
 
 (defn new-generator-conjreps
-  [phi n Sgens tgs repconj conj-conj]
+  [phi n Sgens tgs repconj conj-conj setconjrep]
   (if (zero? n)
     (set (map repconj (first tgs)))
     (let [gens (mapv phi (take n Sgens))
@@ -119,7 +109,7 @@
                                     (nth tgs n)))
           ;we need to keep distinct generator sets
           selected_seqs (r/map (comp first second)
-                    (group-by set conjed_seqs))]
+                    (group-by setconjrep conjed_seqs))]
       (into #{} (r/map last selected_seqs)))))
 
 (defn embeddings-conj
@@ -127,9 +117,9 @@
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
-      (morph-distinguisher morphs repconj setconjrep)
+      (morphisms-up-to-conjugation morphs repconj setconjrep)
       (letfn [(extend-phi [phi]
-                (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj)
+                (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj setconjrep)
                       check-gen (fn [newmorphs ngen]
                                   (let [gens (take (inc n) Sgens)
                                         nmorph (add-gen-and-close
