@@ -175,7 +175,7 @@
                                 newelts
                                 (rest pairs))
               :else (recur (conj phi p)
-                           (conj elts (first p))
+                           (conj newelts (first p))
                            (rest pairs)))))))
 
 (defn new-mapping
