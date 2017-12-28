@@ -1,9 +1,13 @@
 (ns kigen.genmorph
-  "Constructing morphisms by generators, i.e. searching for an isomorphisms of
-  Cayley-graphs."
-  (:require [kigen.sgp :as sgp]
-            [kigen.conjugacy :as conjugacy]
-            [kigen.sgp :refer [sgp-by-gens]]
+  "Constructing isomorphisms/embeddings between semigroups given  by generators.
+  In other words, searching for an isomorphisms of Cayley-graphs.
+  The source semigroup is converted to generator table (partial multiplication
+  table containing all the images of right multiplication by generators).
+  Thus, the elements of the source semigroup are fully enumerated, but target
+  semigroup is only partially calculated as the morphism is constructed,
+  leaving the possibility of embedding into large semigroups."
+  (:require [kigen.conjugacy :as conjugacy]
+            [kigen.sgp :refer [sgp-by-gens index-period]]
             [orbit.core :refer [acyclic-search-single]]
             [clojure.core.reducers :as r]))
 
@@ -13,7 +17,8 @@
          embeddings ;; high-level function for finding embeddings
          embeddings-conj
          sgp-embeddings-by-gens ;;main entry point
-         index-period-matched) ;;preparation
+         index-period-matched
+         gentab) ;;preparation
 
 (defn gentab
   "Right generation table for semigroup given by generator elements and
@@ -36,10 +41,10 @@
   "Returns for each generator in S, the elements of T with matching index-period
   values. WARNING: It fully enumerates T."
   [Sgens Smul Tgens Tmul]
-  (let [ipfunc (fn [mul] (fn [x] (sgp/index-period x mul)))
+  (let [ipfunc (fn [mul] (fn [x] (index-period x mul)))
         S-index-period (ipfunc Smul)
         T-index-period (ipfunc Tmul)
-        T (sgp/sgp-by-gens Tgens Tmul)
+        T (sgp-by-gens Tgens Tmul)
         Tip->Tset (group-by T-index-period T)]
     (map Tip->Tset (map  S-index-period Sgens))))
 
