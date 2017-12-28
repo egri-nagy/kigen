@@ -1,11 +1,11 @@
 (ns kigen.genmorph
   "Constructing isomorphisms/embeddings between semigroups given  by generators.
   In other words, searching for an isomorphisms of Cayley-graphs.
+  The elements of both semigroups are fully enumerated.
   The source semigroup is converted to generator table (partial multiplication
   table containing all the images of right multiplication by generators).
-  Thus, the elements of the source semigroup are fully enumerated, but target
-  semigroup is only partially calculated as the morphism is constructed,
-  leaving the possibility of embedding into large semigroups."
+  The elements of target semigroups are classified by their index-periods in
+  order to find possible targets for generators."
   (:require [kigen.conjugacy :as conjugacy]
             [kigen.sgp :refer [sgp-by-gens index-period]]
             [orbit.core :refer [acyclic-search-single]]
@@ -22,10 +22,12 @@
 
 (defn gentab
   "Right generation table for semigroup given by generator elements and
-  multiplication."
+  multiplication. Returns the generators and the multiplication by generators
+  function. When the elements are enumerated the generators are put in front.
+  Otherwise, table indexing would be more complicated."
   [gens mul]
   (let [S (sgp-by-gens gens mul)
-        elts (vec (concat gens (remove (set gens) S))) ; why putting the generators in the front? confirmed: someone does assume order
+        elts (vec (concat gens (remove (set gens) S)))
         indices (zipmap elts (range (count elts)))
         gt (vec (pmap
                  (fn [x] (->> gens
@@ -35,7 +37,6 @@
                  elts))]
     [(range (count gens)) ;generators
      (fn [x y] ((gt x) y))])) ;multiplication
-
 
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
@@ -105,6 +106,7 @@
                       up-to-equality)))
 
 (defn new-generator-conjreps
+  "Finds the possible target generators up to conjugation."
   [phi n Sgens tgs repconj conj-conj setconjrep]
   (if (zero? n)
     (set (map repconj (first tgs)))
