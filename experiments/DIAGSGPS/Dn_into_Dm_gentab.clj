@@ -1,6 +1,9 @@
-;; counting embeddings of full transformation semigroups into full ts'
+;; counting embeddings of full diagram semigroups into other full diagram
+;; semigroups of the same type
+;; generic code for diagram semigroups using the transformation representation
 (require '[kigen.transf :as t]
-         '[kigen.genmorph :as gmorph])
+         '[kigen.genmorph :as gmorph]
+         '[clojure.pprint :refer [pprint]])
 
 (defn Dn-into-Dm [gf n m]
   (let [Tngens (gf n)
@@ -18,4 +21,4 @@
            [[m n] (count (Dn-into-Dm gf m n))])
          pairs)))
 
-(println (Dn->Dm-table t/full-ts-gens 5))
+(pprint (Dn->Dm-table t/full-ts-gens 4))
