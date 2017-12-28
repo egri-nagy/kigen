@@ -92,9 +92,12 @@
 (defn morphisms-up-to-conjugation
   "Returns the distinct morphs up to conjugation."
   [morphs repconj setconjrep]
-  (let [up-to-equality (map first
-                            (vals (group-by #(set (vals %)) morphs)))]
-    (map first (vals (group-by #(setconjrep (vals %)) up-to-equality)))))
+  (let [distinct-up-to-f (fn [f coll]
+                           (map first (vals (group-by f coll))))
+        up-to-equality (distinct-up-to-f #(set (vals %))
+                                         morphs)]
+    (distinct-up-to-f #(setconjrep (vals %))
+                      up-to-equality)))
 
 (defn new-generator-conjreps
   [phi n Sgens tgs repconj conj-conj setconjrep]
