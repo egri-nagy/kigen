@@ -15,7 +15,7 @@
          new-mapping
          add-gen-and-close
          embeddings ;; high-level function for finding embeddings
-         embeddings-conj
+         embeddings-distinct
          sgp-embeddings-by-gens ;;main entry point
          index-period-matched
          gentab) ;;preparation
@@ -67,8 +67,8 @@
          setconjrep #(conjugacy/setconjrep Tconj % G)
          conj-conj (conjugacy/conj-conj-fn Tconj G)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
-          (embeddings-conj mSgens mSmul tgs Tmul
-                           conjrep conj-conj setconjrep)))))
+          (embeddings-distinct mSgens mSmul tgs Tmul
+                               conjrep conj-conj setconjrep)))))
 
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
@@ -122,7 +122,7 @@
                     (group-by setconjrep conjed_seqs))]
       (into #{} (r/map last selected_seqs)))))
 
-(defn embeddings-conj
+(defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
   (loop [n 0, morphs [{}] ]
