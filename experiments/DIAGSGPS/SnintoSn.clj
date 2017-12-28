@@ -1,4 +1,4 @@
-;; embedding the symmetric into the symmetric group
+;; counting embeddings of symmetric groups into symmetric groups
 (require '[kigen.transf :as t]
          '[kigen.genmorph :as gmorph])
 
