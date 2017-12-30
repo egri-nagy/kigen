@@ -6,22 +6,20 @@
 ;; lexicographically, odometer style.
 ;; recreating integer sequence A001372
 
-;; m is the maximal available digit, e.g. 1 for binary, 9 for decimal
+(require '[kigen.transf :as t])
 
+;; m is the maximal available digit, e.g. 1 for binary, 9 for decimal
 (defn nxt
   "Returns the next vector in lexicographic ordering.
   Leftmost is the most significant digit.
   Replacing the the first maximal digits with 0s, increase the 1st of
   the remaining digits, then copy leftover."
   [v m]
-  (let [[ms others] (split-with #(= % m) v)]
-    (vec (concat
-          (repeat (count ms) 0)
-          (if (empty? others)
-            ()
-            (concat
-             [(inc (first others))]
-             (rest others)))))))
+  (let [[ms others] (split-with (partial = m) v)]
+    (vec (concat (repeat (count ms) 0)
+                 (when-not (empty? others)
+                   (concat [(inc (first others))]
+                           (rest others)))))))
 
 (defn zerovec
   "A vector containing m+1 zeroes."
@@ -37,20 +35,21 @@
 (defn full-Tm+1-conjreps
   [m]
   (let [reps (reduce
-              (fn [coll v] (conj coll ((comp t/conjrep reverse) v)))
+              (fn [coll v]
+                (conj coll ((comp t/conjrep reverse) v)))
               #{}
-              (take-while #(not (= (vec  (reverse %)) (maxcnj m)))
+              (take-while #(not= (vec  (reverse %)) (maxcnj m))
                           (iterate #(nxt % m) (zerovec m))))]
     (conj reps (maxcnj m)))) ; not to forget the maximal conjrep
 
 ;; checking:
-;; (map (comp count full-Tm+1-conjreps) [0 1 2 3 4 5])
+(println (map (comp count full-Tm+1-conjreps) [0 1 2 3 4 5]))
 ;; should produce
 ;; (1 3 7 19 47 130)
 ;; in  a couple of seconds
 
 ;; THE REAL CALCULATION - about an hour
-(spit "experiments/DIAGSGPS/T8conjreps" (vec (sort (full-Tm+1-conjreps 7))))
+;;(spit "experiments/DIAGSGPS/T8conjreps" (vec (sort (full-Tm+1-conjreps 7))))
 
 ;; this can be slurped back by
 ;; (def T8conjreps (clojure.edn/read-string
