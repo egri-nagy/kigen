@@ -1,3 +1,5 @@
+;; embedding T2 into T8
+;; number of ways: 879 (first computed 2017.03.22)
 ;; embedding T3 into T8
 ;; computed 736 distinct embeddings 2017.03.23 for T3 -> T8
 ;; 48 for T4->T8
