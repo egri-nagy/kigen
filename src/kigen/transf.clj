@@ -85,7 +85,7 @@
 ;; constructed by finding the minimal relabeling of a transformation.
 
 (defn single-maps
-  "All mappings of of a transformation in the form of [src img]."
+  "All mappings of a transformation in the form of [src img]."
   [t]
   (map vector (range (count t)) t))
 
@@ -96,15 +96,13 @@
   [m d p]
   (let [nmappings (distinct (map vector m d))]
     (when (and
-           (or
-            (= 1 (count nmappings))
-            (apply distinct? (map second nmappings)))
-           (every?
-            (fn [[a b]]
-              (if (contains? p a)
-                (= (p a) b)
-                (empty? (filter (partial = b) (vals p)))))
-            nmappings))
+           (apply distinct? (map second nmappings))
+           (every? (fn [[a b]]
+                     (if (contains? p a)
+                       (= (p a) b)
+                       (empty? (filter (partial = b)
+                                       (vals p)))))
+                   nmappings))
       (into p nmappings))))
 
 (defn all-realizations
@@ -129,24 +127,22 @@
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
         ;;corresponding partial permutation
-        initial_stack (into []
-                            (map (fn [i]
-                                   [ [] [ [mappings {}] ] i])
-                                 pts))
+        initial_stack (mapv (fn [i]
+                              [ [] [ [mappings {}] ] i])
+                            pts)
         search (fn [stack]
                  (let [[rep psols pt] (peek stack)
                        k (count rep)]
                    (if (= k n)
                      rep
-                     (let [nstack (pop stack)
-                           npsols (mapcat (fn [[mappings pperm]]
+                     (let [npsols (mapcat (fn [[mappings pperm]]
                                             (all-realizations mappings
                                                               pperm
                                                               [k pt]))
                                           psols)
                            ntasks (when (not-empty npsols)
                                     (for [np pts] [(conj rep pt) npsols np]))]
-                       (recur (into nstack ntasks))))))]
+                       (recur (into (pop stack) ntasks))))))]
     (search initial_stack)))
 
 (defn conjugators
