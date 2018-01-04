@@ -12,7 +12,7 @@
   International Journal of Networking and Computing,
   Volume 7, Number 2, pages 318–335, July 2017"
   (:require [kigen.multab :as multab :refer [at]]
-            [orbit.core :refer [acyclic-search-single]]
+            [orbit.core :refer [tree-search-single]]
             [clojure.set :refer [subset? difference]]
             [kigen.combinatorics :refer [non-empty-subsets
                                          big-enough-partitions]]))
@@ -43,7 +43,7 @@
                       (filter (partial relmorphic? S T)
                               (map (partial conj hom)
                                    (non-empty-subsets (multab/elts T))))))]
-    (acyclic-search-single [[]]
+    (tree-search-single [[]]
                            generator
                            (fn [v] (total? S v)))))
 
@@ -56,7 +56,7 @@
                (filter (partial homomorphic? S T)
                        (map (partial conj hom)
                             (multab/elts T)))))]
-    (acyclic-search-single [[]]
+    (tree-search-single [[]]
                            generator
                            (fn [v] (total? S v)))))
 
@@ -72,7 +72,7 @@
                (let [rts (remove (set hom) partition)]
                  (filter (partial relmorphic? S T)
                          (map (partial conj hom) rts)))))]
-        (acyclic-search-single [[]]
+        (tree-search-single [[]]
                                generator
                                (fn [v] (total? S v)))))
     (big-enough-partitions (multab/elts T) (count S)))))
@@ -94,7 +94,7 @@
                      rts (remove (set hom) ts)]
                  (filter (partial homomorphic? S T)
                          (map (partial conj hom) rts)))))]
-    (acyclic-search-single [[]]
+    (tree-search-single [[]]
                            generator
                            (fn [v] (total? S v)))))
 
@@ -126,8 +126,8 @@
   (let [k (count hom)
         dom (range k)
         good? (fn [[x y]]
-                (let [xy (at S x y)] 
-                  (if (< xy k) 
+                (let [xy (at S x y)]
+                  (if (< xy k)
                     (= (hom xy)
                        (at T (hom x) (hom y)))
                     true)))]

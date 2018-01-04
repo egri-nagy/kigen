@@ -21,10 +21,10 @@
   [as]
   (fn [P Q]
     (or (set/subset? P Q)
-        (not (nil? (o/first-solution-single Q
-                                            (set-action as)
-                                            #(<= (count P) (count %))
-                                            #(set/superset? % P)))))))
+        (not (nil? (o/partial-orbit-single Q
+                                           (set-action as)
+                                           #(<= (count P) (count %))
+                                           #(set/superset? % P)))))))
 
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons

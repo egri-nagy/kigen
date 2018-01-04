@@ -156,7 +156,7 @@
                               :let [res (realize-a-mapping tm rm perm)]
                               :when (not (nil? res))]
                           [(rest tmaps) (disj rmaps rm) res]))))
-        solutions (o/acyclic-search-bulk [ [tmaps rmaps {}] ]
+        solutions (o/tree-search-bulk [ [tmaps rmaps {}] ]
                                          extend
                                          #(empty? (first %)))]
     (map (fn [perm]

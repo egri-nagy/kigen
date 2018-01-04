@@ -63,7 +63,7 @@
         (extend [[base exts]]
           #{[(i/union base exts) (newelements mt base exts)]})]
      (first
-      (orbit/first-solution-single [base exts] extend (fn [x] true) finished?)))))
+      (orbit/partial-orbit-single [base exts] extend (fn [x] true) finished?)))))
 
 ;TODO this should be int-mapped as well
 (defn in-closure?
@@ -76,7 +76,7 @@
         (extend [[sgp gens]]
           #{[(union sgp gens) (newelements mt sgp gens)]})]
      (some?
-      (orbit/first-solution-single [sgp gens] extend (fn [x] true) finished?)))))
+      (orbit/partial-orbit-single [sgp gens] extend (fn [x] true) finished?)))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of

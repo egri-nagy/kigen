@@ -8,7 +8,7 @@
   order to find possible targets for generators."
   (:require [kigen.conjugacy :as conjugacy]
             [kigen.sgp :refer [sgp-by-gens index-period]]
-            [orbit.core :refer [acyclic-search-single]]
+            [orbit.core :refer [tree-search-single]]
             [clojure.core.reducers :as r]))
 
 (declare sys-mul;; low-level morphism checking/extending functions
@@ -83,7 +83,7 @@
                                        (add-gen-and-close
                                         m
                                         (nth Sgens n)
-                                        g                                                            
+                                        g
                                         (take (inc n) Sgens)
                                         Smul
                                         Tmul))
@@ -91,7 +91,7 @@
                             filtered (filter #(apply distinct? (vals %))
                                              (remove nil? nmorphs))]
                         (map (fn [x] [(inc n) x]) filtered))))]
-    (map second (acyclic-search-single [[0 {}]]
+    (map second (tree-search-single [[0 {}]]
                            generator
                            solution?))))
 
