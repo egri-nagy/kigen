@@ -16,15 +16,15 @@
   (set (range n)))
 
 (defn subduction-function
-  "P subduces Q if Q can be transformed by the actions to be a superset of P.
-  P,Q: finite sets; as: transformations acting on the right"
-  [as]
+  "P subduces Q if Q can be transformed to Qt by some action to be a superset
+  of P. P,Q: finite sets; actions: transformations acting on the right"
+  [actions]
   (fn [P Q]
     (or (subset? P Q)
         (not (nil? (partial-orbit Q
-                                  (set-action as)
-                                  #(<= (count P) (count %))
-                                  #(superset? % P)))))))
+                                  (set-action actions)
+                                  (fn [Qt] (<= (count P) (count Qt)))
+                                  (fn [Qt] (superset? Qt P))))))))
 
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons
