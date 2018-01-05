@@ -1,5 +1,5 @@
 (ns kigen.holonomy
-  (:require [clojure.set :as set :refer [subset?]]
+  (:require [clojure.set :refer [subset? superset?]]
             [orbit.core :refer [full-orbit partial-orbit]]
             [orbit.action :refer [set-action right-actions]]
             [kigen.cayley-graph :refer [cayley-graph]]
@@ -20,11 +20,11 @@
   P,Q: finite sets; as: transformations acting on the right"
   [as]
   (fn [P Q]
-    (or (set/subset? P Q)
+    (or (subset? P Q)
         (not (nil? (partial-orbit Q
                                   (set-action as)
                                   #(<= (count P) (count %))
-                                  #(set/superset? % P)))))))
+                                  #(superset? % P)))))))
 
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons
@@ -74,7 +74,7 @@
      :equivclasses sccs
      :heights heights
      :height (heights stateset)
-     :supsethd (p/cover-rel extd set/subset?)}))
+     :supsethd (p/cover-rel extd subset?)}))
 
 (defn depth
   ([sk P] (inc (- (:height sk) ((:heights sk) P))))
@@ -107,8 +107,8 @@
 (defn in-chain-comparator
   "Comparator for chain elements, works only for total orders."
   [x y]
-  (cond (clojure.set/subset? x y) 1
-        (clojure.set/superset? x y) -1
+  (cond (subset? x y) 1
+        (superset? x y) -1
         (= x y) 0))
 
 (defn chain-sgp [gens]
