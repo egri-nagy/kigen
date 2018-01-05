@@ -8,7 +8,7 @@
   order to find possible targets for generators."
   (:require [kigen.conjugacy :as conjugacy]
             [kigen.sgp :refer [sgp-by-gens index-period]]
-            [orbit.core :refer [tree-search-single]]
+            [orbit.core :refer [tree-search]]
             [clojure.core.reducers :as r]))
 
 (declare sys-mul;; low-level morphism checking/extending functions
@@ -91,9 +91,9 @@
                             filtered (filter #(apply distinct? (vals %))
                                              (remove nil? nmorphs))]
                         (map (fn [x] [(inc n) x]) filtered))))]
-    (map second (tree-search-single [[0 {}]]
-                           generator
-                           solution?))))
+    (map second (tree-search [[0 {}]]
+                             generator
+                             solution?))))
 
 (defn morphisms-up-to-conjugation
   "Returns the distinct morphs up to conjugation."

@@ -5,7 +5,7 @@
   The tables are vectors of vectors (the rows of the table),
   so multiplication is just look up."
   (:require [clojure.set :refer [difference union subset?]]
-            [orbit.core :as orbit]
+            [orbit.core :refer [partial-orbit full-orbit]]
             [kigen.sgp :as sgp]
             [clojure.core.reducers :as r]
             [clojure.data.int-map :as i]))
@@ -63,7 +63,7 @@
         (extend [[base exts]]
           #{[(i/union base exts) (newelements mt base exts)]})]
      (first
-      (orbit/partial-orbit-single [base exts] extend (fn [x] true) finished?)))))
+      (partial-orbit [base exts] extend (fn [x] true) finished?)))))
 
 ;TODO this should be int-mapped as well
 (defn in-closure?
@@ -76,7 +76,7 @@
         (extend [[sgp gens]]
           #{[(union sgp gens) (newelements mt sgp gens)]})]
      (some?
-      (orbit/partial-orbit-single [sgp gens] extend (fn [x] true) finished?)))))
+      (partial-orbit [sgp gens] extend (fn [x] true) finished?)))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
@@ -94,4 +94,4 @@
   table"
   [mt]
   (let [elts (elts mt)]
-    (orbit/full-orbit-parallel [(i/int-set)] (partial min-extensions mt elts))))
+    (full-orbit [(i/int-set)] (partial min-extensions mt elts))))

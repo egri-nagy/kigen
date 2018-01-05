@@ -4,7 +4,7 @@
    for degree n, domain is 1..n, codomain is n+1..2n
    e.g. degree 3, domain is {1,2,3}, codomain is {4,5,6}"
   (:require [clojure.set :refer [union]]
-            [orbit.core :refer [full-orbit-single]]))
+            [orbit.core :refer [full-orbit]]))
 
 ;; RANDOM PARTITIONED BINARY RELATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declare rand-pbr
@@ -75,7 +75,7 @@
         ;to extract the target nodes from labelled edges
         targets (fn [edges] (set (map #(last (last %)) edges)))]
     (when-not (zero? (count seeds))
-      (filter endpoints (targets (full-orbit-single seeds af))))))
+      (filter endpoints (targets (full-orbit seeds af))))))
 
 (defn mul
   "multiply two partitioned binary relations"

@@ -1,9 +1,9 @@
 (ns kigen.chain
   "Chains in partially ordered sets."
- (:require [orbit.core :as o]
+ (:require [orbit.core :refer [full-orbit]]
            [clojure.set :refer [union]]))
 
-;; search is done with a FULL-ORBIT-BULK
+;; search is done with a FULL-ORBIT
 (defn chains
  "All chains between elements a and b in the given (explicit) cover relation."
   [a b cr]
@@ -11,7 +11,7 @@
           (extensions [chain]
             (when-not (solution? chain)
               (map (partial conj chain) (cr (last chain)))))]
-    (filter solution? (o/full-orbit-bulk [[a]] extensions))))
+    (filter solution? (full-orbit [[a]] extensions))))
 
 (defn gaps
   "Returns all pairs of consecutive elements of the chain that are not in

@@ -1,7 +1,7 @@
 (ns kigen.transf
   "Transformations and permutations simply representated as vectors."
   (:require [kigen.sgp :as sgp]
-            [orbit.core :as o]
+            [orbit.core :refer [tree-search]]
             [kigen.conjugacy :as conjugacy]))
 
 (declare single-maps)
@@ -156,9 +156,9 @@
                               :let [res (realize-a-mapping tm rm perm)]
                               :when (not (nil? res))]
                           [(rest tmaps) (disj rmaps rm) res]))))
-        solutions (o/tree-search-bulk [ [tmaps rmaps {}] ]
-                                         extend
-                                         #(empty? (first %)))]
+        solutions (tree-search [ [tmaps rmaps {}] ]
+                               extend
+                               #(empty? (first %)))]
     (map (fn [perm]
            (mapv perm (range (count t)))) ;creating the permutation vector
          (map (fn [[_ _ perm]] perm) ;extracting the permutation (as hashmap)

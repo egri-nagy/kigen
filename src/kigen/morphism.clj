@@ -12,7 +12,7 @@
   International Journal of Networking and Computing,
   Volume 7, Number 2, pages 318–335, July 2017"
   (:require [kigen.multab :as multab :refer [at]]
-            [orbit.core :refer [tree-search-single]]
+            [orbit.core :refer [tree-search]]
             [clojure.set :refer [subset? difference]]
             [kigen.combinatorics :refer [non-empty-subsets
                                          big-enough-partitions]]))
@@ -43,9 +43,9 @@
                       (filter (partial relmorphic? S T)
                               (map (partial conj hom)
                                    (non-empty-subsets (multab/elts T))))))]
-    (tree-search-single [[]]
-                           generator
-                           (fn [v] (total? S v)))))
+    (tree-search [[]]
+                 generator
+                 (fn [v] (total? S v)))))
 
 (defn homomorphisms
   "All homomorphisms from S to T."
@@ -56,9 +56,9 @@
                (filter (partial homomorphic? S T)
                        (map (partial conj hom)
                             (multab/elts T)))))]
-    (tree-search-single [[]]
-                           generator
-                           (fn [v] (total? S v)))))
+    (tree-search [[]]
+                 generator
+                 (fn [v] (total? S v)))))
 
 (defn divisions
   "All divisions from S to T."
@@ -72,9 +72,9 @@
                (let [rts (remove (set hom) partition)]
                  (filter (partial relmorphic? S T)
                          (map (partial conj hom) rts)))))]
-        (tree-search-single [[]]
-                               generator
-                               (fn [v] (total? S v)))))
+        (tree-search [[]]
+                     generator
+                     (fn [v] (total? S v)))))
     (big-enough-partitions (multab/elts T) (count S)))))
 
 (defn isomorphisms
@@ -94,9 +94,9 @@
                      rts (remove (set hom) ts)]
                  (filter (partial homomorphic? S T)
                          (map (partial conj hom) rts)))))]
-    (tree-search-single [[]]
-                           generator
-                           (fn [v] (total? S v)))))
+    (tree-search [[]]
+                 generator
+                 (fn [v] (total? S v)))))
 
 ;;------------------------------------------------------------------------------
 ;; Predicates for checking the 'morphicity' of a mapping.

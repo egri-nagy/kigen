@@ -1,6 +1,6 @@
 (ns kigen.holonomy
   (:require [clojure.set :as set :refer [subset?]]
-            [orbit.core :as o]
+            [orbit.core :refer [full-orbit partial-orbit]]
             [orbit.action :refer [set-action right-actions]]
             [kigen.cayley-graph :refer [cayley-graph]]
             [kigen.scc :refer [scc]]
@@ -21,10 +21,10 @@
   [as]
   (fn [P Q]
     (or (set/subset? P Q)
-        (not (nil? (o/partial-orbit-single Q
-                                           (set-action as)
-                                           #(<= (count P) (count %))
-                                           #(set/superset? % P)))))))
+        (not (nil? (partial-orbit Q
+                                  (set-action as)
+                                  #(<= (count P) (count %))
+                                  #(set/superset? % P)))))))
 
 ;; due to the rule that singleton sets should have height zero
 ;; we have to be a bit tricky and find the minimal classes of non-singletons
@@ -60,7 +60,7 @@
         subduction? (subduction-function r-a-gens)
         stateset (finite-set (count (first gens)))
         singletons (set (map hash-set stateset))
-        images (o/full-orbit-bulk [stateset] (set-action r-a-gens))
+        images (full-orbit [stateset] (set-action r-a-gens))
         extd (into images singletons)
         c-g (cayley-graph images r-a-gens)
         sccs (scc images c-g)
@@ -111,14 +111,12 @@
         (clojure.set/superset? x y) -1
         (= x y) 0))
 
-
-
 (defn chain-sgp [gens]
   "Returns the encoded generators of the full unrestricted chain semigroup."
   (let [sk (skeleton gens)
         sgpact (fn [chain] (set (map #(on-chain chain %) gens)))
         maxchains (tile-chains sk)
-        chains (vec (o/full-orbit-bulk maxchains sgpact))
+        chains (vec (full-orbit maxchains sgpact))
         posf (fn [dc] (pos/position #( = (set dc) (set %)) chains))]
     (map
      (fn [t] (let [imgs (map #(on-chain % t) chains)]
