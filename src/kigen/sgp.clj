@@ -2,9 +2,9 @@
   "General functions for semigroups. Black box style, the elements
   and the operation need to be supplied."
   (:require [clojure.math.combinatorics :as combinatorics]
-            [kigen.pos :as pos]
+            [kigen.pos :refer [position]]
             [orbit.core :refer [full-orbit]]
-            [orbit.action :refer [right-actions set-action]]))
+            [orbit.action :refer [right-action right-actions set-action]]))
 
 (declare sgp-by-gens
          commutative?
@@ -17,19 +17,23 @@
   (full-orbit gens (set-action (right-actions mul gens))))
 
 (defn commutative?
-  "Brute-force checking of commutativity of a semigroup."
+  "Brute-force (but lazy) checking of commutativity of a semigroup."
   [sgp mul]
   (every? (fn [[x y]] (= (mul x y) (mul y x)))
           (combinatorics/combinations sgp 2)))
 
 (defn index-period
-  "The index-period pair of integers in a vector."
+  "The index-period pair of integers in a vector for a given semigroup
+  element x with multiplication mul."
   [x mul]
-  (letfn [(f [v] (conj v (mul (peek v) x)))]
-    (let [orbit (first (drop-while
-                        #(apply distinct? %)
-                        (iterate f [x])))
-          repeated (peek orbit)
-          index  (inc (pos/position #(= repeated %) orbit))
-          period (- (count orbit) index)]
-      [index period])))
+  (let [xmul (right-action mul x)]
+    (loop [elt->idx {x 1} ;map semigroup elements to their indices
+           k 2            ;the index of the next element
+           nx (xmul x)]   ;the next element in orbit
+      (if (contains? elt->idx nx)
+        (let [index (elt->idx nx)
+              period (- k index)]
+          [index period])
+        (recur (assoc elt->idx nx k)
+               (inc k)
+               (xmul nx))))))
