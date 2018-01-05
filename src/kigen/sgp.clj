@@ -19,7 +19,7 @@
 (defn commutative?
   "Brute-force checking of commutativity of a semigroup."
   [sgp mul]
-  (every? #(= (mul (first %) (second %)) (mul (second %) (first %)))
+  (every? (fn [[x y]] (= (mul x y) (mul y x)))
           (combinatorics/combinations sgp 2)))
 
 (defn index-period
