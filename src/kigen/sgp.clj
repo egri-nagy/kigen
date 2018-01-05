@@ -1,8 +1,7 @@
 (ns kigen.sgp
   "General functions for semigroups. Black box style, the elements
   and the operation need to be supplied."
-  (:require [clojure.math.combinatorics :as combinatorics]
-            [kigen.pos :refer [position]]
+  (:require [clojure.math.combinatorics :refer [combinations]]
             [orbit.core :refer [full-orbit]]
             [orbit.action :refer [right-action right-actions set-action]]))
 
@@ -20,7 +19,7 @@
   "Brute-force (but lazy) checking of commutativity of a semigroup."
   [sgp mul]
   (every? (fn [[x y]] (= (mul x y) (mul y x)))
-          (combinatorics/combinations sgp 2)))
+          (combinations sgp 2)))
 
 (defn index-period
   "The index-period pair of integers in a vector for a given semigroup
