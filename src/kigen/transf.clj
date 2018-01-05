@@ -15,6 +15,8 @@
 (defn ncycle [n] (vec (concat (range 1 n) [0])))
 (defn collapsing [n] (vec (concat [0 0] (range 2 n))))
 
+(defn cyclic-gens [n] [(ncycle n)])
+
 (defn symmetric-gens
   "Generators of the symmetric group of degree n using the embedding
   into the partitioned binary relation monoid defined by f."
