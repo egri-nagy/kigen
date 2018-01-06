@@ -11,22 +11,16 @@
 (defn rel
   "Makes an implicit relation explicit. Works for finite set of elements."
   [elts rel?]
-  (into {} (map
-            (fn [x] [x (set (filter (partial  rel? x) elts))])
-            elts)))
+  (zipmap elts
+          (map (fn [x] (set (filter (partial  rel? x)
+                                    elts)))
+               elts)))
 
 (defn inverse
   "Given an implicit relation by function rel? this returns the function
   for the inverse relation."
   [rel?]
   (fn [x y] (rel? y x))) ; just swapping arguments
-
-(defn equivalent
-  "Given a preorder relation, it returns the corresponding partial order
-  implicit relation."
-  [preorder-rel?]
-  (fn [x y] (and (preorder-rel? x y)
-                 (preorder-rel? y x))))
 
 ;; A cubic algorithm for finding covers for a binary relation.
 ;; It assumes that anything related is a cover
