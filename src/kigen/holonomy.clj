@@ -1,4 +1,5 @@
 (ns kigen.holonomy
+  "Skeleton of a transformation semigroup given by a set of  generators."
   (:require [clojure.set :refer [subset? superset?]]
             [orbit.core :refer [full-orbit partial-orbit]]
             [orbit.action :refer [set-action right-actions]]
@@ -26,23 +27,16 @@
                                   (fn [Qt] (<= (count P) (count Qt)))
                                   (fn [Qt] (superset? Qt P))))))))
 
-;; due to the rule that singleton sets should have height zero
-;; we have to be a bit tricky and find the minimal classes of non-singletons
-;; this is done by doing surduction and find the maximum
 (defn calc-heights
   [eqvcls subduction?]
-  (let [nonsingl-eqvcls (remove #(t/singleton? (first %)) eqvcls)
+  (let [singletons (filter #(t/singleton? (first %)) eqvcls)
+        ;;singletons should have height zero, hence to modified subduction?
         class-subduction? (fn [clA clB]
-                            (subduction? (first clA) (first clB)))
-        class-surduction? (p/inverse class-subduction?)
-        sur-hd (p/cover-rel nonsingl-eqvcls class-surduction?)
-        sub-hd (p/cover-rel nonsingl-eqvcls class-subduction?)
-        minimals (filter #(empty? (sur-hd %)) nonsingl-eqvcls)
-        height-tabs (map #(chain/max-distances % sub-hd) minimals)
-        max-dist (fn [k] (apply max (remove nil? (map ;across all height-tabs
-                                                  #(% k)
-                                                  height-tabs))))]
-    (into {} (map #(vector % (inc (max-dist %))) (keys sur-hd)))))
+                            (when-not (t/singleton? (first clB))
+                                      (subduction? (first clA) (first clB))))
+        sub-hd (p/cover-rel eqvcls class-subduction?)
+        height-tabs (map #(chain/max-distances % sub-hd) singletons)]
+    (apply merge-with max height-tabs)))
 
 (defn elts->coll [xs]
   (reduce (fn [m x] (assoc m x set))
@@ -116,7 +110,7 @@
         (superset? x y) -1
         (= x y) 0))
 
-(defn chain-sgp 
+(defn chain-sgp
   "Returns the encoded generators of the full unrestricted chain semigroup."
   [gens]
   (let [sk (skeleton gens)
