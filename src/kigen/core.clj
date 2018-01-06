@@ -8,7 +8,8 @@
             [kigen.multab :as multab]
             [kigen.igs :as igs]
             [kigen.morphism :as morphism]
-            [kigen.genmorph :as gmorph])
+            [kigen.genmorph :as gmorph]
+            [kigen.chain-sgp :as chain-sgp])
   (:gen-class))
 
 ;; to save compile time property into a runtime one
