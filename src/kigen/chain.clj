@@ -22,15 +22,16 @@
    (partition 2 1 chain)))
 
 
-(defn distance-calculator
+(defn discovery-times
   "For a Hasse-diagram/cover relation cr this perform a search and records the
-    discovery times. Returns a map: element -> vector of discovery times"
-  [e cr f]
+    discovery times. Returns a map: element -> vector of discovery times
+  f: min or max"
+  [e cr]
   (loop [d 0
          dists {}
          frontier #{e}]
     (if (empty? frontier)
-      (into {} (map (fn [[k v]] [k (apply max v)]) dists))
+      dists
       (recur (inc d)
              (reduce #(update-in % [%2] conj d) dists frontier)
              (apply union (map cr frontier))))))
@@ -39,10 +40,5 @@
   "Returns a map of elements to their maximal distance
     (length of longest chain) from element e."
   [e cr]
-  (distance-calculator e cr max))
-
-(defn min-distances
-  "Returns a map of elements to their minimal distance
-     (length of shortest chain) from element e."
-  [e cr]
-  (distance-calculator e cr min))
+  (into {} (map (fn [[k v]] [k (apply max v)])
+                (discovery-times e cr))))
