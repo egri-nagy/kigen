@@ -38,11 +38,6 @@
         height-tabs (map #(chain/max-distances % sub-hd) singletons)]
     (apply merge-with max height-tabs)))
 
-(defn elts->coll [xs]
-  (reduce (fn [m x] (assoc m x set))
-          {}
-          xs))
-
 (defn expand-set-keyed-map
   "Takes a map whose keys are sets and returns another map where each element
   of key set maps to the value of the original key."
@@ -61,11 +56,9 @@
         singletons (set (map hash-set stateset))
         images (full-orbit [stateset] (set-action actions))
         extd (into images singletons)
-        c-g (cayley-graph images actions)
-        sccs (scc images c-g)
+        sccs (scc images (cayley-graph images actions))
         scc-heights (calc-heights sccs subduction?)
-        scc-heights-full (conj scc-heights [(set singletons) 0])
-        heights (expand-set-keyed-map scc-heights-full)] ; composition of maps would be nicer
+        heights (expand-set-keyed-map scc-heights)]
     {:stateset stateset
      :singletons singletons
      :images images
