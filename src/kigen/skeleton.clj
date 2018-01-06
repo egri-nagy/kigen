@@ -1,4 +1,4 @@
-(ns kigen.holonomy
+(ns kigen.skeleton
   "Skeleton of a transformation semigroup given by a set of  generators."
   (:require [clojure.set :refer [subset? superset?]]
             [orbit.core :refer [full-orbit partial-orbit]]

@@ -1,13 +1,13 @@
-(ns kigen.holonomy-test
+(ns kigen.skeleton-test
   (:require [clojure.test :refer :all]
-            [kigen.holonomy :as h]
+            [kigen.skeleton :as sk]
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]
             [kigen.pbr :as pbr]))
 
 (load-file "resources/sgpbestiary.clj")
 
-(deftest test-holonomy
+(deftest test-skeleton
   (testing "Testing holonomy decomposition."
-    (is (= 6 (h/depth (h/skeleton becks))))
-    (is (= 7 (h/depth (h/skeleton (transf/full-ts-gens 7)))))))
+    (is (= 6 (sk/depth (sk/skeleton becks))))
+    (is (= 7 (sk/depth (sk/skeleton (transf/full-ts-gens 7)))))))

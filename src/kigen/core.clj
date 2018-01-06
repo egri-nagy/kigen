@@ -2,7 +2,7 @@
   (:require [kigen.pbr :as pbr]
             [kigen.transf :as t]
             [kigen.perm :as perm]
-            [kigen.holonomy :as holonomy]
+            [kigen.skeleton :as skeleton]
             [kigen.poset :as poset]
             [kigen.sgp :as sgp]
             [kigen.multab :as multab]
