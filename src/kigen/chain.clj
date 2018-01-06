@@ -1,6 +1,6 @@
 (ns kigen.chain
   "Chains in partially ordered sets."
- (:require [orbit.core :refer [full-orbit]]
+ (:require [orbit.core :refer [tree-search]]
            [clojure.set :refer [union]]))
 
 ;; search is done with a FULL-ORBIT
@@ -11,7 +11,7 @@
           (extensions [chain]
             (when-not (solution? chain)
               (map (partial conj chain) (cr (last chain)))))]
-    (filter solution? (full-orbit [[a]] extensions))))
+    (tree-search [[a]] extensions solution?)))
 
 (defn gaps
   "Returns all pairs of consecutive elements of the chain that are not in
