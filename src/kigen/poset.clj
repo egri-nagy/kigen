@@ -22,9 +22,9 @@
   [rel?]
   (fn [x y] (rel? y x))) ; just swapping arguments
 
-;; A cubic algorithm for finding covers for a binary relation.
+;; A cubic algorithm for finding covers in a binary relation.
 ;; It assumes that anything related is a cover
-;; then gets rid of an element if it is proven not to be a cover
+;; then gets rid of an element if it is proven not to be a cover.
 ;; elts - set of elements
 ;; rel? - a partial order relation predicate, (rel? a b) Is a below b?
 (defn cover-rel
