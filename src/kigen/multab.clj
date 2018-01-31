@@ -5,7 +5,7 @@
   The tables are vectors of vectors (the rows of the table),
   so multiplication is just look up."
   (:require [clojure.set :refer [difference union subset?]]
-            [orbit.core :refer [partial-orbit full-orbit]]
+            [orbit.core :refer [partial-orbit full-orbit pfull-orbit]]
             [kigen.sgp :as sgp]
             [clojure.core.reducers :as r]
             [clojure.data.int-map :as i]))
@@ -91,7 +91,14 @@
 
 (defn subsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
-  table"
+  table."
   [mt]
   (full-orbit [(i/int-set)]
               (partial min-extensions mt (elts mt))))
+
+(defn psubsgps
+  "All subsemigroups of an abstract semigroup given by its multiplication
+  table computed in parallel."
+  [mt]
+  (pfull-orbit [(i/int-set)]
+               (partial min-extensions mt (elts mt))))
