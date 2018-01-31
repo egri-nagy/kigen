@@ -1,9 +1,10 @@
 (ns kigen.multab
-  "Functions for dealing with abstract multiplication tables,
-  i.e. multiplicative elements are represented by their indices in a
-  given sequence, and sets of these elements.
-  The tables are vectors of vectors (the rows of the table),
-  so multiplication is just look up."
+  "Functions for dealing with abstract multiplication tables of semigroups.
+  The multiplicative elements are represented by their indices in a
+  given sequence. The tables are vectors of vectors (the rows of the table),
+  so multiplication is just a constant-time look up.
+  Functionality for multiplying subsets of elements and computing closures
+  and thus enumerating subsemigroups."
   (:require [clojure.set :refer [difference union subset?]]
             [orbit.core :refer [partial-orbit full-orbit pfull-orbit]]
             [kigen.sgp :as sgp]
@@ -11,25 +12,26 @@
             [clojure.data.int-map :as i]))
 
 (defmacro at
-  "Convenient accessing of matrix elements."
+  "Convenient accessing of matrix elements by their indices."
   [mt i j]
   `((~mt ~i) ~j))
 
 (defn multab
-  "Returns the multiplication table of the elements xs by the function mul."
+  "Returns the multiplication table of the elements xs by the function mul.
+  The order of elements in xs is preserved and used to define indices."
   [xs mul]
   (let [vxs (vec xs)
         indx (zipmap vxs (range (count vxs)))]
-    (vec (map
-          (fn [x] (->> xs
-                       (map #(mul % x)) ;left multiplication by x
-                       (map indx) ;elt -> index
-                       (vec)))
-          xs))))
+    (mapv
+     (fn [x] (->> xs
+                  (map #(mul % x)) ;left multiplication by x
+                  (map indx) ;elt -> index
+                  (vec)))
+     xs)))
 
 (defn elts
   "Returns the elements of the given multiplication table.
-  The elements are just the set of indices from 0 to n-1."
+  The elements are just the set of indices from 0 to n-1 in an int-set."
   [mt]
   (i/int-set (range (count mt))))
 
@@ -65,7 +67,6 @@
      (first
       (partial-orbit [base exts] extend (fn [x] true) finished?)))))
 
-;TODO this should be int-mapped as well
 (defn in-closure?
   "Returns true if an element x is in the closure of sgp by gens"
   ([mt gens x] (in-closure? mt (i/int-set) gens x))
