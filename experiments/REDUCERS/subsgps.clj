@@ -42,3 +42,5 @@
    (subsgps-parallel mtS)))
 
 (println)
+
+; (time (count (multab/subsgps (multab/multab (t/sgp-by-gens [[0,1,0,0,0] [1,3,0,4,0]]) t/mul))))

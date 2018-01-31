@@ -93,5 +93,5 @@
   "All subsemigroups of an abstract semigroup given by its multiplication
   table"
   [mt]
-  (let [elts (elts mt)]
-    (full-orbit [(i/int-set)] (partial min-extensions mt elts))))
+  (full-orbit [(i/int-set)]
+              (partial min-extensions mt (elts mt))))
