@@ -21,4 +21,4 @@
            [[m n] (count (Dn-into-Dm gf m n))])
          pairs)))
 
-(pprint (Dn->Dm-table t/full-ts-gens 4))
+(pprint (Dn->Dm-table t/symmetric-gens 9))
