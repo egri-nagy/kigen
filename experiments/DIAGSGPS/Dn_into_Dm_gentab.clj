@@ -18,7 +18,13 @@
                     j (range 1 (inc i))]
                 [j i])]
     (map (fn [[m n]]
-           [[m n] (count (Dn-into-Dm gf m n))])
+    	   (let [r (count (Dn-into-Dm gf m n))]
+             (println \# m n r)
+             [[m n] r]))
          pairs)))
 
-(pprint (Dn->Dm-table t/symmetric-gens 9))
+(def result (Dn->Dm-table t/full-ts-gens 8))
+
+(count result)
+
+(pprint result)
