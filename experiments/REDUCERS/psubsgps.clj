@@ -18,9 +18,7 @@
 (defn subsgps-timing [mt]
   (println "Sequential")
   (time (count (multab/subsgps mt)))
-  (println)))
-
-
+  (println))
 
 (doseq [x [32 256 512 1024]]
   (psubsgps-timing mtS x))
