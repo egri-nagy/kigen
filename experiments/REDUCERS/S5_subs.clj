@@ -1,20 +1,27 @@
 (use '[kigen.multab :as multab])
 (use '[kigen.transf :as t])
+(use '[taoensso.timbre :as timbre])
 
-(def mtS5
-  (multab/multab (t/sgp-by-gens (t/symmetric-gens 5))
+
+
+(def mtS
+  (multab/multab (t/sgp-by-gens (t/pts-gens 3))
                  t/mul))
 
-(println "Parallel S5")
+(timbre/merge-config! {:level :info})
 
-(binding [orbit.extension/*task-size* 32]
-  (time (count (multab/psubsgps mtS5))))
+(defn psubsgps-timing [mt task-size]
+  (println "Task size: " task-size)
+  (binding [orbit.extension/*task-size* task-size]
+    (time (count (multab/psubsgps mt)))))
 
-(println "Sequential S5")
-
-  (time (count (multab/subsgps mtS5)))
-
-
-(println)
+(defn subsgps-timing [mt]
+  (println "Sequential")
+  (time (count (multab/subsgps mt)))
+  (println)))
 
 
+
+(doseq [x [32 256 512 1024]]
+  (psubsgps-timing mtS x))
+(subsgps-timing mtS)
