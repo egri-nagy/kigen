@@ -87,7 +87,8 @@
                          []
                          (filter #(apply distinct? (vals %))
                                  (remove nil?
-                                         (map f (nth tgs n))))))))]
+                                         (map f
+                                              (nth tgs n))))))))]
     (map second (tree-search [[0 {}]]
                              generator
                              solution?))))
