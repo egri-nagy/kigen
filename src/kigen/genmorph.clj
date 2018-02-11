@@ -123,28 +123,29 @@
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
-  (loop [n 0, morphs [{}] ]
-    (if (= n (count Sgens))
-      (morphisms-up-to-conjugation morphs repconj setconjrep)
-      (letfn [(extend-phi [phi]
-                (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj setconjrep)
-                      check-gen (fn [newmorphs ngen]
-                                  (let [gens (take (inc n) Sgens)
-                                        nmorph (add-gen-and-close
-                                                phi
-                                                (nth Sgens n)
-                                                ngen
-                                                gens
-                                                Smul
-                                                Tmul)]
-                                    (if (and (coll? nmorph)
-                                             (apply distinct? (vals nmorph)))
-                                      (conj newmorphs nmorph)
-                                      newmorphs)))]
-                  (reduce check-gen [] ngens)))]
-        (let [nmorphs (r/mapcat extend-phi morphs)]
-          ;(println "gens:" (inc n) "morphs:" (count nmorphs))
-          (recur (inc n) nmorphs))))))
+  (let [solution? (fn [[n phi]] (= n (count Sgens))) ;n - #generators, phi - morphs
+        generator (fn [[n phi :as v]]
+                    (if (solution? v)
+                      []
+                      (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj setconjrep)
+                           check-gen (fn [newmorphs ngen]
+                                       (let [gens (take (inc n) Sgens)
+                                             nmorph (add-gen-and-close
+                                                     phi
+                                                     (nth Sgens n)
+                                                     ngen
+                                                     gens
+                                                     Smul
+                                                     Tmul)]
+                                         (if (and (coll? nmorph)
+                                                  (apply distinct? (vals nmorph)))
+                                           (conj newmorphs [(inc n) nmorph])
+                                           newmorphs)))]
+                       (reduce check-gen [] ngens))))
+        morphs (map second (tree-search [[0 {}]]
+                             generator
+                             solution?))]
+      (morphisms-up-to-conjugation morphs repconj setconjrep)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching                                                ;;
