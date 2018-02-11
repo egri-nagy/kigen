@@ -85,10 +85,10 @@
                         (r/reduce
                          #(conj %1 [(inc n) %2])
                          []
-                         (filter #(apply distinct? (vals %))
-                                 (remove nil?
-                                         (map f
-                                              (nth tgs n))))))))]
+                         (r/filter #(apply distinct? (vals %))
+                                   (r/remove nil?
+                                             (r/map f
+                                                    (nth tgs n))))))))]
     (map second (tree-search [[0 {}]]
                              generator
                              solution?))))
