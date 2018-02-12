@@ -4,41 +4,25 @@
 (use '[kigen.multab :as multab])
 (use '[kigen.transf :as t])
 
-(def mtS
-  (multab/multab (t/sgp-by-gens [[1 3 0 3] [2 2 1 3] [1 1 2 2]])
+(def mtS5
+  (multab/multab (t/sgp-by-gens (t/symmetric-gens 5))
                  t/mul))
 
-(defn subsgps-single
-  "All subsemigroups of an abstract semigroup given by its multiplication
-  table"
-  [mt]
-  (let [elts (multab/elts mt)]
-    (orbit/full-orbit [(i/int-set)] (partial multab/min-extensions mt elts))))
+(println "Single S5")
 
-  (defn subsgps-parallel
-    "All subsemigroups of an abstract semigroup given by its multiplication
-  table"
-    [mt]
-    (let [elts (multab/elts mt)]
-      (orbit/pfull-orbit [(i/int-set)] (partial multab/min-extensions mt elts))))
-
-
-(println "Single")
-
+(binding [criterium.core/*sample-count* 2]
   (bench
-   (subsgps-single mtS))
+   (multab/subsgps mtS5)))
 
-
-(println "Parallel")
-
-  (bench
-   (subsgps-parallel mtS))
 
 
 (println "Parallel 32")
 
-(binding [orbit.extension/*task-size* 32]
+(binding [orbit.extension/*task-size* 32
+          criterium.core/*sample-count* 2]
   (bench
-   (subsgps-parallel mtS)))
+   (multab/psubsgps mtS5)))
 
 (println)
+
+; (time (count (multab/subsgps (multab/multab (t/sgp-by-gens [[0,1,0,0,0] [1,3,0,4,0]]) t/mul))))
