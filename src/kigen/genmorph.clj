@@ -111,7 +111,7 @@
   (if (zero? n)
     (set (map repconj (first tgs)))
     (let [gens (mapv phi (take n Sgens))
-          partconj (reduce conj-conj
+          partconj (reduce conj-conj ; for not computing minconjugators always
                            (conj-conj (first gens))
                            (rest gens))
           conjed_seqs (r/map first
