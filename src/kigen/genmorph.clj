@@ -95,13 +95,15 @@
                              generator
                              solution?))))
 
+(defn distinct-up-to-f
+  [f coll]
+  (map first (vals (group-by f coll))))
+
 (defn morphisms-up-to-conjugation
   "Returns the distinct morphs up to conjugation. First checking by the equality
   of the image set, then by its conjugacy class representative."
   [morphs setconjrep]
-  (let [distinct-up-to-f (fn [f coll]
-                           (map first (vals (group-by f coll))))
-        up-to-equality (distinct-up-to-f #(set (vals %))
+  (let [up-to-equality (distinct-up-to-f #(set (vals %))
                                          morphs)]
     (distinct-up-to-f #(setconjrep (vals %))
                       up-to-equality)))
@@ -119,8 +121,7 @@
                              (r/map (partial conj-conj partconj)
                                     (nth tgs n)))
           ;we need to keep distinct generator sets
-          selected_seqs (r/map (comp first second)
-                    (group-by setconjrep conjed_seqs))]
+          selected_seqs (distinct-up-to-f setconjrep conjed_seqs)]
       (into #{} (r/map last selected_seqs)))))
 
 (defn embeddings-distinct
@@ -130,7 +131,8 @@
     (if (= n (count Sgens))
       (morphisms-up-to-conjugation morphs setconjrep)
       (letfn [(extend-phi [phi]
-                (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj setconjrep)
+                (let [ngens (new-generator-conjreps phi n Sgens tgs
+                                                    repconj conj-conj setconjrep)
                       check-gen (fn [newmorphs ngen]
                                   (let [gens (take (inc n) Sgens)
                                         nmorph (add-gen-and-close
