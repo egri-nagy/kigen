@@ -101,10 +101,9 @@
   "Returns the distinct morphs up to conjugation. First checking by the equality
   of the image set, then by its conjugacy class representative."
   [morphs setconjrep]
-  (let [up-to-equality (distinct-up-to-f #(set (vals %))
-                                         morphs)]
-    (distinct-up-to-f #(setconjrep (vals %))
-                      up-to-equality)))
+  (->> morphs
+       (distinct-up-to-f (fn [m] (set (vals m))))
+       (distinct-up-to-f (fn [m] (setconjrep (vals m))))))
 
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation."
