@@ -129,7 +129,8 @@
                     (if (solution? v)
                       []
                       (let [ngens (new-generator-conjreps phi n Sgens tgs
-                                                          repconj conj-conj setconjrep)
+                                                          repconj conj-conj
+                                                          setconjrep)
                             check-gen (fn [newmorphs ngen]
                                         (let [gens (take (inc n) Sgens)
                                               nmorph (add-gen-and-close
@@ -140,7 +141,8 @@
                                                       Smul
                                                       Tmul)]
                                           (if (and (coll? nmorph)
-                                                   (apply distinct? (vals nmorph)))
+                                                   (apply distinct? ;iso?
+                                                          (vals nmorph)))
                                             (conj newmorphs [(inc n) nmorph])
                                             newmorphs)))]
                         (reduce check-gen [] ngens))))
