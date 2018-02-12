@@ -96,8 +96,9 @@
                              solution?))))
 
 (defn morphisms-up-to-conjugation
-  "Returns the distinct morphs up to conjugation."
-  [morphs repconj setconjrep]
+  "Returns the distinct morphs up to conjugation. First checking by the equality
+  of the image set, then by its conjugacy class representative."
+  [morphs setconjrep]
   (let [distinct-up-to-f (fn [f coll]
                            (map first (vals (group-by f coll))))
         up-to-equality (distinct-up-to-f #(set (vals %))
@@ -127,7 +128,7 @@
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
   (loop [n 0, morphs [{}] ]
     (if (= n (count Sgens))
-      (morphisms-up-to-conjugation morphs repconj setconjrep)
+      (morphisms-up-to-conjugation morphs setconjrep)
       (letfn [(extend-phi [phi]
                 (let [ngens (new-generator-conjreps phi n Sgens tgs repconj conj-conj setconjrep)
                       check-gen (fn [newmorphs ngen]
