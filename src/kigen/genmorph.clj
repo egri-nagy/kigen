@@ -89,9 +89,9 @@
                                    (r/remove nil?
                                              (r/map f
                                                     (nth tgs n))))))))]
-    (map second (tree-search [[0 {}]]
-                             generator
-                             solution?))))
+    (map second (ptree-search [[0 {}]]
+                              generator
+                              solution?))))
 
 (defn distinct-up-to-f
   [f coll]
@@ -125,7 +125,7 @@
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
-  (let [solution? (fn [[n phi]] (= n (count Sgens))) ;n - #generators, phi - morphs
+  (let [solution? (fn [[n phi]] (= n (count Sgens))) ;n #generators, phi morphs
         generator (fn [[n phi :as v]]
                     (if (solution? v)
                       []
