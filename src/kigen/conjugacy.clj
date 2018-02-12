@@ -16,11 +16,11 @@
                 minimal-thing)))]
     (reduce f thing symmetries)))
 
-(defn conjugateset ;TODO why vector? genmorph assumes that
+(defn conjugateset
   "Generalized conjugation function for sets."
   [conjugation-function things sym]
-  (vec
-   (sort
+  (vec ;why vector? because it is Comparable
+   (apply sorted-set ; sorted-set to be on the safe side with duplicates
     (map (fn [x] (conjugation-function x sym))
          things))))
 
@@ -29,7 +29,7 @@
   (the minimal possible in lexicographic order)."
   [conjugation-function things symmetries]
   (conjrep (partial conjugateset conjugation-function)
-           (vec (sort things))
+           (vec (apply sorted-set things))
            symmetries))
 
 (defn min-rep-and-class

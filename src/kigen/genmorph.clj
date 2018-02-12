@@ -63,7 +63,7 @@
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
    (let [[mSgens mSmul] (gentab Sgens Smul)
          tgs (index-period-matched mSgens mSmul Tgens Tmul)
-          conjrep #(conjugacy/conjrep Tconj % G)
+         conjrep #(conjugacy/conjrep Tconj % G)
          setconjrep #(conjugacy/setconjrep Tconj % G)
          conj-conj (conjugacy/conj-conj-fn Tconj G)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
