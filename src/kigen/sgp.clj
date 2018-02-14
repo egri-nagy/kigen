@@ -1,12 +1,13 @@
 (ns kigen.sgp
   "General functions for semigroups. Black box style, the elements
   and the operation need to be supplied."
-  (:require [clojure.math.combinatorics :refer [combinations]]
+  (:require [clojure.math.combinatorics :refer [selections]]
             [orbit.core :refer [full-orbit]]
             [orbit.action :refer [right-action right-actions set-action]]))
 
 (declare sgp-by-gens
          commutative?
+         k-nilpotent?
          index-period)
 
 (defn sgp-by-gens
@@ -19,7 +20,15 @@
   "Brute-force (but lazy) checking of commutativity of a semigroup."
   [sgp mul]
   (every? (fn [[x y]] (= (mul x y) (mul y x)))
-          (combinations sgp 2)))
+          (selections sgp 2)))
+
+(defn k-nilpotent?
+  "Checking for k-nilpotency."
+  [k sgp mul]
+  (cond (= k 1) true
+        (> k 1) (let [zero (reduce mul (repeat k (first sgp)))]
+                  (every? (fn [l] (= zero (reduce mul l)))
+                          (selections sgp k)))))
 
 (defn index-period
   "The index-period pair of integers in a vector for a given semigroup
