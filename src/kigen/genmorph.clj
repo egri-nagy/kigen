@@ -96,6 +96,8 @@
                               solution?))))
 
 (defn distinct-up-to-f
+  "Classifies the elements of coll by function f and keeps only
+  a representative element from each class."
   [f coll]
   (map first (vals (group-by f coll))))
 
