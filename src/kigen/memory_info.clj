@@ -5,10 +5,10 @@
   "Info string containing free and total memory (after gc)"
   []
   (let [rt (java.lang.Runtime/getRuntime)
-        total (.totalMemory rt)
-        MB (* 1024 1024)]
+        GB (* 1024 1024 1024)]
     (System/gc)
     (str
-     (float (/ (.freeMemory rt) MB))
-     "MB free out of "
-     (float (/ total MB)))))
+     (format "%.2f" (float (/ (- (.totalMemory rt) (.freeMemory rt)) GB)))
+     "/"
+     (format "%.2f" (float (/ (.totalMemory rt) GB)))
+     "GB")))

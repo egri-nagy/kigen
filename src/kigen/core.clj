@@ -9,12 +9,16 @@
             [kigen.igs :as igs]
             [kigen.morphism :as morphism]
             [kigen.genmorph :as gmorph]
-            [kigen.chain-sgp :as chain-sgp])
+            [kigen.chain-sgp :as chain-sgp]
+            [taoensso.timbre :as timbre])
   (:gen-class))
 
 ;; to save compile time property into a runtime one
 (defmacro get-version []
   (System/getProperty "kigen.version"))
+
+;; setting default log level
+(timbre/merge-config! {:level :info})
 
 (defn -main
   "The first argument is a name of a file containing Clojure source code.
