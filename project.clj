@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/math.combinatorics "0.1.4"]
                  [org.clojure/data.int-map "0.2.4"]
-                 [orbit "18.02.11"]
+                 [orbit "18.03.02"]
                  [rolling-stones "1.0.0-SNAPSHOT"]
                  [org.clojure/core.logic "0.8.11"]
                  [slamhound "1.5.5"]]
