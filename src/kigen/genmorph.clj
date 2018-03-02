@@ -9,7 +9,9 @@
   (:require [kigen.conjugacy :as conjugacy]
             [kigen.sgp :refer [sgp-by-gens index-period]]
             [orbit.core :refer [tree-search ptree-search]]
-            [clojure.core.reducers :as r]))
+            [clojure.core.reducers :as r]
+            [kigen.memory-info :refer [mem-info]]
+            [taoensso.timbre :refer [info]]))
 
 (declare sys-mul;; low-level morphism checking/extending functions
          new-mapping
@@ -145,6 +147,9 @@
                                                           (vals nmorph)))
                                             (conj newmorphs [(inc n) nmorph])
                                             newmorphs)))]
+                        (info (count ngens)
+                              " generators to be checked"
+                              (mem-info))
                         (reduce check-gen [] ngens))))
         morphs (map second (ptree-search [[0 {}]]
                                          generator
