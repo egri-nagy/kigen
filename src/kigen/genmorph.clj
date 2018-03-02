@@ -60,7 +60,7 @@
   ([Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
    (let [[mSgens mSmul] (gentab Sgens Smul)
          tgs (index-period-matched mSgens mSmul Tgens Tmul)]
-     (map (fn [m] (zipmap Sgens (map m mSgens)))
+     (map (fn [m] (zipmap Sgens (map m mSgens))) ; mappings of the generators
           (embeddings mSgens mSmul tgs Tmul))))
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
    (let [[mSgens mSmul] (gentab Sgens Smul)
@@ -149,10 +149,11 @@
                                                           (vals nmorph)))
                                             (conj newmorphs [(inc n) nmorph])
                                             newmorphs)))]
-                        (info (count ngens)
-                              " generators to be checked"
-                              (mem-info))
-                        (reduce check-gen [] ngens))))
+                        (let [result (reduce check-gen [] ngens)]
+                          (info (count phi) "elts in phi,"
+                                (count ngens) "targets for gen" n ","
+                                (count result) "realized" (mem-info))
+                          result))))
         morphs (map second (ptree-search [[0 {}]]
                                          generator
                                          solution?))]
