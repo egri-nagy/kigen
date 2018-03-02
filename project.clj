@@ -9,6 +9,7 @@
                  [orbit "18.03.02"]
                  [rolling-stones "1.0.0-SNAPSHOT"]
                  [org.clojure/core.logic "0.8.11"]
+                 [com.taoensso/timbre "4.10.0"]
                  [slamhound "1.5.5"]]
   :plugins [[lein-cloverage "1.0.6"]
             [lein-kibit "0.1.2"]
