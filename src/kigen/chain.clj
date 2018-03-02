@@ -3,12 +3,11 @@
  (:require [orbit.core :refer [tree-search]]
            [clojure.set :refer [union]]))
 
-;; search is done with a FULL-ORBIT
 (defn chains
  "All chains between elements a and b in the given (explicit) cover relation."
   [a b cr]
   (letfn [(solution? [chain] (= b (last chain)))
-          (extensions [chain]
+          (extensions [chain] ;no heuristics applied, no candidate? function
             (when-not (solution? chain)
               (map (partial conj chain) (cr (last chain)))))]
     (tree-search [[a]] extensions solution?)))
@@ -17,10 +16,8 @@
   "Returns all pairs of consecutive elements of the chain that are not in
     cover relation."
   [chain cr]
-  (filter
-   #(not (contains? (cr (first %)) (second %)))
-   (partition 2 1 chain)))
-
+  (remove (fn [[a b]] (contains? (cr a) b))
+          (partition 2 1 chain)))
 
 (defn discovery-times
   "For a Hasse-diagram/cover relation cr this perform a search and records the
