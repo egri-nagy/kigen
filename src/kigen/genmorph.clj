@@ -157,6 +157,7 @@
         morphs (map second (ptree-search [[0 {}]]
                                          generator
                                          solution?))]
+    (info (count morphs) "morphisms found." (mem-info))
     (morphisms-up-to-conjugation morphs setconjrep)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
