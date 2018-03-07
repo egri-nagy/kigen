@@ -51,7 +51,7 @@
                   S7)))))
 
 ;;CONJUGATION
-(deftest relaize-a-mapping-test
+(deftest realize-a-mapping-test
   (testing "Realizing an individual map."
     (is (= {1 3, 2 4} (t/realize-a-mapping [1 2] [3 4] {})))
     (is (= nil (t/realize-a-mapping [1 2] [3 4] {1 2})))
@@ -60,8 +60,6 @@
     (is (= {1 3, 2 2} (t/realize-a-mapping [1 2] [3 2] {})))
     (is (= nil (t/realize-a-mapping [1 2] [3 2] {2 3})))
     ))
-
-
 
 (deftest transf-conjugate-test
   (testing "Conjugates."
