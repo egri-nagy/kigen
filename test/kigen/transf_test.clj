@@ -1,9 +1,7 @@
 (ns kigen.transf-test
   (:require [clojure.test :refer :all]
             [kigen.transf :as t]
-            [kigen.sgp :as sgp]
-            [kigen.pbr :as pbr]
-            [kigen.conjugacy :as conjugacy]))
+            [kigen.sgp :as sgp]))
 
 (deftest transf-singleton-test
   (testing "Testing the singleton predicate."

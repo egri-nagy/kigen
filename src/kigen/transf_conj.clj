@@ -1,14 +1,11 @@
 (ns kigen.transf-conj
-  "Transformations and permutations simply representated as vectors."
+  "'Native' conjugacy class representative calculation.Transformations are
+  separated into single point mappings. A permutation is constructed by finding
+  the minimal relabeling of a transformation."
   (:require [kigen.sgp :as sgp]
             [kigen.transf :as t]
             [orbit.core :refer [tree-search]]
             [kigen.conjugacy :as conjugacy]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 'native' conjugacy class representative calculation ;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Transformations are separated into single point mappings. A permutation is
-;; constructed by finding the minimal relabeling of a transformation.
 
 (defn single-maps
   "All mappings of a transformation in the form of [src img]."
