@@ -1,8 +1,6 @@
 (ns kigen.transf
   "Transformations and permutations simply representated as vectors."
-  (:require [kigen.sgp :as sgp]
-            [orbit.core :refer [tree-search]]
-            [kigen.conjugacy :as conjugacy]))
+  (:require [kigen.sgp :as sgp]))
 
 (declare single-maps)
 
