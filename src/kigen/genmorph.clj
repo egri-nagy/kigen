@@ -22,6 +22,8 @@
          index-period-matched
          gentab) ;;preparation
 
+(defrecord Sgp [gens mul]) ;;to represent a semigroup internally
+
 (defn gentab
   "Right generation table for semigroup given by generator elements and
   multiplication. Returns the generators and the multiplication by generators
@@ -37,8 +39,8 @@
                               (map indices)
                               (vec)))
                  elts))]
-    [(range (count gens)) ;generators
-     (fn [x y] ((gt x) y))])) ;multiplication
+    (->Sgp (range (count gens)) ;generators
+           (fn [x y] ((gt x) y))))) ;multiplication
 
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
@@ -58,19 +60,25 @@
   containing the images of the source generators, or an empty list.
   Results are up to conjugation if conjugation action and symmetries are given."
   ([Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
-   (let [[mSgens mSmul] (gentab Sgens Smul)
-         tgs (index-period-matched mSgens mSmul Tgens Tmul)]
+   (let [{mSgens :gens mSmul :mul} (gentab Sgens Smul)]
      (map (fn [m] (zipmap Sgens (map m mSgens))) ; mappings of the generators
-          (embeddings mSgens mSmul tgs Tmul))))
+          (embeddings mSgens
+                      mSmul
+                      (index-period-matched mSgens mSmul Tgens Tmul)
+                      Tmul))))
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
-   (let [[mSgens mSmul] (gentab Sgens Smul)
-         tgs (index-period-matched mSgens mSmul Tgens Tmul)
+   (let [{mSgens :gens mSmul :mul} (gentab Sgens Smul)
          conjrep #(conjugacy/conjrep Tconj % G)
          setconjrep #(conjugacy/setconjrep Tconj % G)
          conj-conj (conjugacy/conj-conj-fn Tconj G)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
-          (embeddings-distinct mSgens mSmul tgs Tmul
-                               conjrep conj-conj setconjrep)))))
+          (embeddings-distinct mSgens
+                               mSmul
+                               (index-period-matched mSgens mSmul Tgens Tmul)
+                               Tmul
+                               conjrep
+                               conj-conj
+                               setconjrep)))))
 
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
