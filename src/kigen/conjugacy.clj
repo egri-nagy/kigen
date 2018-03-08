@@ -84,3 +84,10 @@
   permutations G."
   [conjugation-function L G]
   (first (reduce (partial conj-conj conjugation-function) [[] G] L)))
+
+(defrecord ConjugationFunctionBundle [conjrep setconjrep conjconj])
+
+(defn conjugation-fn-bundle [conjugation-function G]
+  (->ConjugationFunctionBundle #(conjrep conjugation-function % G)
+                               #(setconjrep conjugation-function % G)
+                               (conj-conj-fn conjugation-function G)))

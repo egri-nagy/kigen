@@ -67,18 +67,13 @@
                       (index-period-matched mS Tgens Tmul)
                       Tmul))))
   ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
-   (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)
-         conjrep #(conjugacy/conjrep Tconj % G)
-         setconjrep #(conjugacy/setconjrep Tconj % G)
-         conj-conj (conjugacy/conj-conj-fn Tconj G)]
+   (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings-distinct mSgens
                                mSmul
                                (index-period-matched mS Tgens Tmul)
                                Tmul
-                               conjrep
-                               conj-conj
-                               setconjrep)))))
+                               (conjugacy/conjugation-fn-bundle Tconj G))))))
 
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
@@ -119,7 +114,8 @@
 
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation."
-  [phi n Sgens tgs repconj conj-conj setconjrep]
+  [phi n Sgens tgs
+   {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
   (if (zero? n)
     (set (map repconj (first tgs)))
     (let [gens (mapv phi (take n Sgens))
@@ -135,14 +131,13 @@
 
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
-  [Sgens Smul tgs Tmul repconj conj-conj setconjrep]
+  [Sgens Smul tgs Tmul conj-fn-bundle]
   (let [solution? (fn [[n phi]] (= n (count Sgens))) ;n #generators, phi morphs
         generator (fn [[n phi :as v]]
                     (if (solution? v)
                       []
                       (let [ngens (new-generator-conjreps phi n Sgens tgs
-                                                          repconj conj-conj
-                                                          setconjrep)
+                                                          conj-fn-bundle)
                             check-gen (fn [newmorphs ngen]
                                         (let [gens (take (inc n) Sgens)
                                               nmorph (add-gen-and-close
@@ -166,7 +161,7 @@
                                          generator
                                          solution?))]
     (info (count morphs) "morphisms found." (mem-info))
-    (morphisms-up-to-conjugation morphs setconjrep)))
+    (morphisms-up-to-conjugation morphs (:setconjrep conj-fn-bundle))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cayley graph morph matching                                                ;;
