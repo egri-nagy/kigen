@@ -3,7 +3,10 @@
 ;; generic code for diagram semigroups using the transformation representation
 (require '[kigen.transf :as t]
          '[kigen.genmorph :as gmorph]
-         '[clojure.pprint :refer [pprint]])
+         '[clojure.pprint :refer [pprint]]
+	 '[taoensso.timbre :as timbre])
+
+(timbre/merge-config! {:level :info})
 
 (defn Dn-into-Dm [gf n m]
   (let [Tngens (gf n)
@@ -23,8 +26,9 @@
              [[m n] r]))
          pairs)))
 
-(def result (Dn->Dm-table t/full-ts-gens 8))
+(binding [orbit.extension/*task-size* 1]
+  (def result (Dn-into-Dm t/full-ts-gens 7 8)))
 
-(count result)
+(println (count result))
 
-(pprint result)
+;;(pprint result)
