@@ -1,7 +1,8 @@
 (ns kigen.genmorph-test
   (:require [clojure.test :refer :all]
             [kigen.genmorph :refer :all]
-            [kigen.transf :as transf]))
+            [kigen.transf :as transf]
+            [kigen.conjugacy :as c]))
 
 (deftest test-multab
   (testing "Testing embeddings by generators."
@@ -19,21 +20,20 @@
       (is (= 1 (count
                 (sgp-embeddings-by-gens T3gens tmul
                                         T3gens tmul
-                                        tconj S3))))
+                                        (c/conjugation-fn-bundle tconj S3)))))
       (is (= 3 (count
                 (sgp-embeddings-by-gens T2gens tmul
                                         T3gens tmul
-                                        tconj S3))))
+                                        (c/conjugation-fn-bundle tconj S3)))))
       (is (= 12 (count
                 (sgp-embeddings-by-gens T2gens tmul
                                         T4gens tmul
-                                        tconj S4))))
+                                        (c/conjugation-fn-bundle tconj S4)))))
       (is (= 4 (count
                 (sgp-embeddings-by-gens T3gens tmul
                                         T4gens tmul
-                                        tconj S4))))
+                                        (c/conjugation-fn-bundle tconj S4)))))
       (is (= 5 (count
                 (sgp-embeddings-by-gens T1gens tmul
                                         T4gens tmul
-                                        tconj S4)))))))
-      
+                                        (c/conjugation-fn-bundle tconj S4))))))))

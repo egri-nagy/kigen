@@ -66,14 +66,14 @@
                       mSmul
                       (index-period-matched mS Tgens Tmul)
                       Tmul))))
-  ([Sgens Smul Tgens Tmul Tconj G] ; ALL DISTINCT EMBEDDINGS UP TO CONJUGATION
+  ([Sgens Smul Tgens Tmul conj-fn-bundle] ; ALL EMBEDDINGS UP TO CONJUGATION
    (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings-distinct mSgens
                                mSmul
                                (index-period-matched mS Tgens Tmul)
                                Tmul
-                               (conjugacy/conjugation-fn-bundle Tconj G))))))
+                               conj-fn-bundle)))))
 
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
@@ -113,7 +113,8 @@
        (distinct-up-to-f (fn [m] (setconjrep (vals m))))))
 
 (defn new-generator-conjreps
-  "Finds the possible target generators up to conjugation."
+  "Finds the possible target generators up to conjugation. For the very first
+  generator it chooses conjugacy class representatives. "
   [phi n Sgens tgs
    {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
   (if (zero? n)
