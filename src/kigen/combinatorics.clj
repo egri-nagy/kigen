@@ -1,6 +1,6 @@
 (ns kigen.combinatorics
   "Combinatorics stuff that is not readily available in
-  the contrib package. "
+  the contrib package."
   (:require [clojure.math.combinatorics :refer [subsets partitions]]))
 
 (defn singleton?
