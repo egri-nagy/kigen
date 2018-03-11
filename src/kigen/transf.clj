@@ -4,8 +4,6 @@
 
 (declare single-maps)
 
-(defn singleton? [coll] (= 1 (count coll)))
-
 ;; STANDARD GENERATING SETS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn idmap [n] (vec (range n)))

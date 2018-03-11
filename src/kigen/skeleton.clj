@@ -8,7 +8,8 @@
             [kigen.pos :as pos]
             [kigen.poset :as p]
             [kigen.chain :as chain]
-            [kigen.transf :as t]))
+            [kigen.transf :as t]
+            [kigen.combinatorics :refer [singleton?]]))
 
 (defn finite-set
   "Returns the set of integers 0..n-1, canonical representation of an n-element
@@ -29,10 +30,10 @@
 
 (defn calc-heights
   [eqvcls subduction?]
-  (let [singletons (filter #(t/singleton? (first %)) eqvcls)
+  (let [singletons (filter #(singleton? (first %)) eqvcls)
         ;;singletons should have height zero, hence to modified subduction?
         class-subduction? (fn [clA clB]
-                            (when-not (t/singleton? (first clB))
+                            (when-not (singleton? (first clB))
                                       (subduction? (first clA) (first clB))))
         sub-hd (p/cover-rel eqvcls class-subduction?)
         height-tabs (map #(chain/max-distances % sub-hd) singletons)]

@@ -4,7 +4,7 @@
   (:require [kigen.pbr :as pbr]
             [kigen.sgp :as sgp]
             [kigen.pos :as pos]
-            [kigen.transf :refer [singleton?]]))
+            [kigen.combinatorics :refer [singleton?]]))
 
 (declare transf->binrel
          binrel->transf

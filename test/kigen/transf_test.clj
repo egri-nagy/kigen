@@ -3,14 +3,6 @@
             [kigen.transf :as t]
             [kigen.sgp :as sgp]))
 
-(deftest transf-singleton-test
-  (testing "Testing the singleton predicate."
-    (is (= true (t/singleton? [:x])))
-    (is (= false (t/singleton? [:x :y])))
-    (is (= false (t/singleton? [])))
-    (is (= false (t/singleton? nil)))))
-
-
 (deftest transf-full-ts-test
   (testing "Testing full transformation semigroups."
     (let [pow #(reduce * 1 (repeat %2 %1))]
