@@ -15,9 +15,10 @@
           (map set (subsets (seq T)))))
 
 (defn big-enough-partitions
-  "All partitions of T with at least |S| many elements. The elements are sets."
+  "All partitions of T with at least n many elements. The elements of the
+  partitions are sets."
   [T n]
-  (map #(map set %)
+  (map (partial map set)
        (filter #(<= n (count %))
                (partitions (seq T)))))
 
