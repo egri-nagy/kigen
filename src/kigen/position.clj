@@ -1,5 +1,6 @@
-(ns kigen.pos
-  "Getting the indices of elements in vectors.")
+(ns kigen.position
+  "Getting the indices of elements in vectors by giving a predicate
+  or by equality.")
 
 (defn positions
   "All positions of elements of a vector satisfying a predicate."
@@ -14,7 +15,7 @@
   (first (positions pred v)))
 
 (defn index
-  "Getting the index of an element in a vector."
+  "Getting the first index of an element in a vector."
   [v elt]
   (first (positions (partial = elt) v)))
 

@@ -3,7 +3,7 @@
   binary relations."
   (:require [kigen.pbr :as pbr]
             [kigen.sgp :as sgp]
-            [kigen.pos :as pos]
+            [kigen.position :as pos]
             [kigen.combinatorics :refer [singleton?]]))
 
 (declare transf->binrel
@@ -66,4 +66,3 @@
   [pbr]
   (vec (map #(- % (count (:dom pbr)))
             (mapcat (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr))))))
-

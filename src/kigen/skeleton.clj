@@ -5,7 +5,7 @@
             [orbit.action :refer [set-action right-actions]]
             [kigen.cayley-graph :refer [cayley-graph]]
             [kigen.scc :refer [scc]]
-            [kigen.pos :as pos]
+            [kigen.position :as pos]
             [kigen.poset :as p]
             [kigen.chain :as chain]
             [kigen.transf :as t]
