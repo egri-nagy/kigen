@@ -61,3 +61,8 @@
     (mapv (fn [c] (pos/index sorted-max-chains
                              (on-max-chain c t fngs)))
           m-chains)))
+
+(defn chain-sgp-gens
+  [gens]
+  (map (partial ->transf (sk/skeleton gens))
+       gens))
