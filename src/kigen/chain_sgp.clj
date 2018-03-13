@@ -1,12 +1,8 @@
 (ns kigen.chain-sgp
   "Chain semigroups based on a skeleton."
   (:require [clojure.set :refer [subset? superset?]]
-            [orbit.core :refer [full-orbit partial-orbit]]
-            [orbit.action :refer [set-action right-actions]]
-            [kigen.cayley-graph :refer [cayley-graph]]
-            [kigen.scc :refer [scc]]
+            [orbit.core :refer [full-orbit]]
             [kigen.position :as pos]
-            [kigen.poset :as p]
             [kigen.chain :as chain]
             [kigen.transf :as t]
             [kigen.skeleton :as sk]))
