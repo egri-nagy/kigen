@@ -42,9 +42,22 @@
 (defn on-max-chain
   [c t fllngs]
   (let [rc (distinct (map #(t/act % t) c))
-        rrc (concat rc [(last c)])]
-    (println rrc)
-    (reduce
-     (fn [v x] (concat v (get fllngs [(last v) x]) [x]))
-     []
-     rrc)))
+        rrc (if (= (last c) (last rc))
+              rc
+              (concat rc [(last c)]))]
+    (reduce (fn [v x] (concat v
+                              (get fllngs [(last v) x])
+                              [x]))
+            []
+            rrc)))
+
+(defn ->transf
+  [sk t]
+  (let [m-chains (max-chains sk)
+        sorted-max-chains  (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
+                                 m-chains);compare as vectors
+        nhd  (on-hd (sk :supsethd) (sk :stateset) t)
+        fngs (fillings nhd (:supsethd sk))]
+    (mapv (fn [c] (pos/index sorted-max-chains
+                             (on-max-chain c t fngs)))
+          m-chains)))
