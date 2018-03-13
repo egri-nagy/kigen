@@ -61,9 +61,8 @@
   "A transformation encoding the action of a transformation on all maximal
   chains."
   [sk t]
-  (let [m-chains (max-chains sk)
-        sorted-max-chains  (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
-                                 m-chains);compare as vectors
+  (let [sorted-max-chains  (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
+                                 (max-chains sk));compare as vectors
         nhd  (on-hd (sk :supsethd) (sk :stateset) t)
         fngs (fillings nhd (:supsethd sk))]
     (mapv (fn [c] (pos/index sorted-max-chains
