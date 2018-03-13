@@ -58,9 +58,10 @@
                                  m-chains);compare as vectors
         nhd  (on-hd (sk :supsethd) (sk :stateset) t)
         fngs (fillings nhd (:supsethd sk))]
+    (println sorted-max-chains)
     (mapv (fn [c] (pos/index sorted-max-chains
                              (on-max-chain c t fngs)))
-          m-chains)))
+          sorted-max-chains)))
 
 (defn chain-sgp-gens
   [gens]
