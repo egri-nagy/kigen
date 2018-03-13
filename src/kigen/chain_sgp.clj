@@ -15,6 +15,10 @@
     hd :supsethd}]
   (mapcat #(chain/chains % stateset hd) singletons))
 
+(defn max-chains-sorted
+  [sk]
+  (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
+        (max-chains sk))) ;we need to compare them as vectors
 
 (defn on-hd
   "The result of acting by a transformation on superset Hasse diagram in a
@@ -61,8 +65,7 @@
   "A transformation encoding the action of a transformation on all maximal
   chains."
   [sk t]
-  (let [sorted-max-chains  (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
-                                 (max-chains sk));compare as vectors
+  (let [sorted-max-chains (max-chains-sorted sk)
         nhd  (on-hd (sk :supsethd) (sk :stateset) t)
         fngs (fillings nhd (:supsethd sk))]
     (mapv (fn [c] (pos/index sorted-max-chains
