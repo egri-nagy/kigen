@@ -4,6 +4,7 @@
             [orbit.core :refer [full-orbit]]
             [kigen.position :as pos]
             [kigen.chain :as chain]
+            [kigen.poset :as p]
             [kigen.transf :as t]
             [kigen.skeleton :as sk]))
 
@@ -30,6 +31,14 @@
   "Acting on a chain by a transformation on the right."
   [chain transf]
   (distinct (map #(t/act % transf) chain)))
+
+(defn on-hd
+  [hd X transf]
+  (let [transformed (set (map #(t/act % transf) (keys hd)))
+        elts (-> transformed
+                 (into [X])
+                 (into (map hash-set X)))]
+    (p/cover-rel elts subset?)))
 
 (defn in-chain-comparator
   "Comparator for chain elements, works only for total orders."
