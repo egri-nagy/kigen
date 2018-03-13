@@ -11,10 +11,10 @@ The shadowed semigroup packages are available in the [GAP](https://www.gap-syste
 2. [SgpDec](https://gap-packages.github.io/sgpdec/),
 3. [SubSemi](https://gap-packages.github.io/subsemi/).
 
-As of the 17.03.14 Pi Day release, kigen includes
-  * calculating the skeleton for holonomy decompositions of transformation semigroups
+As of the 18.03.14 Pi Day release, kigen includes
+  * calculating the skeleton for holonomy decompositions of transformation semigroups and constructing chain semigroups
   * enumerating all subsemigroups and independent generating set of a semigroup using its multiplication table
   * backtrack search for relational morphisms, divisions, homomorphism and isomorphisms by multiplication tables
-  * finding embeddings and isomorphisms of semigroups given by generating sets
+  * finding embeddings and isomorphisms of semigroups given by generating sets using Cayley graphs (not multiplication tables)
 
 kigen - origin in Japanese
