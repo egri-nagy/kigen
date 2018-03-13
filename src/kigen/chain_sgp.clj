@@ -61,19 +61,18 @@
             []
             rrc)))
 
-(defn ->transf
+(defn ->chain-transf
   "A transformation encoding the action of a transformation on all maximal
   chains."
   [sk t]
   (let [sorted-max-chains (max-chains-sorted sk)
         nhd  (on-hd (sk :supsethd) (sk :stateset) t)
-        fngs (fillings nhd (:supsethd sk))]
-    (mapv (fn [c] (pos/index sorted-max-chains
-                             (on-max-chain c t fngs)))
-          sorted-max-chains)))
+        fngs (fillings nhd (:supsethd sk))
+        action (fn [c] (on-max-chain c t fngs))]
+    (t/->transf sorted-max-chains action)))
 
 (defn chain-sgp-gens
   "Just a convenient function to map generators to chain semigroup generators."
   [gens]
-  (map (partial ->transf (sk/skeleton gens))
+  (map (partial ->chain-transf (sk/skeleton gens))
        gens))

@@ -1,6 +1,7 @@
 (ns kigen.transf
   "Transformations and permutations simply representated as vectors."
-  (:require [kigen.sgp :as sgp]))
+  (:require [kigen.sgp :as sgp]
+            [kigen.position :as pos]))
 
 (declare single-maps)
 
@@ -56,6 +57,11 @@
   "Transformation t acting on a set of points."
   [points t]
   (set (map t points)))
+
+(defn ->transf
+  [points action]
+  (mapv (fn [p] (pos/index points (action p)))
+        points))
 
 ;;TODO bit of confusion, since this should in the permutation namespace,
 ;; but that is still PBR
