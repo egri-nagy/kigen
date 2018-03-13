@@ -13,13 +13,6 @@
               (map (partial conj chain) (hd (last chain)))))]
     (tree-search [[a]] extensions solution?)))
 
-(defn gaps
-  "Returns all pairs of consecutive elements of the chain that are not in
-    cover relation."
-  [chain hd]
-  (remove (fn [[a b]] (contains? (hd a) b))
-          (partition 2 1 chain)))
-
 (defn discovery-times
   "For a Hasse-diagram/cover relation hd this perform a search and records the
     discovery times. Returns a map: element -> vector of discovery times

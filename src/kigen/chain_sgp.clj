@@ -23,3 +23,28 @@
                  (into [X])
                  (into (map hash-set X)))]
     (p/cover-rel elts subset?)))
+
+(defn gaps
+  "Returns all pairs in the reduced cover relation that are not related in
+  the full relation."
+  [hd fullhd]
+  (remove (fn [[a b]] (contains? (fullhd a) b))
+          (for [k (keys hd)
+                v (hd k)]
+            [k v])))
+
+(defn fillings
+  [hd fullhd]
+  (into {} (for [g (gaps hd fullhd)]
+             [g ((comp butlast rest first) ;choice is made here, we pick the 1st
+                 (chain/chains (first g) (second g) fullhd))])))
+
+(defn on-max-chain
+  [c t fllngs]
+  (let [rc (distinct (map #(t/act % t) c))
+        rrc (concat rc [(last c)])]
+    (println rrc)
+    (reduce
+     (fn [v x] (concat v (get fllngs [(last v) x]) [x]))
+     []
+     rrc)))
