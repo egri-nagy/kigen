@@ -84,7 +84,7 @@
   "Just a convenient function to map generators to chain semigroup generators."
   [gens]
   (let [skel (sk/skeleton gens)
-        max-chains (max-chains-sorted skel)]
+        chains (max-chains-sorted skel)]
     (map (partial ->chain-transf skel chains)
          gens)))
 
