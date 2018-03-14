@@ -15,7 +15,7 @@
     hd :supsethd}]
   (mapcat #(chain/chains % stateset hd) singletons))
 
-(defn max-chains-sorted
+(defn max-chains-sorted ;; Do we really need sorted?
   [sk]
   (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
         (max-chains sk))) ;we need to compare them as vectors
@@ -64,15 +64,17 @@
 (defn ->chain-transf
   "A transformation encoding the action of a transformation on all maximal
   chains."
-  [sk t]
-  (let [sorted-max-chains (max-chains-sorted sk)
-        nhd  (on-hd (sk :supsethd) (sk :stateset) t)
-        fngs (fillings nhd (:supsethd sk))
+  [{hd :supsethd X :stateset} chains t]
+  (let [nhd  (on-hd hd X t)
+        fngs (fillings nhd hd)
         action (fn [c] (on-max-chain c t fngs))]
-    (t/->transf sorted-max-chains action)))
+    (t/->transf chains action)))
+
 
 (defn chain-sgp-gens
   "Just a convenient function to map generators to chain semigroup generators."
   [gens]
-  (map (partial ->chain-transf (sk/skeleton gens))
-       gens))
+  (let [skel (sk/skeleton gens)
+        chains (max-chains-sorted skel)]
+  (map (partial ->chain-transf skel chains)
+       gens)))
