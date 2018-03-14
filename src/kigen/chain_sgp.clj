@@ -70,11 +70,19 @@
         action (fn [c] (on-max-chain c t fngs))]
     (t/->transf chains action)))
 
+(defn chain-transf->
+  [{X :stateset} chains c-t]
+  (let [v (mapv (comp first first) chains)
+        m (zipmap (range) v)
+        single-maps (map vector (range (count c-t)) c-t)
+        r (set (for [[a b] single-maps] [(m a) (m b)]))] ;;get this from transf-conj
+    (when (= (count r) (count X))
+      (mapv second (sort r)))))
 
 (defn chain-sgp-gens
   "Just a convenient function to map generators to chain semigroup generators."
   [gens]
   (let [skel (sk/skeleton gens)
-        chains (max-chains-sorted skel)]
-  (map (partial ->chain-transf skel chains)
-       gens)))
+        max-chains (max-chains-sorted skel)]
+    (map (partial ->chain-transf skel chains)
+         gens)))
