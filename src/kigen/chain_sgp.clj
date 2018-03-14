@@ -6,7 +6,8 @@
             [kigen.chain :as chain]
             [kigen.poset :as p]
             [kigen.transf :as t]
-            [kigen.skeleton :as sk]))
+            [kigen.skeleton :as sk]
+            [clojure.math.combinatorics :refer [selections]]))
 
 (defn max-chains
   "All maximal chains in skeleton sk."
@@ -86,3 +87,16 @@
         max-chains (max-chains-sorted skel)]
     (map (partial ->chain-transf skel chains)
          gens)))
+
+(defn check-morphism
+  [gens]
+  (let [S (t/sgp-by-gens gens)
+        sk (sk/skeleton gens)
+        chains (max-chains-sorted sk)
+        up (partial ->chain-transf sk chains)
+        down (partial chain-transf-> sk chains)]
+    (every?
+     (fn [[u v]]
+       (= (t/mul u v)
+          (down (t/mul (up u) (up v)))))
+     (selections S 2))))
