@@ -4,6 +4,7 @@
             [kigen.chain :as chain]
             [kigen.poset :as poset]
             [kigen.transf :as t]
+            [kigen.transf-conj :as t-conj]
             [kigen.skeleton :as sk]
             [clojure.math.combinatorics :refer [selections]]))
 
@@ -72,11 +73,13 @@
     (t/->transf chains action)))
 
 (defn chain-transf->
+  "Taking a lift (a transformation of the set of chains) it gives back the
+  original transformation."
   [{X :stateset} chains c-t]
   (let [v (mapv (comp first first) chains)
         m (zipmap (range) v)
-        single-maps (map vector (range (count c-t)) c-t)
-        r (set (for [[a b] single-maps] [(m a) (m b)]))] ;;get this from transf-conj
+        maps (t-conj/single-maps c-t)
+        r (set (for [[a b] maps] [(m a) (m b)]))]
     (when (= (count r) (count X))
       (mapv second (sort r)))))
 
@@ -89,6 +92,8 @@
          gens)))
 
 (defn check-morphism
+  "Takes a generator set of transformations, produces a chain semigroup and
+  checks the morphic relation by checking all products."
   [gens]
   (let [S (t/sgp-by-gens gens)
         sk (sk/skeleton gens)
