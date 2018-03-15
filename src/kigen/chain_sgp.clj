@@ -37,7 +37,8 @@
 
 (defn gaps
   "Returns all pairs in the reduced cover relation that are not related in
-  the full relation."
+  the full relation. Chains have to be given since BECKS produces examples
+  where [0 1 3 3] where filling the gaps in the reduced hd is not enough!"
   [chains fullhd]
   (set
    (filter (fn [[a b]] (gap? a b fullhd))
