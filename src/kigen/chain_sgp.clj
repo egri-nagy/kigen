@@ -10,7 +10,7 @@
             [clojure.math.combinatorics :refer [selections]]))
 
 (defn max-chains
-  "All maximal chains in Hasse diagram with top X."
+  "All maximal chains in Hasse diagram hd with top set X."
   [X hd]
   (mapcat #(chain/chains % X hd) X))
 
@@ -56,15 +56,17 @@
   "Acting on  maximal chain. Finding a dominating chain by using a fillings
   table."
   [c t fllngs]
-  (let [rc (distinct (map #(t/act % t) c))
-        rrc (if (= (last c) (last rc))
-              rc
-              (concat rc [(last c)]))]
-    (reduce (fn [v x] (concat v
-                              (get fllngs [(last v) x])
-                              [x]))
+  (let [ct (distinct (map #(t/act % t) c)) ; hitting the chain with t
+        tct (if (= (last c) (last ct)) ; putting beck the top if not there
+              ct
+              (concat ct [(last c)]))]
+    (reduce (fn [v x]
+              ; chain so far + filling between chain and next item + next item
+              (concat v
+                      (get fllngs [(last v) x]) ; nil for no gap
+                      [x]))
             []
-            rrc)))
+            tct)))
 
 (defn ->chain-transf
   "A transformation encoding the action of a transformation on all maximal
@@ -73,8 +75,6 @@
   (let [nhd  (on-hd hd X t)
         fngs (fillings (max-chains X nhd) hd)
         action (fn [c] (on-max-chain c t fngs))]
-    ;(clojure.pprint/pprint nhd)
-    ;(clojure.pprint/pprint fngs)
     (t/->transf chains action)))
 
 (defn chain-transf->
