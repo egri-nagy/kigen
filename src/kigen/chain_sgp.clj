@@ -1,23 +1,17 @@
 (ns kigen.chain-sgp
   "Chain semigroups based on a skeleton."
   (:require [clojure.set :refer [subset? superset?]]
-            [orbit.core :refer [full-orbit]]
-            [kigen.position :as pos]
             [kigen.chain :as chain]
-            [kigen.poset :as p]
+            [kigen.poset :as poset]
             [kigen.transf :as t]
             [kigen.skeleton :as sk]
             [clojure.math.combinatorics :refer [selections]]))
 
 (defn max-chains
-  "All maximal chains in Hasse diagram hd with top set X."
+  "All maximal chains in an inclusion Hasse diagram hd with top set X."
   [X hd]
-  (mapcat #(chain/chains % X hd) X))
-
-(defn max-chains-sorted ;; Do we really need sorted?
-  [sk] ;we need to compare them as vectors
-  (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
-        (max-chains (:stateset sk) (:supsethd sk))))
+  (mapcat #(chain/chains % X hd)
+          X))
 
 (defn on-hd
   "The result of acting by a transformation on superset Hasse diagram in a
@@ -27,7 +21,7 @@
         elts (-> transformed
                  (into [X])
                  (into (map hash-set X)))]
-    (p/cover-rel elts subset?)))
+    (poset/cover-rel elts subset?)))
 
 (defn gap?
   "Returns true if there is a gap between a and b in Hasse diagram hd, i.e.
@@ -90,7 +84,7 @@
   "Just a convenient function to map generators to chain semigroup generators."
   [gens]
   (let [skel (sk/skeleton gens)
-        chains (max-chains-sorted skel)]
+        chains (max-chains (:stateset skel) (:supsethd skel))]
     (map (partial ->chain-transf skel chains)
          gens)))
 
@@ -98,7 +92,7 @@
   [gens]
   (let [S (t/sgp-by-gens gens)
         sk (sk/skeleton gens)
-        chains (max-chains-sorted sk)
+        chains (max-chains (:stateset sk) (:supsethd sk))
         up (partial ->chain-transf sk chains)
         down (partial chain-transf-> sk chains)]
     (every?
