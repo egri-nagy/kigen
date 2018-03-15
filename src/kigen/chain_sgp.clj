@@ -10,16 +10,14 @@
             [clojure.math.combinatorics :refer [selections]]))
 
 (defn max-chains
-  "All maximal chains in skeleton sk."
-  [{singletons :singletons
-    stateset :stateset
-    hd :supsethd}]
-  (mapcat #(chain/chains % stateset hd) singletons))
+  "All maximal chains in Hasse diagram with top X."
+  [X hd]
+  (mapcat #(chain/chains % X hd) X))
 
 (defn max-chains-sorted ;; Do we really need sorted?
-  [sk]
+  [sk] ;we need to compare them as vectors
   (sort (fn [x y] (compare (mapv vec x) (mapv vec y)))
-        (max-chains sk))) ;we need to compare them as vectors
+        (max-chains (:stateset sk) (:supsethd sk))))
 
 (defn on-hd
   "The result of acting by a transformation on superset Hasse diagram in a
@@ -31,20 +29,25 @@
                  (into (map hash-set X)))]
     (p/cover-rel elts subset?)))
 
+(defn gap?
+  "Returns true if there is a gap between a and b in Hasse diagram hd, i.e.
+  a is only transitively related to b."
+  [a b hd]
+  (not (contains? (hd a) b)))
+
 (defn gaps
   "Returns all pairs in the reduced cover relation that are not related in
   the full relation."
-  [hd fullhd]
-  (remove (fn [[a b]] (contains? (fullhd a) b))
-          (for [k (keys hd)
-                v (hd k)]
-            [k v])))
+  [chains fullhd]
+  (set
+   (filter (fn [[a b]] (gap? a b fullhd))
+           (mapcat (partial partition 2 1) chains))))
 
 (defn fillings
   "A map that contains filling for gaps in a reduced Hasse diagrams. Used
   for finding dominating chains."
-  [hd fullhd]
-  (into {} (for [g (gaps hd fullhd)]
+  [chains fullhd]
+  (into {} (for [g (gaps chains fullhd)]
              [g ((comp butlast rest first) ;choice is made here, we pick the 1st
                  (chain/chains (first g) (second g) fullhd))])))
 
@@ -67,8 +70,10 @@
   chains."
   [{hd :supsethd X :stateset} chains t]
   (let [nhd  (on-hd hd X t)
-        fngs (fillings nhd hd)
+        fngs (fillings (max-chains X nhd) hd)
         action (fn [c] (on-max-chain c t fngs))]
+    ;(clojure.pprint/pprint nhd)
+    ;(clojure.pprint/pprint fngs)
     (t/->transf chains action)))
 
 (defn chain-transf->
@@ -97,6 +102,6 @@
         down (partial chain-transf-> sk chains)]
     (every?
      (fn [[u v]]
-       (= (t/mul u v)
-          (down (t/mul (up u) (up v)))))
+       (not= (t/mul u v)
+             (down (t/mul (up u) (up v)))))
      (selections S 2))))
