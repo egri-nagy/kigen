@@ -127,10 +127,9 @@
         dom (range k)
         good? (fn [[x y]]
                 (let [xy (at S x y)]
-                  (if (< xy k)
-                    (= (hom xy)
-                       (at T (hom x) (hom y)))
-                    true)))]
+                  (or (>= xy k)
+                      (= (hom xy)
+                         (at T (hom x) (hom y))))))]
     (every? good?
             (for [x dom y dom]
               [x y]))))
