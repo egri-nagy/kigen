@@ -37,12 +37,12 @@
   "All relational morphisms from S to T. These are one-to-many set-valued
   morphic mappings."
   [S T]
-  (let [generator (fn [hom]
-                    (if (total? S hom)
-                      #{}
-                      (filter (partial relmorphic? S T)
-                              (map (partial conj hom)
-                                   (non-empty-subsets (multab/elts T))))))]
+  (letfn [(generator [hom]
+            (if (total? S hom)
+              #{}
+              (filter (partial relmorphic? S T)
+                      (map (partial conj hom)
+                           (non-empty-subsets (multab/elts T))))))]
     (tree-search [[]]
                  generator
                  (fn [v] (total? S v)))))
@@ -50,12 +50,12 @@
 (defn homomorphisms
   "All homomorphisms from S to T."
   [S T]
-  (let [generator (fn [hom]
-             (if (total? S hom)
-               #{}
-               (filter (partial homomorphic? S T)
-                       (map (partial conj hom)
-                            (multab/elts T)))))]
+  (letfn [(generator [hom]
+            (if (total? S hom)
+              #{}
+              (filter (partial homomorphic? S T)
+                      (map (partial conj hom)
+                           (multab/elts T)))))]
     (tree-search [[]]
                  generator
                  (fn [v] (total? S v)))))
@@ -66,12 +66,12 @@
   (distinct
    (mapcat
     (fn [partition]
-      (let [generator (fn [hom]
-             (if (total? S hom)
-               #{}
-               (let [rts (remove (set hom) partition)]
-                 (filter (partial relmorphic? S T)
-                         (map (partial conj hom) rts)))))]
+      (letfn [(generator [hom]
+                (if (total? S hom)
+                  #{}
+                  (let [rts (remove (set hom) partition)]
+                    (filter (partial relmorphic? S T)
+                            (map (partial conj hom) rts)))))]
         (tree-search [[]]
                      generator
                      (fn [v] (total? S v)))))
