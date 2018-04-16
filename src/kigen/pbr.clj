@@ -4,7 +4,8 @@
    for degree n, domain is 1..n, codomain is n+1..2n
    e.g. degree 3, domain is {1,2,3}, codomain is {4,5,6}"
   (:require [clojure.set :refer [union]]
-            [orbit.core :refer [full-orbit]]))
+            [orbit.core :refer [full-orbit]]
+            [clojure.math.combinatorics :refer [selections subsets]]))
 
 ;; RANDOM PARTITIONED BINARY RELATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (declare rand-pbr
@@ -129,8 +130,20 @@
   [pbr1 pbr2]
   (let [points (union (:dom pbr1) (:cod pbr1))]
     (into {:dom (:dom pbr1), :cod (:cod pbr1)}
-          (map #(vector % (union (pbr1 %) (pbr2 %))) points)))
-  )
+          (map #(vector % (union (pbr1 %) (pbr2 %))) points))))
+
+(defn pbr-monoid
+  "The full PBR monoid generated combinatorially."
+  [n]
+  (let [m (* 2 n)
+        dom (set (range 1 (inc n)))
+        cod (set (range (inc n) (inc m)))
+        graphs (map
+                (partial zipmap (range 1 (inc m)))
+                (selections (map set
+                                 (subsets (range 1 (inc m))))
+                            m))]
+    (map (partial merge {:dom dom :cod cod}) graphs)))
 
 ;;using GAP notation
 (defn ext->int
