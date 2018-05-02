@@ -145,6 +145,21 @@
                             m))]
     (map (partial merge {:dom dom :cod cod}) graphs)))
 
+(defn brauer-gens
+  "Generator PBRs of the Brauer monoid."
+  [n]
+  (let [m (* 2 n)
+        dom (set (range 1 (inc n)))
+        cod (set (range (inc n) (inc m)))
+        shift-up (map (fn [x] [x (if (< x n) (+ x (inc n)) (inc n))]) dom)
+        swap (concat [[1 (+ 2 n)] [2 (inc n)]]
+                     (map (fn [x] [x (+ n x)]) (range 3 (inc n))))
+        con (concat [[1 2] [(inc n) (+ n 2)] ]
+                    (map (fn [x] [x (+ n x)]) (range 3 (inc n))))
+        f (fn [[k v]] [[k #{v}] [v #{k}]])
+        g (fn [xs] (into {} (concat (mapcat f xs) [[:cod cod] [:dom dom]])))]
+    (map g [shift-up swap con]) ))
+
 ;;using GAP notation
 (defn ext->int
   "External representation to internal representation."
