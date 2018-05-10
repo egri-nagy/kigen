@@ -79,6 +79,7 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
+  (info "Number of targets: " (map count tgs))
   (let [solution? (fn [[n m]] (= n (count Sgens))) ;n - #generators, m - morphs
         generator (fn [[n m :as v]]
                     (if (solution? v)
