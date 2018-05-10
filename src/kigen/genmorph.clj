@@ -79,7 +79,7 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (info "Number of targets: " (map count tgs))
+  (info "Number of targets:" (vec (map count tgs)))
   (let [solution? (fn [[n m]] (= n (count Sgens))) ;n - #generators, m - morphs
         generator (fn [[n m :as v]]
                     (if (solution? v)
@@ -87,14 +87,19 @@
                       (let [f (fn [g]
                                 (add-gen-and-close m (nth Sgens n) g
                                                    (take (inc n) Sgens)
-                                                   Smul Tmul))]
-                        (r/reduce
-                         #(conj %1 [(inc n) %2])
-                         []
-                         (r/filter #(apply distinct? (vals %))
-                                   (r/remove nil?
-                                             (r/map f
-                                                    (nth tgs n))))))))]
+                                                   Smul Tmul))
+                            result (r/reduce
+                                    #(conj %1 [(inc n) %2])
+                                    []
+                                    (r/filter #(apply distinct? (vals %))
+                                              (r/remove nil?
+                                                        (r/map f
+                                                               (nth tgs n)))))]
+                        (info "Generators:" n
+                              " Partial morphs:" (count m)
+                              " Targets: " (count (nth tgs n))
+                              " Realized:" (count result))
+                        result)))]
     (map second (ptree-search [[0 {}]]
                               generator
                               solution?))))
