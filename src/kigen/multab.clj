@@ -47,7 +47,7 @@
 
 (defn newelements
   "For a subsemigroup S and a subset X in mt this returns the elements
-  (SX union XS) setminus (S union X)."
+  ((S U X)X U X(S U X)) setminus (S U X)."
   [mt S X]
   (if (subset? X S)
     (i/int-set)
@@ -65,7 +65,7 @@
         (extend [[base exts]]
           #{[(i/union base exts) (newelements mt base exts)]})]
      (first
-      (partial-orbit [base exts] extend (fn [x] true) finished?)))))
+      (partial-orbit [base exts] extend (constantly true) finished?)))))
 
 (defn in-closure?
   "Returns true if an element x is in the closure of sgp by gens"
@@ -83,7 +83,8 @@
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
   [mt elts closedsub]
-  (let [reducef (fn ([] #{})
+  (let [reducef (fn
+                  ([] #{})
                   ([acc x]
                    (conj acc
                          (closure mt closedsub (i/int-set [x])))))]
