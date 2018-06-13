@@ -1,5 +1,5 @@
 (ns kigen.sgp
-  "General functions for semigroups. Black box style, the elements
+  "General functions for semigroups. Black box style, the element(s)
   and the operation need to be supplied."
   (:require [clojure.math.combinatorics :refer [selections]]
             [orbit.core :refer [full-orbit]]
@@ -30,10 +30,10 @@
 (defn k-nilpotent?
   "Checking for k-nilpotency."
   [k sgp mul]
-  (cond (= k 1) true
-        (> k 1) (let [zero (reduce mul (repeat k (first sgp)))]
-                  (every? (fn [l] (= zero (reduce mul l)))
-                          (selections sgp k)))))
+  (let [zero (reduce mul (repeat k (first sgp)))]
+    (every? (fn [l]
+              (= zero (reduce mul l)))
+            (selections sgp k))))
 
 (defn index-period
   "The index-period pair of integers in a vector for a given semigroup
