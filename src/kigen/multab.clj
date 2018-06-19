@@ -4,7 +4,8 @@
   given sequence. The tables are vectors of vectors (the rows of the table),
   so multiplication is just a constant-time look up.
   Functionality for multiplying subsets of elements and computing closures
-  and thus enumerating subsemigroups."
+  and thus enumerating subsemigroups. The subsemigroups can be stored in
+  efficient int-sets."
   (:require [clojure.set :refer [difference union subset?]]
             [orbit.core :refer [partial-orbit full-orbit pfull-orbit]]
             [kigen.sgp :as sgp]
@@ -35,15 +36,15 @@
   [mt]
   (i/int-set (range (count mt))))
 
-(defn set-mul
-  "Set-wise multiplication of subsets of a multab. For A and B it returns AB."
-  [mt A B]
-  (i/int-set (for [i A j B] (at mt i j))))
-
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."
   [mt x]
   (sgp/index-period x (fn [x y] (at mt x y))))
+
+(defn set-mul
+  "Set-wise multiplication of subsets of a multab. For A and B it returns AB."
+  [mt A B]
+  (i/int-set (for [i A j B] (at mt i j))))
 
 (defn newelements
   "For a subsemigroup S and a subset X in mt this returns the elements
