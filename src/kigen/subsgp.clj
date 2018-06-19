@@ -4,24 +4,36 @@
   (:require [clojure.math.combinatorics :refer [selections]]
             [orbit.core :refer [full-orbit]]
             [orbit.action :refer [right-action set-action]]
+            [kigen.sgp :refer [->Sgp]]
             [kigen.memory-info :refer [mem-info]]
             [taoensso.timbre :refer [info]]))
+
+(defn new-elts
+  ""
+  [A g mul]
+  (let [A' (conj A g)
+        A'g (set (concat (map (right-action mul g) A')
+                         (map (partial mul g) A')))
+        newelts (remove A' A'g)]
+    [(into A' newelts) newelts]))
 
 
 (defn subsgp-closure
   "Adding a single new generator. S - subsemigroup, gen - a new generator,
   mul - the semigroup's binary operation."
-  [S gen mul]
-  (full-orbit (conj S gen)
-              (set-action [(right-action mul gen)
-                           (partial mul gen)])))
+  [S g mul]
+  (loop [elts S
+         newelts [g]]
+    (if (empty? newelts)
+      elts
+      (let [[S' n'] (new-elts elts (first newelts) mul)]
+        (recur S' (into n' (rest newelts)))))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
   multiplication table mt."
   [S mul closedsub]
   (let [X (remove closedsub S)]
-    (println X)
     (set (map #(subsgp-closure closedsub % mul) X))))
 
 

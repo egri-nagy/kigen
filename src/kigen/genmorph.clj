@@ -7,7 +7,7 @@
   The elements of target semigroups are classified by their index-periods in
   order to find possible targets for generators."
   (:require [kigen.conjugacy :as conjugacy]
-            [kigen.sgp :refer [sgp-by-gens index-period]]
+            [kigen.sgp :refer [sgp-by-gens index-period ->Sgp]]
             [orbit.core :refer [tree-search ptree-search]]
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]
@@ -21,8 +21,6 @@
          sgp-embeddings-by-gens ;;main entry point
          index-period-matched
          gentab) ;;preparation
-
-(defrecord Sgp [gens mul]) ;;to represent a semigroup internally
 
 (defn gentab
   "Right generation table for semigroup given by generator elements and
