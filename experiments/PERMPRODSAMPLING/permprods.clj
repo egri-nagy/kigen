@@ -4,13 +4,18 @@
 (require '[clojure.math.combinatorics :as combinatorics])
 (require '[kigen.transf :as transf])
 
+;; uses java.util.Collections/shuffle
 (defn rand-perm
   "A random permutation of degree n."
   [n]
   (shuffle (vec (range n))))
 
-(defn extend-latin-rectangle [n rect]
-  (print (/ (count rect) n) " ") (flush)
+(defn extend-latin-rectangle
+  "Extending a partial latin square (latin rectangle) by one more row.
+  n - dimension of the rectangle
+  rect - the partial latin square"
+  [n rect]
+  ;(print (/ (count rect) n) " ") (flush)
   (let [tab (into rect (vec (repeatedly n l/lvar)))
         rows (partition n tab)
         cols (apply map vector rows)
@@ -23,10 +28,11 @@
 
 (defn random-latin-square [n]
   (let [size (* n n)]
-    (first (drop-while (fn [sol] (not (or (nil? sol)
-                                          (= size (count sol)))))
-             (iterate (partial extend-latin-rectangle n)
-                      (rand-perm n))))))
+    (first
+     (drop-while (fn [sol] (not (or (nil? sol)
+                                    (= size (count sol)))))
+                 (iterate (partial extend-latin-rectangle n)
+                          (rand-perm n))))))
 
 (defn product [v]
   (reduce transf/mul v))
