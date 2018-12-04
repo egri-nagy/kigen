@@ -34,10 +34,15 @@
 (defn find-sols
   "The main function for finding solutions."
   []
-  (let [domain (fd/interval 0 7)] ; here we give the possible values
-    (cl/run 5 [q] ; the number of expected solutions (if more given, then it hangs)
-      (everyo q #(fd/in % domain))
-      (sumo q 10) ; sum given here
+  (let [even (apply fd/domain (range 0 10 2))
+        odd (apply fd/domain (range 1 10 2))] ; here we give the possible values
+    (cl/run 8 [q] ; the number of expected solutions (if more given, then it hangs)
+      (cl/conde
+       [(everyo q #(fd/in % even))]
+       [(everyo q #(fd/in % odd))])
+      (cl/conde
+       [(sumo q 10)]
+       [(sumo q 11)]) ; sum given here, for 11 no solution expected
       (counto q 2)))) ; length of vector given here
 
 (println
