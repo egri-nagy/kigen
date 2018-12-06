@@ -31,15 +31,27 @@
       (fd/+ 1 remaining s)
       (counto tail remaining)])))
 
+(defn increasingo
+  "This goal succeeds if the elements of l are in non-decreasing order."
+  [l v]
+  (cl/fresh [head tail]
+    (cl/conde
+     [(cl/== l ())]
+     [(cl/conso head tail l)
+      (fd/<= v head)
+      (increasingo tail head)])))
+
+
 (defn find-sols
   "The main function for finding solutions."
   []
   (let [even (apply fd/domain (range 0 10 2))
         odd (apply fd/domain (range 1 10 2))] ; here we give the possible values
-    (cl/run 8 [q] ; the number of expected solutions (if more given, then it hangs)
+    (cl/run 4 [q] ; the number of expected solutions (if more given, then it hangs)
       (cl/conde
        [(everyo q #(fd/in % even))]
        [(everyo q #(fd/in % odd))])
+      (increasingo q 0)
       (cl/conde
        [(sumo q 10)]
        [(sumo q 11)]) ; sum given here, for 11 no solution expected
