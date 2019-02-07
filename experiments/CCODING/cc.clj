@@ -45,17 +45,15 @@
 (defn find-sols
   "The main function for finding solutions."
   []
-  (let [even (apply fd/domain (range 0 10 2))
-        odd (apply fd/domain (range 1 10 2))] ; here we give the possible values
-    (cl/run 2 [q] ; the number of expected solutions (if more given, then it hangs)
+  (let [even (apply fd/domain (range 2 35 2))
+        odd (apply fd/domain (range 1 35 2))] ; here we give the possible values
+    (cl/run 10 [q] ; the number of expected solutions (if more given, then it hangs)
       (cl/conde
        [(everyo q #(fd/in % even))]
        [(everyo q #(fd/in % odd))])
       (increasingo q 0)
-      (cl/conde
-       [(sumo q 10)]
-       [(sumo q 11)]) ; sum given here
-      (counto q 6 )))) ; length of vector given here
+      (sumo q 140) ; sum given here
+      (counto q 8 )))) ; length of vector given here
 
 (println
  (find-sols))
