@@ -47,7 +47,7 @@
   []
   (let [even (apply fd/domain (range 2 35 2))
         odd (apply fd/domain (range 1 35 2))] ; here we give the possible values
-    (cl/run 10 [q] ; the number of expected solutions (if more given, then it hangs)
+    (cl/run 16 [q] ; the number of expected solutions (if more given, then it hangs)
       (cl/conde
        [(everyo q #(fd/in % even))]
        [(everyo q #(fd/in % odd))])
@@ -55,5 +55,39 @@
       (sumo q 140) ; sum given here
       (counto q 8 )))) ; length of vector given here
 
-(println
- (find-sols))
+
+(defn find-even-sols
+  "The main function for finding solutions."
+  []
+  (let [p (vec (repeatedly 8 cl/lvar))
+        even (apply fd/domain (range 2 35 2))] ; here we give the possible values
+    (cl/run*  [q] 
+      (cl/everyg #(fd/in % even) p)
+      (increasingo p 0)
+      (sumo p 140) ; sum given here
+      (cl/== q p)))) ; length of vector given here
+
+(defn find-odd-sols
+  "The main function for finding solutions."
+  []
+  (let [p (vec (repeatedly 8 cl/lvar))
+        odd (apply fd/domain (range 1 35 2))] ; here we give the possible values
+    (cl/run*  [q] 
+      (cl/everyg #(fd/in % odd) p)
+      (increasingo p 0)
+      (sumo p 140) ; sum given here
+      (cl/== q p)))) ; length of vector given here
+
+(defn find-max-odd-sols
+  "The main function for finding solutions."
+  []
+  (let [p (vec (repeatedly 7 cl/lvar))
+        odd (apply fd/domain (range 1 35 2))] ; here we give the possible values
+    (cl/run*  [q] 
+      (cl/everyg #(fd/in % odd) p)
+      (increasingo p 0)
+      (sumo p 105) ; sum given here
+      (cl/== q p)))) ; length of vector given here
+
+
+(clojure.pprint/pprint  (find-even-sols))
