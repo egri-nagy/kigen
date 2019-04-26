@@ -89,5 +89,16 @@
       (sumo p 105) ; sum given here
       (cl/== q p)))) ; length of vector given here
 
+(defn find-max-odd-sols2
+  "The main function for finding solutions."
+  []
+  (let [p (vec (repeatedly 9 cl/lvar))
+        even (apply fd/domain (range 2 125 2))] ; here we give the possible values
+    (cl/run*  [q] 
+      (cl/everyg #(fd/in % even) p)
+      (increasingo p 0)
+      (sumo p 504) ; sum given here
+      (cl/== q p)))) ; length of vector given here
 
-(clojure.pprint/pprint  (find-even-sols))
+
+(clojure.pprint/pprint  (count (find-max-odd-sols2)))
