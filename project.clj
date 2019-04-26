@@ -4,10 +4,10 @@
   :license {:name "GNU GENERAL PUBLIC LICENSE"
             :url "http://www.gnu.org/copyleft/gpl.html"}
   :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/math.combinatorics "0.1.4"]
+                 [org.clojure/math.combinatorics "0.1.5"]
                  [org.clojure/data.int-map "0.2.4"]
                  [orbit "18.06.14"]
-                 [rolling-stones "1.0.0-SNAPSHOT"]
+                 [rolling-stones "1.0.0"]
                  [org.clojure/core.logic "0.8.11"]
                  [com.taoensso/timbre "4.10.0"]
                  [slamhound "1.5.5"]
