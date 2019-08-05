@@ -2,7 +2,7 @@
   "Skeleton of a transformation semigroup given by a set of  generators."
   (:require [clojure.set :refer [subset? superset?]]
             [orbit.core :refer [full-orbit partial-orbit]]
-            [orbit.action :refer [set-action right-actions]]
+            [kigen.action :refer [set-action right-actions]]
             [kigen.cayley-graph :refer [cayley-graph]]
             [kigen.scc :refer [scc]]
             [kigen.position :as pos]

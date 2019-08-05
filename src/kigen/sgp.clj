@@ -3,7 +3,7 @@
   and the operation need to be supplied."
   (:require [clojure.math.combinatorics :refer [selections]]
             [orbit.core :refer [full-orbit]]
-            [orbit.action :refer [right-action right-actions set-action]]
+            [kigen.action :refer [right-action right-actions set-action]]
             [kigen.memory-info :refer [mem-info]]
             [taoensso.timbre :refer [info]]))
 
