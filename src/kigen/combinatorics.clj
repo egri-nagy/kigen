@@ -21,4 +21,3 @@
   (map (partial map set)
        (filter #(<= n (count %))
                (partitions (seq T)))))
-

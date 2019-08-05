@@ -95,10 +95,10 @@
      {:dom 0 :cod (- (count (:dom b)))})))
 
 (defn act
-  "the action of a partitioned binary relation on a set
+  "the action of a partitioned binary relation pbr on a set A
   that is a subset of the union of its domain and codomain"
-  [set pbr]
-  (reduce into #{} (for [x set] (pbr x))))
+  [A pbr]
+  (reduce into #{} (for [x A] (pbr x))))
 
 (defn img
   "the image of the partitioned binary relation, i.e. acting on its points"
