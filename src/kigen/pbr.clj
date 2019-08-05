@@ -169,6 +169,7 @@
              :cod (set (range (inc deg) (inc (* 2 deg)) ))}
         xx (apply concat extrep)
         f (fn [x] (if (neg? x) (+ deg (* x -1)) x ))
-        imgs (map #(vector (inc %) (set (map f (nth xx %)))) (range 0 (* 2 deg)))
+        imgs (map #(vector (inc %) (set (map f (nth xx %))))
+                  (range 0 (* 2 deg)))
         ]
     (into pbr imgs)))

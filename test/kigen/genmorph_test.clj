@@ -36,4 +36,5 @@
       (is (= 5 (count
                 (sgp-embeddings-by-gens T1gens tmul
                                         T4gens tmul
-                                        (c/conjugation-fn-bundle tconj S4))))))))
+                                        (c/conjugation-fn-bundle tconj
+                                                                 S4))))))))
