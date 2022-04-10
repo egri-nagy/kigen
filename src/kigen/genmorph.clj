@@ -132,7 +132,7 @@
                                     (nth tgs n)))
           ;we need to keep distinct generator sets
           selected_seqs (distinct-up-to-f setconjrep conjed_seqs)]
-      (into #{} (r/map last selected_seqs)))))
+      (into #{} (r/map last selected_seqs))))) ;set does not work here
 
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
