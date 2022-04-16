@@ -26,11 +26,14 @@
 (defn commutative?
   "Brute-force (but lazy) checking of commutativity of a semigroup."
   [sgp mul]
-  (every? (fn [[x y]] (= (mul x y) (mul y x)))
+  (every? (fn [[x y]]
+            (= (mul x y) (mul y x)))
           (selections sgp 2)))
 
 (defn k-nilpotent?
-  "Checking for k-nilpotency."
+  "Checking for k-nilpotency. Assuming the semigroup is k-nilpotent, we
+  can take the k-th power of any element. Then we a do a brute-force (but lazy)
+  check of all k-element selections."
   [k sgp mul]
   (let [zero (reduce mul (repeat k (first sgp)))]
     (every? (fn [l]
