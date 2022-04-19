@@ -32,7 +32,7 @@
                 ]]
       (is (every? #(and
                     (t-c/conjrep %)
-                    (conjugacy/conjrep t/conjugate % S5))
+                    (conjugacy/brute-force-conjrep t/conjugate % S5))
                   T5))
       (is (every? #(= (t-c/setconjrep %)
                       (conjugacy/setconjrep t/conjugate % S5))
