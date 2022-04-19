@@ -1,20 +1,24 @@
 (ns kigen.transf-conj
-  "'Native' conjugacy class representative calculation.Transformations are
-  separated into single point mappings. A permutation is constructed by finding
-  the minimal relabeling of a transformation."
+  "'Native' conjugacy class representative calculation. Transformations are
+  separated into single point mappings of the form [source image].
+  A permutation is constructed by finding the minimal relabeling of a
+  transformation."
   (:require [kigen.sgp :as sgp]
             [kigen.transf :as t]
             [orbit.core :refer [tree-search]]
             [kigen.conjugacy :as conjugacy]))
 
 (defn single-maps
-  "All mappings of a transformation in the form of [src img]."
+  "All mappings of a transformation in the form of [src img] extracted
+  from a transformation t."
   [t]
   (map vector (range (count t)) t))
 
 (defn realize-a-mapping
-  "Given a mapping m and a desired mapping d, we try to turn m into d by
-  extending a partial permutation p represented as a hashmap.
+  "Given a mapping m and a desired mapping d, we try to turn the mapping m
+  into d by extending a partial permutation p represented as a hashmap.
+  This may fail if we already had a map to that point, or we end up mapping
+  a single point to two images.
   An extended hashmap is returned if it is possible, otherwise nil."
   [m d p]
   (let [nmappings (distinct (map vector m d))]
@@ -50,9 +54,9 @@
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
         ;;corresponding partial permutation
-        initial_stack (mapv (fn [i]
-                              [ [] [ [mappings {}] ] i])
-                            pts)
+        initial_stack (mapv
+                       (fn [i]  [ [] [ [mappings {}] ] i])
+                       pts)
         search (fn [stack]
                  (let [[rep psols pt] (peek stack)
                        k (count rep)]
