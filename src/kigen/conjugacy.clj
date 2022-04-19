@@ -2,9 +2,9 @@
   "Abstract functions for calculating conjugate elements, conjugacy classes,
   and representatives.")
 
-(defn brute-force-conjrep
+(defn conjrep-by-minimum
   "Naive brute force implementation of finding the minimal conjugacy class
-  representative of a thing by going through all of its conjugates
+  representative of a ting by going through all of its conjugates
   induced by the given symmetries using a conjugation function.
   The conjugation function has the form: thing symmetry -> conjugated thing.
   Assumption is that things can be compared."
@@ -28,7 +28,7 @@
   "Given a set of things, it returns the conjugacy class representative set
   (the minimal possible in lexicographic order)."
   [conjugation-function things symmetries]
-  (brute-force-conjrep (partial conjugateset conjugation-function)
+  (conjrep-by-minimum (partial conjugateset conjugation-function)
            (vec (apply sorted-set things))
            symmetries))
 
@@ -88,6 +88,6 @@
 (defrecord ConjugationFunctionBundle [conjrep setconjrep conjconj])
 
 (defn conjugation-fn-bundle [conjugation-function G]
-  (->ConjugationFunctionBundle #(brute-force-conjrep conjugation-function % G)
+  (->ConjugationFunctionBundle #(conjrep-by-minimum conjugation-function % G)
                                #(setconjrep conjugation-function % G)
                                (conj-conj-fn conjugation-function G)))
