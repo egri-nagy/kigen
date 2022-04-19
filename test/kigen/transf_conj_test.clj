@@ -9,11 +9,14 @@
 (deftest realize-a-mapping-test
   (testing "Realizing an individual map."
     (is (= {1 3, 2 4} (t-c/realize-a-mapping [1 2] [3 4] {})))
+    (is (= {2 3, 1 4} (t-c/realize-a-mapping [2 1] [3 4] {})))
     (is (= nil (t-c/realize-a-mapping [1 2] [3 4] {1 2})))
     (is (= {1 2, 2 1} (t-c/realize-a-mapping [1 2] [2 1] {})))
     (is (= {1 1, 2 4} (t-c/realize-a-mapping [1 2] [1 4] {})))
     (is (= {1 3, 2 2} (t-c/realize-a-mapping [1 2] [3 2] {})))
     (is (= nil (t-c/realize-a-mapping [1 2] [3 2] {2 3})))
+    (is (= {1 2, 2 3, 3 4, 4 5,5 1}
+           (t-c/realize-a-mapping [1 2 3 4 5] [2 3 4 5 1] {})))
     ))
 
 (deftest transf-conjugate-test

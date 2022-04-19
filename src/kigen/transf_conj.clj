@@ -19,11 +19,11 @@
   [m d p]
   (let [nmappings (distinct (map vector m d))]
     (when (and
-           (apply distinct? (map second nmappings))
+           (apply distinct? (map second nmappings)) ;any contradicting maps?
            (every? (fn [[a b]]
                      (if (contains? p a)
-                       (= (p a) b)
-                       (empty? (filter (partial = b)
+                       (= (p a) b) ;if we have it, it should match
+                       (empty? (filter (partial = b) ;or none should map to it
                                        (vals p)))))
                    nmappings))
       (into p nmappings))))
