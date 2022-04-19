@@ -29,7 +29,7 @@
       (into p nmappings))))
 
 (defn all-realizations
-  "All realizations of desired map d using available mappings, compatible with
+  "All realizations of a desired map d using available mappings, compatible with
   partial permutation p. Just systematically trying to realize all mappings."
   [mappings p d]
   (reduce
