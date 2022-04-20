@@ -3,8 +3,6 @@
   (:require [kigen.sgp :as sgp]
             [kigen.position :as pos]))
 
-(declare single-maps)
-
 ;; STANDARD GENERATING SETS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn idmap [n] (vec (range n)))
