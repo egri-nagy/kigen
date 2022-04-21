@@ -16,6 +16,20 @@
                 minimal-thing)))]
     (reduce f thing symmetries)))
 
+(defn minconjugators
+  "Finds the minimal conjugate of t under permutations G.
+  Also returns the subset of G that takes t to that rep."
+  [conjugation-function t G]
+  (reduce (fn [r p]
+            (let [nt (conjugation-function t p)
+                  mint (first r)
+                  comparison-result (compare nt mint)]
+              (cond  (neg? comparison-result) [nt [p]]
+                     (zero? comparison-result) [mint (conj (second r) p)]
+                     :else r)))
+          [(conjugation-function t (first G)) [(first G)]]
+          (rest G)))
+
 (defn min-rep-and-class
   "Finds the minimal conjugacy class representative and its class
   using the given function for calculating representatives in the
@@ -50,19 +64,6 @@
            (vec (apply sorted-set things))
            symmetries))
 
-(defn minconjugators
-  "Finds the minimal conjugate transformation of t under permutations G.
-  Also returns the subset of G that takes t to the rep."
-  [conjugation-function t G]
-  (reduce (fn [r p]
-            (let [nt (conjugation-function t p)
-                  mint (first r)
-                  comparison-result (compare nt mint)]
-              (cond  (neg? comparison-result) [nt [p]]
-                     (zero? comparison-result) [mint (conj (second r) p)]
-                     :else r)))
-          [(conjugation-function t (first G)) [(first G)]]
-          (rest G)))
 
 (defn conj-conj
 

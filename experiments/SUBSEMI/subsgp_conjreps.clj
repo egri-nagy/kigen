@@ -64,22 +64,26 @@
                                     (cond (neg? flag) [xrep (minconjs x)]
                                           (zero? flag) [m (into mcjs (minconjs x))]
                                           :else r)))
-                                [(inc n) #{}]
+                                [(inc n) #{}] ;giving a max value to start
                                 sub)]
                (i/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))
        mtS (mt/multab vS t/mul)]
-    (orb/full-orbit [(i/int-set)]
+    (orb/pfull-orbit [(i/int-set)]
                     (fn [sub]
                       (min-extensions-up-to-conjugacy mtS
                                                       indices
                                                       sub
                                                       crf)))))
 
-(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
-(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
+;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
+;(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
+(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
-(time (def T3subs (subsgps-up-to-conjugacy T3)))
-(time (def T3subs2 (subsgps-up-to-conjugacy2 T3 S3)))
-(println (count T3subs) " vs " (count T3subs2))
+(def K42 (t/sgp-by-gens [ [ 0, 1, 1, 1 ], [ 0, 0, 2, 2 ], [ 2, 0, 0, 2 ], [ 3, 1, 3, 3 ], [ 2, 2, 0, 2 ], [ 0, 3, 0, 3 ], [ 2, 2, 3, 2 ], [ 1, 1, 2, 2 ], [ 2, 2, 2, 0 ] ]))
 
 
+;(time (def T3subs (subsgps-up-to-conjugacy T3)))
+;(time (def T3subs2 (subsgps-up-to-conjugacy2 T3 S3)))
+;(println (count T3subs) " vs " (count T3subs2))
+
+(time (def K42subs2 (subsgps-up-to-conjugacy2 K42 S4)))
