@@ -1,6 +1,4 @@
-;; Rough version of subsemigroup enumeration up to conjugation.
-;; Set-wise conjugacy representative is decided natively for transformations,
-;; converted back and forth to int-maps.
+;; Subsemigroup enumeration up to conjugation.
 
 (require '[kigen.transf :as t])
 (require '[kigen.transf-conj :as t-c])
@@ -10,34 +8,39 @@
 (require '[orbit.core :as orb])
 
 (require '[clojure.data.int-map :as i])
+(require '[clojure.set :refer [map-invert]])
 
 (defn min-extensions-up-to-conjugacy
+  "Simply doing the enumeration, then collect representatives only."
   [mt elts closedsub conj_rep_func]
   (let [raw (mt/min-extensions mt elts closedsub)]
     (distinct (map conj_rep_func raw))))
 
-(defn subsgps-up-to-conjugacy [S]
+(defn subsgps-up-to-conjugacy
+  "Conjugacy is done natively for sets of transformation, converting back and forth
+  to int-maps."
+  [S]
   (let [vS (vec (sort S))
         mtS (mt/multab vS t/mul)
-        n (count vS)
-        trans2indices (clojure.set/map-invert (zipmap (range n) vS))
+        t2i (map-invert (zipmap (range (count vS)) vS))
         crf (fn [sub]
               (into (i/int-set)
-                    (map trans2indices
+                    (map t2i
                          (t-c/setconjrep (map vS sub)))))
         elts (mt/elts mtS)]
     (orb/full-orbit [(i/int-set)]
-                    (fn [sub] (min-extensions-up-to-conjugacy mtS
-                                                              elts
-                                                              sub
-                                                              crf)))))
+                    (fn [sub]
+                      (min-extensions-up-to-conjugacy mtS
+                                                      elts
+                                                      sub
+                                                      crf)))))
 
 (defn subsgps-up-to-conjugacy2 [S G]
   (let
       [vS (vec (sort S))
        n (count vS)
        indices (vec (range n))
-       t2i (clojure.set/map-invert (zipmap (range n) vS))
+       t2i (map-invert (zipmap (range n) vS))
        ;; turning conjugation into simple action
        Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
        H (map Ghom G)
