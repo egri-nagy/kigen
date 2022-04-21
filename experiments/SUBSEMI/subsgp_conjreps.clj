@@ -3,10 +3,11 @@
 ;; converted back and forth to int-maps.
 
 (require '[kigen.transf :as t])
+(require '[kigen.transf-conj :as t-c])
 (require '[kigen.multab :as mt])
 (require '[kigen.conjugacy :as conjugacy])
 
-(require '[orbit.core :as orbit])
+(require '[orbit.core :as orb])
 
 (require '[clojure.data.int-map :as i])
 
@@ -23,13 +24,13 @@
         crf (fn [sub]
               (into (i/int-set)
                     (map trans2indices
-                         (t/setconjrep (map vS sub)))))
+                         (t-c/setconjrep (map vS sub)))))
         elts (mt/elts mtS)]
-    (orbit/full-orbit-parallel [(i/int-set)]
-                               (fn [sub] (min-extensions-up-to-conjugacy mtS
-                                                                         elts
-                                                                         sub
-                                                                         crf)))))
+    (orb/full-orbit [(i/int-set)]
+                    (fn [sub] (min-extensions-up-to-conjugacy mtS
+                                                              elts
+                                                              sub
+                                                              crf)))))
 
 (defn subsgps-up-to-conjugacy2 [S G]
   (let
@@ -43,7 +44,7 @@
        cf (fn [x p] (p x))
        ;; mapping indices to the index of the conjugacy rep
        conjreps (zipmap indices
-                        (map (fn [x] (t2i (t/conjrep (vS x))))
+                        (map (fn [x] (t2i (t-c/conjrep (vS x))))
                              indices))
        ;; index to its minimal conjugators
        minconjs (zipmap indices
@@ -64,12 +65,18 @@
                                 sub)]
                (i/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))
        mtS (mt/multab vS t/mul)]
-    (orbit/full-orbit-parallel [(i/int-set)]
-                               (fn [sub]
-                                 (min-extensions-up-to-conjugacy mtS
-                                                                 indices
-                                                                 sub
-                                                                 crf)))))
+    (orb/full-orbit [(i/int-set)]
+                    (fn [sub]
+                      (min-extensions-up-to-conjugacy mtS
+                                                      indices
+                                                      sub
+                                                      crf)))))
 
 (def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
+
+(time (def T3subs (subsgps-up-to-conjugacy T3)))
+(time (def T3subs2 (subsgps-up-to-conjugacy2 T3 S3)))
+(println (count T3subs) " vs " (count T3subs2))
+
+
