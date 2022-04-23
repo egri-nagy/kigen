@@ -16,15 +16,16 @@
         mtS (mt/multab vS t/mul)
         elts (mt/elts mtS)
         extend (fn [[subS gens]]
-                 (reduce
+                 ;(println subS "-" gens "hey!" )
+                 (seq(reduce
                   (fn [m e]
                     (conj m
                           [(mt/closure mtS
-                                       (into (i-m/int-set) [e]))
+                                       (into subS [e]))
                            (conj gens e)]))
                   {}
-                  (i-m/difference elts subS)))]
-    (extend [(i-m/int-set) (i-m/int-set)])))
+                  (i-m/difference elts subS))))]
+    (orb/full-orbit [[(i-m/int-set) (i-m/int-set)]] extend)))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))

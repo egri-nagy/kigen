@@ -24,7 +24,7 @@
   "The first argument is a name of a file containing Clojure source code.
   This main method evaluates the forms contained."
   [& args]
-  (println "KIGEN Computational Semigroup Theory Software System Version"
-           (get-version))
+  (println "KIGEN v" (get-version)
+           " Computational Semigroup Theory Software System")
   (load-file (first args))
   (shutdown-agents))
