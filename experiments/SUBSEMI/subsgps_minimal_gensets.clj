@@ -15,21 +15,32 @@
   (let [vS (vec (sort S))
         mtS (mt/multab vS t/mul)
         elts (mt/elts mtS)
+        ; extension gives the subsgps by throwing one element in,
+        ; in a map from subsgps to its generating set - this ensures no dups
         extend (fn [[subS gens]]
                  ;(println subS "-" gens "hey!" )
-                 (seq(reduce
+                 (reduce ;over the missing elements
                   (fn [m e]
                     (conj m
                           [(mt/closure mtS
                                        (into subS [e]))
                            (conj gens e)]))
-                  {}
-                  (i-m/difference elts subS))))]
-    (orb/full-orbit [[(i-m/int-set) (i-m/int-set)]] extend)))
+                  {} ; a map from subsgp to generating set
+                  (i-m/difference elts subS)))]
+    (loop [q (conj (clojure.lang.PersistentQueue/EMPTY)
+                   [(i-m/int-set) (i-m/int-set)])
+           result {}]
+      (let [exts (extend (peek q))
+            news (remove #(result (first %)) exts)
+            newresult (into result news)
+            newq (into (pop q) news)]
+        (if (empty? newq)
+          newresult
+          (recur newq newresult))))))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
-(println (gen1 T3))
+(println (count (gen1 T3)))
 
 
 ;(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
