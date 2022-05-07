@@ -10,7 +10,28 @@
 (require '[clojure.data.int-map :as i-m])
 (require '[clojure.set :refer [map-invert]])
 
-(defn gen1
+(defn db-filter
+  "Checking the subs against the database.
+  subs is  a map subsgp -> genset
+  The database is a map of integers (size of subsemigroup) to a map
+  of subsemigroups to their generator sets."
+  [db subs]
+  (remove (fn [[sgp _]] (and (db (count sgp))
+                             ((db (count sgp)) sgp)))
+          subs))
+
+(defn db-extend
+  "Adding sub-genset pairs to the database."
+  [db subs]
+  (reduce (fn [db [sgp gens]]
+            (let [n (count sgp)
+                  c (or (db n)
+                        {})] ;tricky to be short
+              (assoc db n (assoc c sgp gens))))
+          db
+          subs))
+
+(defn subsgps
   [S]
   (let [vS (vec (sort S))
         mtS (mt/multab vS t/mul)
@@ -21,7 +42,7 @@
                  ;(println subS "-" gens "hey!" )
                  (reduce ;over the missing elements
                   (fn [m e]
-                    (conj m
+                    (conj m ;this takes care of duplicates
                           [(mt/closure mtS
                                        (into subS [e]))
                            (conj gens e)]))
@@ -29,18 +50,18 @@
                   (i-m/difference elts subS)))]
     (loop [q (conj (clojure.lang.PersistentQueue/EMPTY)
                    [(i-m/int-set) (i-m/int-set)])
-           result {}]
+           db {}]
       (let [exts (extend (peek q))
-            news (remove #(result (first %)) exts)
-            newresult (into result news)
+            news (db-filter db exts)
+            newdb (db-extend db news)
             newq (into (pop q) news)]
         (if (empty? newq)
-          newresult
-          (recur newq newresult))))))
+          newdb
+          (recur newq newdb))))))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
-(println (count (gen1 T3)))
+(clojure.pprint/pprint  (subsgps T3))
 
 
 ;(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
