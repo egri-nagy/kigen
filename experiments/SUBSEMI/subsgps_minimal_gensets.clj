@@ -61,7 +61,9 @@
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
-(clojure.pprint/pprint  (subsgps T3))
+(clojure.pprint/pprint  (let [result (subsgps T3)]
+                          (for [k (sort (keys result))]
+                            [k (count (result k))])))
 
 
 ;(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
