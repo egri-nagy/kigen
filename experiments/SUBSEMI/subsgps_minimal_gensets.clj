@@ -20,7 +20,7 @@
   (remove (fn [[sgp _]]
             ;;using short-circuit eval to avoid checking when size is new
             (and (db (count sgp)) ;do we know about this size?
-                 ((db (count sgp)) sgp))) ;if yes, do we have the sgp? 
+                 ((db (count sgp)) sgp))) ;if yes, do we have the sgp?
           subs))
 
 (defn db-extend
@@ -50,17 +50,19 @@
                                        (into subS [e]))
                            (conj gens e)]))
                   {} ; a map from subsgp to generating set
-                  (i-m/difference elts subS)))]
-    (loop [q (conj (clojure.lang.PersistentQueue/EMPTY)
-                   [(i-m/int-set) (i-m/int-set)])
-           db {}]
-      (let [exts (extend (peek q))
-            news (db-filter db exts)
-            newdb (db-extend db news)
-            newq (into (pop q) news)]
-        (if (empty? newq)
-          newdb
-          (recur newq newdb))))))
+                  (i-m/difference elts subS)))
+        layer (fn [q db] ;takes a queue a database, and returns an updated db and the newly discovered sgps
+                (loop [q q db db]
+                  (let [exts (extend (peek q))
+                        news (db-filter db exts)
+                        newdb (db-extend db news)
+                        newq (into (pop q) news)]
+                    (if (empty? newq)
+                      newdb
+                      (recur newq newdb)))))]
+    (layer (conj (clojure.lang.PersistentQueue/EMPTY)
+                 [(i-m/int-set) (i-m/int-set)])
+           {})))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
