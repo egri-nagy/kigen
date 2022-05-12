@@ -11,13 +11,16 @@
 (require '[clojure.set :refer [map-invert]])
 
 (defn db-filter
-  "Checking the subs against the database.
+  "Checking the subs against the database, returning the ones that are not in the
+  database yet.
   subs is  a map subsgp -> genset
-  The database is a map of integers (size of subsemigroup) to a map
+  db is a map of integers (size of subsemigroup) to a map
   of subsemigroups to their generator sets."
   [db subs]
-  (remove (fn [[sgp _]] (and (db (count sgp))
-                             ((db (count sgp)) sgp)))
+  (remove (fn [[sgp _]]
+            ;;using short-circuit eval to avoid checking when size is new
+            (and (db (count sgp)) ;do we know about this size?
+                 ((db (count sgp)) sgp))) ;if yes, do we have the sgp? 
           subs))
 
 (defn db-extend
@@ -25,8 +28,8 @@
   [db subs]
   (reduce (fn [db [sgp gens]]
             (let [n (count sgp)
-                  c (or (db n)
-                        {})] ;tricky to be short
+                  c (or (db n) ;do we have it? if yes, give the map
+                        {})] ;otherwise start a new sgp->gens map
               (assoc db n (assoc c sgp gens))))
           db
           subs))
