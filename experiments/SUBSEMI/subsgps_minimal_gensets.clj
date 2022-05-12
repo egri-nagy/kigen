@@ -52,20 +52,25 @@
                   {} ; a map from subsgp to generating set
                   (i-m/difference elts subS)))
         layer (fn [q db] ;takes a queue a database, and returns an updated db and the newly discovered sgps
-                (loop [q q db db]
-                  (let [exts (extend (peek q))
+                (loop [q q db db next-layer {}]
+                  (let [exts (extend (first q))
                         news (db-filter db exts)
                         newdb (db-extend db news)
-                        newq (into (pop q) news)]
-                    (if (empty? newq)
-                      newdb
-                      (recur newq newdb)))))]
-    (layer (conj (clojure.lang.PersistentQueue/EMPTY)
-                 [(i-m/int-set) (i-m/int-set)])
-           {})))
+                        nn-l (into next-layer news)]
+                    (if (empty? (rest q))
+                      [newdb nn-l]
+                      (recur (rest q) newdb nn-l)))))]
+    (loop [q { (i-m/int-set) (i-m/int-set)}
+           db {}]
+      (let [[ndb nq] (layer q db)]
+        (println "total: " (count ndb) "new: " (count nq))
+        (if (empty? nq)
+          ndb
+          (recur nq ndb))))))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
+;;(clojure.pprint/pprint (subsgps T3))
 (clojure.pprint/pprint  (let [result (subsgps T3)]
                           (for [k (sort (keys result))]
                             [k (count (result k))])))
