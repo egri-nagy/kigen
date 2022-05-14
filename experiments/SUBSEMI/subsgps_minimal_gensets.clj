@@ -23,7 +23,7 @@
                  ((db (count sgp)) sgp))) ;if yes, do we have the sgp?
           subs))
 
-(defn db-extend
+(defn extend-db
   "Adding sub-genset pairs to the database."
   [db subs]
   (reduce (fn [db [sgp gens]]
@@ -34,35 +34,40 @@
           db
           subs))
 
+(defn extend-sub
+  "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
+  by throwing in one new element."
+  [[subS gens] mtS]
+  ;;(println subS "-" gens "hey!" )
+  (reduce ;over the missing elements
+   (fn [m e]
+     (conj m ;this takes care of duplicates
+           [(mt/closure mtS
+                        (into subS [e]))
+            (conj gens e)]))
+   {} ; a map from subsgp to generating set
+   (i-m/difference (mt/elts mtS) subS)))
+
+(defn layer
+  "takes a queue a database, and returns an updated db and the newly discovered sgps"
+  [q db mtS]
+  (loop [q q db db next-layer {}]
+    (let [exts (extend-sub (first q) mtS)
+          news (db-filter db exts)
+          newdb (extend-db db news)
+          nn-l (into next-layer news)]
+      (if (empty? (rest q))
+        [newdb nn-l]
+        (recur (rest q) newdb nn-l)))))
+
 (defn subsgps
   [S]
   (let [vS (vec (sort S))
         mtS (mt/multab vS t/mul)
-        elts (mt/elts mtS)
-        ; extension gives the subsgps by throwing one element in,
-        ; in a map from subsgps to its generating set - this ensures no dups
-        extend (fn [[subS gens]]
-                 ;(println subS "-" gens "hey!" )
-                 (reduce ;over the missing elements
-                  (fn [m e]
-                    (conj m ;this takes care of duplicates
-                          [(mt/closure mtS
-                                       (into subS [e]))
-                           (conj gens e)]))
-                  {} ; a map from subsgp to generating set
-                  (i-m/difference elts subS)))
-        layer (fn [q db] ;takes a queue a database, and returns an updated db and the newly discovered sgps
-                (loop [q q db db next-layer {}]
-                  (let [exts (extend (first q))
-                        news (db-filter db exts)
-                        newdb (db-extend db news)
-                        nn-l (into next-layer news)]
-                    (if (empty? (rest q))
-                      [newdb nn-l]
-                      (recur (rest q) newdb nn-l)))))]
+        elts (mt/elts mtS)]
     (loop [q { (i-m/int-set) (i-m/int-set)}
            db {}]
-      (let [[ndb nq] (layer q db)]
+      (let [[ndb nq] (layer q db mtS)]
         (println "total: " (count ndb) "new: " (count nq))
         (if (empty? nq)
           ndb
