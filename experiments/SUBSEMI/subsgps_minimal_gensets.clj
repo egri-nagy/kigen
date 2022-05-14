@@ -24,7 +24,7 @@
           subs))
 
 (defn extend-db
-  "Adding sub-genset pairs to the database."
+  "Adding sub-genset pairs to the database." ;todo this is to be parallelized
   [db subs]
   (reduce (fn [db [sgp gens]]
             (let [n (count sgp)
@@ -37,22 +37,21 @@
 (defn extend-sub
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
   by throwing in one new element."
-  [[subS gens] mtS]
+  [[subS gens] mtS crf]
   ;;(println subS "-" gens "hey!" )
   (reduce ;over the missing elements
    (fn [m e]
-     (conj m ;this takes care of duplicates
-           [(mt/closure mtS
-                        (into subS [e]))
+     (conj m ;this map takes care of duplicates (may not record the first hit)
+           [(crf (mt/closure mtS (into subS [e])))
             (conj gens e)]))
    {} ; a map from subsgp to generating set
    (i-m/difference (mt/elts mtS) subS)))
 
 (defn layer
   "takes a queue a database, and returns an updated db and the newly discovered sgps"
-  [q db mtS]
+  [q db mtS crf]
   (loop [q q db db next-layer {}]
-    (let [exts (extend-sub (first q) mtS)
+    (let [exts (extend-sub (first q) mtS crf)
           news (db-filter db exts)
           newdb (extend-db db news)
           nn-l (into next-layer news)]
@@ -64,10 +63,14 @@
   [S]
   (let [vS (vec (sort S))
         mtS (mt/multab vS t/mul)
-        elts (mt/elts mtS)]
+        t2i (map-invert (zipmap (range (count vS)) vS))
+        crf (fn [sub]
+              (into (i-m/int-set)
+                    (map t2i
+                         (t-c/setconjrep (map vS sub)))))]
     (loop [q { (i-m/int-set) (i-m/int-set)}
            db {}]
-      (let [[ndb nq] (layer q db mtS)]
+      (let [[ndb nq] (layer q db mtS crf)]
         (println "total: " (count ndb) "new: " (count nq))
         (if (empty? nq)
           ndb
