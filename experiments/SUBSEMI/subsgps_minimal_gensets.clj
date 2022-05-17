@@ -24,7 +24,7 @@
           subs))
 
 (defn extend-db
-  "Adding sub-genset pairs to the database." ;todo this is to be parallelized
+  "Adding sub-genset pairs to the database." ;todo merge it with db-filter
   [db subs]
   (reduce (fn [db [sgp gens]]
             (let [n (count sgp)
@@ -39,7 +39,7 @@
   by throwing in one new element."
   [[subS gens] mtS crf]
   ;;(println subS "-" gens "hey!" )
-  (reduce ;over the missing elements
+  (reduce ;over the missing elements - not big enough for parallel for T4
    (fn [m e]
      (conj m ;this map takes care of duplicates (may not record the first hit)
            [(crf (mt/closure mtS (into subS [e])))
@@ -47,7 +47,7 @@
    {} ; a map from subsgp to generating set
    (i-m/difference (mt/elts mtS) subS)))
 
-(defn layer
+(defn layer ;todo rewrite this to make it parallel
   "takes a queue a database, and returns an updated db and the newly discovered sgps"
   [q db mtS crf]
   (loop [q q db db next-layer {}]
@@ -55,6 +55,7 @@
           news (db-filter db exts)
           newdb (extend-db db news)
           nn-l (into next-layer news)]
+      (print (count exts) ">" (count news) ", ") (flush)
       (if (empty? (rest q))
         [newdb nn-l]
         (recur (rest q) newdb nn-l)))))
@@ -74,7 +75,7 @@
       (let [[ndb nq] (layer q db mtS crf)]
         (spit (str "db" n) (prn-str ndb))
         (spit (str "gens" n) (prn-str nq))
-        (println "#gens: " n "total: " (count ndb) "new: " (count nq))
+        (println "#gens: " n "total: " (apply + (map count (vals ndb))) "new: " (count nq))
         (if (empty? nq)
           ndb
           (recur nq ndb (inc n)))))))
