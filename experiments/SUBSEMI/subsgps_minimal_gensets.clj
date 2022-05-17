@@ -69,12 +69,13 @@
                     (map t2i
                          (t-c/setconjrep (map vS sub)))))]
     (loop [q { (i-m/int-set) (i-m/int-set)}
-           db {}]
+           db {}
+           n 1]
       (let [[ndb nq] (layer q db mtS crf)]
-        (println "total: " (count ndb) "new: " (count nq))
+        (println "#gens: " n "total: " (count ndb) "new: " (count nq))
         (if (empty? nq)
           ndb
-          (recur nq ndb))))))
+          (recur nq ndb (inc n)))))))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
