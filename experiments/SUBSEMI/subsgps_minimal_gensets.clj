@@ -72,10 +72,9 @@
 
 (defn subsgps
   [S G]
-  (let [vS (vec (sort S))
-        crf (t-c/setconjrepfunc S G )
-        mtS (mt/multab vS t/mul)]
-    (loop [q { (i-m/int-set) (i-m/int-set)}
+  (let [mtS (mt/multab (vec (sort S)) t/mul)
+        crf (t-c/setconjrepfunc S G )]
+    (loop [q {(i-m/int-set) (i-m/int-set)}
            db {}
            n 1]
       (let [[ndb nq] (player q db mtS crf)]
@@ -84,7 +83,9 @@
         (println "#gens: " n "total: " (apply + (map count (vals ndb))) "new: " (count nq))
         (if (empty? nq)
           ndb
-          (recur nq ndb (inc n)))))))
+          (recur nq
+                 ndb
+                 (inc n)))))))
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
                                         ;(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))

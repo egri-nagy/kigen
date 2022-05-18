@@ -114,12 +114,13 @@
      [(conj  L r) nG])))
 
 (defn setconjrepfunc ;todo: give it a better name
-  "Returns a conjugacy representative set calculating function."
+  "Returns a conjugacy representative set calculating function.
+  This precalculates the minimal conjugators, hance the speed."
   [S G]
-  (let [vS (vec (sort S))
+  (let [vS (vec (sort S)) ;todo: could relying on sorted elements be an issue?
         n (count vS)
         indices (vec (range n))
-        t2i (map-invert (zipmap (range n) vS))
+        t2i (map-invert (zipmap indices vS))
         ;; turning conjugation into simple action
         Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
         H (map Ghom G)
