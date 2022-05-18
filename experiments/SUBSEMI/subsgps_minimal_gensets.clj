@@ -71,14 +71,39 @@
    (pmap #(extend-sub % mtS crf) q)))
 
 (defn subsgps
-  [S]
+  [S G]
   (let [vS (vec (sort S))
-        mtS (mt/multab vS t/mul)
-        t2i (map-invert (zipmap (range (count vS)) vS))
+        n (count vS)
+        indices (vec (range n))
+        t2i (map-invert (zipmap (range n) vS))
+        ;; turning conjugation into simple action
+        Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
+        H (map Ghom G)
+        cf (fn [x p] (p x))
+        ;; mapping indices to the index of the conjugacy rep
+        conjreps (zipmap indices
+                         (map (fn [x] (t2i (t-c/conjrep (vS x))))
+                              indices))
+        ;; index to its minimal conjugators
+        minconjs (zipmap indices
+                         (map (fn [x] (set
+                                       (second
+                                        (conjugacy/minconjugators cf x H))))
+                              indices))
+        ;; set-wise conjugacy class rep function for subsets of indices
         crf (fn [sub]
-              (into (i-m/int-set)
-                    (map t2i
-                         (t-c/setconjrep (map vS sub)))))]
+              (let [conjugators (reduce
+                                 (fn [[m mcjs :as r] x]
+                                   (let [xrep (conjreps x)
+                                         flag (compare xrep m)]
+                                     (cond (neg? flag) [xrep (minconjs x)]
+                                           (zero? flag) [m (into mcjs (minconjs x))]
+                                           :else r)))
+                                 [(inc n) #{}] ;giving a max value to start
+                                 sub)]
+                (i-m/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))
+        mtS (mt/multab vS t/mul)]
+ 
     (loop [q { (i-m/int-set) (i-m/int-set)}
            db {}
            n 1]
@@ -92,10 +117,10 @@
 
 ;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
                                         ;(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
-(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
+;(def T3 (t/sgp-by-gens (t/full-ts-gens 3)))
 ;;(clojure.pprint/pprint (subsgps T3))
 
-;(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
+(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
 (def K42 (t/sgp-by-gens [ [ 0, 1, 1, 1 ], [ 0, 0, 2, 2 ], [ 2, 0, 0, 2 ], [ 3, 1, 3, 3 ], [ 2, 2, 0, 2 ], [ 0, 3, 0, 3 ], [ 2, 2, 3, 2 ], [ 1, 1, 2, 2 ], [ 2, 2, 2, 0 ] ]))
 
@@ -105,7 +130,7 @@
 ;(println (count T3subs) " vs " (count T3subs2))
 
 ;(time (def K42subs2 (subsgps-up-to-conjugacy2 K42 S4)))
-(clojure.pprint/pprint  (let [result (subsgps K42)]
+(clojure.pprint/pprint  (let [result (subsgps K42 S4)]
                           (for [k (sort (keys result))]
                             [k (count (result k))])))
 
