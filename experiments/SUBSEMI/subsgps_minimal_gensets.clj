@@ -73,37 +73,8 @@
 (defn subsgps
   [S G]
   (let [vS (vec (sort S))
-        n (count vS)
-        indices (vec (range n))
-        t2i (map-invert (zipmap (range n) vS))
-        ;; turning conjugation into simple action
-        Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
-        H (map Ghom G)
-        cf (fn [x p] (p x))
-        ;; mapping indices to the index of the conjugacy rep
-        conjreps (zipmap indices
-                         (map (fn [x] (t2i (t-c/conjrep (vS x))))
-                              indices))
-        ;; index to its minimal conjugators
-        minconjs (zipmap indices
-                         (map (fn [x] (set
-                                       (second
-                                        (conjugacy/minconjugators cf x H))))
-                              indices))
-        ;; set-wise conjugacy class rep function for subsets of indices
-        crf (fn [sub]
-              (let [conjugators (reduce
-                                 (fn [[m mcjs :as r] x]
-                                   (let [xrep (conjreps x)
-                                         flag (compare xrep m)]
-                                     (cond (neg? flag) [xrep (minconjs x)]
-                                           (zero? flag) [m (into mcjs (minconjs x))]
-                                           :else r)))
-                                 [(inc n) #{}] ;giving a max value to start
-                                 sub)]
-                (i-m/int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))
+        crf (t-c/setconjrepfunc S G )
         mtS (mt/multab vS t/mul)]
- 
     (loop [q { (i-m/int-set) (i-m/int-set)}
            db {}
            n 1]

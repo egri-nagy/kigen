@@ -6,7 +6,9 @@
   (:require [kigen.sgp :as sgp]
             [kigen.transf :as t]
             [orbit.core :refer [tree-search]]
-            [kigen.conjugacy :as conjugacy]))
+            [kigen.conjugacy :as conjugacy]
+            [clojure.set :refer [map-invert]]
+            [clojure.data.int-map :refer [int-set]]))
 
 (defn single-maps
   "All mappings of a transformation in the form of [src img] extracted
@@ -110,3 +112,37 @@
   ([[L G] t]
    (let [[r nG] (conjugacy/minconjugators t/conjugate t G)]
      [(conj  L r) nG])))
+
+(defn setconjrepfunc ;todo: give it a better name
+  "Returns a conjugacy representative set calculating function."
+  [S G]
+  (let [vS (vec (sort S))
+        n (count vS)
+        indices (vec (range n))
+        t2i (map-invert (zipmap (range n) vS))
+        ;; turning conjugation into simple action
+        Ghom (fn [p] (mapv t2i (map #(t/conjugate % p) vS)))
+        H (map Ghom G)
+        cf (fn [x p] (p x))
+        ;; mapping indices to the index of the conjugacy rep
+        conjreps (zipmap indices
+                         (map (fn [x] (t2i (conjrep (vS x))))
+                              indices))
+        ;; index to its minimal conjugators
+        minconjs (zipmap indices
+                         (map (fn [x] (set
+                                       (second
+                                        (conjugacy/minconjugators cf x H))))
+                              indices))]
+    ;; set-wise conjugacy class rep function for subsets of indices
+    (fn [sub]
+      (let [conjugators (reduce
+                         (fn [[m mcjs :as r] x]
+                           (let [xrep (conjreps x)
+                                 flag (compare xrep m)]
+                             (cond (neg? flag) [xrep (minconjs x)]
+                                   (zero? flag) [m (into mcjs (minconjs x))]
+                                   :else r)))
+                         [(inc n) #{}] ;giving a max value to start
+                         sub)]
+        (int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))))
