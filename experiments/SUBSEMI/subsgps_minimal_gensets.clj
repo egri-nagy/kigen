@@ -10,35 +10,28 @@
 (require '[clojure.data.int-map :as i-m])
 (require '[clojure.set :refer [map-invert]])
 
-(defn db-filter
-  "Checking the subs against the database, returning the ones that are not in the
+(defn extend-db
+  "Adding sub-genset pairs to the database.
+  Also checking the subs against the database, returning the ones that are not in the
   database yet.
   subs is  a map subsgp -> genset
   db is a map of integers (size of subsemigroup) to a map
   of subsemigroups to their generator sets."
   [db subs]
-  (remove (fn [[sgp _]]
-            ;;using short-circuit eval to avoid checking when size is new
-            (and (db (count sgp)) ;do we know about this size?
-                 ((db (count sgp)) sgp))) ;if yes, do we have the sgp?
-          subs))
-
-(defn extend-db
-  "Adding sub-genset pairs to the database." ;todo merge it with db-filter
-  [db subs]
-  (reduce (fn [db [sgp gens]]
+  (reduce (fn [[db news :as dbnews,] [sgp gens :as sgpgens]]
             (let [n (count sgp)
                   c (or (db n) ;do we have it? if yes, give the map
                         {})] ;otherwise start a new sgp->gens map
-              (assoc db n (assoc c sgp gens))))
-          db
+              (if (contains? c sgp)
+                dbnews
+                [(assoc db n (assoc c sgp gens)) (conj news sgpgens)])))
+          [db []]
           subs))
 
 (defn extend-sub
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
   by throwing in one new element."
   [[subS gens] mtS crf]
-  ;;(println subS "-" gens "hey!" )
   (reduce ;over the missing elements - not big enough for parallel for T4
    (fn [m e]
      (conj m ;this map takes care of duplicates (may not record the first hit)
@@ -47,37 +40,26 @@
    {} ; a map from subsgp to generating set
    (i-m/difference (mt/elts mtS) subS)))
 
-(defn layer ;todo rewrite this to make it parallel
-  "takes a queue a database, and returns an updated db and the newly discovered sgps"
-  [q db mtS crf]
-  (loop [q q db db next-layer {}]
-    (let [exts (extend-sub (first q) mtS crf)
-          news (db-filter db exts)
-          newdb (extend-db db news)
-          nn-l (into next-layer news)]
-      ;(print (count exts) ">" (count news) ", ") (flush)
-      (if (empty? (rest q))
-        [newdb nn-l]
-        (recur (rest q) newdb nn-l)))))
-
-(defn player ;todo rewrite this to make it parallel
-  "takes a queue a database, and returns an updated db and the newly discovered sgps"
-  [q db mtS crf]
+(defn layer
+  "takes a queue a database, and returns an updated db and the newly discovered sgps
+  depending on the suplied map function (map or pmap) computation can be single
+  or multi core"
+  [q db mtS crf mapfn]
   (reduce
    (fn [[db next-layer] exts]
-     (let [news (db-filter db exts)]
-       [(extend-db db news) (into next-layer news)]))
+     (let [[newdb news] (extend-db db exts)]
+       [newdb (into next-layer news)]))
    [db {}]
-   (pmap #(extend-sub % mtS crf) q)))
+   (mapfn #(extend-sub % mtS crf) q)))
 
 (defn subsgps
-  [S G]
+  [S G mapfn]
   (let [mtS (mt/multab (vec (sort S)) t/mul)
         crf (t-c/setconjrepfunc S G )]
     (loop [q {(i-m/int-set) (i-m/int-set)}
            db {}
            n 1]
-      (let [[ndb nq] (player q db mtS crf)]
+      (let [[ndb nq] (layer q db mtS crf mapfn)]
         (spit (str "db" n) (prn-str ndb))
         (spit (str "gens" n) (prn-str nq))
         (println "#gens: " n "total: " (apply + (map count (vals ndb))) "new: " (count nq))
@@ -88,7 +70,7 @@
                  (inc n)))))))
 
 (defn print-result [S G]
-  (clojure.pprint/pprint  (let [result (subsgps S G)]
+  (clojure.pprint/pprint  (let [result (subsgps S G pmap)]
                             (for [k (sort (keys result))]
                               [k (count (result k))]))) )
 
