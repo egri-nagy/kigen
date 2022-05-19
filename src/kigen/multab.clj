@@ -34,7 +34,7 @@
   "Returns the elements of the given multiplication table.
   The elements are just the set of indices from 0 to n-1 in an int-set."
   [mt]
-  (i-m/int-set (range (count mt))))
+  (i-m/dense-int-set (range (count mt))))
 
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."
@@ -44,14 +44,14 @@
 (defn set-mul
   "Set-wise multiplication of subsets of a multab. For A and B it returns AB."
   [mt A B]
-  (i-m/int-set (for [i A j B] (at mt i j))))
+  (i-m/dense-int-set (for [i A j B] (at mt i j))))
 
 (defn newelements
   "For a subsemigroup S and a subset X in mt this returns the elements
   ((S U X)X U X(S U X)) setminus (S U X)."
   [mt S X]
   (if (subset? X S)
-    (i-m/int-set)
+    (i-m/dense-int-set)
     (let [T (i-m/union S X)]
       (i-m/difference  (i-m/union (set-mul mt T X)
                               (set-mul mt X T))
@@ -59,7 +59,7 @@
 
 (defn closure
   "It calculates the closure of base with elements in the set exts."
-  ([mt exts] (closure mt (i-m/int-set) exts))
+  ([mt exts] (closure mt (i-m/dense-int-set) exts))
   ([mt base exts]
    (letfn
        [(finished? [[_ exts]] (empty? exts))
@@ -70,7 +70,7 @@
 
 (defn in-closure?
   "Returns true if an element x is in the closure of sgp by gens"
-  ([mt gens x] (in-closure? mt (i-m/int-set) gens x))
+  ([mt gens x] (in-closure? mt (i-m/dense-int-set) gens x))
   ([mt sgp gens x]
    (letfn
        [(finished? [[sgp gens]]
@@ -88,7 +88,7 @@
                   ([] #{})
                   ([acc x]
                    (conj acc
-                         (closure mt closedsub (i-m/int-set [x])))))]
+                         (closure mt closedsub (i-m/dense-int-set [x])))))]
     (r/reduce reducef
               (r/remove closedsub elts))))
 
@@ -96,12 +96,12 @@
   "All subsemigroups of an abstract semigroup given by its multiplication
   table."
   [mt]
-  (full-orbit [(i-m/int-set)]
+  (full-orbit [(i-m/dense-int-set)]
               (partial min-extensions mt (elts mt))))
 
 (defn psubsgps
   "All subsemigroups of an abstract semigroup given by its multiplication
   table computed in parallel."
   [mt]
-  (pfull-orbit [(i-m/int-set)]
+  (pfull-orbit [(i-m/dense-int-set)]
                (partial min-extensions mt (elts mt))))

@@ -8,7 +8,7 @@
             [orbit.core :refer [tree-search]]
             [kigen.conjugacy :as conjugacy]
             [clojure.set :refer [map-invert]]
-            [clojure.data.int-map :refer [int-set]]))
+            [clojure.data.int-map :refer [dense-int-set]]))
 
 (defn single-maps
   "All mappings of a transformation in the form of [src img] extracted
@@ -146,4 +146,4 @@
                                    :else r)))
                          [(inc n) #{}] ;giving a max value to start
                          sub)]
-        (int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))))
+        (dense-int-set (conjugacy/setconjrep cf (seq sub) (second conjugators)))))))

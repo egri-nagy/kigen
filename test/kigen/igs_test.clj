@@ -1,6 +1,6 @@
 (ns kigen.igs-test
   (:require [clojure.test :refer :all]
-            [clojure.data.int-map :refer [int-set]]
+            [clojure.data.int-map :refer [dense-int-set]]
             [orbit.core :refer [full-orbit]]
             [kigen.igs :as igs]
             [kigen.multab :as multab]
@@ -13,12 +13,12 @@
           mt4 (multab/multab (transf/sgp-by-gens (transf/symmetric-gens 4))
                             transf/mul)]
       (is (= 16 (count (full-orbit
-                        [(int-set)]
+                        [(dense-int-set)]
                         (partial igs/min-extensions
                                  mt3
                                  (multab/elts mt3))))))
       (is (= 413 (count (full-orbit
-                         [(int-set)]
+                         [(dense-int-set)]
                          (partial igs/min-extensions
                                   mt4
                                   (multab/elts mt4)))))))))
