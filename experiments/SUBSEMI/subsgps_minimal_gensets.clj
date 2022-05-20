@@ -64,12 +64,19 @@
        (let [[ndb nq] (layer q db mtS crf mapfn)]
          (spit (str "db" n) (prn-str ndb))
          (spit (str "gens" n) (prn-str nq))
-         (println "#gens: " n "total: " (apply + (map count (vals ndb))) "new: " (count nq))
+         (println (str n"-generated:") (count nq) "total:" (apply + (map count (vals ndb))))
          (if (empty? nq)
            ndb
            (recur nq
                   ndb
                   (inc n))))))))
+
+(defn convert
+  "map sets to sets -> int-sets to int-sets"
+  [m]
+  (into {} (map (fn [[k v]]
+                  [(i-m/dense-int-set k) (i-m/dense-int-set v)])
+                m)))
 
 (defn print-result [S G q]
   (clojure.pprint/pprint  (let [result (subsgps S G pmap)]
@@ -82,8 +89,8 @@
 
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
-(def K42 (t/sgp-by-gens [ [ 0, 1, 1, 1 ], [ 0, 0, 2, 2 ], [ 2, 0, 0, 2 ], [ 3, 1, 3, 3 ], [ 2, 2, 0, 2 ], [ 0, 3, 0, 3 ], [ 2, 2, 3, 2 ], [ 1, 1, 2, 2 ], [ 2, 2, 2, 0 ] ]))
+(load-file "K42.clj")
 
 
-(time (print-result K42 S4 pmap)) ;"gens2" "db2" 2))
+(time (print-result (t/sgp-by-gens K42) S4 pmap)) ;"gens2" "db2" 2))
 
