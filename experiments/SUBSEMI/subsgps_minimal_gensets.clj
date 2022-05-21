@@ -3,12 +3,7 @@
 (require '[kigen.transf :as t])
 (require '[kigen.transf-conj :as t-c])
 (require '[kigen.multab :as mt])
-(require '[kigen.conjugacy :as conjugacy])
-
-(require '[orbit.core :as orb])
-
 (require '[clojure.data.int-map :as i-m])
-(require '[clojure.set :refer [map-invert]])
 
 (defn extend-db
   "Adding sub-genset pairs to the database.
@@ -84,13 +79,10 @@
                             (for [k (sort (keys result))]
                               [k (count (result k))]))) )
 
-;(def S3 (t/sgp-by-gens (t/symmetric-gens 3)))
 (def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
-
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
 (load-file "K42.clj")
-
 
 (time (print-result (t/sgp-by-gens K42) S4 pmap)) ;"gens2" "db2" 2))
 
