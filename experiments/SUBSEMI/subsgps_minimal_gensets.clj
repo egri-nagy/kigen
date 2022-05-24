@@ -4,6 +4,7 @@
 (require '[kigen.transf-conj :as t-c])
 (require '[kigen.multab :as mt])
 (require '[clojure.data.int-map :as i-m])
+(require '[progrock.core :as pr])
 
 (defn extend-db
   "Adding sub-genset pairs to the database.
@@ -40,12 +41,17 @@
   depending on the suplied map function (map or pmap) computation can be single
   or multi core"
   [q db mtS crf mapfn]
-  (reduce
-   (fn [[db next-layer] exts]
-     (let [[newdb news] (extend-db db exts)]
-       [newdb (into next-layer news)]))
-   [db {}]
-   (mapfn #(extend-sub % mtS crf) q)))
+  (let [bar (pr/tick (pr/progress-bar (count q)) 1)]
+    (reduce
+     (fn [[db next-layer bar] exts]
+       (let [[newdb news] (extend-db db exts)
+             nbar (pr/tick bar 1)]
+         (pr/print bar)
+         [newdb (into next-layer news) (if (= (:progress nbar) (:total nbar))
+                                         (pr/done nbar)
+                                         nbar)]))
+     [db {} bar]
+     (mapfn #(extend-sub % mtS crf) q))))
 
 (defn subsgps
   ;;starting with an empty database, the empty set to build the first layer

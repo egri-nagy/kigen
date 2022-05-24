@@ -11,6 +11,7 @@
                  [org.clojure/core.logic "1.0.1"]
                  [com.taoensso/timbre "5.2.1"]
                  [com.clojure-goes-fast/clj-memory-meter "0.1.3"]
+                 [progrock "0.1.2"]
                  [com.bhauman/rebel-readline "0.1.4"]]
   :plugins [[lein-cloverage "1.2.3"]
             [lein-kibit "0.1.8"]
