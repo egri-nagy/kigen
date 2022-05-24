@@ -46,7 +46,7 @@
      (fn [[db next-layer bar] exts]
        (let [[newdb news] (extend-db db exts)
              nbar (pr/tick bar 1)]
-         (pr/print bar)
+         (pr/print bar {:length 50, :format ":percent% :progress/:total |:bar| ETA::remaining :elapsed"})
          [newdb (into next-layer news) (if (= (:progress nbar) (:total nbar))
                                          (pr/done nbar)
                                          nbar)]))
