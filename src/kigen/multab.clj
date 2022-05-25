@@ -30,11 +30,12 @@
                   (vec)))
      xs)))
 
-(defn elts
-  "Returns the elements of the given multiplication table.
-  The elements are just the set of indices from 0 to n-1 in an int-set."
-  [mt]
-  (i-m/dense-int-set (range (count mt))))
+(def elts
+  ;"Returns the elements of the given multiplication table.
+  ;The elements are just the set of indices from 0 to n-1 in an int-set."
+  (memoize
+   (fn [mt]
+     (i-m/dense-int-set (range (count mt))))))
 
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."

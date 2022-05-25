@@ -28,10 +28,10 @@
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
   by throwing in one new element."
   [[subS gens] mtS crf]
-  (reduce ;over the missing elements - not big enough for parallel for T4
+  (reduce ;over the missing elements
    (fn [m e]
      (conj m ;this map takes care of duplicates (may not record the first hit)
-           [(crf (mt/closure mtS subS (i-m/dense-int-set [e]))) ;we computer conjrep
+           [(crf (mt/closure mtS subS (i-m/dense-int-set [e]))) ;we compute conjrep
             (conj gens e)])) ;the gens may not generate the conjrep
    {} ;a map from subsgp to generating set
    (i-m/difference (mt/elts mtS) subS)))
@@ -39,7 +39,7 @@
 (defn layer
   "takes a queue a database, and returns an updated db and the newly discovered sgps
   depending on the suplied map function (map or pmap) computation can be single
-  or multi core"
+  or multi core, it provides a progress bar as well"
   [q db mtS crf mapfn]
   (let [bar (pr/tick (pr/progress-bar (count q)) 1)]
     (reduce
@@ -50,7 +50,7 @@
          [newdb (into next-layer news) (if (= (:progress nbar) (:total nbar))
                                          (pr/done nbar)
                                          nbar)]))
-     [db {} bar]
+     [db {} bar] ;we build the database, the next-layer and the progress bar
      (mapfn #(extend-sub % mtS crf) q))))
 
 (defn subsgps
@@ -63,8 +63,8 @@
          crf (t-c/setconjrepfunc S G )]
      (loop [q q db db n n]
        (let [[ndb nq] (layer q db mtS crf mapfn)]
-         (spit (str "db" n) (prn-str ndb))
-         (spit (str "gens" n) (prn-str nq))
+         (spit (str "db" (format "%03d" n)) (prn-str ndb))
+         (spit (str "layer" (format "%03d" n)) (prn-str nq))
          (println (str n"-generated:") (count nq) "total:" (apply + (map count (vals ndb))))
          (if (empty? nq)
            ndb
