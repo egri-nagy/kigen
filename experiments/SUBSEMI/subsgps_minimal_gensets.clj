@@ -24,6 +24,13 @@
           [db []]
           subs))
 
+(defn write-db
+  "Writes the database into a file one cardinality per line."
+  [db filename]
+  (with-open [w (clojure.java.io/writer filename)]
+    (doseq [c (seq db)]
+      (.write w (prn-str c)))))
+
 (defn extend-sub
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
   by throwing in one new element."
@@ -34,7 +41,7 @@
            [(crf (mt/closure mtS subS (i-m/dense-int-set [e]))) ;we compute conjrep
             (conj gens e)])) ;the gens may not generate the conjrep
    {} ;a map from subsgp to generating set
-   (i-m/difference (mt/elts mtS) subS)))
+   (i-m/difference (mt/elts-cached mtS) subS)))
 
 (defn layer
   "takes a queue a database, and returns an updated db and the newly discovered sgps
@@ -63,7 +70,7 @@
          crf (t-c/setconjrepfunc S G )]
      (loop [q q db db n n]
        (let [[ndb nq] (layer q db mtS crf mapfn)]
-         (spit (str "db" (format "%03d" n)) (prn-str ndb))
+         (write-db ndb (str "db" (format "%03d" n)))
          (spit (str "layer" (format "%03d" n)) (prn-str nq))
          (println (str n"-generated:") (count nq) "total:" (apply + (map count (vals ndb))))
          (if (empty? nq)
@@ -72,8 +79,8 @@
                   ndb
                   (inc n))))))))
 
-(defn convert
-  "map sets to sets -> int-sets to int-sets"
+(defn convert-map
+  "map sets to sets -> int-sets to int-sets to save memory"
   [m]
   (into {} (map (fn [[k v]]
                   [(i-m/dense-int-set k) (i-m/dense-int-set v)])
