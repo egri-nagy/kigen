@@ -1,5 +1,5 @@
 ;; Subsemigroup enumeration by minimal generating sets.
-
+;; used for recalculating the subsemigroups of T4 with the extra info of minimal generating sets
 (require '[kigen.transf :as t])
 (require '[kigen.transf-conj :as t-c])
 (require '[kigen.multab :as mt])
