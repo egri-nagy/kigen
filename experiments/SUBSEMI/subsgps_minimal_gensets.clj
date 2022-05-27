@@ -84,7 +84,7 @@
          crf (t-c/setconjrepfunc S G )]
      (loop [q q db db n n t total]
        (let [[ndb nq] (layer q db mtS crf mapfn)
-             card (db n)
+             card (ndb n)
              nndb (if card
                     (dissoc ndb n) ;shedding the cardinality we will not check any more
                     ndb)]
