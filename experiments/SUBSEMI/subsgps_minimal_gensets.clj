@@ -14,22 +14,26 @@
   db is a map of integers (size of subsemigroup) to a map
   of subsemigroups to their generator sets."
   [db subs]
-  (reduce (fn [[db news :as dbnews] [sgp gens :as sgpgens]]
-            (let [n (count sgp)
-                  c (or (db n) ;do we have it? if yes, give the map
-                        {})] ;otherwise start a new sgp->gens map
-              (if (contains? c sgp)
-                dbnews
-                [(assoc db n (assoc c sgp gens)) (conj news sgpgens)])))
-          [db []]
-          subs))
+  (reduce ;over the subs
+   (fn [[db news :as dbnews] [sgp gens :as sgpgens]]
+     (let [n (count sgp)
+           c (or (db n) ;do we have it? if yes, give the map
+                 {})] ;otherwise start a new sgp->gens map
+       (if (contains? c sgp)
+         dbnews
+         [(assoc db n (assoc c sgp gens)) (conj news sgpgens)])))
+   [db []] ;we start with the db and empty vector for the new subs
+   subs))
 
 (defn write-db
-  "Writes the database into a file one cardinality per line."
+  "Writes the database into a file flattening into a sequence of entries.
+  Loading requires to use extend-db line by line, but it is possible convert
+  to dense-int-sets."
   [db filename]
   (with-open [w (clojure.java.io/writer filename)]
-    (doseq [c (seq db)]
-      (.write w (prn-str c)))))
+    (doseq [c (keys db)
+            entry (seq (db c))]
+      (.write w (prn-str entry)))))
 
 (defn write-map
   "Writes a map into a file one entry per line."
@@ -60,10 +64,13 @@
      (fn [[db next-layer bar] exts]
        (let [[newdb news] (extend-db db exts)
              nbar (pr/tick bar 1)]
-         (pr/print bar {:length 50, :format ":percent% :progress/:total |:bar| ETA::remaining :elapsed"})
-         [newdb (into next-layer news) (if (= (:progress nbar) (:total nbar))
-                                         (pr/done nbar)
-                                         nbar)]))
+         (pr/print bar
+                   {:length 50 :format ":percent% :progress/:total |:bar| ETA::remaining :elapsed"})
+         [newdb
+          (into next-layer news)
+          (if (= (:progress nbar) (:total nbar))
+            (pr/done nbar)
+            nbar)]))
      [db {} bar] ;we build the database, the next-layer and the progress bar
      (mapfn #(extend-sub % mtS crf) q))))
 
@@ -86,24 +93,17 @@
          (when card (write-map card (str "cardinality" (format "%03d" n))))
          (println (str n"-generated:") (count nq) "total:" t)
          (if (empty? nq)
-           (doseq [k (keys nndb)]
+           (doseq [k (keys nndb)] ;we do not return anything, everything is in files
              (write-map (nndb k)  (str "cardinality" (format "%03d" k))))
            (recur nq
                   nndb
                   (inc n)
                   (+ t (count nq)))))))))
 
-(defn convert-map
-  "map sets to sets -> int-sets to int-sets to save memory"
-  [m]
-  (into {} (map (fn [[k v]]
-                  [(i-m/dense-int-set k) (i-m/dense-int-set v)])
-                m)))
-
 (def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
-(load-file "K42.clj")
+;(load-file "K42.clj")
 
-(time (subsgps (t/sgp-by-gens K42) S4 pmap)) ;"gens2" "db2" 2))
+(time (subsgps (t/sgp-by-gens T4) S4 pmap))
 
