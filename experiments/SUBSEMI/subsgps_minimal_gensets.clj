@@ -31,6 +31,13 @@
     (doseq [c (seq db)]
       (.write w (prn-str c)))))
 
+(defn write-map
+  "Writes a map into a file one entry per line."
+  [m filename]
+  (with-open [w (clojure.java.io/writer filename)]
+    (doseq [c (seq m)]
+      (.write w (prn-str c)))))
+
 (defn extend-sub
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
   by throwing in one new element."
@@ -63,21 +70,28 @@
 (defn subsgps
   ;;starting with an empty database, the empty set to build the first layer
   ([S G mapfn]
-   (subsgps S G mapfn {(i-m/dense-int-set) (i-m/dense-int-set)} {} 1))
+   (subsgps S G mapfn {(i-m/dense-int-set) (i-m/dense-int-set)} {} 1 0))
   ;;this can be used for restarting computations
-  ([S G mapfn q db n]
+  ([S G mapfn q db n total]
    (let [mtS (mt/multab (vec (sort S)) t/mul)
          crf (t-c/setconjrepfunc S G )]
-     (loop [q q db db n n]
-       (let [[ndb nq] (layer q db mtS crf mapfn)]
-         (write-db ndb (str "db" (format "%03d" n)))
+     (loop [q q db db n n t total]
+       (let [[ndb nq] (layer q db mtS crf mapfn)
+             card (db n)
+             nndb (if card
+                    (dissoc ndb n) ;shedding the cardinality we will not check any more
+                    ndb)]
+         (write-db nndb (str "db" (format "%03d" n)))
          (spit (str "layer" (format "%03d" n)) (prn-str nq))
-         (println (str n"-generated:") (count nq) "total:" (apply + (map count (vals ndb))))
+         (when card (write-map card (str "cardinality" (format "%03d" n))))
+         (println (str n"-generated:") (count nq) "total:" t)
          (if (empty? nq)
-           ndb
+           (doseq [k (keys nndb)]
+             (write-map (nndb k)  (str "cardinality" (format "%03d" k))))
            (recur nq
-                  ndb
-                  (inc n))))))))
+                  nndb
+                  (inc n)
+                  (+ t (count nq)))))))))
 
 (defn convert-map
   "map sets to sets -> int-sets to int-sets to save memory"
@@ -86,16 +100,10 @@
                   [(i-m/dense-int-set k) (i-m/dense-int-set v)])
                 m)))
 
-(defn print-result [S G q]
-  (clojure.pprint/pprint  (let [result (subsgps S G pmap)]
-                                                ;(read-string (slurp q)) (read-string (slurp db)) n)]
-                            (for [k (sort (keys result))]
-                              [k (count (result k))]))) )
-
 (def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
 (load-file "K42.clj")
 
-(time (print-result (t/sgp-by-gens K42) S4 pmap)) ;"gens2" "db2" 2))
+(time (subsgps (t/sgp-by-gens K42) S4 pmap)) ;"gens2" "db2" 2))
 
