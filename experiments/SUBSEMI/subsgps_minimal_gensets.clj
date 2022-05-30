@@ -11,17 +11,16 @@
   Also checking the subs against the database, returning the ones that are not in the
   database yet.
   subs is  a map subsgp -> genset
-  db is a map of integers (size of subsemigroup) to a map
-  of subsemigroups to their generator sets."
+  db is a map of integers (size of subsemigroup) to a set of sgps."
   [db subs]
   (reduce ;over the subs
    (fn [[db news :as dbnews] [sgp gens :as sgpgens]]
      (let [n (count sgp)
            c (or (db n) ;do we have it? if yes, give the map
-                 {})] ;otherwise start a new sgp->gens map
+                 #{})] ;otherwise start a new sgp->gens map
        (if (contains? c sgp)
          dbnews
-         [(assoc db n (assoc c sgp gens)) (conj news sgpgens)])))
+         [(assoc db n (conj c sgp)) (conj news sgpgens)])))
    [db []] ;we start with the db and empty vector for the new subs
    subs))
 
@@ -100,7 +99,7 @@
                   (inc n)
                   (+ t (count nq)))))))))
 
-(defn load-db [dbfile]
+(defn load-db [dbfile] ;TODO this is not working with the new lean database
   (with-open [rdr (clojure.java.io/reader dbfile)]
     (reduce
      (fn [db line]
@@ -122,8 +121,8 @@
 (def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
-;(load-file "K42.clj")
+(load-file "K42.clj")
 
-(subsgps (t/sgp-by-gens T4) S4 pmap)
+(subsgps (t/sgp-by-gens K42) S4 pmap)
 ;;(subsgps (t/sgp-by-gens T4) S4 pmap (load-layer "layer006") (load-db "db006") 7 0)
 
