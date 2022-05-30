@@ -89,9 +89,9 @@
                     (dissoc ndb n) ;shedding the cardinality we will not check any more
                     ndb)]
          (write-db nndb (str "db" (format "%03d" n)))
-         (spit (str "layer" (format "%03d" n)) (prn-str nq))
+         (write-map nq (str "layer" (format "%03d" n)))
          (when card (write-map card (str "cardinality" (format "%03d" n))))
-         (println (str n"-generated:") (count nq) "total:" t)
+         (println (str n"-generated:") (count nq) "total:" (+ (count nq) t))
          (if (empty? nq)
            (doseq [k (keys nndb)] ;we do not return anything, everything is in files
              (write-map (nndb k)  (str "cardinality" (format "%03d" k))))
@@ -100,10 +100,30 @@
                   (inc n)
                   (+ t (count nq)))))))))
 
+(defn load-db [dbfile]
+  (with-open [rdr (clojure.java.io/reader dbfile)]
+    (reduce
+     (fn [db line]
+       (let [[k v] (read-string line)]
+         (first (extend-db db (hash-map (i-m/dense-int-set k) (i-m/dense-int-set v))))))
+     {}
+     (line-seq rdr))))
+
+(defn load-layer [layerfile]
+  (with-open [rdr (clojure.java.io/reader layerfile)]
+    (reduce
+     (fn [db line]
+       (let [[k v] (read-string line)]
+         (into db (hash-map (i-m/dense-int-set k) (i-m/dense-int-set v)))))
+     {}
+     (line-seq rdr))))
+
+
 (def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 
 ;(load-file "K42.clj")
 
-(time (subsgps (t/sgp-by-gens T4) S4 pmap))
+(subsgps (t/sgp-by-gens T4) S4 pmap)
+;;(subsgps (t/sgp-by-gens T4) S4 pmap (load-layer "layer006") (load-db "db006") 7 0)
 
