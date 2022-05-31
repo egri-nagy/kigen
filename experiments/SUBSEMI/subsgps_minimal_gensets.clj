@@ -7,14 +7,14 @@
 (require '[progrock.core :as pr])
 
 (defn extend-db
-  "Adding sub-genset pairs to the database.
+  "Adding subsgps to the database.
   Also checking the subs against the database, returning the ones that are not in the
-  database yet.
+  database yet, forming the next layer.
   subs is  a map subsgp -> genset
-  db is a map of integers (size of subsemigroup) to a set of sgps."
+  db is a map of integers (size of subsemigroup) to a set of sgps of that size."
   [db subs]
   (reduce ;over the subs
-   (fn [[db news :as dbnews] [sgp gens :as sgpgens]]
+   (fn [[db news :as dbnews] [sgp gens :as sgpgens]] ;excessive destructuring?
      (let [n (count sgp)
            c (or (db n) ;do we have it? if yes, give the map
                  #{})] ;otherwise start a new sgp->gens map
@@ -44,14 +44,14 @@
 (defn extend-sub
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
   by throwing in one new element."
-  [[subS gens] mtS crf]
+  [[subsgp gens] mtS crf]
   (reduce ;over the missing elements
    (fn [m e]
-     (conj m ;this map takes care of duplicates (may not record the first hit)
-           [(crf (mt/closure mtS subS (i-m/dense-int-set [e]))) ;we compute conjrep
+     (conj m ;this map takes care of duplicates (may not record the first hit though)
+           [(crf (mt/closure mtS subsgp (i-m/dense-int-set [e]))) ;we compute conjrep
             (conj gens e)])) ;the gens may not generate the conjrep
    {} ;a map from subsgp to generating set
-   (i-m/difference (mt/elts-cached mtS) subS)))
+   (i-m/difference (mt/elts-cached mtS) subsgp)))
 
 (defn layer
   "takes a queue a database, and returns an updated db and the newly discovered sgps
