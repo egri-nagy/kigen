@@ -99,12 +99,14 @@
                   (inc n)
                   (+ t (count nq)))))))))
 
-(defn load-db [dbfile] ;TODO this is not working with the new lean database
+(defn load-db [dbfile]
   (with-open [rdr (clojure.java.io/reader dbfile)]
     (reduce
      (fn [db line]
-       (let [[k v] (read-string line)]
-         (first (extend-db db (hash-map (i-m/dense-int-set k) (i-m/dense-int-set v))))))
+       (let [sgp (read-string line)]
+         (first (extend-db db
+                           (hash-map (i-m/dense-int-set sgp)
+                                     nil))))) ;no gens here, sort of legacy
      {}
      (line-seq rdr))))
 
@@ -123,6 +125,6 @@
 
 (load-file "K42.clj")
 
-(subsgps (t/sgp-by-gens K42) S4 pmap)
-;;(subsgps (t/sgp-by-gens T4) S4 pmap (load-layer "layer006") (load-db "db006") 7 0)
+;;(subsgps (t/sgp-by-gens K42) S4 pmap)
+(subsgps (t/sgp-by-gens K42) S4 pmap (load-layer "layer007") (load-db "db007") 8 100848)
 
