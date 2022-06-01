@@ -4,6 +4,7 @@
 (require '[kigen.transf :as t])
 (require '[kigen.transf-conj :as t-c])
 (require '[kigen.multab :as mt])
+(require '[kigen.memory-info :refer [mem-info]])
 (require '[clojure.data.int-map :as i-m])
 (require '[progrock.core :as pr])
 
@@ -83,6 +84,7 @@
    (let [mtS (mt/multab (vec (sort S)) t/mul)
          crf (t-c/setconjrepfunc S G )]
      (loop [q q db db n n t total]
+       (println (mem-info))
        (let [[ndb nq] (layer q db mtS crf mapfn)
              card (ndb n)
              nndb (if card
@@ -123,7 +125,8 @@
 
 (def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
 (def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
+(load-file "K42.clj")
 
-(subsgps (t/sgp-by-gens T4) S4 pmap)
+(subsgps (t/sgp-by-gens K42) S4 pmap)
 ;;(subsgps (t/sgp-by-gens K42) S4 pmap (load-layer "layer007") (load-db "db007") 8 100848)
 
