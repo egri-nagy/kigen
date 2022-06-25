@@ -1,6 +1,6 @@
 ;; Subsemigroup enumeration by minimal generating sets.
 ;; used for recalculating the subsemigroups of T4 with the extra info of minimal generating sets
-;; works with v22.05.31
+;; works with v22.05.31+
 (require '[kigen.transf :as t])
 (require '[kigen.transf-conj :as t-c])
 (require '[kigen.multab :as mt])
@@ -123,10 +123,10 @@
      (line-seq rdr))))
 
 
-(def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
-(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
+;(def T4 (t/sgp-by-gens (t/full-ts-gens 4)))
+;(def S4 (t/sgp-by-gens (t/symmetric-gens 4)))
 ;(load-file "K42.clj")
 
 ;(subsgps (t/sgp-by-gens K42) S4 pmap)
-(subsgps (t/sgp-by-gens T4) S4 pmap (load-layer "layer007") (load-db "db007") 8 14126090)
+;(subsgps (t/sgp-by-gens T4) S4 pmap (load-layer "layer007") (load-db "db007") 8 14126090)
 
