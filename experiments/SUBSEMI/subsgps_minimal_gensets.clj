@@ -57,9 +57,11 @@
    (i-m/difference (mt/elts-cached mtS) subsgp)))
 
 (defn layer
-  "takes a queue a database, and returns an updated db and the newly discovered sgps
-  depending on the suplied map function (map or pmap) computation can be single
-  or multi core, it provides a progress bar as well"
+  "Takes a queue and a database, and returns an updated db and the newly
+  discovered subsemigroups. Depending on the suplied map function
+  (map or pmap) computation can be single or multi core.
+  It displays a progress bar.
+  A layer is a band of n-generated subsemigroups."
   [q db mtS crf mapfn]
   (let [bar (pr/tick (pr/progress-bar (count q)) 1)]
     (reduce
@@ -74,7 +76,7 @@
             (pr/done nbar)
             nbar)]))
      [db {} bar] ;we build the database, the next-layer and the progress bar
-     (mapfn #(extend-sub % mtS crf) q))))
+     (mapfn #(extend-sub % mtS crf) q)))) ;reducing over the extensions
 
 (defn subsgps
   ;;starting with an empty database, the empty set to build the first layer
