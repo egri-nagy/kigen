@@ -43,8 +43,10 @@
       (.write w (prn-str pair)))))
 
 (defn extend-sub
-  "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
-  by throwing in one new element."
+  "Takes a subsemigroup-generator set pair and finds all the distinct subsemigroups
+  obtained by throwing in one new element.
+  It uses the multiplication table mtS for the whole semigroup, and the
+  conjugacy class representative function."
   [[subsgp gens] mtS crf]
   (reduce ;over the missing elements
    (fn [m e]
