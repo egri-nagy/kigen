@@ -31,16 +31,16 @@
   to dense-int-sets."
   [db filename]
   (with-open [w (clojure.java.io/writer filename)]
-    (doseq [c (keys db)
-            entry (seq (db c))]
+    (doseq [k (keys db)
+            entry (seq (db k))]
       (.write w (prn-str entry)))))
 
 (defn write-map
   "Writes a map into a file one entry per line."
   [m filename]
   (with-open [w (clojure.java.io/writer filename)]
-    (doseq [c (seq m)]
-      (.write w (prn-str c)))))
+    (doseq [pair (seq m)]
+      (.write w (prn-str pair)))))
 
 (defn extend-sub
   "Takes a subsgp-genset pair and finds all the distinct subsemigroups obtained
