@@ -9,20 +9,19 @@
 (require '[progrock.core :as pr])
 
 (defn extend-db
-  "Adding subsgps to the database.
-  Also checking the subs against the database, returning the ones that are not in the
-  database yet, forming the next layer.
-  subs is  a map subsgp -> genset
-  db is a map of integers (size of subsemigroup) to a set of sgps of that size."
+  "Checking against and adding subsemigroups to the database, also returning
+  the ones that were not in the database yet, forming the next layer.
+  subs is  a map subsemigroup -> generator set
+  db is a map integers (size of subsemigroup) ->  a set of sgps of that size"
   [db subs]
   (reduce ;over the subs
-   (fn [[db news :as dbnews] [sgp gens :as sgpgens]] ;excessive destructuring?
+   (fn [[db news :as dbnews] [sgp gens :as sgpgens]] ;destructuring has no effect on performance, checked 2022.08.29
      (let [n (count sgp)
-           c (or (db n) ;do we have it? if yes, give the map
-                 #{})] ;otherwise start a new sgp->gens map
-       (if (contains? c sgp)
+           cardinalityclass (or (db n) ;do we have it? if yes, give the set
+                                #{})] ;otherwise start a new set
+       (if (contains? cardinalityclass sgp)
          dbnews
-         [(assoc db n (conj c sgp)) (conj news sgpgens)])))
+         [(assoc db n (conj cardinalityclass sgp)) (conj news sgpgens)])))
    [db []] ;we start with the db and empty vector for the new subs
    subs))
 
