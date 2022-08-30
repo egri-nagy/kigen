@@ -85,14 +85,15 @@
   ;;this can be used for restarting computations
   ([S G mapfn q db n total]
    (let [mtS (mt/multab (vec (sort S)) t/mul)
-         crf (t-c/setconjrepfunc S G )]
+         crf (t-c/setconjrepfunc S G)]
      (loop [q q db db n n t total]
-       (println (mem-info))
+       (println "Before calculating layer:" (mem-info))
        (let [[ndb nq] (layer q db mtS crf mapfn)
              card (ndb n)
              nndb (if card
                     (dissoc ndb n) ;shedding the cardinality we will not check any more
                     ndb)]
+         (println "After calculating layer:" (mem-info))
          (write-db nndb (str "db" (format "%03d" n)))
          (write-map nq (str "layer" (format "%03d" n)))
          (when card (write-map card (str "cardinality" (format "%03d" n))))
