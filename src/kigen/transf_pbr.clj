@@ -2,8 +2,6 @@
   "Transformations and permutations embedded into partitioned
   binary relations."
   (:require [kigen.pbr :as pbr]
-            [kigen.sgp :as sgp]
-            [kigen.position :as pos]
             [kigen.combinatorics :refer [singleton?]]))
 
 (declare transf->binrel

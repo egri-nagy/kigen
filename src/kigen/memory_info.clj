@@ -4,8 +4,7 @@
 (defn mem-info
   "Info string containing free and total memory (after gc)"
   []
-  (let [rt (java.lang.Runtime/getRuntime)
-        GB (* 1024 1024 1024)]
+  (let [rt (java.lang.Runtime/getRuntime)]
     (System/gc)
     (let [totalmem (.totalMemory rt)
           freemem (.freeMemory rt)

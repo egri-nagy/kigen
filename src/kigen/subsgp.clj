@@ -1,15 +1,11 @@
 (ns kigen.subsgp
   "General functions for computing subsemigroups.
   Black box style, the element(s) and the operation need to be supplied."
-  (:require [clojure.math.combinatorics :refer [selections]]
-            [orbit.core :refer [full-orbit]]
-            [kigen.action :refer [right-action set-action]]
-            [kigen.sgp :refer [->Sgp]]
-            [kigen.memory-info :refer [mem-info]]
-            [taoensso.timbre :refer [info]]))
+  (:require   [orbit.core :refer [full-orbit]]
+              [kigen.action :refer [right-action]]))
 
 (defn new-elts
-  ""
+  "Generate new elements by adding a generator g to A. TODO: check this"
   [A g mul]
   (let [A' (conj A g)
         A'g (set (concat (map (right-action mul g) A')

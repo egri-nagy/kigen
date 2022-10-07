@@ -1,16 +1,5 @@
 (ns kigen.core
-  (:require [kigen.pbr :as pbr]
-            [kigen.transf :as t]
-            [kigen.perm :as perm]
-            [kigen.skeleton :as skeleton]
-            [kigen.poset :as poset]
-            [kigen.sgp :as sgp]
-            [kigen.multab :as multab]
-            [kigen.igs :as igs]
-            [kigen.morphism :as morphism]
-            [kigen.genmorph :as gmorph]
-            [kigen.chain-sgp :as chain-sgp]
-            [taoensso.timbre :as timbre])
+  (:require [taoensso.timbre :as timbre])
   (:gen-class))
 
 ;; to save compile time property into a runtime one

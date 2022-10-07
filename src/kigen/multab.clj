@@ -6,7 +6,7 @@
   Functionality for multiplying subsets of elements and computing closures
   and thus enumerating subsemigroups. The subsemigroups can be stored in
   efficient int-sets."
-  (:require [clojure.set :refer [difference union subset?]]
+  (:require [clojure.set :refer [union subset?]]
             [orbit.core :refer [partial-orbit full-orbit pfull-orbit]]
             [kigen.sgp :as sgp]
             [clojure.core.reducers :as r]
@@ -80,7 +80,7 @@
         (extend [[sgp gens]]
           #{[(union sgp gens) (newelements mt sgp gens)]})]
      (some?
-      (partial-orbit [sgp gens] extend (fn [x] true) finished?)))))
+      (partial-orbit [sgp gens] extend (constantly true) finished?)))))
 
 (defn min-extensions
   "Returns the minimal extensions (by new element) of closed subarray of
