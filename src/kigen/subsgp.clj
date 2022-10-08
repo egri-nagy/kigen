@@ -5,7 +5,8 @@
               [kigen.action :refer [right-action]]))
 
 (defn new-elts
-  "Generate new elements by adding a generator g to A. TODO: check this"
+  "Takes a set and an element and returns the closure with that element
+   and the set of new elements."
   [A g mul]
   (let [A' (conj A g)
         A'g (set (concat (map (right-action mul g) A')
