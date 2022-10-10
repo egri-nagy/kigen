@@ -23,3 +23,26 @@
     (into aS1 (for [x  S
                     y aS1]
                 (mul x y)))))
+
+
+(defn D-classes
+  "Computes the D-classes of a finite semigroup."
+  [S mul]
+  (vals
+   (group-by (fn [a]
+               (principal-ideal a S mul))
+             S)))
+
+(defn R-classes
+  "Computes the R-classes of a finite semigroup."
+  [S mul]
+  (vals (group-by (fn [a]
+                    (principal-right-ideal a S mul))
+                  S)))
+
+(defn L-classes
+  "Computes the D-classes of a finite semigroup."
+  [S mul]
+  (vals (group-by (fn [a]
+                    (principal-left-ideal a S mul))
+                  S)))
