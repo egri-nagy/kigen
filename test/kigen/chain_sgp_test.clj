@@ -1,5 +1,5 @@
 (ns kigen.chain-sgp-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest testing is]]
             [kigen.transf :as t]
             [kigen.chain-sgp :refer [check-morphism]]))
 
