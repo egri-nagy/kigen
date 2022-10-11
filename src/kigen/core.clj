@@ -7,7 +7,7 @@
   (System/getProperty "kigen.version"))
 
 ;; setting default log level
-(timbre/merge-config! {:min-level :warn}) ;
+(timbre/merge-config! {:min-level :warn})
 
 (defn -main
   "The first argument is a name of a file containing Clojure source code.

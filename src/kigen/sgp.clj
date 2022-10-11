@@ -5,7 +5,7 @@
             [orbit.core :refer [full-orbit]]
             [kigen.action :refer [right-action right-actions set-action]]
             [kigen.memory-info :refer [mem-info]]
-            [taoensso.timbre :refer [info trace]]))
+            [taoensso.timbre :refer [trace]]))
 
 (declare sgp-by-gens
          commutative?

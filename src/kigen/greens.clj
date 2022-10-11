@@ -1,7 +1,17 @@
 (ns kigen.greens
-  "Black box algorithms to compute Green's relations."
+  "Black box algorithms to compute Green's relations. Basic implementations,
+   not efficient ones. Suitable for small semigroups, written for processing
+   the enumerated transformation semigroups."
   (:require [kigen.action :refer [right-action]]))
 
+(declare principal-right-ideal
+         principal-left-ideal
+         principal-ideal
+         D-classes
+         L-classes
+         R-classes)
+
+;; principal ideals ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn principal-right-ideal
   "Computes the principal right ideal aS1 of a in semigroup S with
    multiplication mul."
@@ -24,9 +34,10 @@
                     y aS1]
                 (mul x y)))))
 
-
+;; the equivalence classess ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn D-classes
-  "Computes the D-classes of a finite semigroup."
+  "Computes the D-classes of a finite semigroup. Classes are in no particular
+   order."
   [S mul]
   (vals
    (group-by (fn [a]
@@ -34,14 +45,16 @@
              S)))
 
 (defn R-classes
-  "Computes the R-classes of a finite semigroup."
+  "Computes the R-classes of a finite semigroup. Classes are in no particular
+   order."
   [S mul]
   (vals (group-by (fn [a]
                     (principal-right-ideal a S mul))
                   S)))
 
 (defn L-classes
-  "Computes the D-classes of a finite semigroup."
+  "Computes the D-classes of a finite semigroup. Classes are in no particular
+   order."
   [S mul]
   (vals (group-by (fn [a]
                     (principal-left-ideal a S mul))
