@@ -1,6 +1,6 @@
 (ns kigen.igs
   "Independent sets of semigroups represented by multiplication tables."
-  (:require [clojure.data.int-map :refer [dense-int-set union difference]]
+  (:require [clojure.data.int-map :refer [dense-int-set difference]]
             [kigen.multab :as multab]))
 
 (defn independent?

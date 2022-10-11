@@ -13,7 +13,7 @@
   Volume 7, Number 2, pages 318–335, July 2017"
   (:require [kigen.multab :as multab :refer [at]]
             [orbit.core :refer [tree-search]]
-            [clojure.set :refer [subset? difference]]
+            [clojure.set :refer [subset?]]
             [kigen.combinatorics :refer [non-empty-subsets
                                          big-enough-partitions]]))
 
