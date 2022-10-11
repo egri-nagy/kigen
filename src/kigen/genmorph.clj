@@ -10,7 +10,7 @@
             [orbit.core :refer [tree-search ptree-search]]
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]
-            [taoensso.timbre :refer [info]]))
+            [taoensso.timbre :refer [trace]]))
 
 (declare sys-mul;; low-level morphism checking/extending functions
          new-mapping
@@ -76,7 +76,7 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (info "Number of targets:" (vec (map count tgs)))
+  (trace "Number of targets:" (vec (map count tgs)))
   (let [solution? (fn [[n m]] (= n (count Sgens))) ;n - #generators, m - morphs
         generator (fn [[n m :as v]]
                     (if (solution? v)
@@ -92,7 +92,7 @@
                                               (r/remove nil?
                                                         (r/map f
                                                                (nth tgs n)))))]
-                        (info "Generators:" n
+                        (trace "Generators:" n
                               " Partial morphs:" (count m)
                               " Targets: " (count (nth tgs n))
                               " Realized:" (count result))
@@ -157,14 +157,14 @@
                                             (conj newmorphs [(inc n) nmorph])
                                             newmorphs)))]
                         (let [result (reduce check-gen [] ngens)]
-                          (info (count phi) "elts in phi,"
+                          (trace (count phi) "elts in phi,"
                                 (count ngens) "targets for gen" n ","
                                 (count result) "realized" (mem-info))
                           result))))
         morphs (map second (ptree-search [[0 {}]]
                                          generator
                                          solution?))]
-    (info (count morphs) "morphisms found." (mem-info))
+    (trace (count morphs) "morphisms found." (mem-info))
     (morphisms-up-to-conjugation morphs (:setconjrep conj-fn-bundle))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
