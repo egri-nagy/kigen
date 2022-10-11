@@ -5,7 +5,7 @@
             [orbit.core :refer [full-orbit]]
             [kigen.action :refer [right-action right-actions set-action]]
             [kigen.memory-info :refer [mem-info]]
-            [taoensso.timbre :refer [info]]))
+            [taoensso.timbre :refer [info trace]]))
 
 (declare sgp-by-gens
          commutative?
@@ -20,7 +20,7 @@
   [gens mul]
   (let [sgp (full-orbit gens
                         (set-action (right-actions mul gens)))]
-    (info "Semigroup of size " (count sgp) " " (mem-info))
+    (trace "Semigroup of size " (count sgp) " " (mem-info))
     sgp))
 
 (defn commutative?

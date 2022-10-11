@@ -4,9 +4,7 @@
   2. a map: element x -> set of related elements (explicit)")
 
 (declare rel ;explicit relation
-         cover-rel ;calculates the covering relation of a relation
-         chains ;all chains between given elements
-         max-distances) ;maximal distances from an element
+         cover-rel) ;calculates the covering relation of a relation
 
 (defn rel
   "Makes an implicit relation explicit. Works for finite set of elements."
