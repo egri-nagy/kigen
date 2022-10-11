@@ -37,10 +37,12 @@
                            (set (remove (partial rel? newval) covers))
                            newval))) ;the subset of covers not below and newval
         insert (fn [tab e] ;insert an element into the graph by updating covers
-                 (let [xs (filter #(and (not= % e)
-                                        (rel? % e))
-                                  elts)]
+                 ; finding all xs related to e, x rel e, but not equal to e
+                 (let [related (filter
+                                #(and (not= % e) (rel? % e))
+                                elts)]
+                   ; updating table entries for all related
                    (reduce #(update-in %1 [%2] recalc-covers e)
                            tab
-                           xs)))]
+                           related)))]
     (reduce insert emptytab elts)))

@@ -1,5 +1,5 @@
 (ns kigen.poset-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest testing is]]
             [kigen.poset :as poset]))
 
 (deftest poset-explicit-test
