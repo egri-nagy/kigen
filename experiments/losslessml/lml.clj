@@ -21,7 +21,19 @@
   "Given the the input-output pairs, and the number of states, this attempts to
   construct a suitable transducer."
   [io-pairs n]
-  (let [num-of-output-symbols (count (distinct (map second io-pairs)))]
-    (print n " " num-of-output-symbols)))
+  (let [input-symbols (distinct (mapcat first io-pairs))
+        output-symbols (distinct (map second io-pairs))
+        states (range 0 n)
+        statesfd (fd/interval 0 (dec n))
+        state-transitions (reduce
+                           (fn [m i]
+                             (conj m [i (zipmap input-symbols
+                                                (repeatedly n l/lvar))]))
+                           {}
+                           states)
+        lvars (mapcat vals (vals state-transitions))]
+    (l/run 1 [q]
+           (l/== q state-transitions)
+           (l/everyg #(fd/in % statesfd) lvars))))
 
-(construct-transducer [ [[:a :a ] :q] [ [:b :b] :p]] 4)
+(construct-transducer [ [[:a :a ] :q] [ [:b :b] :p] [[:a :b] :p]] 2)
