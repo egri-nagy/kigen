@@ -1,11 +1,12 @@
 ;; Lossless machine learning: constructing single symbol output transducers
 ;; from input word, output symbol pairs by logic programming.
 (require '[clojure.core.logic :as l])
-(def T {:p {:a :p, :b :q}
-        :q {:a :q, :b :p}})
+(require '[clojure.core.logic.fd :as fd])
 
 ;; here is an example of an automaton state transition function
-(require '[clojure.core.logic.fd :as fd])
+;; states are nonnegative integers, zero is the initial state
+(def T {0 {:a 0, :b 0}
+        1 {:a 1, :b 0}})
 
 (l/defne reduceo
   "succeds if the reduction produces the result"
@@ -36,8 +37,8 @@
      input-word))
 
 (defn process-wordo
-  [A initial-state input output]
-  (reduceo (partial state-transitiono A) initial-state input output))
+  [A initial-state input-word output]
+  (reduceo (partial state-transitiono A) initial-state input-word output))
 
 (defn construct-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -54,6 +55,7 @@
                            {}
                            states)
         lvars (mapcat vals (vals state-transitions))]
+    ;(println state-transitions "----" lvars)
     (l/run 1 [q]
            (l/== q state-transitions)
            (l/everyg #(fd/in % statesfd) lvars)
@@ -61,4 +63,4 @@
             (fn [[input output]] (process-wordo q 0 input output))
             io-pairs))))
 
-(construct-transducer [ [[:a :a ] :q] [ [:b :b] :p] [[:a :b] :p]] 1)
+(construct-transducer [ [[:a :a ] 0] [ [:b :b] 1] [[:a :b] 2]] 3)
