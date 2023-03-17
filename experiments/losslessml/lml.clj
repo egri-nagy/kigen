@@ -8,6 +8,9 @@
 (def T {0 {:a 0, :b 0}
         1 {:a 1, :b 0}})
 
+(def T2 {0 {0 0, 1 0}
+        1 {0 1, 1 0}})
+
 (l/defne reduceo
   "succeds if the reduction produces the result"
   [relo initial coll result]
@@ -17,15 +20,23 @@
             (relo initial next-item result-so-far)
             (reduceo relo result-so-far remaining result))))
 
+
 (defn state-transition
   [A state input]
   (get (get A state) input)) ; get the maps for the state, then map the input
 
+(defn geto
+  [m k v]
+  (println m)
+  (l/membero  [k v] (seq m)))
+
 (defn state-transitiono
   [A state input next-state]
-  (l/fresh [table]
-           (l/featurec A {state table})
-           (l/featurec table {input next-state})))
+  (println A)
+  (l/fresh [table x]
+           (geto A state table)
+           (l/== x table)
+           (geto x input next-state)))
 
 (defn process-word
   "Processes an input word (sequence of input symbols) by an automaton A starting
