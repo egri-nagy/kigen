@@ -73,13 +73,13 @@
   construct a suitable transducer."
   [io-pairs n]
   (let [input-symbols (distinct (mapcat first io-pairs))
-        output-symbols (distinct (map second io-pairs)) 
+        ;output-symbols (distinct (map second io-pairs)) 
         statesfd (fd/interval 0 (dec n))
         state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
     (println state-transitions "----")
-    (l/run 1 [q]
-           (l/everyg #(fd/in % statesfd) state-transitions)
-           (l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs) 
-           (l/== q state-transitions))))
+    (l/run* [q]
+           (l/== q state-transitions)
+           (l/everyg #(fd/in % statesfd) q)
+           (l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs))))
 
-(construct-transducer [ [[0 1] 0] [[1 1] 2]] 3)
+(construct-transducer [  [[1] 1] [[0 0] 0] [[0 1] 2]] 4)
