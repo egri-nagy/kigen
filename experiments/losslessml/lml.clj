@@ -65,6 +65,7 @@
 
 (defn process-wordo
   [A n initial-state input-word output]
+  (l/log "hey")
   (reduceo (partial state-transitiono A n) initial-state input-word output))
 
 (defn construct-transducer
@@ -72,16 +73,13 @@
   construct a suitable transducer."
   [io-pairs n]
   (let [input-symbols (distinct (mapcat first io-pairs))
-        output-symbols (distinct (map second io-pairs))
-        states (range 0 n)
+        output-symbols (distinct (map second io-pairs)) 
         statesfd (fd/interval 0 (dec n))
-        state-transitions (vec (repeatedly (* n (count input-symbols)) l/lvar))]
+        state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
     (println state-transitions "----")
     (l/run 1 [q]
-           (l/== q state-transitions)
            (l/everyg #(fd/in % statesfd) state-transitions)
-           (l/everyg
-            (fn [[input output]] (process-wordo n q 0 input output))
-            io-pairs))))
+           (l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs) 
+           (l/== q state-transitions))))
 
-(construct-transducer [ [[0 0] 0] ] 2)
+(construct-transducer [ [[0 1] 0] [[1 1] 2]] 3)
