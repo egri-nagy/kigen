@@ -82,4 +82,11 @@
            (l/everyg #(fd/in % statesfd) q)
            (l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs))))
 
-(construct-transducer [  [[1] 1] [[0 0] 0] [[0 1] 2]] 4)
+(construct-transducer [  [[1] 1] [[0 0] 0] [[0 1] 2] [[1 0 1] 1]]  4)
+
+(construct-transducer [[[1 0 1 2 1 2] 1]
+                       [[0 0 1 1 2 2] 0]
+                       [[0 1 2 0 1 2] 2]
+                       [[1 0 1 0 1 1] 0]
+                       [[2 1 2 1 2] 1]
+                       [[2 1 2 1 1] 0]] 3)
