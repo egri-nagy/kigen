@@ -5,11 +5,22 @@
 
 ;; here is an example of an automaton state transition function
 ;; states are nonnegative integers, zero is the initial state
-(def T {0 {:a 0, :b 0}
-        1 {:a 1, :b 0}})
+;; rows are input symbols, so one row is a transformation induced by the input
+(def T [0 0 1
+        1 2 0])
 
-(def T2 {0 {0 0, 1 0}
-        1 {0 1, 1 0}})
+(defn pos
+  "gives the position of the new state in the state-transition table
+   for the current state and input symbol"
+  [num-of-states row column]
+  (+ (* num-of-states row) column))
+
+(defn poso
+  [num-of-states row column result]
+  (l/fresh [prod coord]
+           (fd/* num-of-states row prod)
+           (fd/+ prod column coord)
+           (l/== result coord)))
 
 (l/defne reduceo
   "succeds if the reduction produces the result"
@@ -20,36 +31,41 @@
             (relo initial next-item result-so-far)
             (reduceo relo result-so-far remaining result))))
 
-
 (defn state-transition
-  [A state input]
-  (get (get A state) input)) ; get the maps for the state, then map the input
+  [A n state input]
+  (nth A (pos n state input)))
 
-(defn geto
-  [m k v]
-  (println m)
-  (l/membero  [k v] (seq m)))
+(defn NTHO
+  [coll ?n ?x current]
+  (l/fresh [head tail]
+           (l/firsto coll head)
+           (l/resto coll tail)
+           (l/conde [(l/== head ?x) (l/== ?n current)]
+                  [(NTHO tail ?n ?x (inc current))])))
+
+(defn ntho
+  [v ?n ?x]
+  (NTHO v ?n ?x 0))
+
 
 (defn state-transitiono
-  [A state input next-state]
-  (println A)
-  (l/fresh [table x]
-           (geto A state table)
-           (l/== x table)
-           (geto x input next-state)))
+  [A n state input next-state]
+  (l/fresh [coord]
+           (poso n state input coord)
+           (ntho A coord next-state)))
 
 (defn process-word
   "Processes an input word (sequence of input symbols) by an automaton A starting
    from the given initial state. It returns the resulting state."
-  [A initial-state input-word]
+  [A n initial-state input-word]
   (reduce
-   (partial state-transition A)
+   (partial state-transition A n)
      initial-state
      input-word))
 
 (defn process-wordo
-  [A initial-state input-word output]
-  (reduceo (partial state-transitiono A) initial-state input-word output))
+  [A n initial-state input-word output]
+  (reduceo (partial state-transitiono A n) initial-state input-word output))
 
 (defn construct-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -59,19 +75,13 @@
         output-symbols (distinct (map second io-pairs))
         states (range 0 n)
         statesfd (fd/interval 0 (dec n))
-        state-transitions (reduce
-                           (fn [m i]
-                             (conj m [i (zipmap input-symbols
-                                                (repeatedly n l/lvar))]))
-                           {}
-                           states)
-        lvars (mapcat vals (vals state-transitions))]
-    ;(println state-transitions "----" lvars)
+        state-transitions (vec (repeatedly (* n (count input-symbols)) l/lvar))]
+    (println state-transitions "----")
     (l/run 1 [q]
            (l/== q state-transitions)
-           (l/everyg #(fd/in % statesfd) lvars)
+           (l/everyg #(fd/in % statesfd) state-transitions)
            (l/everyg
-            (fn [[input output]] (process-wordo q 0 input output))
+            (fn [[input output]] (process-wordo n q 0 input output))
             io-pairs))))
 
-(construct-transducer [ [[:a :a ] 0] [ [:b :b] 1] [[:a :b] 2]] 3)
+(construct-transducer [ [[0 0] 0] ] 2)
