@@ -73,7 +73,8 @@
         ;output-symbols (distinct (map second io-pairs)) 
         statesfd (fd/interval 0 (dec n))
         state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
-    (println state-transitions "----")
+    (println (count state-transitions) "logic variables for" n "states" (count input-symbols) "symbols")
+    (println io-pairs)
     (l/run 1 [q]
            (l/== q state-transitions)
            (l/everyg #(fd/in % statesfd) q)
@@ -93,7 +94,42 @@
         2 3 3 2 1])
 
 (def i-o-pairs 
-  (for [w (repeatedly 8 (fn [] (vec (repeatedly 10 (partial rand-int 6)))))]
+  (for [w (repeatedly 5 (fn [] (vec (repeatedly 3 (partial rand-int 6)))))]
     [w (process-word T 5 0 w)]))
 
 (construct-transducer i-o-pairs 5)
+
+;; signal locator example
+;; too big, did not find solution with 13 states
+;; (def signal-locator-io
+;;   [[[1 0 0  0 0 0  0 0 0] 0]
+;;    [[0 1 0 0 0 0 0 0 0] 0]
+;;    [[0 0 1 0 0 0 0 0 0] 0]
+;;    [[0 0 0 1 0 0 0 0 0] 1]
+;;    [[0 0 0 0 1 0 0 0 0] 1]
+;;    [[0 0 0 0 0 1 0 0 0] 1]
+;;    [[0 0 0 0 0 0 1 0 0] 2]
+;;    [[0 0 0 0 0 0 0 1 0] 2]
+;;    [[0 0 0 0 0 0 0 0 1] 2]])
+
+;; (construct-transducer signal-locator-io 13)
+
+;; (def signal-locator-io
+;;   [[[1 0 0  0 0 0 ] 3]
+;;    [[0 1 0 0 0 0 ] 3]
+;;    [[0 0 1 0 0 0 ] 1]
+;;    [[0 0 0 1 0 0 ] 1]
+;;    [[0 0 0 0 1 0 ] 2]
+;;    [[0 0 0 0 0 1 ] 2]])
+
+;; (construct-transducer signal-locator-io 19)
+
+(def signal-locator-io
+  [[[1 0 0] 1]
+   [[0 1 0 ] 3]
+   [[0 0 1 ] 4]])
+
+;; this should work
+(construct-transducer signal-locator-io 5)
+
+(def SL [])
