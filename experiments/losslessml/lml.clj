@@ -78,7 +78,11 @@
     (l/run 1 [q]
            (l/== q state-transitions)
            (l/everyg #(fd/in % statesfd) q)
-           (l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs))))
+           ;(l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs)
+           ;(process-wordo q n 0 [1 0 0] 1)
+           ;(process-wordo q n 0 [0 1 0] 3)
+           (process-wordo q n 0 [0 0 1] 4)
+           )))
 
 ;;TEST
 ;; here is an example of an automaton state transition function
