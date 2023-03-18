@@ -1,6 +1,9 @@
 ;; Lossless machine learning: constructing a single symbol output transducer
 ;; from input word, output symbol pairs by logic programming.
 ;; In other words, constructing a Moore-machine. https://en.wikipedia.org/wiki/Moore_machine
+;; Internally both the states and the input symbols are represented as nonnegative
+;; integers, for the ease of handling by the logic engine through the finite domain
+;; package.
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 
@@ -22,15 +25,6 @@
             (l/resto coll tail)
             (l/conde [(l/== head ?x) (l/== ?n current)]
                      [(ntho tail ?n ?x (inc current))]))))
-
-;; Internally both the states and the input symbols are represented as nonnegative
-;; integers, for the ease of handling by the logic engine through the finite domain
-;; package.
-;; here is an example of an automaton state transition function
-;; states are nonnegative integers, zero is the initial state
-;; rows are input symbols, so one row is a transformation induced by the input
-(def T [0 0 1 ;states transformed by input symbol 0
-        1 2 0])
 
 (defn pos
   "It gives the position of the new state in the state-transition table
@@ -80,16 +74,26 @@
         statesfd (fd/interval 0 (dec n))
         state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
     (println state-transitions "----")
-    (l/run* [q]
+    (l/run 1 [q]
            (l/== q state-transitions)
            (l/everyg #(fd/in % statesfd) q)
            (l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs))))
 
-(construct-transducer [  [[1] 1] [[0 0] 0] [[0 1] 2] [[1 0 1] 1]]  4)
+;;TEST
+;; here is an example of an automaton state transition function
+;; states are nonnegative integers, zero is the initial state
+;; rows are input symbols, so one row is a transformation induced by the input
 
-(construct-transducer [[[1 0 1 2 1 2] 1]
-                       [[0 0 1 1 2 2] 0]
-                       [[0 1 2 0 1 2] 2]
-                       [[1 0 1 0 1 1] 0]
-                       [[2 1 2 1 2] 1]
-                       [[2 1 2 1 1] 0]] 3)
+;; T has 5 states and 6 input symbols
+(def T [0 4 1 3 2 ;states transformed by input symbol 0
+        1 2 0 3 3
+        1 2 3 4 0
+        1 0 2 3 4
+        0 1 0 1 0
+        2 3 3 2 1])
+
+(def i-o-pairs 
+  (for [w (repeatedly 8 (fn [] (vec (repeatedly 10 (partial rand-int 6)))))]
+    [w (process-word T 5 0 w)]))
+
+(construct-transducer i-o-pairs 5)
