@@ -1,10 +1,10 @@
-(defproject kigen "23.03.14"
+(defproject kigen "23.03.19"
   :description "Computational semigroup theory software system shadowing several semigroup packages of the GAP computer algebra system."
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"
             :url "http://www.gnu.org/copyleft/gpl.html"}
   :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/math.combinatorics "0.1.6"]
+                 [org.clojure/math.combinatorics "0.2.0"]
                  [org.clojure/data.int-map "1.2.0"]
                  [orbit "22.04.15"]
                  [rolling-stones "1.0.3"]
