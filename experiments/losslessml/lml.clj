@@ -83,13 +83,24 @@
 (construct-transducer [[[0] 0]] 1)
 
 ;;two resets
-(construct-transducer [[[0] 0]  [[1] 1] [[1 1] 1]  [[1 0] 0]] 2)
+(construct-transducer [[[0] 0]
+                       [[1] 1]
+                       [[1 1] 1]
+                       [[1 0] 0]] 2)
 
+;;flip-flop
+(construct-transducer [[[0] 0]
+                       [[1] 0]
+                       [[2] 1]
+                       [[2 0] 1]
+                       [[2 1] 0]
+                       [[2 2] 1]] 2)
+
+;;signal locators
 (def signal-locator-io
   [[[1 0 0] 1]
    [[0 1 0] 2]
    [[0 0 1] 3]])
-
 (construct-transducer signal-locator-io 5)
 
 (def signal-locator-io2
@@ -99,7 +110,6 @@
    [[0 0 0 1 0 0 ] 2]
    [[0 0 0 0 1 0 ] 3]
    [[0 0 0 0 0 1 ] 3]])
-
 ;(construct-transducer signal-locator-io2 5)
 
 (def signal-locator-io3
@@ -112,5 +122,4 @@
    [[0 0 0 0 0 0 1 0 0] 3]
    [[0 0 0 0 0 0 0 1 0] 3]
    [[0 0 0 0 0 0 0 0 1] 3]])
-
 ;(construct-transducer signal-locator-io3 6)
