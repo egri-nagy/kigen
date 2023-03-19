@@ -7,6 +7,7 @@
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 (require '[kigen.logic :as kl])
+(require '[clojure.math.combinatorics :as combo])
 
 (defn pos
   "It gives the position of the new state in the state-transition table
@@ -95,6 +96,25 @@
                        [[2 0] 1]
                        [[2 1] 0]
                        [[2 2] 1]] 2)
+
+
+;;parity checker - no counting needed
+(construct-transducer [[[0 0 0] 0]
+                       [[0 0 1] 1]
+                       [[0 1 0] 1]
+                       [[0 1 1] 0]
+                       [[1 0 0] 1]
+                       [[1 0 1] 0]
+                       [[1 1 0] 0]
+                       [[1 1 1] 1]] 2)
+
+;;same for 10 bits (and in general)
+(construct-transducer
+ (map (fn [l]
+        [l (let [i (count (filter #{1} l))]
+             (if (even? i) 0 1))])
+      (combo/selections [0 1] 10)) 2)
+
 
 ;;signal locators
 (def signal-locator-io
