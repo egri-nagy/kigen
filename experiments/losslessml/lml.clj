@@ -6,36 +6,18 @@
 ;; package.
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
-
-;; general relational code
-(l/defne reduceo
-  "Relational reduce, succeds if the reduction produces the result."
-  [relo initial coll result]
-  ([_ _ () _] (l/== initial result))
-  ([_ _ [next-item . remaining] _]
-   (l/fresh [result-so-far]
-            (relo initial next-item result-so-far)
-            (reduceo relo result-so-far remaining result))))
-
-(defn ntho
-  ([coll ?n ?x] (ntho coll ?n ?x 0))
-  ([coll ?n ?x current]
-   (l/fresh [head tail]
-            (l/firsto coll head)
-            (l/resto coll tail)
-            (l/conde [(l/== head ?x) (l/== ?n current)]
-                     [(ntho tail ?n ?x (inc current))]))))
+(require '[kigen.logic :as kl])
 
 (defn pos
   "It gives the position of the new state in the state-transition table
    for the current state and input symbol."
-  [num-of-states row column]
+  [num-of-states column row]
   (+ (* num-of-states row) column))
 
 (defn poso
   "Relation version of pos. Succeeds if the computed coordinate
    is the correct one."
-  [num-of-states row column result]
+  [num-of-states column row result]
   (l/fresh [prod coord]
            (fd/* num-of-states row prod)
            (fd/+ prod column coord)
@@ -49,7 +31,7 @@
   [A n state input next-state]
   (l/fresh [coord]
            (poso n state input coord)
-           (ntho A coord next-state)))
+           (kl/ntho A coord next-state)))
 
 (defn process-word
   "Processes an input word (sequence of input symbols) by an automaton A starting
@@ -62,8 +44,7 @@
 
 (defn process-wordo
   [A n initial-state input-word output]
-  (l/log "hey")
-  (reduceo (partial state-transitiono A n) initial-state input-word output))
+  (kl/reduceo (partial state-transitiono A n) initial-state input-word output))
 
 (defn construct-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -76,12 +57,13 @@
     (println (count state-transitions) "logic variables for" n "states" (count input-symbols) "symbols")
     (println io-pairs)
     (l/run 1 [q]
+           (l/everyg #(fd/in % statesfd) state-transitions)
+           (l/everyg (fn [[input output]] (process-wordo state-transitions n 0 input output)) io-pairs)
            (l/== q state-transitions)
-           (l/everyg #(fd/in % statesfd) q)
-           ;(l/everyg (fn [[input output]] (process-wordo q n 0 input output)) io-pairs)
+
            ;(process-wordo q n 0 [1 0 0] 1)
-           ;(process-wordo q n 0 [0 1 0] 3)
-           (process-wordo q n 0 [0 0 1] 4)
+           ;(process-wordo state-transitions n 0 [0 1 0] 3)
+           ;(process-wordo state-transitions n 0 [0 0 1] 4)
            )))
 
 ;;TEST
@@ -103,37 +85,38 @@
 
 (construct-transducer i-o-pairs 5)
 
-;; signal locator example
-;; too big, did not find solution with 13 states
-;; (def signal-locator-io
-;;   [[[1 0 0  0 0 0  0 0 0] 0]
-;;    [[0 1 0 0 0 0 0 0 0] 0]
-;;    [[0 0 1 0 0 0 0 0 0] 0]
-;;    [[0 0 0 1 0 0 0 0 0] 1]
-;;    [[0 0 0 0 1 0 0 0 0] 1]
-;;    [[0 0 0 0 0 1 0 0 0] 1]
-;;    [[0 0 0 0 0 0 1 0 0] 2]
-;;    [[0 0 0 0 0 0 0 1 0] 2]
-;;    [[0 0 0 0 0 0 0 0 1] 2]])
+;;edge cases - 1 state, 1 input symbol
+(construct-transducer [[[0] 0]] 1)
 
-;; (construct-transducer signal-locator-io 13)
-
-;; (def signal-locator-io
-;;   [[[1 0 0  0 0 0 ] 3]
-;;    [[0 1 0 0 0 0 ] 3]
-;;    [[0 0 1 0 0 0 ] 1]
-;;    [[0 0 0 1 0 0 ] 1]
-;;    [[0 0 0 0 1 0 ] 2]
-;;    [[0 0 0 0 0 1 ] 2]])
-
-;; (construct-transducer signal-locator-io 19)
+;;two resets
+(construct-transducer [[[0] 0]  [[1] 1] [[1 1] 1]  [[1 0] 0]] 2)
 
 (def signal-locator-io
   [[[1 0 0] 1]
-   [[0 1 0 ] 3]
-   [[0 0 1 ] 4]])
+   [[0 1 0] 2]
+   [[0 0 1] 3]])
 
-;; this should work
 (construct-transducer signal-locator-io 5)
 
-(def SL [])
+(def signal-locator-io2
+  [[[1 0 0  0 0 0 ] 1]
+   [[0 1 0 0 0 0 ] 1]
+   [[0 0 1 0 0 0 ] 2]
+   [[0 0 0 1 0 0 ] 2]
+   [[0 0 0 0 1 0 ] 3]
+   [[0 0 0 0 0 1 ] 3]])
+
+;(construct-transducer signal-locator-io2 5)
+
+(def signal-locator-io3
+  [[[1 0 0  0 0 0  0 0 0] 1]
+   [[0 1 0 0 0 0 0 0 0] 1]
+   [[0 0 1 0 0 0 0 0 0] 1]
+   [[0 0 0 1 0 0 0 0 0] 2]
+   [[0 0 0 0 1 0 0 0 0] 2]
+   [[0 0 0 0 0 1 0 0 0] 2]
+   [[0 0 0 0 0 0 1 0 0] 3]
+   [[0 0 0 0 0 0 0 1 0] 3]
+   [[0 0 0 0 0 0 0 0 1] 3]])
+
+;(construct-transducer signal-locator-io3 6)
