@@ -109,10 +109,27 @@
 ;;same for 10 bits (and in general)
 (first (construct-transducer
         (map (fn [l]
-               [l (let [i (count (filter #{1} l))]
-                    (if (even? i) 0 1))])
+               [l (if (even? (count (filter #{1} l))) 0 1)])
              (combo/selections [0 1] 10)) 2))
 
+;;counting ones in 01-sequences: length of input word + 1 states needed
+(count (construct-transducer
+        (map (fn [l]
+               [l (count (filter #{1} l))])
+             (combo/selections [0 1] 5)) 6))
+
+;; deciding whether there are more zeroes or ones, or equal
+;; not easy, for 4 inputs minimum 9 states needed
+(comment (first (construct-transducer
+                 (map (fn [l]
+                        [l (let [ones (count (filter #{1} l))
+                                 zeroes (count (filter #{0} l))]
+                             (cond
+                               (< zeroes ones) 0
+                               (= zeroes ones) 1
+                               :else 2))])
+                      (combo/selections [0 1] 4)) 9))
+         )
 
 ;;signal locators
 (def signal-locator-io
