@@ -11,16 +11,16 @@
 (defn pos
   "It gives the position of the new state in the state-transition table
    for the current state and input symbol."
-  [num-of-states column row]
-  (+ (* num-of-states row) column))
+  [num-of-states state input]
+  (+ (* num-of-states input) state))
 
 (defn poso
   "Relation version of pos. Succeeds if the computed coordinate
    is the correct one."
-  [num-of-states column row result]
+  [num-of-states state input result]
   (l/fresh [prod coord]
-           (fd/* num-of-states row prod)
-           (fd/+ prod column coord)
+           (fd/* num-of-states input prod)
+           (fd/+ prod state coord)
            (l/== result coord)))
 
 (defn state-transition
@@ -55,16 +55,10 @@
         statesfd (fd/interval 0 (dec n))
         state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
     (println (count state-transitions) "logic variables for" n "states" (count input-symbols) "symbols")
-    (println io-pairs)
     (l/run 1 [q]
            (l/everyg #(fd/in % statesfd) state-transitions)
            (l/everyg (fn [[input output]] (process-wordo state-transitions n 0 input output)) io-pairs)
-           (l/== q state-transitions)
-
-           ;(process-wordo q n 0 [1 0 0] 1)
-           ;(process-wordo state-transitions n 0 [0 1 0] 3)
-           ;(process-wordo state-transitions n 0 [0 0 1] 4)
-           )))
+           (l/== q state-transitions))))
 
 ;;TEST
 ;; here is an example of an automaton state transition function
