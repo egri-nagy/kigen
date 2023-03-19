@@ -1,5 +1,5 @@
 (ns kigen.logic
-  "Relations to extend core.logic."
+  "Further relations (goals) to extend core.logic."
   (:require [clojure.core.logic :as l]))
 
 (l/defne reduceo
@@ -12,6 +12,7 @@
             (reduceo relo result-so-far remaining result))))
 
 (defn ntho
+  "Succeeds if the collection has x as the index n element."
   ([coll n x] (ntho coll n x 0))
   ([coll n x current]
    (l/fresh [head tail]
