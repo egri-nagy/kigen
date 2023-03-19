@@ -9,9 +9,10 @@
 (require '[kigen.logic :as kl])
 (require '[clojure.math.combinatorics :as combo])
 
+;; relational code is after the functional one to see the connection
 (defn pos
   "It gives the position of the new state in the state-transition table
-   for the current state and input symbol."
+   (a flat vector) for the given state and input symbol."
   [num-of-states state input]
   (+ (* num-of-states input) state))
 
@@ -25,10 +26,14 @@
            (l/== result coord)))
 
 (defn state-transition
+  "Given the state transition table as a flat vector, the number of
+   states (row length), and a state-input pair it computes the next state
+   by a simple lookup."
   [A n state input]
   (nth A (pos n state input)))
 
 (defn state-transitiono
+  "The relational version of state-transition."
   [A n state input next-state]
   (l/fresh [coord]
            (poso n state input coord)
@@ -44,76 +49,69 @@
      input-word))
 
 (defn process-wordo
+  "The relational version of process-word."
   [A n initial-state input-word output]
   (kl/reduceo (partial state-transitiono A n) initial-state input-word output))
 
 (defn construct-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
-  construct a suitable transducer."
+  construct a suitable transducer.
+   It produces all solutions lazily, so if only a solution is needed, first
+   can be used."
   [io-pairs n]
   (let [input-symbols (distinct (mapcat first io-pairs))
         ;output-symbols (distinct (map second io-pairs)) 
         statesfd (fd/interval 0 (dec n))
         state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
-    (println (count state-transitions) "logic variables for" n "states" (count input-symbols) "symbols")
-    (l/run 1 [q]
+    (println (count state-transitions) "logic variables for"
+             n "states"
+             (count input-symbols) "symbols")
+    (l/run* [q]
            (l/everyg #(fd/in % statesfd) state-transitions)
-           (l/everyg (fn [[input output]] (process-wordo state-transitions n 0 input output)) io-pairs)
+           (l/everyg (fn [[input output]]
+                       (process-wordo state-transitions n 0 input output))
+                     io-pairs)
            (l/== q state-transitions))))
 
-;;TEST
-;; here is an example of an automaton state transition function
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;TEST cases
 ;; states are nonnegative integers, zero is the initial state
 ;; rows are input symbols, so one row is a transformation induced by the input
 
-;; T has 5 states and 6 input symbols
-(def T [0 4 1 3 2 ;states transformed by input symbol 0
-        1 2 0 3 3
-        1 2 3 4 0
-        1 0 2 3 4
-        0 1 0 1 0
-        2 3 3 2 1])
-
-(def i-o-pairs 
-  (for [w (repeatedly 5 (fn [] (vec (repeatedly 3 (partial rand-int 6)))))]
-    [w (process-word T 5 0 w)]))
-
-(construct-transducer i-o-pairs 5)
-
-;;edge cases - 1 state, 1 input symbol
-(construct-transducer [[[0] 0]] 1)
+;;edge case - 1 state, 1 input symbol
+(first (construct-transducer [[[0] 0]] 1))
 
 ;;two resets
-(construct-transducer [[[0] 0]
-                       [[1] 1]
-                       [[1 1] 1]
-                       [[1 0] 0]] 2)
+(first (construct-transducer [[[0] 0]
+                              [[1] 1]
+                              [[1 1] 1]
+                              [[1 0] 0]] 2))
 
 ;;flip-flop
-(construct-transducer [[[0] 0]
-                       [[1] 0]
-                       [[2] 1]
-                       [[2 0] 1]
-                       [[2 1] 0]
-                       [[2 2] 1]] 2)
+(first (construct-transducer [[[0] 0]
+                              [[1] 0]
+                              [[2] 1]
+                              [[2 0] 1]
+                              [[2 1] 0]
+                              [[2 2] 1]] 2))
 
 
 ;;parity checker - no counting needed
-(construct-transducer [[[0 0 0] 0]
-                       [[0 0 1] 1]
-                       [[0 1 0] 1]
-                       [[0 1 1] 0]
-                       [[1 0 0] 1]
-                       [[1 0 1] 0]
-                       [[1 1 0] 0]
-                       [[1 1 1] 1]] 2)
+(first (construct-transducer [[[0 0 0] 0]
+                              [[0 0 1] 1]
+                              [[0 1 0] 1]
+                              [[0 1 1] 0]
+                              [[1 0 0] 1]
+                              [[1 0 1] 0]
+                              [[1 1 0] 0]
+                              [[1 1 1] 1]] 2))
 
 ;;same for 10 bits (and in general)
-(construct-transducer
- (map (fn [l]
-        [l (let [i (count (filter #{1} l))]
-             (if (even? i) 0 1))])
-      (combo/selections [0 1] 10)) 2)
+(first (construct-transducer
+        (map (fn [l]
+               [l (let [i (count (filter #{1} l))]
+                    (if (even? i) 0 1))])
+             (combo/selections [0 1] 10)) 2))
 
 
 ;;signal locators
@@ -121,7 +119,7 @@
   [[[1 0 0] 1]
    [[0 1 0] 2]
    [[0 0 1] 3]])
-(construct-transducer signal-locator-io 5)
+;(count (construct-transducer signal-locator-io 5))
 
 (def signal-locator-io2
   [[[1 0 0  0 0 0 ] 1]
@@ -130,7 +128,7 @@
    [[0 0 0 1 0 0 ] 2]
    [[0 0 0 0 1 0 ] 3]
    [[0 0 0 0 0 1 ] 3]])
-;(construct-transducer signal-locator-io2 5)
+;(count (construct-transducer signal-locator-io2 5))
 
 (def signal-locator-io3
   [[[1 0 0  0 0 0  0 0 0] 1]
@@ -143,3 +141,17 @@
    [[0 0 0 0 0 0 0 1 0] 3]
    [[0 0 0 0 0 0 0 0 1] 3]])
 ;(construct-transducer signal-locator-io3 6)
+
+;; T has 5 states and 6 input symbols
+(def T [0 4 1 3 2 ;states transformed by input symbol 0
+        1 2 0 3 3
+        1 2 3 4 0
+        1 0 2 3 4
+        0 1 0 1 0
+        2 3 3 2 1])
+
+(def i-o-pairs
+  (for [w (repeatedly 5 (fn [] (vec (repeatedly 3 (partial rand-int 6)))))]
+    [w (process-word T 5 0 w)]))
+
+;(construct-transducer i-o-pairs 5)
