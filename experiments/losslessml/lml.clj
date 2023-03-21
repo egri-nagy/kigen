@@ -10,48 +10,27 @@
 (require '[clojure.math.combinatorics :as combo])
 
 ;; relational code is after the functional one to see the connection
-(defn pos
-  "It gives the position of the new state in the state-transition table
-   (a flat vector) for the given state and input symbol."
-  [num-of-states state input]
-  (+ (* num-of-states input) state))
-
-(defn poso
-  "Relation version of pos. Succeeds if the computed coordinate
-   is the correct one."
-  [num-of-states state input result]
-  (l/fresh [prod coord]
-           (fd/* num-of-states input prod)
-           (fd/+ prod state coord)
-           (l/== result coord)))
-
-(defn state-transition
-  "Given the state transition table as a flat vector, the number of
-   states (row length), and a state-input pair it computes the next state
-   by a simple lookup."
-  [A n state input]
-  (nth A (pos n state input)))
-
-(defn state-transitiono
-  "The relational version of state-transition."
-  [A n state input next-state]
-  (l/fresh [coord]
-           (poso n state input coord)
-           (kl/ntho A coord next-state)))
 
 (defn process-word
   "Processes an input word (sequence of input symbols) by an automaton A starting
    from the given initial state. It returns the resulting state."
   [A n initial-state input-word]
   (reduce
-   (partial state-transition A n)
+   (fn [state input]
+     (nth (nth A input) state))
      initial-state
      input-word))
 
 (defn process-wordo
   "The relational version of process-word."
   [A n initial-state input-word output]
-  (kl/reduceo (partial state-transitiono A n) initial-state input-word output))
+  (kl/reduceo (fn [state input next-state]
+                (l/fresh [v]
+                         (kl/ntho A input v)
+                         (kl/ntho v state next-state)))
+              initial-state
+              input-word
+              output))
 
 (defn construct-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -60,18 +39,19 @@
    can be used."
   [io-pairs n]
   (let [input-symbols (distinct (mapcat first io-pairs))
-        ;output-symbols (distinct (map second io-pairs)) 
         statesfd (fd/interval 0 (dec n))
-        state-transitions  (repeatedly (* n (count input-symbols)) l/lvar)]
-    (println (count state-transitions) "logic variables for"
+        A  (vec (repeatedly (count input-symbols)
+                            (fn [] (vec ( repeatedly n l/lvar)))))
+        lvars (apply concat A)]
+    (println (count lvars) "logic variables for"
              n "states"
              (count input-symbols) "symbols")
     (l/run* [q]
-           (l/everyg #(fd/in % statesfd) state-transitions)
+           (l/everyg #(fd/in % statesfd) lvars)
            (l/everyg (fn [[input output]]
-                       (process-wordo state-transitions n 0 input output))
+                       (process-wordo A n 0 input output))
                      io-pairs)
-           (l/== q state-transitions))))
+           (l/== q A))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;TEST cases
