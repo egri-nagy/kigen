@@ -136,7 +136,7 @@
   [[[1 0 0] 1]
    [[0 1 0] 2]
    [[0 0 1] 3]])
-;(count (construct-transducer signal-locator-io 5))
+;(first (construct-transducer signal-locator-io 4))
 
 (def signal-locator-io2
   [[[1 0 0  0 0 0 ] 1]
@@ -168,7 +168,30 @@
         2 3 3 2 1])
 
 (def i-o-pairs
-  (for [w (repeatedly 5 (fn [] (vec (repeatedly 3 (partial rand-int 6)))))]
+  (for [w (repeatedly 10 (fn [] (vec (repeatedly 6 (partial rand-int 6)))))]
     [w (process-word T 5 0 w)]))
 
-;(construct-transducer i-o-pairs 5)
+(first (construct-transducer i-o-pairs 5))
+
+; does this fully determine T? try this on bigger machine:
+;; (first (construct-transducer
+;;         [[[1 5 0 2 0 0] 1]
+;;          [[1 0 3 3 1 5] 2]
+;;          [[2 0 1 3 5 5] 3]
+;;          [[4 4 5 4 3 3] 0]
+;;          [[3 4 5 1 1 0] 3]
+;;          [[3 3 3 2 3 1] 0]
+;;          [[2 5 0 0 2 1] 3]
+;;          [[4 4 0 1 2 5] 3]
+;;          [[4 2 0 4 0 2] 1]
+;;          [[4 5 1 0 0 2] 1]
+;;          [[1 3 0 2 2 1] 0]
+;;          [[5 4 5 4 5 5] 3]
+;;          [[5 0 3 0 1 0] 4]
+;;          [[1 3 4 3 5 2] 4]
+;;          [[2 1 5 3 3 5] 2]
+;;          [[4 2 5 0 3 2] 4]
+;;          [[0 2 5 4 2 5] 3]
+;;          [[5 2 3 4 3 3] 1]
+;;          [[5 2 4 3 0 2] 1]
+;;          [[0 5 5 0 2 2] 0]],5))
