@@ -1,39 +1,17 @@
- (require '[clojure.core.logic :as l])
+(require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 (require '[kigen.logic :as kl])
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer :refer [construct-transducer process-word]])
+(require '[taoensso.timbre :as timbre])
 
+;;to see trace messages by construct-transducer
+(timbre/merge-config! {:min-level :trace})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;TEST cases
 ;; states are nonnegative integers, zero is the initial state
 ;; rows are input symbols, so one row is a transformation induced by the input
-
-;;flip-flop
-(first (construct-transducer [[[0] 0]
-                              [[1] 0]
-                              [[2] 1]
-                              [[2 0] 1]
-                              [[2 1] 0]
-                              [[2 2] 1]] 2))
-
-
-;;parity checker - no counting needed
-(first (construct-transducer [[[0 0 0] 0]
-                              [[0 0 1] 1]
-                              [[0 1 0] 1]
-                              [[0 1 1] 0]
-                              [[1 0 0] 1]
-                              [[1 0 1] 0]
-                              [[1 1 0] 0]
-                              [[1 1 1] 1]] 2))
-
-;;same for 10 bits (and in general)
-(first (construct-transducer
-        (map (fn [l]
-               [l (if (even? (count (filter #{1} l))) 0 1)])
-             (combo/selections [0 1] 10)) 2))
 
 ;;counting ones in 01-sequences: length of input word + 1 states needed
 (count (construct-transducer

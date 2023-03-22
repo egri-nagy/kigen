@@ -7,7 +7,8 @@
   (:require
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd]
-   [kigen.logic :as kl]))
+   [kigen.logic :as kl]
+   [taoensso.timbre :refer [trace]]))
 
 ;; relational code is after the functional one to see the connection
 
@@ -43,7 +44,7 @@
         A  (vec (repeatedly (count input-symbols)
                             (fn [] (vec (repeatedly n l/lvar)))))
         lvars (apply concat A)]
-    (println (count lvars) "logic variables for"
+    (trace (count lvars) "logic variables for"
              n "states"
              (count input-symbols) "symbols")
     (l/run* [q]
