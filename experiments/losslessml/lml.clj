@@ -8,9 +8,11 @@
 (require '[kigen.position :refer [index]])
 
 ;;to see trace messages by construct-transducer
-(timbre/merge-config! {:min-level :trace})
+;(timbre/merge-config! {:min-level :trace})
 
-(defn outputs
+(timbre/set-min-level! :info)
+
+(defn output-fn
   "Returns all collected output symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
    to refer to the symbols. There is no promise on the order, since the output
@@ -25,7 +27,7 @@
    can be used."
   [io-pairs n]
   (let [num-of-inputs (count (distinct (mapcat first io-pairs)))
-        output-symbols (outputs io-pairs)
+        output-symbols (output-fn io-pairs)
         output-generator   num-of-inputs
         modded-io-pairs (for [[input output] io-pairs]
                           [(vec (concat input [ output-generator]))
@@ -37,7 +39,7 @@
                             (fn [] (vec (repeatedly n l/lvar)))))
         state-lvars (apply concat (butlast A))
         output-lvars (last A)]
-    (println (count state-lvars) "logic variables for"
+    (timbre/info (count state-lvars) "logic variables for"
              n "states"
              num-of-inputs "symbols"
              modded-io-pairs \newline
@@ -53,22 +55,27 @@
                       modded-io-pairs)
             (l/== q A))))
 
+(defn display 
+  [output output-map]
+  [(butlast output) (map output-map (last output))])
 
 ;;signal locators
 (def signal-locator-io
   [[[1 0 0] :first]
    [[0 1 0] :second]
    [[0 0 1] :third]])
-(first (flexible-output-transducer signal-locator-io 4))
+(display
+ (first (flexible-output-transducer signal-locator-io 4))
+ (output-fn signal-locator-io))
 
 (def signal-locator-io2
-  [[[1 0 0  0 0 0 ] 1]
-   [[0 1 0 0 0 0 ] 1]
-   [[0 0 1 0 0 0 ] 2]
-   [[0 0 0 1 0 0 ] 2]
-   [[0 0 0 0 1 0 ] 3]
-   [[0 0 0 0 0 1 ] 3]])
- (construct-transducer signal-locator-io2 5)
+  [[[1 0 0  0 0 0 ] :1]
+   [[0 1 0 0 0 0 ] :2]
+   [[0 0 1 0 0 0 ] :3]
+   [[0 0 0 1 0 0 ] :4]
+   [[0 0 0 0 1 0 ] :5]
+   [[0 0 0 0 0 1 ] :6]])
+(flexible-output-transducer signal-locator-io2 6)
 
 (def signal-locator-io3
   [[[1 0 0  0 0 0  0 0 0] 1]
