@@ -130,7 +130,17 @@
    [[1 0 1] :5]
    [[1 1 0] :6]
    [[1 1 1] :7]])
-(display
- (first (flexible-output-transducer binary 8))
- (output-fn binary))
+(def binarysol  (first (flexible-output-transducer binary 8)))
+(def binaryout (output-fn binary))
+ (check
+          binary
+          binarysol
+          binaryout)
 
+(defn check
+  [io-pairs delta omega]
+  (map
+   (fn [[input output]]
+     (let [trajectory (reductions (fn [q i] (nth (nth delta i) q)) 0 input)]
+       (map (fn [q i] (str q "(" (omega q) ") -" i "-> ")) trajectory input)))
+   io-pairs))
