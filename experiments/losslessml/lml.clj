@@ -142,5 +142,6 @@
   (map
    (fn [[input output]]
      (let [trajectory (reductions (fn [q i] (nth (nth delta i) q)) 0 input)]
-       (map (fn [q i] (str q "(" (omega q) ") -" i "-> ")) trajectory input)))
+;       (println (count trajectory) (count input))
+       (apply str (concat (map (fn [q i] (str q "(" (omega q) ") -" i "-> ")) trajectory input) [(omega (last trajectory))] ))))
    io-pairs))
