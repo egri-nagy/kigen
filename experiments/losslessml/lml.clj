@@ -140,8 +140,19 @@
 (defn check
   [io-pairs delta omega]
   (map
-   (fn [[input output]]
-     (let [trajectory (reductions (fn [q i] (nth (nth delta i) q)) 0 input)]
-;       (println (count trajectory) (count input))
-       (apply str (concat (map (fn [q i] (str q "(" (omega q) ") -" i "-> ")) trajectory input) [(omega (last trajectory))] ))))
+   (fn [[input output]] ;representing one trajectory in a string
+     (let [trajectory (reductions
+                       (fn [q i] (nth (nth delta i) q)) ;state transition
+                       0
+                       input)
+           final (omega (last trajectory))]
+       (apply str (concat (map (fn [q i] (str q " "
+                                              ;"(" (omega q) ") "
+                                              "·" i " "))
+                               trajectory
+                               input)
+                          [(last trajectory) " = "final
+                           (if (= output final)
+                             " ✔"
+                             " ✘")] ))))
    io-pairs))
