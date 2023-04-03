@@ -60,7 +60,6 @@
         omega (mapv out-f (last solution))]
     (map ;we are going through all input-out pairs
      (fn [[input output]] ;representing one trajectory in a string
-       (timbre/info input "->" output)
        (let [trajectory (reductions
                          (fn [q i] (nth (nth delta i) q)) ;state transition
                          0
@@ -146,6 +145,20 @@
 
 (def zosol (first (flexible-output-transducer zo 4)))
 (check zo zosol)
+
+;;old method - seven states
+(def zo2
+  (mapv (fn [l]
+          [(vec l) (let [ones (count (filter #{1} l))
+                         zeroes (count (filter #{0} l))]
+                     (cond
+                       (< zeroes ones) 1
+                       (= zeroes ones) 2
+                       :else 3))])
+        (combo/selections [0 1] 4)))
+
+(first (construct-transducer zo2 7))
+ 
 
 (def binary
   [[[0 0 0] :0]
