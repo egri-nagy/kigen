@@ -1,6 +1,5 @@
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
-(require '[kigen.logic :as kl])
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer :refer :all])
 (require '[taoensso.timbre :as timbre])
@@ -9,7 +8,7 @@
 
 ;;to see trace messages by construct-transducer
 ;(timbre/merge-config! {:min-level :trace})
-(timbre/set-min-level! :debug)
+(timbre/set-min-level! :info)
 
 (defn output-fn
   "Returns all collected output symbols appearing in the input-output
@@ -38,15 +37,14 @@
                             (fn [] (vec (repeatedly n l/lvar)))))
         state-lvars (apply concat (butlast A))
         output-lvars (last A)]
-    (timbre/info (count state-lvars) "logic variables for"
-                 n "states"
-                 num-of-inputs "symbols")
-    (timbre/debug
-     modded-io-pairs \newline
-     (count (apply concat A)) \newline
-     output-lvars
-     \newline A
-     \newline outputs output-symbols states)
+    (timbre/info ;bit of information about the processed input
+     (+ (count state-lvars) (count output-lvars))
+     "logic variables for"
+     n "states"
+     num-of-inputs "input symbols"
+     (count output-symbols) "output symbols")
+    (timbre/debug ;debug information about the modified input
+     "modified io pairs" modded-io-pairs)
     (l/run* [q]
             (l/everyg #(fd/in % states) state-lvars)
             (l/everyg #(fd/in % outputs) output-lvars)
@@ -54,6 +52,29 @@
                         (process-wordo A n 0 input output))
                       modded-io-pairs)
             (l/== q A))))
+
+(defn check
+  [io-pairs delta omega]
+  (println "enetering check")
+  (map ;we are going through all input-out pairs
+   (fn [[input output]] ;representing one trajectory in a string
+     (timbre/info input "->" output)
+     (let [trajectory (reductions
+                       (fn [q i] (nth (nth delta i) q)) ;state transition
+                       0
+                       input)
+           final (omega (last trajectory))]
+       (apply str (concat (map (fn [q i] (str q " "
+                                              ;"(" (omega q) ") "
+                                              "·" i " "))
+                               trajectory
+                               input)
+                          [(last trajectory) " = " final
+                           (if (= output final)
+                             " ✔"
+                             " ✘")]))))
+   io-pairs))
+
 
 (defn display 
   [output output-map]
@@ -110,38 +131,24 @@
        (combo/selections [0 1] 3)) 4)
 
 ;; deciding whether there are more zeroes or ones, or equal
-;; not easy, for 4 inputs minimum 9 states needed
-(first (flexible-output-transducer
-        (map (fn [l]
-               [l (let [ones (count (filter #{1} l))
-                        zeroes (count (filter #{0} l))]
-                    (cond
-                      (< zeroes ones) :moreones
-                      (= zeroes ones) :eq
-                      :else :morezeros))])
-             (combo/selections [0 1] 4)) 4))
+;; not easy, for 4 inputs minimum 9 states needed - better with flexible output?
+(def zo 
+  (mapv (fn [l]
+         [(vec l) (let [ones (count (filter #{1} l))
+                  zeroes (count (filter #{0} l))]
+              (cond
+                (< zeroes ones) :moreones
+                (= zeroes ones) :eq
+                :else :morezeros))])
+       (combo/selections [0 1] 4)))
 
-
-(defn check
-  [io-pairs delta omega]
-  (map
-   (fn [[input output]] ;representing one trajectory in a string
-     (let [trajectory (reductions
-                       (fn [q i] (nth (nth delta i) q)) ;state transition
-                       0
-                       input)
-           final (omega (last trajectory))]
-       (apply str (concat (map (fn [q i] (str q " "
-                                              ;"(" (omega q) ") "
-                                              "·" i " "))
-                               trajectory
-                               input)
-                          [(last trajectory) " = "final
-                           (if (= output final)
-                             " ✔"
-                             " ✘")] ))))
-   io-pairs))
-
+(def zosol (first (flexible-output-transducer zo 4)))
+(def zoout (output-fn zo))
+ [zo zosol zoout]
+(check
+ zo
+ zosol
+ (mapv zoout (last zosol)))
 
 (def binary
   [[[0 0 0] :0]
@@ -154,6 +161,7 @@
    [[1 1 1] :7]])
 (def binarysol  (first (flexible-output-transducer binary 8)))
 (def binaryout (output-fn binary))
+[binary binarysol binaryout]
 (check
  binary
  binarysol
