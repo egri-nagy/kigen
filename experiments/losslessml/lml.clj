@@ -9,14 +9,13 @@
 
 ;;to see trace messages by construct-transducer
 ;(timbre/merge-config! {:min-level :trace})
-
-(timbre/set-min-level! :info)
+(timbre/set-min-level! :debug)
 
 (defn output-fn
   "Returns all collected output symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
-   to refer to the symbols. There is no promise on the order, since the output
-   values can be of any type, not even guaranteed to be comparable."
+   to refer to the symbols. The order of the symbols defined by the order
+   of their appeareance in the io-pairs (through distinct)."
   [io-pairs]
   (vec (distinct (map second io-pairs))))
 
@@ -40,13 +39,14 @@
         state-lvars (apply concat (butlast A))
         output-lvars (last A)]
     (timbre/info (count state-lvars) "logic variables for"
-             n "states"
-             num-of-inputs "symbols"
-             modded-io-pairs \newline
-             (count (apply concat A)) \newline
-             output-lvars
-             \newline A
-             \newline outputs output-symbols states)
+                 n "states"
+                 num-of-inputs "symbols")
+    (timbre/debug
+     modded-io-pairs \newline
+     (count (apply concat A)) \newline
+     output-lvars
+     \newline A
+     \newline outputs output-symbols states)
     (l/run* [q]
             (l/everyg #(fd/in % states) state-lvars)
             (l/everyg #(fd/in % outputs) output-lvars)
@@ -111,31 +111,16 @@
 
 ;; deciding whether there are more zeroes or ones, or equal
 ;; not easy, for 4 inputs minimum 9 states needed
-(comment (first (construct-transducer
-                 (map (fn [l]
-                        [l (let [ones (count (filter #{1} l))
-                                 zeroes (count (filter #{0} l))]
-                             (cond
-                               (< zeroes ones) 0
-                               (= zeroes ones) 1
-                               :else 2))])
-                      (combo/selections [0 1] 4)) 9)))
+(first (flexible-output-transducer
+        (map (fn [l]
+               [l (let [ones (count (filter #{1} l))
+                        zeroes (count (filter #{0} l))]
+                    (cond
+                      (< zeroes ones) :moreones
+                      (= zeroes ones) :eq
+                      :else :morezeros))])
+             (combo/selections [0 1] 4)) 4))
 
-(def binary
-  [[[0 0 0] :0]
-   [[0 0 1] :1]
-   [[0 1 0] :2]
-   [[0 1 1] :3]
-   [[1 0 0] :4]
-   [[1 0 1] :5]
-   [[1 1 0] :6]
-   [[1 1 1] :7]])
-(def binarysol  (first (flexible-output-transducer binary 8)))
-(def binaryout (output-fn binary))
- (check
-          binary
-          binarysol
-          binaryout)
 
 (defn check
   [io-pairs delta omega]
@@ -156,3 +141,20 @@
                              " ✔"
                              " ✘")] ))))
    io-pairs))
+
+
+(def binary
+  [[[0 0 0] :0]
+   [[0 0 1] :1]
+   [[0 1 0] :2]
+   [[0 1 1] :3]
+   [[1 0 0] :4]
+   [[1 0 1] :5]
+   [[1 1 0] :6]
+   [[1 1 1] :7]])
+(def binarysol  (first (flexible-output-transducer binary 8)))
+(def binaryout (output-fn binary))
+(check
+ binary
+ binarysol
+ binaryout)
