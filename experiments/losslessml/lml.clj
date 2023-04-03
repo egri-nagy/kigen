@@ -54,26 +54,28 @@
             (l/== q A))))
 
 (defn check
-  [io-pairs delta omega]
-  (println "enetering check")
-  (map ;we are going through all input-out pairs
-   (fn [[input output]] ;representing one trajectory in a string
-     (timbre/info input "->" output)
-     (let [trajectory (reductions
-                       (fn [q i] (nth (nth delta i) q)) ;state transition
-                       0
-                       input)
-           final (omega (last trajectory))]
-       (apply str (concat (map (fn [q i] (str q " "
+  [io-pairs solution]
+  (let [delta (butlast solution)
+        out-f (output-fn io-pairs)
+        omega (mapv out-f (last solution))]
+    (map ;we are going through all input-out pairs
+     (fn [[input output]] ;representing one trajectory in a string
+       (timbre/info input "->" output)
+       (let [trajectory (reductions
+                         (fn [q i] (nth (nth delta i) q)) ;state transition
+                         0
+                         input)
+             final (omega (last trajectory))]
+         (apply str (concat (map (fn [q i] (str q " "
                                               ;"(" (omega q) ") "
-                                              "·" i " "))
-                               trajectory
-                               input)
-                          [(last trajectory) " = " final
-                           (if (= output final)
-                             " ✔"
-                             " ✘")]))))
-   io-pairs))
+                                                "·" i " "))
+                                 trajectory
+                                 input)
+                            [(last trajectory) " = " final
+                             (if (= output final)
+                               " ✔"
+                               " ✘")]))))
+     io-pairs)))
 
 
 (defn display 
@@ -143,12 +145,7 @@
        (combo/selections [0 1] 4)))
 
 (def zosol (first (flexible-output-transducer zo 4)))
-(def zoout (output-fn zo))
- [zo zosol zoout]
-(check
- zo
- zosol
- (mapv zoout (last zosol)))
+(check zo zosol)
 
 (def binary
   [[[0 0 0] :0]
@@ -160,9 +157,4 @@
    [[1 1 0] :6]
    [[1 1 1] :7]])
 (def binarysol  (first (flexible-output-transducer binary 8)))
-(def binaryout (output-fn binary))
-[binary binarysol binaryout]
-(check
- binary
- binarysol
- binaryout)
+(check binary binarysol)
