@@ -97,19 +97,21 @@
    [[0 0 0 1 0 0 ] :4]
    [[0 0 0 0 1 0 ] :5]
    [[0 0 0 0 0 1 ] :6]])
-(flexible-output-transducer signal-locator-io2 6)
+(format-solution
+ signal-locator-io2
+ (first (flexible-output-transducer signal-locator-io2 6)))
 
 (def signal-locator-io3
-  [[[1 0 0  0 0 0  0 0 0] 1]
-   [[0 1 0 0 0 0 0 0 0] 1]
-   [[0 0 1 0 0 0 0 0 0] 1]
-   [[0 0 0 1 0 0 0 0 0] 2]
-   [[0 0 0 0 1 0 0 0 0] 2]
-   [[0 0 0 0 0 1 0 0 0] 2]
-   [[0 0 0 0 0 0 1 0 0] 3]
-   [[0 0 0 0 0 0 0 1 0] 3]
-   [[0 0 0 0 0 0 0 0 1] 3]])
-;(construct-transducer signal-locator-io3 6)
+  [[[1 0 0  0 0 0  0 0 0] :1]
+   [[0 1 0 0 0 0 0 0 0] :1]
+   [[0 0 1 0 0 0 0 0 0] :1]
+   [[0 0 0 1 0 0 0 0 0] :2]
+   [[0 0 0 0 1 0 0 0 0] :2]
+   [[0 0 0 0 0 1 0 0 0] :2]
+   [[0 0 0 0 0 0 1 0 0] :3]
+   [[0 0 0 0 0 0 0 1 0] :3]
+   [[0 0 0 0 0 0 0 0 1] :3]])
+(first (flexible-output-transducer signal-locator-io3 5))
 
 ;; T has 4 states and 3 input symbols
 (def T [[ 0 3 1 3 ] ;states transformed by input symbol 0
@@ -141,9 +143,10 @@
                 (< zeroes ones) :moreones
                 (= zeroes ones) :eq
                 :else :morezeros))])
-       (combo/selections [0 1] 4)))
+       (combo/selections [0 1] 6)))
 
-(def zosol (first (flexible-output-transducer zo 4)))
+(def zosol (first (flexible-output-transducer zo 5)))
+(format-solution zo zosol)
 (check zo zosol)
 
 ;;old method - seven states
