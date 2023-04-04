@@ -3,14 +3,14 @@
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer :refer :all])
 (require '[taoensso.timbre :as timbre])
-(require '[kigen.transf-conj :as t-c])
+;(require '[kigen.transf-conj :as t-c])
 (require '[kigen.position :refer [index]])
 
 ;;to see trace messages by construct-transducer
 ;(timbre/merge-config! {:min-level :trace})
 (timbre/set-min-level! :info)
 
-(defn output-fn
+(defn output-symbols-fn
   "Returns all collected output symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
    to refer to the symbols. The order of the symbols defined by the order
@@ -25,18 +25,23 @@
    can be used."
   [io-pairs n]
   (let [num-of-inputs (count (distinct (mapcat first io-pairs)))
-        output-symbols (output-fn io-pairs)
-        output-generator   num-of-inputs
+        output-symbols (output-symbols-fn io-pairs)
+        output-generator   num-of-inputs ; the extra input symbol
+        ;;to make the io-pairs work for the fixed engine:
+        ;;append an extra symbol for readout and replace the output
+        ;;symbols with their indices
         modded-io-pairs (for [[input output] io-pairs]
-                          [(vec (concat input [ output-generator]))
+                          [(vec (concat input [output-generator]))
                            (index output-symbols output)])
+        ;;the finite domains for the search
         outputs (fd/interval 0 (dec (count output-symbols)))
         states (fd/interval 0 (dec n))
-
-        A  (vec (repeatedly (inc num-of-inputs)
-                            (fn [] (vec (repeatedly n l/lvar)))))
-        state-lvars (apply concat (butlast A))
-        output-lvars (last A)]
+        ;;preparing the logic variables, we return the augmented matrix
+        ;;as the solution
+        lvars  (vec (repeatedly (inc num-of-inputs)
+                                (fn [] (vec (repeatedly n l/lvar)))))
+        state-lvars (apply concat (butlast lvars))
+        output-lvars (last lvars)]
     (timbre/info ;bit of information about the processed input
      (+ (count state-lvars) (count output-lvars))
      "logic variables for"
@@ -49,14 +54,14 @@
             (l/everyg #(fd/in % states) state-lvars)
             (l/everyg #(fd/in % outputs) output-lvars)
             (l/everyg (fn [[input output]]
-                        (process-wordo A n 0 input output))
+                        (process-wordo lvars n 0 input output))
                       modded-io-pairs)
-            (l/== q A))))
+            (l/== q lvars))))
 
-(defn check
+(defn check-flexible
   [io-pairs solution]
   (let [delta (butlast solution)
-        out-f (output-fn io-pairs)
+        out-f (output-symbols-fn io-pairs)
         omega (mapv out-f (last solution))]
     (map ;we are going through all input-out pairs
      (fn [[input output]] ;representing one trajectory in a string
@@ -80,7 +85,7 @@
 (defn format-solution
   [io-pairs solution]
   {:delta (butlast solution)
-   :omega (mapv (output-fn io-pairs) (last solution))})
+   :omega (mapv (output-symbols-fn io-pairs) (last solution))})
 
 ;;signal locators
 (def signal-locator-io
@@ -147,7 +152,7 @@
 
 (def zosol (first (flexible-output-transducer zo 5)))
 (format-solution zo zosol)
-(check zo zosol)
+(check-flexible zo zosol)
 
 ;;old method - seven states
 (def zo2
@@ -173,4 +178,4 @@
    [[1 1 0] :6]
    [[1 1 1] :7]])
 (def binarysol  (first (flexible-output-transducer binary 8)))
-(check binary binarysol)
+(check-flexible binary binarysol)
