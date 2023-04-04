@@ -77,18 +77,18 @@
      io-pairs)))
 
 
-(defn display 
-  [output output-map]
-  [(butlast output) (map output-map (last output))])
+(defn format-solution
+  [io-pairs solution]
+  {:delta (butlast solution)
+   :omega (mapv (output-fn io-pairs) (last solution))})
 
 ;;signal locators
 (def signal-locator-io
   [[[1 0 0] :first]
    [[0 1 0] :second]
    [[0 0 1] :third]])
-(display
- (first (flexible-output-transducer signal-locator-io 4))
- (output-fn signal-locator-io))
+(format-solution signal-locator-io
+                (first (flexible-output-transducer signal-locator-io 4)))
 
 (def signal-locator-io2
   [[[1 0 0  0 0 0 ] :1]
