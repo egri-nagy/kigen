@@ -5,7 +5,7 @@
             :url "http://www.gnu.org/copyleft/gpl.html"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/math.combinatorics "0.2.0"]
-                 [org.clojure/data.int-map "1.2.0"]
+                 [org.clojure/data.int-map "1.2.1"]
                  [orbit "22.04.15"]
                  [rolling-stones "1.0.3"]
                  [org.clojure/core.logic "1.0.1"]
