@@ -3,6 +3,7 @@
             [kigen.transducer :refer :all]
             [clojure.math.combinatorics :as combo]))
 
+;;hardcoded test cases
 (deftest test-minimal-example
   (testing "Testing an edge-case automaton with one state one input symbol."
     (is (= [[0]]
@@ -51,3 +52,14 @@
                       (combo/selections [0 1] 6)) 2))
          [[0 1] ; 0 is the identity, symbol 1 flips the state
           [1 0]]))))
+
+;;systematic tests
+
+(deftest small-flexible-transducer-test
+  (testing "Testing a small example."
+    (let [io-pairs [[[0 1 2 ] :foo]
+                    [[2] :bar]
+                    [[1 0 2 1 1 2 0 1 1 0 2] :foobar]
+                    [[1 1 0] :bar]]
+          solution (first (flexible-output-transducer io-pairs 3))]
+     (is (check-flexible io-pairs solution)))))
