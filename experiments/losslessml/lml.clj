@@ -81,6 +81,25 @@
                                " ✘")]))))
      io-pairs)))
 
+(defn check-fixed
+  [io-pairs delta]
+  (map ;we are going through all input-out pairs
+   (fn [[input output]] ;representing one trajectory in a string
+     (let [trajectory (reductions
+                       (fn [q i] (nth (nth delta i) q)) ;state transition
+                       0
+                       input)
+           final (last trajectory)]
+       (apply str (concat (map (fn [q i]
+                                 (str q " "
+                                      "·" i " "))
+                               trajectory
+                               input)
+                          [(last trajectory) " = " final
+                           (if (= output final)
+                             " ✔"
+                             " ✘")]))))
+   io-pairs))
 
 (defn format-solution
   [io-pairs solution]
@@ -165,7 +184,8 @@
                        :else 3))])
         (combo/selections [0 1] 4)))
 
-(first (construct-transducer zo2 7))
+(check-fixed zo2
+             (first (construct-transducer zo2 7)))
  
 
 (def binary
@@ -173,7 +193,6 @@
    [[0 0 1] :1]
    [[0 1 0] :2]
    [[0 1 1] :3]
-   [[1 0 0] :4]
    [[1 0 1] :5]
    [[1 1 0] :6]
    [[1 1 1] :7]])
