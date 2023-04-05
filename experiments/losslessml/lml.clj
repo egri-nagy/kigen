@@ -10,6 +10,31 @@
 ;(timbre/merge-config! {:min-level :trace})
 (timbre/set-min-level! :info)
 
+(defn trajectory
+  [input delta]
+  (reductions
+   (fn [q i]
+     (nth (nth delta i) q)) ;state transition
+   0
+   input))
+
+(defn trajectories-fixed
+  [io-pairs delta]
+  (map ;we are going through all input-out pairs
+   (fn [[input output]] ;representing one trajectory in a string
+     (let [trj (trajectory input delta)  
+           final (last trj)]
+       (apply str (concat (map (fn [q i]
+                                 (str q " "
+                                      "·" i " "))
+                               trj
+                               input)
+                          [(last trj) " = " final
+                           (if (= output final)
+                             " ✔"
+                             " ✘")]))))
+   io-pairs))
+
 (defn trajectories-flexible
   [io-pairs solution]
   (let [delta (butlast solution)
@@ -17,41 +42,18 @@
         omega (mapv out-f (last solution))]
     (map ;we are going through all input-out pairs
      (fn [[input output]] ;representing one trajectory in a string
-       (let [trajectory (reductions
-                         (fn [q i] (nth (nth delta i) q)) ;state transition
-                         0
-                         input)
-             final (omega (last trajectory))]
+       (let [trj (trajectory input delta)
+             final (omega (last trj))]
          (apply str (concat (map (fn [q i] (str q " "
                                               ;"(" (omega q) ") "
                                                 "·" i " "))
-                                 trajectory
+                                 trj
                                  input)
-                            [(last trajectory) " = " final
+                            [(last trj) " = " final
                              (if (= output final)
                                " ✔"
                                " ✘")]))))
      io-pairs)))
-
-(defn trajectories-fixed
-  [io-pairs delta]
-  (map ;we are going through all input-out pairs
-   (fn [[input output]] ;representing one trajectory in a string
-     (let [trajectory (reductions
-                       (fn [q i] (nth (nth delta i) q)) ;state transition
-                       0
-                       input)
-           final (last trajectory)]
-       (apply str (concat (map (fn [q i]
-                                 (str q " "
-                                      "·" i " "))
-                               trajectory
-                               input)
-                          [(last trajectory) " = " final
-                           (if (= output final)
-                             " ✔"
-                             " ✘")]))))
-   io-pairs))
 
 (defn format-solution
   [io-pairs solution]
@@ -119,9 +121,9 @@
                 (< zeroes ones) :moreones
                 (= zeroes ones) :eq
                 :else :morezeros))])
-       (combo/selections [0 1] 6)))
+       (mapcat #(combo/selections [0 1] %) [2 3 4])))
 
-(def zosol (first (flexible-output-transducer zo 5)))
+(def zosol (first (flexible-output-transducer zo 6)))
 (format-solution zo zosol)
 (trajectories-flexible zo zosol)
 
@@ -136,9 +138,9 @@
                        :else 3))])
         (combo/selections [0 1] 4)))
 
-(check-fixed zo2
-             (first (fixed-output-transducer zo2 7)))
- 
+(def zo2sol (first (fixed-output-transducer zo2 7)))
+(check-fixed zo2 zo2sol)
+(trajectories-fixed zo2 zo2sol) 
 
 (def binary
   [[[0 0 0] :0]
