@@ -8,7 +8,7 @@
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd]
    [kigen.logic :as kl]
-   [taoensso.timbre :refer [trace]]))
+   [taoensso.timbre :refer [info]]))
 
 ;; relational code is after the functional one to see the connection
 
@@ -33,7 +33,7 @@
               input-word
               output))
 
-(defn construct-transducer
+(defn fixed-output-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
   construct a suitable transducer.
    It produces all solutions lazily, so if only a solution is needed, first
@@ -44,7 +44,7 @@
         A  (vec (repeatedly (count input-symbols)
                             (fn [] (vec (repeatedly n l/lvar)))))
         lvars (apply concat A)]
-    (trace (count lvars) "logic variables for"
+    (info (count lvars) "logic variables for"
              n "states"
              (count input-symbols) "symbols")
     (l/run* [q]
