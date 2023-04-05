@@ -11,24 +11,33 @@
    [taoensso.timbre :refer [info debug]]
    [kigen.position :refer [index]]))
 
-;; relational code is after the functional one to see the connection
+(defn trajectory
+  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state.
+   The whole trajectory (initital, all intermittent states and final state) is returned."
+  [delta initial-state input-word]
+  (reductions
+   (fn [state input]
+     (nth (nth delta input) state)) ;state transition
+   0 ;default start state TODO: this may need to change later
+   input-word))
 
 (defn process-word
-  "Processes an input word (sequence of input symbols) by an automaton A starting
-   from the given initial state. It returns the resulting state."
-  [A initial-state input-word]
+  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state. It returns the resulting state."
+  [delta initial-state input-word]
   (reduce
    (fn [state input]
-     (nth (nth A input) state))
+     (nth (nth delta input) state))
    initial-state
    input-word))
 
+;; relational code is after the functional one to see the connection
+
 (defn process-wordo
   "The relational version of process-word."
-  [A initial-state input-word output]
+  [delta initial-state input-word output]
   (kl/reduceo (fn [state input next-state]
                 (l/fresh [v]
-                         (kl/ntho A input v)
+                         (kl/ntho delta input v)
                          (kl/ntho v state next-state)))
               initial-state
               input-word
@@ -42,18 +51,18 @@
   [io-pairs n]
   (let [input-symbols (distinct (mapcat first io-pairs))
         statesfd (fd/interval 0 (dec n))
-        A  (vec (repeatedly (count input-symbols)
+        delta  (vec (repeatedly (count input-symbols)
                             (fn [] (vec (repeatedly n l/lvar)))))
-        lvars (apply concat A)]
+        lvars (apply concat delta)]
     (info (count lvars) "logic variables for"
              n "states"
              (count input-symbols) "symbols")
     (l/run* [q]
             (l/everyg #(fd/in % statesfd) lvars)
             (l/everyg (fn [[input output]]
-                        (process-wordo A 0 input output))
+                        (process-wordo delta 0 input output))
                       io-pairs)
-            (l/== q A))))
+            (l/== q delta))))
 
 (defn check-fixed
   [io-pairs delta]

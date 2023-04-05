@@ -10,13 +10,7 @@
 ;(timbre/merge-config! {:min-level :trace})
 (timbre/set-min-level! :info)
 
-(defn trajectory
-  [input delta]
-  (reductions
-   (fn [q i]
-     (nth (nth delta i) q)) ;state transition
-   0
-   input))
+
 
 (defn trajectories-fixed
   [io-pairs delta]
