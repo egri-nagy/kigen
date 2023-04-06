@@ -43,6 +43,7 @@
               input-word
               output))
 
+;; FIXED OUTPUT TRANSDUCER CONSTRUCTION
 (defn fixed-output-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
   construct a suitable transducer.
@@ -65,11 +66,32 @@
             (l/== q delta))))
 
 (defn check-fixed
+  "Returns true if the given automaton (defined by delta, state transition function)
+   will indeed produce the output values given in the io-pairs."
   [io-pairs delta]
   (every? (fn [[input output]]
             (= output (process-word delta 0 input)))
           io-pairs))
 
+(defn trajectories-fixed
+  "Creates string representations of all trajectories by the io-pairs."
+  [io-pairs delta]
+  (map ;we are going through all input-out pairs
+   (fn [[input output]] ;representing one trajectory in a string
+     (let [trj (trajectory delta 0 input)
+           final (last trj)]
+       (apply str (concat (map (fn [q i]
+                                 (str q " "
+                                      "·" i " "))
+                               trj
+                               input)
+                          [(last trj) " = " final
+                           (if (= output final)
+                             " ✔"
+                             " ✘")]))))
+   io-pairs))
+
+;; FLEXIBLE OUTPUT TRANSDUCER CONSTRUCTION
 (defn output-symbols-fn
   "Returns all collected output symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
@@ -118,11 +140,38 @@
                       modded-io-pairs)
             (l/== q lvars))))
 
-(defn check-flexible
+(defn format-flexible
+  "A constructed flexible transducer gives the delta and encoded omega together.
+   This function separate those into a hash-map."
   [io-pairs solution]
-  (let [delta (butlast solution)
-        out-f (output-symbols-fn io-pairs)
-        omega (mapv out-f (last solution))]
+  {:delta (vec (butlast solution))
+   :omega (mapv (output-symbols-fn io-pairs) (last solution))})
+
+(defn check-flexible
+  "Returns true if the given automaton (defined by solution, state transition function
+   and output function) will indeed produce the output values given in the io-pairs.
+   It uses format-flexible for processing the raw solution."
+  [io-pairs solution]
+  (let [{delta :delta omega :omega} (format-flexible io-pairs solution)]
     (every? (fn [[input output]]
               (= output (omega (process-word delta 0 input))))
             io-pairs)))
+
+(defn trajectories-flexible
+  "Creates string representations of all trajectories by the io-pairs."
+  [io-pairs solution]
+  (let [{delta :delta omega :omega} (format-flexible io-pairs solution)]
+    (map ;we are going through all input-out pairs
+     (fn [[input output]] ;representing one trajectory in a string 
+       (let [trj (trajectory delta 0 input)
+             final (omega (last trj))]
+         (apply str (concat (map (fn [q i] (str q " "
+                                              ;"(" (omega q) ") "
+                                                "·" i " "))
+                                 trj
+                                 input)
+                            [(last trj) " = " final
+                             (if (= output final)
+                               " ✔"
+                               " ✘")]))))
+     io-pairs)))
