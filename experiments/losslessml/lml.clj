@@ -65,25 +65,51 @@
  sl-9-3
  (first (flexible-output-transducer sl-9-3 5)))
 
+;; PALINDROMES
+(defn palindromes
+  [n]
+  (mapv (fn [l]
+          [(vec l)
+           (if (= l (reverse l))
+             :palindrome
+             :ordinary)])
+        (combo/selections [0 1] n)))
+(def plndrm3 (palindromes 3))
+(format-flexible
+ plndrm3
+ (first (flexible-output-transducer plndrm3 4)))
+
+(def plndrm4 (palindromes 4))
+(format-flexible
+ plndrm4
+ (first (flexible-output-transducer plndrm4 5)))
+
+(def plndrm5 (palindromes 5))
+(format-flexible
+ plndrm5
+ (first (flexible-output-transducer plndrm5 5))) ;??
+
+;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
 (def T [[0 3 1 3] ;states transformed by input symbol 0
         [1 2 0 3]
         [1 0 2 3]])
 
-(def i-o-pairs
-  (for [w (repeatedly 25
+(def Ti-o-pairs
+  (for [w (repeatedly 7
                       (fn [] (vec (repeatedly 4
                                               (partial rand-int 3)))))]
     [w (process-word T 0 w)]))
 
 ;is it uniquely determined?
-(first (fixed-output-transducer i-o-pairs 4))
+(count (fixed-output-transducer Ti-o-pairs 4))
 
-;;counting ones in 01-sequences: length of input word + 1 states needed
-(flexible-output-transducer
- (map (fn [l]
-        [l (count (filter #{1} l))])
-      (combo/selections [0 1] 3)) 4)
+;;COUNTING ONES : length of input word + 1 states needed
+(first
+ (flexible-output-transducer
+  (map (fn [l]
+         [l (count (filter #{1} l))])
+       (combo/selections [0 1] 4)) 5))
 
 ;; deciding whether there are more zeroes or ones, or equal
 ;; not easy, for 4 inputs minimum 9 states needed - better with flexible output?
