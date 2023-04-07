@@ -1,6 +1,8 @@
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer :refer :all])
 (require '[taoensso.timbre :as timbre])
+(require '[tangle.core :as tangle])
+(require '[clojure.java.io :refer [copy file]])
 
 ;(require '[kigen.transf-conj :as t-c])
 
@@ -138,3 +140,8 @@
 (def binarysol  (first (transducer binary 8)))
 (trajectories binary binarysol)
 (check binary binarysol)
+
+(def nodes [:a :b :c :d])
+(def edges [[:a :b] [:b :c]])
+(copy (tangle/dot->image (tangle/graph->dot nodes edges {:directed? true}) "pdf")
+      (file "x.pdf"))
