@@ -69,17 +69,17 @@
                "0 ·1 1 ·1 3 ·0 0 = 0 ✔")
            (trajectories-fixed io-pairs solution))))))
 
-(deftest small-flexible-transducer-test
+(deftest small-transducer-test
   (testing "Testing a small example."
     (let [io-pairs [[[0 1 2] :foo]
                     [[2] :bar]
                     [[1 0 2 1 1 2 0 1 1 0 2] :foobar]
                     [[1 1 0] :bar]]
-          solution (first (flexible-output-transducer io-pairs 3))]
+          solution (first (transducer io-pairs 3))]
       (is
-       (check-flexible io-pairs solution))
+       (check io-pairs solution))
       (is (= '("0 ·0 0 ·1 1 ·2 0 = :foo ✔"
                "0 ·2 2 = :bar ✔"
                "0 ·1 1 ·0 0 ·2 2 ·1 0 ·1 1 ·2 0 ·0 0 ·1 1 ·1 2 ·0 2 ·2 1 = :foobar ✔"
                "0 ·1 1 ·1 2 ·0 2 = :bar ✔")
-           (trajectories-flexible io-pairs solution))))))
+           (trajectories io-pairs solution))))))

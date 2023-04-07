@@ -1,22 +1,21 @@
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer :refer :all])
 (require '[taoensso.timbre :as timbre])
+
 ;(require '[kigen.transf-conj :as t-c])
 
 ;; levels: :warn, :info, :debug
-(timbre/set-min-level! :info)
+(timbre/set-min-level! :debug)
 
 ;;SIGNAL LOCATORS - there is a symbol 1 (the signal) in the sequence of zeroes
 ;; where is it?
 ;; sl-n-k signal locator for n symbols with k regions 
 ;; the number of state is checked to be minimal
 (def sl-3-3
-  [[[1 0 0] :first]
-   [[0 1 0] :second]
-   [[0 0 1] :third]])
-(format-flexible
- sl-3-3
- (first (flexible-output-transducer sl-3-3 3)))
+  [["abb" :first]
+   ["bab" :second]
+   ["bba" :third]])
+(first (flexible-output-transducer sl-3-3 3))
 
 (def sl-6-2
   [[[1 0 0  0 0 0] :first]
@@ -84,10 +83,10 @@
  plndrm4
  (first (flexible-output-transducer plndrm4 5)))
 
-(def plndrm5 (palindromes 5))
-(format-flexible
- plndrm5
- (first (flexible-output-transducer plndrm5 5))) ;??
+;; (def plndrm5 (palindromes 5))
+;; (format-flexible
+;;  plndrm5
+;;  (first (flexible-output-transducer plndrm5 6))) ;??
 
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
