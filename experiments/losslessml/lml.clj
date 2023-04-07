@@ -17,7 +17,8 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
-(trajectories sl-3-3 (first (transducer sl-3-3 3)))
+(def sl-3-3sol (first (transducer sl-3-3 3)))
+(trajectories sl-3-3 sl-3-3sol)
 
 (def sl-6-2
   [["|_____" :first]
@@ -147,25 +148,25 @@
                (fn [state]
                  {:id (str "node" state)
                   :label (str state " " (omega state))})
-               (range (count delta)))
+               (range (count (first (vals delta)))))
         edges (mapcat
                (fn [input-sym]
                  (map 
                   (fn [a b]
-                    [(str "node" a) (str "node" b) {:label (str "\"" input-sym "\"")}])
+                    [(str "node" a) (str "node" b) {:label input-sym}])
                   (range) (delta input-sym))) 
                (input-symbols-fn io-pairs))]
     (timbre/info nodes edges)
     (copy (tangle/dot->image (tangle/graph->dot
                               nodes
                               edges
-                              {:directed? true :node {:shape :box}
+                              {:directed? true ;:node {:shape :box}
                                :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
                                :node->descriptor (fn [n] (when-not (keyword? n) n))})
                              "pdf")
           (file "x.pdf"))))
 
-(DotSolution binary binarysol)
+(DotSolution sl-3-3 sl-3-3sol)
 
 (def nodes [:a :b :c :d {:id (str :d) :label "luki"}])
 (def edges [[:a :b] [:b :c]])
