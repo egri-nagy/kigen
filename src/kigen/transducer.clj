@@ -1,9 +1,10 @@
 (ns kigen.transducer
-  "Lossless machine learning: constructing a single symbol output transducer  from input word, output symbol pairs by logic programming.
-  In other words, constructing a Moore-machine. https://en.wikipedia.org/wiki/Moore_machine
- Internally both the states and the input symbols are represented as nonnegative
- integers, for the ease of handling by the logic engine through the finite domain
- package."
+  "Lossless machine learning: constructing a single symbol output transducer  from input word,
+   output symbol pairs by logic programming.
+   In other words, constructing a Moore-machine. https://en.wikipedia.org/wiki/Moore_machine
+   Internally both the states and the input symbols are represented as nonnegative
+   integers, for the ease of handling by the logic engine through the finite domain
+   package. State 0 is the initial state."
   (:require
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd]
@@ -17,8 +18,8 @@
   [delta initial-state input-word]
   (reductions
    (fn [state input]
-     ((delta input) state)) ;state transition - more flexible without nth
-   0 ;default start state TODO: this may need to change later
+     ((delta input) state)) ;state transition - more flexible without nth, works for maps too
+   initial-state
    input-word))
 
 (defn process-word
@@ -31,7 +32,7 @@
    input-word))
 
 ;; relational code is after the functional one to see the connection
-
+;; we have to use ntho explicitly (only works vectors internally)
 (defn process-wordo
   "The relational version of process-word."
   [delta initial-state input-word output]
@@ -43,9 +44,11 @@
               input-word
               output))
 
+;; FLEXIBLE INPUT OUTPUT TRANSDUCER CONSTRUCTION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; input words can be sequences of any type of distinct entities
+;; similarly, outputs can be of any types
+;; internal states are nonnegtaive integers
 
-
-;; FLEXIBLE OUTPUT TRANSDUCER CONSTRUCTION
 (defn output-symbols-fn
   "Returns all collected output symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
@@ -71,10 +74,10 @@
   (let [input-symbols (input-symbols-fn io-pairs)
         num-of-inputs (count input-symbols)
         output-symbols (output-symbols-fn io-pairs)
-        output-generator   num-of-inputs ; the extra input symbol
+        output-generator   num-of-inputs ; the extra input symbol to trigger state readout
         ;;to make the io-pairs work for the fixed engine:
         ;;append an extra symbol for readout and replace the output
-        ;;symbols with their indices
+        ;;and input symbols with their indices
         modded-io-pairs (for [[input output] io-pairs]
                           [(vec (concat (map (partial index input-symbols) input)
                                         [output-generator]))
@@ -82,8 +85,7 @@
         ;;the finite domains for the search
         outputs (fd/interval 0 (dec (count output-symbols)))
         states (fd/interval 0 (dec n))
-        ;;preparing the logic variables, we return the augmented matrix
-        ;;as the solution
+        ;;preparing the logic variables
         lvars  (vec (repeatedly (inc num-of-inputs)
                                 (fn [] (vec (repeatedly n l/lvar)))))
         state-lvars (apply concat (butlast lvars))
@@ -99,7 +101,7 @@
      input-symbols)
     (map
      (fn [solution]
-       {:delta (into {} ;redoing delta into a map from input symbol to transformation
+       {:delta (into {} ;formatting a solution into a map with keys :delta :omega (see transducer def.)
                      (map
                       (fn [symbol transformation]
                         [symbol transformation])
@@ -113,7 +115,6 @@
                          (process-wordo lvars 0 input output))
                        modded-io-pairs)
              (l/== q lvars)))))
-
 
 (defn check
   "Returns true if the given automaton (defined by solution, state transition function
@@ -142,7 +143,7 @@
                              " ✘")]))))
    io-pairs))
 
-;; FIXED OUTPUT TRANSDUCER CONSTRUCTION
+;; FIXED OUTPUT TRANSDUCER CONSTRUCTION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; this is the first working version of transducer synthesis, so it is somewhat of
 ;; a legacy code. The input-output pairs need to be given in the internal representation
 ;; (nonnegative integers), thus the output of the Moore automaton is hardcoded.
