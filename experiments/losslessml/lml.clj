@@ -141,7 +141,39 @@
 (trajectories binary binarysol)
 (check binary binarysol)
 
-(def nodes [:a :b :c :d])
+(defn DotSolution
+  [io-pairs {omega :omega delta :delta}]
+  (let [nodes (map
+               (fn [state]
+                 {:id (str "node" state)
+                  :label (str state " " (omega state))})
+               (range (count delta)))
+        edges (mapcat
+               (fn [input-sym]
+                 (map 
+                  (fn [a b]
+                    [(str "node" a) (str "node" b) {:label (str "\"" input-sym "\"")}])
+                  (range) (delta input-sym))) 
+               (input-symbols-fn io-pairs))]
+    (timbre/info nodes edges)
+    (copy (tangle/dot->image (tangle/graph->dot
+                              nodes
+                              edges
+                              {:directed? true :node {:shape :box}
+                               :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
+                               :node->descriptor (fn [n] (when-not (keyword? n) n))})
+                             "pdf")
+          (file "x.pdf"))))
+
+(DotSolution binary binarysol)
+
+(def nodes [:a :b :c :d {:id (str :d) :label "luki"}])
 (def edges [[:a :b] [:b :c]])
-(copy (tangle/dot->image (tangle/graph->dot nodes edges {:directed? true}) "pdf")
+(copy (tangle/dot->image (tangle/graph->dot
+                          nodes
+                          edges
+                          {:directed? true :node {:shape :box}
+                           :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
+                           :node->descriptor (fn [n] (when-not (keyword? n) n))})
+                         "pdf")
       (file "x.pdf"))
