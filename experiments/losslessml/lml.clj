@@ -5,7 +5,7 @@
 ;(require '[kigen.transf-conj :as t-c])
 
 ;; levels: :warn, :info, :debug
-(timbre/set-min-level! :debug)
+(timbre/set-min-level! :info)
 
 ;;SIGNAL LOCATORS
 ;; where is the 'pulse'?
@@ -15,7 +15,7 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
-(first (transducer sl-3-3 3))
+(trajectories sl-3-3 (first (transducer sl-3-3 3)))
 
 (def sl-6-2
   [["|_____" :first]
@@ -135,6 +135,6 @@
    [[1 0 1] :5]
    [[1 1 0] :6]
    [[1 1 1] :7]])
-(def binarysol  (first (flexible-output-transducer binary 8)))
-(trajectories-flexible binary binarysol)
-(check-flexible binary binarysol)
+(def binarysol  (first (transducer binary 8)))
+(trajectories binary binarysol)
+(check binary binarysol)

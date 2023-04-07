@@ -70,16 +70,16 @@
            (trajectories-fixed io-pairs solution))))))
 
 (deftest small-transducer-test
-  (testing "Testing a small example."
-    (let [io-pairs [[[0 1 2] :foo]
-                    [[2] :bar]
-                    [[1 0 2 1 1 2 0 1 1 0 2] :foobar]
-                    [[1 1 0] :bar]]
+  (testing "Testing a small example with varied types."
+    (let [io-pairs [[[:zero 1 []] :foo]
+                    [[[]] :bar]
+                    [[1 :zero [] 1 1 [] :zero 1 1 :zero []] "foobar"]
+                    [[1 1 :zero] :bar]]
           solution (first (transducer io-pairs 3))]
       (is
        (check io-pairs solution))
-      (is (= '("0 ·0 0 ·1 1 ·2 0 = :foo ✔"
-               "0 ·2 2 = :bar ✔"
-               "0 ·1 1 ·0 0 ·2 2 ·1 0 ·1 1 ·2 0 ·0 0 ·1 1 ·1 2 ·0 2 ·2 1 = :foobar ✔"
-               "0 ·1 1 ·1 2 ·0 2 = :bar ✔")
+      (is (= '("0 ·:zero 0 ·1 1 ·[] 0 = :foo ✔"
+               "0 ·[] 2 = :bar ✔"
+               "0 ·1 1 ·:zero 0 ·[] 2 ·1 0 ·1 1 ·[] 0 ·:zero 0 ·1 1 ·1 2 ·:zero 2 ·[] 1 = foobar ✔"
+               "0 ·1 1 ·1 2 ·:zero 2 = :bar ✔")
            (trajectories io-pairs solution))))))
