@@ -7,26 +7,24 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :debug)
 
-;;SIGNAL LOCATORS - there is a symbol 1 (the signal) in the sequence of zeroes
-;; where is it?
+;;SIGNAL LOCATORS
+;; where is the 'pulse'?
 ;; sl-n-k signal locator for n symbols with k regions 
 ;; the number of state is checked to be minimal
 (def sl-3-3
-  [["abb" :first]
-   ["bab" :second]
-   ["bba" :third]])
-(first (flexible-output-transducer sl-3-3 3))
+  [["|__" :first]
+   ["_|_" :second]
+   ["__|" :third]])
+(first (transducer sl-3-3 3))
 
 (def sl-6-2
-  [[[1 0 0  0 0 0] :first]
-   [[0 1 0 0 0 0] :first]
-   [[0 0 1 0 0 0] :first]
-   [[0 0 0 1 0 0] :second]
-   [[0 0 0 0 1 0] :second]
-   [[0 0 0 0 0 1] :second]])
-(format-flexible
- sl-6-2
- (first (flexible-output-transducer sl-6-2 4)))
+  [["|_____" :first]
+   ["_|____" :first]
+   ["__|___" :first]
+   ["___|__" :second]
+   ["____|_" :second]
+   ["_____|" :second]])
+(first (transducer sl-6-2 4))
 
 (def sl-6-3
   [[[1 0 0  0 0 0] :beginning]
@@ -35,9 +33,7 @@
    [[0 0 0 1 0 0] :middle]
    [[0 0 0 0 1 0] :end]
    [[0 0 0 0 0 1] :end]])
-(format-flexible
- sl-6-3
- (first (flexible-output-transducer sl-6-3 4)))
+(first (transducer sl-6-3 4))
 
 (def sl-6-6
   [[[1 0 0  0 0 0] :1]
@@ -46,9 +42,7 @@
    [[0 0 0 1 0 0] :4]
    [[0 0 0 0 1 0] :5]
    [[0 0 0 0 0 1] :6]])
-(format-flexible
- sl-6-6
- (first (flexible-output-transducer sl-6-6 6)))
+(first (transducer sl-6-6 6))
 
 (def sl-9-3
   [[[1 0 0  0 0 0  0 0 0] :1st]
@@ -60,9 +54,7 @@
    [[0 0 0 0 0 0 1 0 0] :3rd]
    [[0 0 0 0 0 0 0 1 0] :3rd]
    [[0 0 0 0 0 0 0 0 1] :3rd]])
-(format-flexible
- sl-9-3
- (first (flexible-output-transducer sl-9-3 5)))
+(first (transducer sl-9-3 5))
 
 ;; PALINDROMES
 (defn palindromes
@@ -73,20 +65,15 @@
              :palindrome
              :ordinary)])
         (combo/selections [0 1] n)))
+
 (def plndrm3 (palindromes 3))
-(format-flexible
- plndrm3
- (first (flexible-output-transducer plndrm3 4)))
+(first (transducer plndrm3 4))
 
 (def plndrm4 (palindromes 4))
-(format-flexible
- plndrm4
- (first (flexible-output-transducer plndrm4 5)))
+ (first (transducer plndrm4 5))
 
 ;; (def plndrm5 (palindromes 5))
-;; (format-flexible
-;;  plndrm5
-;;  (first (flexible-output-transducer plndrm5 6))) ;??
+;; (first (transducer plndrm5 6))) ;??
 
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
@@ -105,7 +92,7 @@
 
 ;;COUNTING ONES : length of input word + 1 states needed
 (first
- (flexible-output-transducer
+ (transducer
   (map (fn [l]
          [l (count (filter #{1} l))])
        (combo/selections [0 1] 4)) 5))
@@ -122,9 +109,8 @@
                        :else :morezeros))])
         (mapcat #(combo/selections [0 1] %) [2 3 4])))
 
-(def zosol (first (flexible-output-transducer zo 6)))
-(format-flexible zo zosol)
-(trajectories-flexible zo zosol)
+(def zosol (first (transducer zo 5)))
+(trajectories zo zosol)
 
 ;;old method - seven states
 (def zo2
