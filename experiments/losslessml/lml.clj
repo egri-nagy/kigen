@@ -110,7 +110,7 @@
                        (< zeroes ones) :moreones
                        (= zeroes ones) :eq
                        :else :morezeros))])
-        (mapcat #(combo/selections [0 1] %) [2 3 4])))
+        (mapcat #(combo/selections [0 1] %) [1 2 3 4])))
 
 (def zosol (first (transducer zo 5)))
 (trajectories zo zosol)
@@ -142,8 +142,8 @@
 (trajectories binary binarysol)
 (check binary binarysol)
 
-(defn DotSolution
-  [io-pairs {omega :omega delta :delta}]
+(defn DotSolution2PDF
+  [io-pairs {omega :omega delta :delta} name]
   (let [nodes (map
                (fn [state]
                  {:id (str "node" state)
@@ -155,8 +155,7 @@
                   (fn [a b]
                     [(str "node" a) (str "node" b) {:label input-sym}])
                   (range) (delta input-sym))) 
-               (input-symbols-fn io-pairs))]
-    (timbre/info nodes edges)
+               (input-symbols-fn io-pairs))] 
     (copy (tangle/dot->image (tangle/graph->dot
                               nodes
                               edges
@@ -164,9 +163,10 @@
                                :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
                                :node->descriptor (fn [n] (when-not (keyword? n) n))})
                              "pdf")
-          (file "x.pdf"))))
+          (file (str name ".pdf")))))
 
-(DotSolution sl-3-3 sl-3-3sol)
+(DotSolution2PDF sl-3-3 sl-3-3sol "sl-3-3")
+(DotSolution2PDF zo zosol "zo")
 
 (def nodes [:a :b :c :d {:id (str :d) :label "luki"}])
 (def edges [[:a :b] [:b :c]])
