@@ -178,3 +178,21 @@
                            :node->descriptor (fn [n] (when-not (keyword? n) n))})
                          "pdf")
       (file "x.pdf"))
+
+(defn get-maps
+  " "
+  [delta initial-state input-word]
+  (second
+   (reduce
+    (fn [[state maps] input]
+      [((delta input) state)
+       (conj maps [state input])])
+    [initial-state #{}]
+    input-word)))
+
+(defn get-all-maps
+  [io-pairs {delta :delta}]
+ (let [ms (map (partial get-maps delta 0) (map first io-pairs))]
+  (reduce into ms)))
+
+(count (get-all-maps binary binarysol))
