@@ -18,7 +18,7 @@
    ["_|_" :second]
    ["__|" :third]])
 (def sl-3-3sol (first (transducer sl-3-3 3)))
-(trajectories sl-3-3 sl-3-3sol)
+(println (trajectories sl-3-3 sl-3-3sol))
 
 (def sl-6-2
   [["|_____" :first]
@@ -135,6 +135,7 @@
    [[0 0 1] :1]
    [[0 1 0] :2]
    [[0 1 1] :3]
+   [[1 0 0] :4]
    [[1 0 1] :5]
    [[1 1 0] :6]
    [[1 1 1] :7]])
@@ -167,6 +168,7 @@
 
 (DotSolution2PDF sl-3-3 sl-3-3sol "sl-3-3")
 (DotSolution2PDF zo zosol "zo")
+(DotSolution2PDF binary binarysol "binary")
 
 (def nodes [:a :b :c :d {:id (str :d) :label "luki"}])
 (def edges [[:a :b] [:b :c]])
