@@ -16,16 +16,6 @@
 
 (def OGS :_OGS) ;;DO-NOT-USE-THIS-AS INPUT!
 
-;; this is a good idea, have the map flat (no nesting) so
-;; the lookup can be done functionally
-(defn geto3
-  [m k v]
-  (l/== v (m k)))
-
-(let [result {:hey {[:x 0] (l/lvar) [1 "hey"] (l/lvar)}}]
-  (l/run 1 [q] (l/== q result)
-         (geto3 (:hey result) [1 "hey"] :b)))
-
 (defn prepare-logic-variables
   "This gives the shape of the solution."
   [input-symbols num-of-outputs num-of-states]
@@ -54,9 +44,11 @@
   [delta initial-state input-word]
   (reduce
    (fn [state input]
-     ((delta [state input]))) ;not using nth to be more flexible i.e. maps
+     (delta [state input])) ;not using nth to be more flexible i.e. maps
    initial-state
    input-word))
+
+(process-word {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 
 ;; relational code is after the functional one to see the connection
 ;; we have to use ntho explicitly (only works vectors internally)
@@ -64,10 +56,21 @@
   "The relational version of process-word."
   [delta initial-state input-word output]
   (kl/reduceo (fn [state input next-state]
-                (geto3 delta [state input] next-state))
+                (l/project [state input] (l/== next-state (delta [state input])))) 
               initial-state
               input-word
               output))
+
+(l/run 3 [q]
+       (kl/reduceo 
+        (fn [state input next-state]
+          (l/project [state input] (l/== next-state ({[0 :a] 0} [state input]))))
+        0
+        [:a]
+        q))
+
+(l/run 1 [q]
+       (process-wordo {[0 :a] 1, [1 :a] 0} 0 [:a :a] q))
 
 ;; FLEXIBLE INPUT OUTPUT TRANSDUCER CONSTRUCTION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; input words can be sequences of any type of distinct entities
