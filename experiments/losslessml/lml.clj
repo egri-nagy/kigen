@@ -4,8 +4,6 @@
 (require '[tangle.core :as tangle])
 (require '[clojure.java.io :refer [copy file]])
 
-;(require '[kigen.transf-conj :as t-c])
-
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
@@ -73,7 +71,7 @@
 (first (transducer plndrm3 4))
 
 (def plndrm4 (palindromes 4))
- (first (transducer plndrm4 5))
+(first (transducer plndrm4 5))
 
 ;; (def plndrm5 (palindromes 5))
 ;; (first (transducer plndrm5 6))) ;??
@@ -152,11 +150,11 @@
                (range (count (first (vals delta)))))
         edges (mapcat
                (fn [input-sym]
-                 (map 
+                 (map
                   (fn [a b]
                     [(str "node" a) (str "node" b) {:label input-sym}])
-                  (range) (delta input-sym))) 
-               (input-symbols-fn io-pairs))] 
+                  (range) (delta input-sym)))
+               (input-symbols-fn io-pairs))]
     (copy (tangle/dot->image (tangle/graph->dot
                               nodes
                               edges
@@ -194,7 +192,7 @@
 
 (defn get-all-maps
   [io-pairs {delta :delta}]
- (let [ms (map (partial get-maps delta 0) (map first io-pairs))]
-  (reduce into ms)))
+  (let [ms (map (partial get-maps delta 0) (map first io-pairs))]
+    (reduce into ms)))
 
 (count (get-all-maps binary binarysol))
