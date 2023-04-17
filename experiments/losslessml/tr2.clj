@@ -48,29 +48,71 @@
    initial-state
    input-word))
 
+(defn process-word2
+  [delta state input-word]
+  (if (empty? input-word)
+    state
+    (process-word2 delta (delta [state (first input-word)]) (rest input-word))))
+
 (process-word {[0 :a] 1, [1 :a] 1} 0 [:a :a])
+(process-word2 {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 
 ;; relational code is after the functional one to see the connection
 ;; we have to use ntho explicitly (only works vectors internally)
 (defn process-wordo
   "The relational version of process-word."
-  [delta initial-state input-word output]
+  [delta initial-state input-word output] 
   (kl/reduceo (fn [state input next-state]
-                (l/project [state input] (l/== next-state (delta [state input])))) 
+                (l/fresh [x]
+                         (l/project [delta state input]
+                                    
+                                    (l/== x (delta [state input]))
+                                    (l/== x next-state))))
               initial-state
               input-word
               output))
 
-(l/run 3 [q]
-       (kl/reduceo 
-        (fn [state input next-state]
-          (l/project [state input] (l/== next-state ({[0 :a] 0} [state input]))))
-        0
-        [:a]
-        q))
+(defn process-wordo2
+  [delta state input-word output]
+  (l/conde
+   [(l/emptyo input-word) (l/== state output)]
+   [(l/fresh [input r nst]
+             (l/resto input-word r)
+             (l/firsto input-word input)
+             ;(l/project [delta state input] (l/== nst (delta [state input])))
+             (l/featurec delta {[state input] nst})
+             (process-wordo2 delta nst r output))]))
+
+;; this is fine, we leave the values unspecified, but give constraints so the values found 
+;; without projecting it does not work
+(l/run 1 [q]
+       (l/== q {:a (l/lvar) :b (l/lvar) :c (l/lvar)})
+       (l/project [q] (l/== 10 (q :a)))
+       (l/project [q] (l/== 8 (q :c)))
+       (l/project [q] (l/== (q :c) (q :b))))
 
 (l/run 1 [q]
-       (process-wordo {[0 :a] 1, [1 :a] 0} 0 [:a :a] q))
+       (l/fresh [a b c d]
+                (l/== q {[0 :a] a [0 :b] b [1 :a] c [1 :b] d})
+                (l/everyg #(fd/in % (fd/domain 0 1 2)) [a b c d])
+                (process-wordo q 0 [:a] 2) ;; working
+                (process-wordo2 q 0 [:b :a] 1) ;; not working
+                ))
+
+
+(l/run 1 [q]
+       (l/fresh [m]
+                (l/== q {[0 :a] 1, [1 :a] m, [0 :b] 1, [1 :b] 2})
+                (l/project [m] (process-wordo q 0 [:a :a :b :b] 2))
+                (fd/in m (fd/domain 0 1 2))))
+
+(l/run 1 [q r]
+       (fd/in q (fd/domain 0 1 2))
+       (fd/in r (fd/domain 0 1 2))
+       (process-wordo {[0 :a] q, [1 :a] 0, [0 :b] q, [1 :b] 2} 0 [:a :a :b :b] 2)
+       ;(process-wordo {[0 :a] 1, [1 :a] r, [0 :b] 1, [1 :b] 2} 0 [:a :a :b :b] 2)
+       )
+
 
 ;; FLEXIBLE INPUT OUTPUT TRANSDUCER CONSTRUCTION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; input words can be sequences of any type of distinct entities
@@ -115,9 +157,9 @@
         states (fd/interval 0 (dec n))
         ;;preparing the logic variables: we build a map [state input] -> state
         ;;and a vector for the output mapping
-        result  (prepare-logic-variables (conj input-symbols OGS) (count output-symbols) n)
-        state-lvars (vals (:delta result))
-        output-lvars (:omega result)]
+        result  (prepare-logic-variables (conj input-symbols OGS) (count output-symbols) n) 
+        output-lvars (:omega result)
+        state-lvars (remove (set output-lvars) (vals (:delta result)))]
     (info ;bit of information about the processed input
      (+ (count state-lvars) (count output-lvars))
      "logic variables for"
@@ -127,6 +169,8 @@
     (debug ;debug information about the modified input
      "modified io pairs" modded-io-pairs)
     (debug "shape of result" result)
+    (debug "state lvars" state-lvars "output lvars" output-lvars)
+    (debug output-symbols)
     (map
      (fn [solution]
        ;;just recoding the output
