@@ -62,12 +62,13 @@
 (defn process-wordo
   "The relational version of process-word."
   [delta initial-state input-word output] 
-  (kl/reduceo (fn [state input next-state]
-                (l/fresh [x]
-                         (l/project [delta state input]
-                                    
-                                    (l/== x (delta [state input]))
-                                    (l/== x next-state))))
+  (kl/reduceo (fn [state input next-state] 
+                (l/fresh
+                 [d s i]
+                 (l/== d delta)
+                 (l/== s state)
+                 (l/== i input)
+                 (l/project [d s i] (l/== next-state (d [s i])))))
               initial-state
               input-word
               output))
@@ -92,11 +93,23 @@
        (l/project [q] (l/== (q :c) (q :b))))
 
 (l/run 1 [q]
+       (l/== q {:a {0 (l/lvar) 1 (l/lvar) 2 (l/lvar)}
+                :b {0 (l/lvar) 1 (l/lvar) 2 (l/lvar)}})
+       ;(l/project [q] (l/== 1 ((q :a) 0)))
+       ;(l/project [q] (l/== 2 ((q :a) 1)))
+       ;(l/project [q] (l/== 0 ((q :a) 2)))
+       (l/project [q] 
+                  (l/fresh [nstate]
+                           (l/== nstate ((q :b) 0))
+                           (l/== 1 ( (q :a) nstate)))))
+
+(l/run 1 [q]
        (l/fresh [a b c d]
-                (l/== q {[0 :a] a [0 :b] b [1 :a] c [1 :b] d})
                 (l/everyg #(fd/in % (fd/domain 0 1 2)) [a b c d])
+                (l/== q {[0 :a] a [0 :b] b [1 :a] c [1 :b] d})
                 (process-wordo q 0 [:a] 2) ;; working
-                (process-wordo2 q 0 [:b :a] 1) ;; not working
+                (process-wordo q 0 [:b] 1)
+                (process-wordo q 0 [:b :a] 1) ;; not working
                 ))
 
 
