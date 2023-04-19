@@ -66,6 +66,10 @@
 
 ;we can get groups of dominoes 
 ;for each group  finding the distinct elements should be not more than 
-(def x (group-by first (mapcat extracting-dominoes
-                               (prepare-logic-variables (modded-io-pairs sl-3-3)))))
-(into {} (map (fn [[k v]] [k (map second v)]) x))
+
+(let [prepped (prepare-logic-variables (modded-io-pairs sl-3-3))
+      lvars (map second prepped)
+      dominoes (mapcat extracting-dominoes prepped)]
+  (l/run 1 [q]
+         (l/== q lvars)
+         (l/everyg (fn [x] (fd/in x (fd/domain 0 1 2))) (apply concat lvars))))
