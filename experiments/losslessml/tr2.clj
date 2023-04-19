@@ -1,3 +1,5 @@
+;;failed attempts to unify to hashmaps
+
 (require '[clojure.math.combinatorics :as combo])
 ;(require '[kigen.transducer :refer :all])
 (require '[taoensso.timbre :as timbre])
@@ -57,18 +59,32 @@
 (process-word {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 (process-word2 {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 
+
+
+;; this is fine, we leave the values unspecified, but give constraints so the values found 
+;; without projecting it does not work
+(l/run 1 [q]
+       (l/== q {:a (l/lvar) :b (l/lvar) :c (l/lvar)})
+       (l/project [q] (l/== 10 (q :a)))
+       (l/project [q] (l/== 8 (q :c)))
+       (l/project [q] (l/== (q :c) (q :b))))
+
+(defn state-transitiono
+  [delta input state output]
+  (l/fresh [t]
+           (l/featurec delta {input t})
+           ;(l/project [delta t])
+           ;(l/== t (delta input))
+           ;(l/project [t])
+           (kl/ntho t state output)))
+
 ;; relational code is after the functional one to see the connection
 ;; we have to use ntho explicitly (only works vectors internally)
 (defn process-wordo
   "The relational version of process-word."
-  [delta initial-state input-word output] 
-  (kl/reduceo (fn [state input next-state] 
-                (l/fresh
-                 [d s i]
-                 (l/== d delta)
-                 (l/== s state)
-                 (l/== i input)
-                 (l/project [d s i] (l/== next-state (d [s i])))))
+  [delta initial-state input-word output]
+  (kl/reduceo (fn [state input next-state]
+                (state-transitiono delta input state next-state))
               initial-state
               input-word
               output))
@@ -80,50 +96,18 @@
    [(l/fresh [input r nst]
              (l/resto input-word r)
              (l/firsto input-word input)
-             ;(l/project [delta state input] (l/== nst (delta [state input])))
-             (l/featurec delta {[state input] nst})
+             (state-transitiono delta input state nst)
              (process-wordo2 delta nst r output))]))
 
-;; this is fine, we leave the values unspecified, but give constraints so the values found 
-;; without projecting it does not work
 (l/run 1 [q]
-       (l/== q {:a (l/lvar) :b (l/lvar) :c (l/lvar)})
-       (l/project [q] (l/== 10 (q :a)))
-       (l/project [q] (l/== 8 (q :c)))
-       (l/project [q] (l/== (q :c) (q :b))))
-
-(l/run 1 [q]
-       (l/== q {:a {0 (l/lvar) 1 (l/lvar) 2 (l/lvar)}
-                :b {0 (l/lvar) 1 (l/lvar) 2 (l/lvar)}})
-       ;(l/project [q] (l/== 1 ((q :a) 0)))
-       ;(l/project [q] (l/== 2 ((q :a) 1)))
-       ;(l/project [q] (l/== 0 ((q :a) 2)))
-       (l/project [q] 
-                  (l/fresh [nstate]
-                           (l/== nstate ((q :b) 0))
-                           (l/== 1 ( (q :a) nstate)))))
-
-(l/run 1 [q]
-       (l/fresh [a b c d]
-                (l/everyg #(fd/in % (fd/domain 0 1 2)) [a b c d])
-                (l/== q {[0 :a] a [0 :b] b [1 :a] c [1 :b] d})
-                (process-wordo q 0 [:a] 2) ;; working
-                (process-wordo q 0 [:b] 1)
-                (process-wordo q 0 [:b :a] 1) ;; not working
-                ))
-
-
-(l/run 1 [q]
-       (l/fresh [m]
-                (l/== q {[0 :a] 1, [1 :a] m, [0 :b] 1, [1 :b] 2})
-                (l/project [m] (process-wordo q 0 [:a :a :b :b] 2))
-                (fd/in m (fd/domain 0 1 2))))
-
-(l/run 1 [q r]
-       (fd/in q (fd/domain 0 1 2))
-       (fd/in r (fd/domain 0 1 2))
-       (process-wordo {[0 :a] q, [1 :a] 0, [0 :b] q, [1 :b] 2} 0 [:a :a :b :b] 2)
-       ;(process-wordo {[0 :a] 1, [1 :a] r, [0 :b] 1, [1 :b] 2} 0 [:a :a :b :b] 2)
+       (l/== q {:a [(l/lvar) (l/lvar) (l/lvar)]
+                :b [(l/lvar) (l/lvar) (l/lvar)]})
+       ;(l/fresh [v] (l/featurec q {:a v}) (kl/ntho v 1 1 ))
+       ;(state-transitiono q :a 0 1)
+       ;(state-transitiono q :b 0 1)
+       ;(l/project [q])
+       ;(l/project [q] (println q))
+       (process-wordo q 0 [:a] 1)
        )
 
 
