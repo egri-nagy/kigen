@@ -94,24 +94,15 @@
 
 (l/run* [a b] (l/membero a [1 2]) (l/membero b [1 2]) (l/distincto [a b]))
 
-(defn compatiblo
-  [m1 m2]
-  (l/conde
-  [(l/fresh [x1 x2]
-            (l/firsto m1 x1)
-            (l/firsto m2 x2)
-            (l/!= x1 x2))]
-   [(l/fresh [y1 y2]
-             (kl/ntho m1 2 y1)
-             (kl/ntho m2 2 y2)
-             (l/== y1 y2))]))
 
-(l/defne compatiblo2
+(l/defne compatiblo
+  "This goal succeeds if the two mappings are compatible, i.e.
+   they can be in the same transformation."
   [m1 m2]
   ([[x1  y1] [x2  y2]]
    (l/conde
-    [(l/== y1 y2)]
-    [(l/!= x1 x2)])))
+    [(l/== y1 y2)] ;the images are the same
+    [(l/!= x1 x2)]))) ;the preimages are different
 
 (l/run* [q]
        (l/fresh [a b]
@@ -121,18 +112,22 @@
                 (compatiblo [0 0] q)))
 
 (l/defne compatible-with-collo
+  "Succeeds if the given mapping is compatible with all the mappings
+   in the collection."
   [m coll]
-  ([_ ()] l/succeed)
+  ([_ ()] l/succeed) ;nothing to contradict
   ([m [f . r]]
-   (compatiblo2 m f)
+   (compatiblo m f)
    (compatible-with-collo m r)))
 
 (l/defne compatible-collo
+  "Succeeds if all the mappings in the collection are compatible
+   with each other. O(n^2)"
   [coll] 
-  ([()] l/succeed)
+  ([()] l/succeed) ;nothing to contradict
   ([[f . r]]
-   (compatible-with-collo f r)
-   (compatible-collo r)))
+   (compatible-with-collo f r) ;first is compatible with rest
+   (compatible-collo r))) ;rest is compatible in itself
 
 (l/run* [q]
        (l/== q [[(l/lvar) (l/lvar)] [(l/lvar) (l/lvar)]])
@@ -141,11 +136,34 @@
 (let [prepped (prepare-logic-variables (modded-io-pairs sl-3-3))
       lvars (map second prepped)
       m (group-by first
-                  (mapcat extracting-dominoes (prepare-logic-variables m-sl-3-3)))
+                  (mapcat extracting-dominoes prepped))
       dominoes (into {} (map (fn [[k vs]] [k (map second vs)]) m))]
-  (pprint dominoes)
-  (l/run 1 [q]
-         (l/== q lvars)
-         (l/everyg (fn [x] (fd/in x (fd/domain 0 1 2))) (apply concat lvars))
-         (l/everyg (fn [[_ ds]] (compatible-collo ds))
-                   dominoes)))
+  ;(pprint prepped)
+  ;(pprint lvars)
+  ;(pprint dominoes)
+  (map
+   (fn [solution]
+     (let [x (update-vals
+              (group-by first
+                        (distinct
+                         (mapcat extracting-dominoes
+                                 (map vector
+                                      (map first prepped)
+                                      solution))))
+              (partial map second))]
+       (pprint x) (println )
+       (update-vals x ;identity
+                    (fn [l]
+                      (let [v (vec (repeatedly 3 (constantly nil)))] 
+                        (reduce
+                         (fn [vv [s d]]
+                           (assoc vv s d))
+                         v
+                         l)))
+                    )))
+   (l/run 1 [q]
+          (l/== q lvars)
+          (l/everyg (fn [x] (fd/in x (fd/domain 0 1 2)))
+                    (apply concat lvars))
+          (l/everyg compatible-collo
+                    (vals dominoes)))))
