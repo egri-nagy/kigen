@@ -65,6 +65,20 @@
   [io-pairs]
   (vec (distinct (mapcat first io-pairs))))
 
+(defn modded-io-pairs
+  "Recodes the input symbols to natural numbers and adds an extra input at the end serving for the state readout."
+  [io-pairs]
+  (let [input-symbols (input-symbols-fn io-pairs)
+        output-symbols (output-symbols-fn io-pairs)
+        readout-symbol (count input-symbols)]
+    (for [[input output] io-pairs]
+      [(vec (concat (map
+                     (partial index input-symbols)
+                     input)
+                    [readout-symbol]))
+       (index output-symbols output)])))
+
+
 (defn transducer
   "Given the input-output pairs, and the number of states, this attempts to
   construct a suitable transducer.
@@ -78,10 +92,7 @@
         ;;to make the io-pairs work for the fixed engine:
         ;;append an extra symbol for readout and replace the output
         ;;and input symbols with their indices
-        modded-io-pairs (for [[input output] io-pairs]
-                          [(vec (concat (map (partial index input-symbols) input)
-                                        [output-generator]))
-                           (index output-symbols output)])
+        m-io-pairs (modded-io-pairs io-pairs)
         ;;the finite domains for the search
         outputs (fd/interval 0 (dec (count output-symbols)))
         states (fd/interval 0 (dec n))
@@ -97,7 +108,7 @@
      num-of-inputs "input symbols"
      (count output-symbols) "output symbols")
     (debug ;debug information about the modified input
-     "modified io pairs" modded-io-pairs
+     "modified io pairs" m-io-pairs
      input-symbols)
     (map
      (fn [solution]
@@ -113,7 +124,7 @@
              (l/everyg #(fd/in % outputs) output-lvars)
              (l/everyg (fn [[input output]]
                          (process-wordo lvars 0 input output))
-                       modded-io-pairs)
+                       m-io-pairs)
              (l/== q lvars)))))
 
 (defn check

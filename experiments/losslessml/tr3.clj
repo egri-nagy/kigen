@@ -1,4 +1,8 @@
 ; trajectory based transducer construction
+; this way we can naturally do partial automata, but it does not
+; scale well due to the large number of lvars (total sum of length of
+; all trajectories)
+
 (require '[kigen.logic :as kl])
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
@@ -10,20 +14,6 @@
 
 ; levels: :warn, :info, :debug
 (set-min-level! :debug)
-
-
-(defn modded-io-pairs
-  "Recodes the input symbols to natural numbers and adds an extra input at
-   the end serving for the state readout."
-  [io-pairs]
-  (let [input-symbols (input-symbols-fn io-pairs)
-        readout-symbol (count input-symbols)]
-    (for [[input output] io-pairs]
-      [(vec (concat (map
-                     (partial index input-symbols)
-                     input)
-                    [readout-symbol]))
-       (index (output-symbols-fn io-pairs) output)])))
 
 (defn prepare-logic-variables
   " "
