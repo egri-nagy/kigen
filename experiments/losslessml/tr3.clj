@@ -29,14 +29,9 @@
 ;  (println ">" inputs (partition 2 1 trajectory))
   (partition 2 (interleave inputs (partition 2 1 trajectory))))
 
-(def sl-3-3
-  [["|__" :first]
-   ["_|_" :second]
-   ["__|" :third]])
-
 (l/defne compatiblo
   "This goal succeeds if the two mappings are compatible, i.e.
-   they can be in the same transformation."
+   they can be in the same transformation, they define a function."
   [m1 m2]
   ([[x1  y1] [x2  y2]]
    (l/conde
@@ -45,22 +40,33 @@
 
 (l/run*
  [q]
- (l/membero q [0 1 2])
- (compatiblo [1 2] [1 q]))
+ (compatiblo [0 0] [1 0])
+ (compatiblo [0 0] [1 1]))
 
-(l/run*
- [q]
- (l/membero q [0 1 2])
- (compatiblo [1 2] [q 2]))
+(l/run* [q] (compatiblo [0 0] [0 1]))
+(l/run* [q] (compatiblo [2 0] [2 1]))
 
+(l/run* [q]
+        (l/membero q [0 1 2])
+        (compatiblo [1 2] [q 2]))
+
+(l/run* [q]
+        (l/membero q [0 1 2])
+        (compatiblo [1 2] [1 q]))
 
 (let [X (range 3)]
-  (l/run* [q]
-          (l/fresh [a b]
-                   (l/== q [a b])
-                   (l/membero a X)
-                   (l/membero b X)
-                   (compatiblo [:x 0] q))))
+  (l/run* [q] (l/fresh [a b]
+                       (l/== q [a b])
+                       (l/membero a X)
+                       (l/membero b X)
+                       (compatiblo [:x 0] q))))
+
+(let [X (range 3)]
+  (l/run* [q] (l/fresh [a b]
+                       (l/== q [a b])
+                       (l/membero a X)
+                       (l/membero b X)
+                       (compatiblo [1 0] q))))
 
 
 (l/defne compatible-with-collo
@@ -118,9 +124,7 @@
                                   (fn [vv [s d]]
                                     (assoc vv s d))
                                   v
-                                  l))))
-             ;xxx (update-keys xx (input-symbols-fn io-pairs))
-             ]
+                                  l))))]
          (pprint xx) (pprint output-symbols)
          {:delta (update-keys (dissoc xx  (count input-symbols))
                               input-symbols)
@@ -132,5 +136,10 @@
                       (apply concat lvars))
             (l/everyg compatible-collo
                       (vals dominoes))))))
+
+(def sl-3-3
+  [["|__" :first]
+   ["_|_" :second]
+   ["__|" :third]])
 
 (check sl-3-3 (first (transducer3 sl-3-3 3)))
