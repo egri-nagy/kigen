@@ -6,48 +6,11 @@
 (require '[kigen.position :refer [index]])
 (require '[clojure.pprint :refer [pprint]])
 (require '[clojure.math.combinatorics :as combo])
+(require '[kigen.transducer :refer :all])
 
 ; levels: :warn, :info, :debug
 (set-min-level! :debug)
 
-;;unchanged from library code ;;;;;;;;;;;;;;;;;
-(defn output-symbols-fn
-  "Returns all collected output symbols appearing in the input-output
-   pairs without repetition. Returned as a vector, the indices can be used
-   to refer to the symbols. The order of the symbols defined by the order
-   of their appeareance in the io-pairs (through distinct)."
-  [io-pairs]
-  (vec (distinct (map second io-pairs))))
-
-(defn input-symbols-fn
-  "Returns all collected input symbols appearing in the input-output
-   pairs without repetition. Returned as a vector, the indices can be used
-   to refer to the symbols. The order of the symbols defined by the order
-   of their appeareance in the io-pairs (through distinct)."
-  [io-pairs]
-  (vec (distinct (mapcat first io-pairs))))
-
-(defn process-word
-  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state. It returns the resulting state."
-  [delta initial-state input-word]
-  (reduce
-   (fn [state input]
-     ((delta input) state)) ;not using nth to be more flexible i.e. maps
-   initial-state
-   input-word))
-
-
-(defn check
-  "Returns true if the given automaton (defined by solution, state transition function
-   and output function) will indeed produce the output values given in the io-pairs.
-   It uses format-flexible for processing the raw solution."
-  [io-pairs {delta :delta omega :omega}]
-  (every? (fn [[input output]]
-            (= output (omega (process-word delta 0 input))))
-          io-pairs))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(def OGS :_OGS) ;;DO-NOT-USE-THIS-AS INPUT!
 
 (defn modded-io-pairs
   "Recodes the input symbols to natural numbers and adds an extra input at
@@ -165,7 +128,7 @@
        (l/== q [[(l/lvar) (l/lvar)] [(l/lvar) (l/lvar)]])
        (compatible-collo q))
 
-(defn transducer 
+(defn transducer3 
   [io-pairs n]
   (let [output-symbols (output-symbols-fn io-pairs)
         input-symbols (input-symbols-fn io-pairs)
@@ -213,4 +176,4 @@
             (l/everyg compatible-collo
                       (vals dominoes))))))
 
-(check sl-3-3 (first (transducer sl-3-3 3)))
+(check sl-3-3 (first (transducer3 sl-3-3 3)))
