@@ -34,39 +34,6 @@
    ["_|_" :second]
    ["__|" :third]])
 
-(output-symbols-fn sl-3-3)
-(input-symbols-fn sl-3-3)
-(def m-sl-3-3 (modded-io-pairs sl-3-3))
-(prepare-logic-variables m-sl-3-3)
-(map second (prepare-logic-variables m-sl-3-3))
-(def m
-  (group-by first
-            (mapcat extracting-dominoes (prepare-logic-variables m-sl-3-3))))
-(into {} (map (fn [[ k vs]] [k (map second vs)]) m))
-
-;we can get groups of dominoes 
-;for each group  finding the distinct elements should be not more than 
-
-(l/defne counto
-  [coll n]
-  ([() n] (l/== n 0))
-  ([[_ . r] n] (counto r (dec n))))
-
-(l/run 1 [q]
-       (counto q 22))
-
-(defn smallo
-  [coll n]
-  (l/fresh [size]
-           (counto coll size)
-           (l/project [size n] (l/== size n))))
-
-(l/run 1 [q]
-       (l/distincto q 2))
-
-(l/run* [a b] (l/membero a [1 2]) (l/membero b [1 2]) (l/distincto [a b]))
-
-
 (l/defne compatiblo
   "This goal succeeds if the two mappings are compatible, i.e.
    they can be in the same transformation."
