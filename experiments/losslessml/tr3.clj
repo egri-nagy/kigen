@@ -5,7 +5,7 @@
 (require '[taoensso.timbre :refer [info debug set-min-level!]])
 (require '[kigen.position :refer [index]])
 (require '[clojure.pprint :refer [pprint]])
-
+(require '[clojure.math.combinatorics :as combo])
 
 ; levels: :warn, :info, :debug
 (set-min-level! :debug)
@@ -120,15 +120,28 @@
   [m1 m2]
   ([[x1  y1] [x2  y2]]
    (l/conde
-    [(l/== y1 y2)] ;the images are the same
+    [(l/== x1 x2)(l/== y1 y2)] ;the images are the same TODO: why do we need == x1 x2? investigate!
     [(l/!= x1 x2)]))) ;the preimages are different
 
-(l/run* [q]
-       (l/fresh [a b]
-                (l/== q [a b])
-                (l/membero a [0 1 2])
-                (l/membero b [0 1 2])
-                (compatiblo [0 0] q)))
+(l/run*
+ [q]
+ (l/membero q [0 1 2])
+ (compatiblo [1 2] [1 q]))
+
+(l/run*
+ [q]
+ (l/membero q [0 1 2])
+ (compatiblo [1 2] [q 2]))
+
+
+(let [X (range 3)]
+  (l/run* [q]
+          (l/fresh [a b]
+                   (l/== q [a b])
+                   (l/membero a X)
+                   (l/membero b X)
+                   (compatiblo [:x 0] q))))
+
 
 (l/defne compatible-with-collo
   "Succeeds if the given mapping is compatible with all the mappings
@@ -155,6 +168,7 @@
 (defn transducer 
   [io-pairs n]
   (let [output-symbols (output-symbols-fn io-pairs)
+        input-symbols (input-symbols-fn io-pairs)
         prepped (prepare-logic-variables
                  (modded-io-pairs io-pairs))
         lvars (map second prepped)
@@ -188,9 +202,9 @@
              ;xxx (update-keys xx (input-symbols-fn io-pairs))
              ]
          (pprint xx) (pprint output-symbols)
-         {:delta (update-keys (dissoc xx (dec (count output-symbols)))
-                              (input-symbols-fn io-pairs))
-          :omega (mapv output-symbols  (xx (dec (count output-symbols))))
+         {:delta (update-keys (dissoc xx  (count input-symbols))
+                              input-symbols)
+          :omega (mapv output-symbols  (xx (count input-symbols)))
           }))
      (l/run* [q]
             (l/== q lvars)
