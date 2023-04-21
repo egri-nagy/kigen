@@ -78,6 +78,12 @@
    (compatiblo m f)
    (compatible-with-collo m r)))
 
+(l/run* [q] (compatible-with-collo [0 0] [[0 0] [1 0] [1 1]]))
+; collection itself can be not compatible
+(l/run* [q] (compatible-with-collo [0 0] [[1 0] [1 1]]))
+
+(l/run* [q] (compatible-with-collo [0 0] [[2 1] [1 0] [0 1]]))
+
 (l/defne compatible-collo
   "Succeeds if all the mappings in the collection are compatible
    with each other. O(n^2)"
@@ -90,6 +96,18 @@
 (l/run* [q]
        (l/== q [[(l/lvar) (l/lvar)] [(l/lvar) (l/lvar)]])
        (compatible-collo q))
+;todo, interpret this
+(l/run* [q]
+        (l/fresh [a b c d e f]
+                 (l/== q [[a b] [c d] [e f]])
+                 (compatible-collo q)))
+(l/run* [q]
+        (l/fresh [a b c d e f]
+                 (l/everyg (fn [x] (fd/in x (fd/domain 1 2 3)))
+                           [a b c d e f])
+                 (l/== q [[a b] [c d] [e f]])
+                 (l/distincto q)
+                 (compatible-collo q)))
 
 (defn transducer3 
   [io-pairs n]
