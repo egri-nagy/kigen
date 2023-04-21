@@ -113,8 +113,8 @@
   [io-pairs n]
   (let [output-symbols (output-symbols-fn io-pairs)
         input-symbols (input-symbols-fn io-pairs)
-        prepped (prepare-logic-variables
-                 (modded-io-pairs io-pairs))
+        m-io-pairs (modded-io-pairs io-pairs)
+        prepped (prepare-logic-variables m-io-pairs)
         lvars (map second prepped)
         m (group-by first
                     (mapcat extracting-dominoes prepped))
@@ -122,9 +122,9 @@
                        (map
                         (fn [[k vs]] [k (map second vs)])
                         m))]
-  ;(pprint prepped)
-  ;(pprint lvars)
-  ;(pprint dominoes)
+  (pprint prepped)
+  (pprint lvars)
+  (pprint dominoes)
     (map
      (fn [solution]
        (let [x (update-vals
@@ -132,7 +132,7 @@
                           (distinct
                            (mapcat extracting-dominoes
                                    (map vector
-                                        (map first prepped)
+                                        (map first m-io-pairs)
                                         solution))))
                 (partial map second)) 
              xx (update-vals x ;identity
@@ -143,7 +143,7 @@
                                     (assoc vv s d))
                                   v
                                   l))))]
-         (pprint xx) (pprint output-symbols)
+         (pprint xx)
          {:delta (update-keys (dissoc xx  (count input-symbols))
                               input-symbols)
           :omega (mapv output-symbols  (xx (count input-symbols)))
