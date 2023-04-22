@@ -15,18 +15,16 @@
 ; levels: :warn, :info, :debug
 (set-min-level! :debug)
 
-(defn prepare-logic-variables
+(defn trajectory-logic-variables
   " "
   [modded-io-pairs]
   (for [[inputs output] modded-io-pairs]
-    (let [n (count inputs)]
-      [inputs
-       (concat [0] (repeatedly (dec n) l/lvar) [ output])])))
+    (let [n (count inputs)] 
+      (concat [0] (repeatedly (dec n) l/lvar) [output]))))
 
 (defn extracting-dominoes
   " "
-  [[inputs trajectory]]
-;  (println ">" inputs (partition 2 1 trajectory))
+  [inputs trajectory]
   (partition 2 (interleave inputs (partition 2 1 trajectory))))
 
 (l/defne compatiblo
@@ -114,16 +112,17 @@
   (let [output-symbols (output-symbols-fn io-pairs)
         input-symbols (input-symbols-fn io-pairs)
         m-io-pairs (modded-io-pairs io-pairs)
-        prepped (prepare-logic-variables m-io-pairs)
-        lvars (map second prepped)
+        m-inputs (map first m-io-pairs)
+        trajectories (trajectory-logic-variables m-io-pairs)
+        lvars trajectories
         m (group-by first
-                    (mapcat extracting-dominoes prepped))
+                    (mapcat extracting-dominoes m-inputs trajectories))
         dominoes (into {} 
                        (map
                         (fn [[k vs]] [k (map second vs)])
                         m))]
-  (pprint prepped)
-  (pprint lvars)
+  (print "trajectories") (pprint trajectories)
+  (print "lvars") (pprint lvars)
   (pprint dominoes)
     (map
      (fn [solution]
@@ -131,9 +130,8 @@
                 (group-by first
                           (distinct
                            (mapcat extracting-dominoes
-                                   (map vector
-                                        (map first m-io-pairs)
-                                        solution))))
+                                   m-inputs
+                                   solution)))
                 (partial map second)) 
              xx (update-vals x ;identity
                              (fn [l]
