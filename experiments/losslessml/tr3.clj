@@ -24,8 +24,16 @@
 
 (defn extracting-dominoes
   " "
-  [inputs trajectory]
-  (partition 2 (interleave inputs (partition 2 1 trajectory))))
+  [inputs trajectories]
+  (letfn [(builder [input trajectory]
+            (partition 2 (interleave input (partition 2 1 trajectory))))]
+    (update-vals
+     (group-by first
+               (distinct
+                (mapcat builder
+                        inputs
+                        trajectories)))
+     (partial map second))))
 
 (l/defne compatiblo
   "This goal succeeds if the two mappings are compatible, i.e.
@@ -111,41 +119,30 @@
   [io-pairs n]
   (let [output-symbols (output-symbols-fn io-pairs)
         input-symbols (input-symbols-fn io-pairs)
+        readout-symbol (count input-symbols)
         m-io-pairs (modded-io-pairs io-pairs)
         m-inputs (map first m-io-pairs)
         trajectories (trajectory-logic-variables m-io-pairs)
         lvars trajectories
-        m (group-by first
-                    (mapcat extracting-dominoes m-inputs trajectories))
-        dominoes (into {} 
-                       (map
-                        (fn [[k vs]] [k (map second vs)])
-                        m))]
-  (print "trajectories") (pprint trajectories)
-  (print "lvars") (pprint lvars)
+        dominoes (extracting-dominoes m-inputs trajectories)]
+  ;(print "trajectories") (pprint trajectories)
+  ;(print "lvars") (pprint lvars)
   (pprint dominoes)
     (map
      (fn [solution]
-       (let [x (update-vals
-                (group-by first
-                          (distinct
-                           (mapcat extracting-dominoes
-                                   m-inputs
-                                   solution)))
-                (partial map second)) 
-             xx (update-vals x ;identity
-                             (fn [l]
-                               (let [v (vec (repeatedly n (constantly nil)))] 
-                                 (reduce
-                                  (fn [vv [s d]]
-                                    (assoc vv s d))
-                                  v
-                                  l))))]
-         (pprint xx)
-         {:delta (update-keys (dissoc xx  (count input-symbols))
+       (let [ts ; input symbol (internal) -> transformation
+             (update-vals (extracting-dominoes m-inputs solution)
+                          (fn [mappings] ;building transformation t  
+                            (reduce
+                             (fn [t [from to]]
+                               (assoc t from to))
+                             (vec (repeatedly n (constantly nil)))
+                             mappings)))]
+         (print "ts: ")
+         (pprint ts)
+         {:delta (update-keys (dissoc ts readout-symbol)
                               input-symbols)
-          :omega (mapv output-symbols  (xx (count input-symbols)))
-          }))
+          :omega (mapv output-symbols  (ts readout-symbol))}))
      (l/run* [q]
             (l/== q lvars)
             (l/everyg (fn [x] (fd/in x (apply fd/domain (range n))))
