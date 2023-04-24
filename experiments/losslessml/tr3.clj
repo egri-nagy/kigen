@@ -127,11 +127,9 @@
         m-io-pairs (modded-io-pairs io-pairs)
         m-inputs (map first m-io-pairs)
         trajectories (trajectory-logic-variables m-io-pairs)
-        lvars trajectories
         mappings (mappings-from-trajectories m-inputs trajectories)]
-  ;(print "trajectories") (pprint trajectories)
-  ;(print "lvars") (pprint lvars)
-  (pprint mappings)
+    (debug "mappings:" mappings)
+    (debug "trajectories:" trajectories)
     (map
      (fn [solution]
        (let [ts ; input symbol (internal) -> transformation
@@ -142,24 +140,22 @@
                                (assoc t from to))
                              (vec (repeatedly n (constantly nil)))
                              mappings)))]
-         (print "ts: ")
-         (pprint ts)
          {:delta (update-keys (dissoc ts readout-symbol)
                               input-symbols)
           :omega (mapv output-symbols  (ts readout-symbol))}))
      (l/run* [q]
-            (l/== q lvars)
-            (l/everyg (fn [x] (fd/in x (apply fd/domain (range n))))
-                      (apply concat lvars))
-            (l/everyg compatible-collo
-                      (vals mappings))))))
+             (l/== q trajectories)
+             (l/everyg (fn [x] (fd/in x (apply fd/domain (range n))))
+                       (apply concat trajectories))
+             (l/everyg compatible-collo
+                       (vals mappings))))))
 
 (def sl-3-3
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
 
-(check sl-3-3 (first (transducer3 sl-3-3 3)))
+(trajectories sl-3-3 (first (transducer3 sl-3-3 3)))
 
 (def sl-3-3b
   [["|__" :first]
