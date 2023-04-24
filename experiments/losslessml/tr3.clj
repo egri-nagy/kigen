@@ -16,17 +16,21 @@
 (set-min-level! :debug)
 
 (defn trajectory-logic-variables
-  " "
+  "It prepares the trajectory logic variables based on the modified
+   input-output pairs. The first state is 0 by default, the last one is the output, everything in between new logic variables."
   [modded-io-pairs]
   (for [[inputs output] modded-io-pairs]
     (let [n (count inputs)] 
       (concat [0] (repeatedly (dec n) l/lvar) [output]))))
 
-(defn extracting-dominoes
-  " "
+(defn mappings-from-trajectories
+  "It extracts the individual mappings from the trajectories and
+   the corresponding input symbol. Returns a map with input symbols
+   as keys and list of pairs (from,to) defining individual maps."
   [inputs trajectories]
   (letfn [(builder [input trajectory]
-            (partition 2 (interleave input (partition 2 1 trajectory))))]
+            (partition 2 (interleave input
+                                     (partition 2 1 trajectory))))]
     (update-vals
      (group-by first
                (distinct
@@ -124,14 +128,14 @@
         m-inputs (map first m-io-pairs)
         trajectories (trajectory-logic-variables m-io-pairs)
         lvars trajectories
-        dominoes (extracting-dominoes m-inputs trajectories)]
+        mappings (mappings-from-trajectories m-inputs trajectories)]
   ;(print "trajectories") (pprint trajectories)
   ;(print "lvars") (pprint lvars)
-  (pprint dominoes)
+  (pprint mappings)
     (map
      (fn [solution]
        (let [ts ; input symbol (internal) -> transformation
-             (update-vals (extracting-dominoes m-inputs solution)
+             (update-vals (mappings-from-trajectories m-inputs solution)
                           (fn [mappings] ;building transformation t  
                             (reduce
                              (fn [t [from to]]
@@ -148,7 +152,7 @@
             (l/everyg (fn [x] (fd/in x (apply fd/domain (range n))))
                       (apply concat lvars))
             (l/everyg compatible-collo
-                      (vals dominoes))))))
+                      (vals mappings))))))
 
 (def sl-3-3
   [["|__" :first]
@@ -156,3 +160,11 @@
    ["__|" :third]])
 
 (check sl-3-3 (first (transducer3 sl-3-3 3)))
+
+(def sl-3-3b
+  [["|__" :first]
+   ["_|_" :second]
+   ["__|" :third]
+   ["___" :none]])
+
+(check sl-3-3b (first (transducer3 sl-3-3b 4)))
