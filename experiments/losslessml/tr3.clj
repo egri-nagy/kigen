@@ -6,7 +6,7 @@
 (require '[kigen.logic :as kl])
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
-(require '[taoensso.timbre :refer [info debug set-min-level!]])
+(require '[taoensso.timbre :refer [info debug set-min-level! *config* merge-config!]])
 (require '[kigen.position :refer [index]])
 (require '[clojure.pprint :refer [pprint]])
 (require '[clojure.math.combinatorics :as combo])
@@ -14,6 +14,11 @@
 
 ; levels: :warn, :info, :debug
 (set-min-level! :debug)
+(defn simple-logger
+  [m]
+  (str (:min-level (:config m)) " "
+       (apply str (:vargs m))))
+(merge-config! {:output-fn simple-logger})
 
 (defn trajectory-logic-variables
   "It prepares the trajectory logic variables based on the modified
@@ -127,9 +132,17 @@
         m-io-pairs (modded-io-pairs io-pairs)
         m-inputs (map first m-io-pairs)
         trajectories (trajectory-logic-variables m-io-pairs)
-        mappings (mappings-from-trajectories m-inputs trajectories)]
+        mappings (mappings-from-trajectories m-inputs trajectories)
+        output-lvars (map first (mappings readout-symbol))
+        state-lvars (remove (set output-lvars)
+                            (distinct
+                             (filter l/lvar? (apply concat trajectories))))]
     (debug "mappings:" mappings)
     (debug "trajectories:" trajectories)
+    (debug "outputlvars:" output-lvars)
+    (debug "statelvars:" state-lvars)
+    (info "#lvars:" (+ (count output-lvars) (count state-lvars)))
+    (info "search space size:" n "^" (count state-lvars) "*" (count output-symbols) "^" (count output-lvars))
     (map
      (fn [solution]
        (let [ts ; input symbol (internal) -> transformation
@@ -146,7 +159,9 @@
      (l/run* [q]
              (l/== q trajectories)
              (l/everyg (fn [x] (fd/in x (apply fd/domain (range n))))
-                       (apply concat trajectories))
+                       state-lvars)
+             (l/everyg (fn [x] (fd/in x (apply fd/domain (range (count output-symbols)))))
+                       output-lvars)
              (l/everyg compatible-collo
                        (vals mappings))))))
 
@@ -164,3 +179,12 @@
    ["___" :none]])
 
 (check sl-3-3b (first (transducer3 sl-3-3b 4)))
+
+(def ex1
+  [["aaba" :foo]
+   [ "bb" :bar]
+   ["bababc" :foobar]
+   ["bba" :foo]
+   ["c" :bar]])
+
+(check ex1 (first (transducer3 ex1 3)))
