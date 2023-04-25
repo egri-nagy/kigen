@@ -13,11 +13,11 @@
 (require '[kigen.transducer :refer :all])
 
 ; levels: :warn, :info, :debug
-(set-min-level! :debug)
+(set-min-level! :info)
 (defn simple-logger
   [m]
   (str (:min-level (:config m)) " "
-       (apply str (:vargs m))))
+       (:vargs m)))
 (merge-config! {:output-fn simple-logger})
 
 (defn trajectory-logic-variables
@@ -137,12 +137,14 @@
         state-lvars (remove (set output-lvars)
                             (distinct
                              (filter l/lvar? (apply concat trajectories))))]
+    (info "#lvars:" (+ (count output-lvars) (count state-lvars)))
+    (info "search space size:"
+          (str n "^" (count state-lvars)
+               "*" (count output-symbols) "^" (count output-lvars)))
     (debug "mappings:" mappings)
     (debug "trajectories:" trajectories)
     (debug "outputlvars:" output-lvars)
     (debug "statelvars:" state-lvars)
-    (info "#lvars:" (+ (count output-lvars) (count state-lvars)))
-    (info "search space size:" n "^" (count state-lvars) "*" (count output-symbols) "^" (count output-lvars))
     (map
      (fn [solution]
        (let [ts ; input symbol (internal) -> transformation
@@ -180,11 +182,15 @@
 
 (check sl-3-3b (first (transducer3 sl-3-3b 4)))
 
+;; non-partial output
 (def ex1
   [["aaba" :foo]
-   [ "bb" :bar]
+   ["bb" :bar]
    ["bababc" :foobar]
    ["bba" :foo]
-   ["c" :bar]])
+   ["c" :bar]
+   ["cac" :foo]
+   ["ccaabb" :foobar]
+   ])
 
-(check ex1 (first (transducer3 ex1 3)))
+(trajectories ex1 (first (transducer3 ex1 3)))
