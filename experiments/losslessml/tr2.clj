@@ -16,6 +16,19 @@
 ; levels: :warn, :info, :debug
 (timbre/set-min-level! :debug)
 
+;; this is fine, we leave the values unspecified, but give constraints so the values found 
+;; without projecting it does not work
+(l/run 1 [q]
+       (l/== q {:a (l/lvar) :b (l/lvar) :c (l/lvar)})
+       (l/project [q] (l/== 10 (q :a)))
+       (l/project [q] (l/== 8 (q :c)))
+       (l/project [q] (l/== (q :c) (q :b))))
+
+;;indirection does not work
+(l/run 1 [q]
+       (l/== q {:a (l/lvar) :b (l/lvar) :c (l/lvar)})
+       (l/project [q] (l/== 10 (q (q :a)))))
+
 (def OGS :_OGS) ;;DO-NOT-USE-THIS-AS INPUT!
 
 (defn prepare-logic-variables
@@ -59,15 +72,6 @@
 (process-word {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 (process-word2 {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 
-
-
-;; this is fine, we leave the values unspecified, but give constraints so the values found 
-;; without projecting it does not work
-(l/run 1 [q]
-       (l/== q {:a (l/lvar) :b (l/lvar) :c (l/lvar)})
-       (l/project [q] (l/== 10 (q :a)))
-       (l/project [q] (l/== 8 (q :c)))
-       (l/project [q] (l/== (q :c) (q :b))))
 
 (defn state-transitiono
   [delta input state output]
