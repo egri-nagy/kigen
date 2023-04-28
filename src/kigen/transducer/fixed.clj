@@ -27,36 +27,13 @@ rigid constraint."
         lvars (apply concat delta)]
     (info (count lvars) "logic variables for"
           n "states"
-          (count input-symbols) "symbols")
-    (l/run* [q]
-            (l/everyg #(fd/in % statesfd) lvars)
-            (l/everyg (fn [[input output]]
-                        (process-wordo delta 0 input output))
-                      io-pairs)
-            (l/== q delta))))
-
-(defn check-fixed
-  "Returns true if the given automaton (defined by delta, state transition function)
-   will indeed produce the output values given in the io-pairs."
-  [io-pairs delta]
-  (every? (fn [[input output]]
-            (= output (process-word delta 0 input)))
-          io-pairs))
-
-(defn trajectories-fixed
-  "Creates string representations of all trajectories by the io-pairs."
-  [io-pairs delta]
-  (map ;we are going through all input-out pairs
-   (fn [[input output]] ;representing one trajectory in a string
-     (let [trj (trajectory delta 0 input)
-           final (last trj)]
-       (apply str (concat (map (fn [q i]
-                                 (str q " "
-                                      "·" i " "))
-                               trj
-                               input)
-                          [(last trj) " = " final
-                           (if (= output final)
-                             " ✔"
-                             " ✘")]))))
-   io-pairs))
+          (count input-symbols) "symbols") 
+    (map (fn [solution]
+           {:delta solution
+            :omega identity})
+         (l/run* [q]
+                 (l/everyg #(fd/in % statesfd) lvars)
+                 (l/everyg (fn [[input output]]
+                             (process-wordo delta 0 input output))
+                           io-pairs)
+                 (l/== q delta)))))
