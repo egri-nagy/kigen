@@ -9,7 +9,7 @@ rigid constraint."
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd]
    [taoensso.timbre :refer [info debug]] 
-   [kigen.transducer.common :refer [process-wordo process-word input-symbols-fn trajectory]]))
+   [kigen.transducer.common :refer [process-wordo input-symbols-fn]]))
 
 (defn fixed-output-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -27,7 +27,8 @@ rigid constraint."
         lvars (apply concat delta)]
     (info (count lvars) "logic variables for"
           n "states"
-          (count input-symbols) "symbols") 
+          (count input-symbols) "symbols")
+    (debug lvars)
     (map (fn [solution]
            {:delta solution
             :omega identity})
