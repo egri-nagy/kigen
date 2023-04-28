@@ -1,5 +1,6 @@
 (require '[clojure.math.combinatorics :as combo])
-(require '[kigen.transducer :refer :all])
+(require '[kigen.transducer.common :refer :all])
+(require '[kigen.transducer.flexible :refer :all])
 (require '[taoensso.timbre :as timbre])
 (require '[tangle.core :as tangle])
 (require '[clojure.java.io :refer [copy file]])

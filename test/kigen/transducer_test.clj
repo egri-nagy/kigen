@@ -1,6 +1,9 @@
 (ns kigen.transducer-test
   (:require [clojure.test :refer :all]
-            [kigen.transducer :refer :all]
+            [kigen.transducer.common :refer :all]
+            [kigen.transducer.flexible :refer :all]
+            [kigen.transducer.fixed :refer :all]
+            [kigen.transducer.common :refer :all]
             [clojure.math.combinatorics :as combo]))
 
 ;;hardcoded test cases
