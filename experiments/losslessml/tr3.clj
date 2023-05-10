@@ -10,7 +10,8 @@
 (require '[kigen.position :refer [index]])
 (require '[clojure.pprint :refer [pprint]])
 (require '[clojure.math.combinatorics :as combo])
-(require '[kigen.transducer :refer :all])
+(require '[kigen.transducer.common :refer :all])
+(require '[kigen.transducer.flexible :refer [modded-io-pairs]])
 
 ; levels: :warn, :info, :debug
 (set-min-level! :info)
