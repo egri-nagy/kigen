@@ -88,3 +88,16 @@
                              " ✘")]))))
    io-pairs))
 
+(defn modded-io-pairs
+  "Recodes the input symbols to natural numbers and adds an extra input at the end serving for the state readout."
+  [io-pairs]
+  (let [input-symbols (input-symbols-fn io-pairs)
+        output-symbols (output-symbols-fn io-pairs)
+        readout-symbol (count input-symbols)]
+    (for [[input output] io-pairs]
+      [(vec (concat (map
+                     (partial index input-symbols)
+                     input)
+                    [readout-symbol]))
+       (index output-symbols output)])))
+

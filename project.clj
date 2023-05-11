@@ -10,7 +10,7 @@
                  [rolling-stones "1.0.3"]
                  [org.clojure/core.logic "1.0.1"]
                  [com.taoensso/timbre "6.1.0"]
-                 [com.clojure-goes-fast/clj-memory-meter "0.2.2"]
+                 [com.clojure-goes-fast/clj-memory-meter "0.2.3"]
                  [progrock "0.1.2"]
                  [com.bhauman/rebel-readline "0.1.4"]
                  [macroz/tangle "0.2.2"]]
