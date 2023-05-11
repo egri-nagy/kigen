@@ -11,7 +11,7 @@
 (require '[clojure.pprint :refer [pprint]])
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer.common :refer :all])
-(require '[kigen.transducer.from-trajectories :refer [transducer]])
+(require '[kigen.transducer.from-trajectories :refer :all])
 
 ; levels: :warn, :info, :debug
 (set-min-level! :info)
@@ -22,35 +22,22 @@
 (merge-config! {:output-fn simple-logger})
 
 
-;; (l/run*
-;;  [q]
-;;  (compatiblo [0 0] [1 0])
-;;  (compatiblo [0 0] [1 1]))
+ 
 
-;; (l/run* [q] (compatiblo [0 0] [0 1]))
-;; (l/run* [q] (compatiblo [2 0] [2 1]))
 
-;; (l/run* [q]
-;;         (l/membero q [0 1 2])
-;;         (compatiblo [1 2] [q 2]))
+ (let [X (range 3)]
+   (l/run* [q] (l/fresh [a b]
+                        (l/== q [a b])
+                        (l/membero a X)
+                        (l/membero b X)
+                        (compatiblo [:x 0] q))))
 
-;; (l/run* [q]
-;;         (l/membero q [0 1 2])
-;;         (compatiblo [1 2] [1 q]))
-
-;; (let [X (range 3)]
-;;   (l/run* [q] (l/fresh [a b]
-;;                        (l/== q [a b])
-;;                        (l/membero a X)
-;;                        (l/membero b X)
-;;                        (compatiblo [:x 0] q))))
-
-;; (let [X (range 3)]
-;;   (l/run* [q] (l/fresh [a b]
-;;                        (l/== q [a b])
-;;                        (l/membero a X)
-;;                        (l/membero b X)
-;;                        (compatiblo [1 0] q))))
+ (let [X (range 3)]
+   (l/run* [q] (l/fresh [a b]
+                        (l/== q [a b])
+                        (l/membero a X)
+                        (l/membero b X)
+                        (compatiblo [1 0] q))))
 
 
 
@@ -94,16 +81,3 @@
    ["___" :none]])
 
 (check sl-3-3b (first (transducer sl-3-3b 4)))
-
-;; non-partial output
-(def ex1
-  [["aaba" :foo]
-   ["bb" :bar]
-   ["bababc" :foobar]
-   ["bba" :foo]
-   ["c" :bar]
-   ["cac" :foo]
-   ["ccaabb" :foobar]
-   ])
-
-(trajectories ex1 (first (transducer ex1 3)))
