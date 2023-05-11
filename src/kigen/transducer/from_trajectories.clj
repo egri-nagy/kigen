@@ -1,4 +1,9 @@
 (ns kigen.transducer.from-trajectories
+  "To find partially defined transducers, this method has the states in all
+   trajectories as the logic variables. Then the individual maps are extracted
+   and used to define the partial transformations.
+   This method is inefficient as complexity of the search grows with the number 
+   and the length of the input words."
 (:require
  [clojure.core.logic :as l]
  [clojure.core.logic.fd :as fd]
@@ -70,7 +75,9 @@
         output-lvars (map first (mappings readout-symbol))
         state-lvars (remove (set output-lvars)
                             (distinct
-                             (filter l/lvar? (apply concat trajectories))))]
+                             (filter l/lvar? (apply concat trajectories))))
+        state-dom (apply fd/domain (range n))
+        output-dom (apply fd/domain (range (count output-symbols)))]
     (info "#lvars:" (+ (count output-lvars) (count state-lvars)))
     (info "search space size:"
           (str n "^" (count state-lvars)
@@ -94,9 +101,6 @@
           :omega (mapv output-symbols  (ts readout-symbol))}))
      (l/run* [q]
              (l/== q trajectories)
-             (l/everyg (fn [x] (fd/in x (apply fd/domain (range n))))
-                       state-lvars)
-             (l/everyg (fn [x] (fd/in x (apply fd/domain (range (count output-symbols)))))
-                       output-lvars)
-             (l/everyg compatible-collo
-                       (vals mappings))))))
+             (l/everyg #(fd/in % state-dom) state-lvars)
+             (l/everyg #(fd/in % output-dom) output-lvars)
+             (l/everyg compatible-collo (vals mappings))))))
