@@ -7,9 +7,7 @@
    package. State 0 is the initial state."
   (:require
    [clojure.core.logic :as l]
-   [clojure.core.logic.fd :as fd]
-   [kigen.logic :as kl]
-   [taoensso.timbre :refer [info debug]]
+   [kigen.logic :refer [reduceo ntho]]
    [kigen.position :refer [index]]))
 
 (defn trajectory
@@ -36,10 +34,10 @@
 (defn process-wordo
   "The relational version of process-word."
   [delta initial-state input-word output]
-  (kl/reduceo (fn [state input next-state]
+  (reduceo (fn [state input next-state]
                 (l/fresh [v]
-                         (kl/ntho delta input v)
-                         (kl/ntho v state next-state)))
+                         (ntho delta input v)
+                         (ntho v state next-state)))
               initial-state
               input-word
               output))
