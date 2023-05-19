@@ -155,12 +155,12 @@
                                                    (apply distinct? ;iso?
                                                           (vals nmorph)))
                                             (conj newmorphs [(inc n) nmorph])
-                                            newmorphs)))]
-                        (let [result (reduce check-gen [] ngens)]
-                          (trace (count phi) "elts in phi,"
-                                (count ngens) "targets for gen" n ","
-                                (count result) "realized" (mem-info))
-                          result))))
+                                            newmorphs)))
+                            result (reduce check-gen [] ngens)]
+                        (trace (count phi) "elts in phi,"
+                               (count ngens) "targets for gen" n ","
+                               (count result) "realized" (mem-info))
+                        result)))
         morphs (map second (ptree-search [[0 {}]]
                                          generator
                                          solution?))]
