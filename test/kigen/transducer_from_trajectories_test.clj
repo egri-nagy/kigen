@@ -27,7 +27,7 @@
                "0 ·c 0 ·c 0 ·a 1 ·a 2 ·b 0 ·b 2 = :foobar ✔")
              (trajectories io-pairs solution))))))
 
-(deftest small-non-partial-transducer-test
+(deftest small-partial-transducer-test
   (testing "Small examples with partial results."
     (let [sl-3-3 [["|__" :first]
                   ["_|_" :second]
