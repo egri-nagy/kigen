@@ -91,7 +91,7 @@
   [io-pairs]
   (let [input-symbols (input-symbols-fn io-pairs)
         output-symbols (output-symbols-fn io-pairs)
-        readout-symbol (count input-symbols)]
+        readout-symbol (count input-symbols)] ;the extra input symbol to trigger state readout
     (for [[input output] io-pairs]
       [(vec (concat (map
                      (partial index input-symbols)

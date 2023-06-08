@@ -22,7 +22,6 @@
   (let [input-symbols (input-symbols-fn io-pairs)
         num-of-inputs (count input-symbols)
         output-symbols (output-symbols-fn io-pairs)
-        output-generator   num-of-inputs ; the extra input symbol to trigger state readout
         ;;to make the io-pairs work for the fixed engine:
         ;;append an extra symbol for readout and replace the output
         ;;and input symbols with their indices
