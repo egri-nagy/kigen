@@ -2,9 +2,7 @@
   "Lossless machine learning: constructing a single symbol output transducer  from input word,
    output symbol pairs by logic programming.
    In other words, constructing a Moore-machine. https://en.wikipedia.org/wiki/Moore_machine
-   Internally both the states and the input symbols are represented as nonnegative
-   integers, for the ease of handling by the logic engine through the finite domain
-   package. State 0 is the initial state."
+   There are several implementations for representing the transducer. These are the common functions."
   (:require
    [clojure.core.logic :as l]
    [kigen.logic :refer [reduceo ntho]]
@@ -12,7 +10,7 @@
 
 (defn trajectory
   "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state.
-   The whole trajectory (initital, all intermittent states and final state) is returned."
+  Same as process-word, but the whole trajectory (initital, all intermittent states and final state) is returned."
   [delta initial-state input-word]
   (reductions
    (fn [state input]
@@ -30,7 +28,7 @@
    input-word))
 
 ;; relational code is after the functional one to see the connection
-;; we have to use ntho explicitly (only works vectors internally)
+;; we have to use ntho explicitly (only works vectors internally) ;TODO why? used by fixed, flexible
 (defn process-wordo
   "The relational version of process-word."
   [delta initial-state input-word output]
@@ -46,7 +44,7 @@
   "Returns all collected output symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
    to refer to the symbols. The order of the symbols defined by the order
-   of their appeareance in the io-pairs (through distinct)."
+   of their first appeareances in the io-pairs."
   [io-pairs]
   (vec (distinct (map second io-pairs))))
 
@@ -54,10 +52,9 @@
   "Returns all collected input symbols appearing in the input-output
    pairs without repetition. Returned as a vector, the indices can be used
    to refer to the symbols. The order of the symbols defined by the order
-   of their appeareance in the io-pairs (through distinct)."
+   of their first appeareances in the io-pairs."
   [io-pairs]
   (vec (distinct (mapcat first io-pairs))))
-
 
 (defn check
   "Returns true if the given automaton (defined by solution, state transition function
@@ -93,9 +90,11 @@
         output-symbols (output-symbols-fn io-pairs)
         readout-symbol (count input-symbols)] ;the extra input symbol to trigger state readout
     (for [[input output] io-pairs]
-      [(vec (concat (map
-                     (partial index input-symbols)
-                     input)
-                    [readout-symbol]))
+      [;;the new encoded input word
+       (vec
+        (concat
+         (map (partial index input-symbols) input)
+         [readout-symbol]))
+       ;;the new encoded output
        (index output-symbols output)])))
 

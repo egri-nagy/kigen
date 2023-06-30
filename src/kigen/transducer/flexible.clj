@@ -7,7 +7,6 @@
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd] 
    [taoensso.timbre :refer [info debug]]
-   [kigen.position :refer [index]]
    [kigen.transducer.common :refer [process-wordo
                                     input-symbols-fn
                                     output-symbols-fn
