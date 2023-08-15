@@ -7,7 +7,7 @@
   The elements of target semigroups are classified by their index-periods in
   order to find possible targets for generators."
   (:require [kigen.sgp :refer [sgp-by-gens index-period ->Sgp]]
-            [orbit.core :refer [tree-search ptree-search]]
+            [orbit.core :refer [ptree-search]] ;tree-search for single-threaded execution
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]
             [taoensso.timbre :refer [trace]]))
@@ -77,7 +77,7 @@
   images of the generators."
   [Sgens Smul tgs Tmul]
   (trace "Number of targets:" (vec (map count tgs)))
-  (let [solution? (fn [[n m]] (= n (count Sgens))) ;n - #generators, m - morphs
+  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, m - morphs
         generator (fn [[n m :as v]]
                     (if (solution? v)
                       []
@@ -136,7 +136,7 @@
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul conj-fn-bundle]
-  (let [solution? (fn [[n phi]] (= n (count Sgens))) ;n #generators, phi morphs
+  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n #generators, phi morphs
         generator (fn [[n phi :as v]]
                     (if (solution? v)
                       []
@@ -155,12 +155,12 @@
                                                    (apply distinct? ;iso?
                                                           (vals nmorph)))
                                             (conj newmorphs [(inc n) nmorph])
-                                            newmorphs)))]
-                        (let [result (reduce check-gen [] ngens)]
-                          (trace (count phi) "elts in phi,"
-                                (count ngens) "targets for gen" n ","
-                                (count result) "realized" (mem-info))
-                          result))))
+                                            newmorphs)))
+                            result (reduce check-gen [] ngens)]
+                        (trace (count phi) "elts in phi,"
+                               (count ngens) "targets for gen" n ","
+                               (count result) "realized" (mem-info))
+                        result)))
         morphs (map second (ptree-search [[0 {}]]
                                          generator
                                          solution?))]

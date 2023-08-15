@@ -2,6 +2,9 @@
   "Further relations (goals) to extend core.logic."
   (:require [clojure.core.logic :as l]))
 
+(declare reduceo
+         ntho)
+
 (l/defne reduceo
   "Relational reduce, succeds if the reduction produces the result."
   [relo initial coll result]

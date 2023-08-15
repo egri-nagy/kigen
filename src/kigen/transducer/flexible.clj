@@ -7,21 +7,10 @@
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd] 
    [taoensso.timbre :refer [info debug]]
-   [kigen.position :refer [index]]
-   [kigen.transducer.common :refer [process-wordo input-symbols-fn output-symbols-fn]]))
-
-(defn modded-io-pairs
-  "Recodes the input symbols to natural numbers and adds an extra input at the end serving for the state readout."
-  [io-pairs]
-  (let [input-symbols (input-symbols-fn io-pairs)
-        output-symbols (output-symbols-fn io-pairs)
-        readout-symbol (count input-symbols)]
-    (for [[input output] io-pairs]
-      [(vec (concat (map
-                     (partial index input-symbols)
-                     input)
-                    [readout-symbol]))
-       (index output-symbols output)])))
+   [kigen.transducer.common :refer [process-wordo
+                                    input-symbols-fn
+                                    output-symbols-fn
+                                    modded-io-pairs]]))
 
 (defn transducer
   "Given the input-output pairs, and the number of states, this attempts to
@@ -32,7 +21,6 @@
   (let [input-symbols (input-symbols-fn io-pairs)
         num-of-inputs (count input-symbols)
         output-symbols (output-symbols-fn io-pairs)
-        output-generator   num-of-inputs ; the extra input symbol to trigger state readout
         ;;to make the io-pairs work for the fixed engine:
         ;;append an extra symbol for readout and replace the output
         ;;and input symbols with their indices

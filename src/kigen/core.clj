@@ -1,5 +1,5 @@
 (ns kigen.core
-  (:require [taoensso.timbre :as timbre])
+  (:require [taoensso.timbre :refer [set-min-level! merge-config!]])
   (:gen-class))
 
 ;; to save compile time property into a runtime one
@@ -7,7 +7,13 @@
   (System/getProperty "kigen.version"))
 
 ;; setting default log level
-(timbre/merge-config! {:min-level :warn})
+; levels: :warn, :info, :debug
+(set-min-level! :warn)
+(defn simple-logger
+  [m]
+  (str (:min-level (:config m)) " "
+       (:vargs m)))
+(merge-config! {:output-fn simple-logger})
 
 (defn -main
   "The first argument is a name of a file containing Clojure source code.
