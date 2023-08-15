@@ -9,6 +9,35 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
+(defn DotSolution
+
+  [io-pairs {omega :omega delta :delta}]
+  (let [nodes (map
+               (fn [state]
+                 {:id (str "node" state)
+                  :label (str state " " (omega state))})
+               (range (count (first (vals delta)))))
+        edges (mapcat
+               (fn [input-sym]
+                 (map
+                  (fn [a b]
+                    [(str "node" a) (str "node" b) {:label input-sym}])
+                  (range) (delta input-sym)))
+               (input-symbols-fn io-pairs))]
+    (tangle/graph->dot
+     nodes
+     edges
+     {:directed? true ;:node {:shape :box}
+      :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
+      :node->descriptor (fn [n] (when-not (keyword? n) n))})))
+
+(defn DotSolution2PDF
+  [dotstring name]
+  (copy (tangle/dot->image dotstring
+                           "pdf")
+        (file (str name ".pdf"))))
+
+
 ;;SIGNAL LOCATORS
 ;; where is the 'pulse'?
 ;; sl-n-k signal locator for n symbols with k regions 
@@ -36,7 +65,7 @@
    [[0 0 0 1 0 0] :middle]
    [[0 0 0 0 1 0] :end]
    [[0 0 0 0 0 1] :end]])
-(first (transducer sl-6-3 4))
+(first (f/transducer sl-6-3 4))
 
 (def sl-6-6
   [[[1 0 0  0 0 0] :1]
@@ -45,7 +74,7 @@
    [[0 0 0 1 0 0] :4]
    [[0 0 0 0 1 0] :5]
    [[0 0 0 0 0 1] :6]])
-(first (transducer sl-6-6 6))
+(first (f/transducer sl-6-6 6))
 
 (def sl-9-3
   [[[1 0 0  0 0 0  0 0 0] :1st]
@@ -57,7 +86,7 @@
    [[0 0 0 0 0 0 1 0 0] :3rd]
    [[0 0 0 0 0 0 0 1 0] :3rd]
    [[0 0 0 0 0 0 0 0 1] :3rd]])
-(first (transducer sl-9-3 5))
+(first (f/transducer sl-9-3 5))
 
 ;; PALINDROMES
 (defn palindromes
@@ -70,10 +99,10 @@
         (combo/selections [0 1] n)))
 
 (def plndrm3 (palindromes 3))
-(first (transducer plndrm3 4))
+(first (f/transducer plndrm3 4))
 
-(def plndrm4 (palindromes 4))
-(first (transducer plndrm4 5))
+;;(def plndrm4 (palindromes 4))
+;;(first (f/transducer plndrm4 5))
 
 ;; (def plndrm5 (palindromes 5))
 ;; (first (transducer plndrm5 6))) ;??
@@ -91,11 +120,11 @@
     [w (process-word T 0 w)]))
 
 ;is it uniquely determined?
-(count (fixed-output-transducer Ti-o-pairs 4))
+(count (f/transducer Ti-o-pairs 4))
 
 ;;COUNTING ONES : length of input word + 1 states needed
 (first
- (transducer
+ (f/transducer
   (map (fn [l]
          [l (count (filter #{1} l))])
        (combo/selections [0 1] 4)) 5))
@@ -112,23 +141,23 @@
                        :else :morezeros))])
         (mapcat #(combo/selections [0 1] %) [1 2 3 4])))
 
-(def zosol (first (transducer zo 5)))
+(def zosol (first (f/transducer zo 5)))
 (trajectories zo zosol)
 
-;;old method - seven states
-(def zo2
-  (mapv (fn [l]
-          [(vec l) (let [ones (count (filter #{1} l))
-                         zeroes (count (filter #{0} l))]
-                     (cond
-                       (< zeroes ones) 1
-                       (= zeroes ones) 2
-                       :else 3))])
-        (combo/selections [0 1] 4)))
+;; ;;old method - seven states
+;; (def zo2
+;;   (mapv (fn [l]
+;;           [(vec l) (let [ones (count (filter #{1} l))
+;;                          zeroes (count (filter #{0} l))]
+;;                      (cond
+;;                        (< zeroes ones) 1
+;;                        (= zeroes ones) 2
+;;                        :else 3))])
+;;         (combo/selections [0 1] 4)))
 
-(def zo2sol (first (fixed-output-transducer zo2 7)))
-(check-fixed zo2 zo2sol)
-(trajectories-fixed zo2 zo2sol)
+;; (def zo2sol (first (f/transducer zo2 7)))
+;; (check zo2 zo2sol)
+;; (trajectories zo2 zo2sol)
 
 (def binary
   [[[0 0 0] :0]
@@ -139,7 +168,7 @@
    [[1 0 1] :5]
    [[1 1 0] :6]
    [[1 1 1] :7]])
-(def binarysol  (first (transducer binary 8)))
+(def binarysol  (first (f/transducer binary 8)))
 (trajectories binary binarysol)
 (check binary binarysol)
 (DotSolution2PDF (DotSolution binary binarysol) "binary")
@@ -153,38 +182,12 @@
    [[1 0 1] :5]
    [[0 1 1] :6]
    [[1 1 1] :7]])
-(def binary2sol  (first (transducer binary2 8)))
+(def binary2sol  (first (ft/transducer binary2 8)))
 (trajectories binary2 binary2sol)
 (check binary2 binary2sol)
 (DotSolution2PDF (DotSolution binary2 binary2sol) "binary2")
 
 
-(defn DotSolution
-  [io-pairs {omega :omega delta :delta}]
-  (let [nodes (map
-               (fn [state]
-                 {:id (str "node" state)
-                  :label (str state " " (omega state))})
-               (range (count (first (vals delta)))))
-        edges (mapcat
-               (fn [input-sym]
-                 (map
-                  (fn [a b]
-                    [(str "node" a) (str "node" b) {:label input-sym}])
-                  (range) (delta input-sym)))
-               (input-symbols-fn io-pairs))]
-    (tangle/graph->dot
-     nodes
-     edges
-     {:directed? true ;:node {:shape :box}
-      :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
-      :node->descriptor (fn [n] (when-not (keyword? n) n))})))
-
-(defn DotSolution2PDF
-  [dotstring name] 
-  (copy (tangle/dot->image dotstring
-                           "pdf")
-        (file (str name ".pdf"))))
 
 (spit "sl.dot" (DotSolution sl-3-3 sl-3-3sol))
 (DotSolution2PDF (DotSolution sl-3-3 sl-3-3sol) "sl-3-3")
