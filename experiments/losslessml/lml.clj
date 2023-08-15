@@ -106,7 +106,7 @@
 
 ;; (def plndrm5 (palindromes 5))
 ;; (first (transducer plndrm5 6))) ;??
-
+(println "hey")
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
 (def T [[0 3 1 3] ;states transformed by input symbol 0
@@ -120,7 +120,7 @@
     [w (process-word T 0 w)]))
 
 ;is it uniquely determined?
-(count (f/transducer Ti-o-pairs 4))
+(first (f/transducer Ti-o-pairs 4))
 
 ;;COUNTING ONES : length of input word + 1 states needed
 (first
@@ -131,18 +131,18 @@
 
 ;; deciding whether there are more zeroes or ones, or equal
 ;; not easy, for 4 inputs minimum 9 states needed - better with flexible output?
-(def zo
-  (mapv (fn [l]
-          [(vec l) (let [ones (count (filter #{1} l))
-                         zeroes (count (filter #{0} l))]
-                     (cond
-                       (< zeroes ones) :moreones
-                       (= zeroes ones) :eq
-                       :else :morezeros))])
-        (mapcat #(combo/selections [0 1] %) [1 2 3 4])))
+;; (def zo
+;;   (mapv (fn [l]
+;;           [(vec l) (let [ones (count (filter #{1} l))
+;;                          zeroes (count (filter #{0} l))]
+;;                      (cond
+;;                        (< zeroes ones) :moreones
+;;                        (= zeroes ones) :eq
+;;                        :else :morezeros))])
+;;         (mapcat #(combo/selections [0 1] %) [1 2 3 4])))
 
-(def zosol (first (f/transducer zo 5)))
-(trajectories zo zosol)
+;; (def zosol (first (f/transducer zo 9)))
+;; (trajectories zo zosol)
 
 ;; ;;old method - seven states
 ;; (def zo2
@@ -182,7 +182,7 @@
    [[1 0 1] :5]
    [[0 1 1] :6]
    [[1 1 1] :7]])
-(def binary2sol  (first (ft/transducer binary2 8)))
+(def binary2sol  (first (f/transducer binary2 8)))
 (trajectories binary2 binary2sol)
 (check binary2 binary2sol)
 (DotSolution2PDF (DotSolution binary2 binary2sol) "binary2")
@@ -191,20 +191,6 @@
 
 (spit "sl.dot" (DotSolution sl-3-3 sl-3-3sol))
 (DotSolution2PDF (DotSolution sl-3-3 sl-3-3sol) "sl-3-3")
-
-(DotSolution2PDF zo zosol "zo")
-(DotSolution2PDF binary binarysol "binary")
-
-(def nodes [:a :b :c :d {:id (str :d) :label "luki"}])
-(def edges [[:a :b] [:b :c]])
-(copy (tangle/dot->image (tangle/graph->dot
-                          nodes
-                          edges
-                          {:directed? true :node {:shape :box}
-                           :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
-                           :node->descriptor (fn [n] (when-not (keyword? n) n))})
-                         "pdf")
-      (file "x.pdf"))
 
 (defn get-maps
   " "
