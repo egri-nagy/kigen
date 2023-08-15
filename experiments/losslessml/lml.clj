@@ -1,6 +1,7 @@
 (require '[clojure.math.combinatorics :as combo])
 (require '[kigen.transducer.common :refer :all])
-(require '[kigen.transducer.flexible :refer :all])
+(require '[kigen.transducer.flexible :as f])
+(require '[kigen.transducer.from-trajectories :as ft])
 (require '[taoensso.timbre :as timbre])
 (require '[tangle.core :as tangle])
 (require '[clojure.java.io :refer [copy file]])
@@ -16,7 +17,7 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
-(def sl-3-3sol (first (transducer sl-3-3 3)))
+(def sl-3-3sol (first (f/transducer sl-3-3 3)))
 (println (trajectories sl-3-3 sl-3-3sol))
 
 (def sl-6-2
@@ -26,7 +27,7 @@
    ["___|__" :second]
    ["____|_" :second]
    ["_____|" :second]])
-(first (transducer sl-6-2 4))
+(first (f/transducer sl-6-2 4))
 
 (def sl-6-3
   [[[1 0 0  0 0 0] :beginning]
@@ -141,6 +142,22 @@
 (def binarysol  (first (transducer binary 8)))
 (trajectories binary binarysol)
 (check binary binarysol)
+(DotSolution2PDF (DotSolution binary binarysol) "binary")
+
+(def binary2
+  [[[0 0 0] :0]
+   [[1 0 0] :1]
+   [[0 1 0] :2]
+   [[1 1 0] :3]
+   [[0 0 1] :4]
+   [[1 0 1] :5]
+   [[0 1 1] :6]
+   [[1 1 1] :7]])
+(def binary2sol  (first (transducer binary2 8)))
+(trajectories binary2 binary2sol)
+(check binary2 binary2sol)
+(DotSolution2PDF (DotSolution binary2 binary2sol) "binary2")
+
 
 (defn DotSolution
   [io-pairs {omega :omega delta :delta}]
@@ -169,7 +186,9 @@
                            "pdf")
         (file (str name ".pdf"))))
 
+(spit "sl.dot" (DotSolution sl-3-3 sl-3-3sol))
 (DotSolution2PDF (DotSolution sl-3-3 sl-3-3sol) "sl-3-3")
+
 (DotSolution2PDF zo zosol "zo")
 (DotSolution2PDF binary binarysol "binary")
 
