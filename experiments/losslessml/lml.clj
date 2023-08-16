@@ -159,6 +159,16 @@
 ;; (check zo2 zo2sol)
 ;; (trajectories zo2 zo2sol)
 
+(def parity
+  [[[0 0] :0]
+   [[0 1] :1]
+   [[1 0] :1] 
+   [[1 1] :0]])
+(def paritysol  (first (f/transducer parity 2)))
+(trajectories parity paritysol)
+(check parity paritysol)
+(DotSolution2PDF (DotSolution parity paritysol) "parity")
+
 (def binary
   [[[0 0 0] :0]
    [[0 0 1] :1]
