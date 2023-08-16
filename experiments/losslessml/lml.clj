@@ -101,12 +101,13 @@
 (def plndrm3 (palindromes 3))
 (first (f/transducer plndrm3 4))
 
-;;(def plndrm4 (palindromes 4))
-;;(first (f/transducer plndrm4 5))
+(def plndrm4 (palindromes 4))
+(def plndrm4sol (first (f/transducer plndrm4 5)))
+(DotSolution2PDF (DotSolution plndrm4 plndrm4sol) "palindrome")
 
-;; (def plndrm5 (palindromes 5))
-;; (first (transducer plndrm5 6))) ;??
-(println "hey")
+; (def plndrm5 (palindromes 5))
+; (first (f/transducer plndrm5 7)) ;??
+
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
 (def T [[0 3 1 3] ;states transformed by input symbol 0
