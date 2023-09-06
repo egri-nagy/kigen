@@ -14,7 +14,7 @@
   "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition table
    (nested associative data structure, mapping inputs to transformations of the state set).
   It returns the sequence of states visited starting from the given initial state.
-  Same as process-word, but the whole trajectory (initital, all intermittent states and final state) is returned."
+  Same as result-state, but the whole trajectory (initital, all intermittent states and final state) is returned."
   [delta initial-state input-word]
   (reductions
    (fn [state input]
@@ -22,7 +22,7 @@
    initial-state
    input-word))
 
-(defn process-word
+(defn result-state
   "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition table
    (nested associative data structure, mapping inputs to transformations of the state set) starting from the given initial state.
    It returns the resulting state."
@@ -35,8 +35,8 @@
 
 ;; relational code is after the functional one to see the connection
 ;; we have to use ntho explicitly (only works vectors internally) ;TODO why? used by fixed, flexible
-(defn process-wordo
-  "The relational version of process-word."
+(defn result-stateo
+  "The relational version of result-state."
   [delta initial-state input-word output]
   (reduceo (fn [state input next-state]
                 (l/fresh [v]
@@ -68,7 +68,7 @@
    It uses format-flexible for processing the raw solution."
   [io-pairs {delta :delta omega :omega}]
   (every? (fn [[input output]]
-            (= output (omega (process-word delta 0 input))))
+            (= output (omega (result-state delta 0 input))))
           io-pairs))
 
 (defn trajectories
