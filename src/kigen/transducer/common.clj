@@ -2,14 +2,18 @@
   "Lossless machine learning: constructing a single symbol output transducer  from input word,
    output symbol pairs by logic programming.
    In other words, constructing a Moore-machine. https://en.wikipedia.org/wiki/Moore_machine
-   There are several implementations for representing the transducer. These are the common functions."
+   There are several implementations for representing the transducer. These are the common functions.
+   delta - the state transition table is a nested associative data structure (map or vector)
+   (delta input) gives a transformation of the state set"
   (:require
    [clojure.core.logic :as l]
    [kigen.logic :refer [reduceo ntho]]
    [kigen.position :refer [index]]))
 
 (defn trajectory
-  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state.
+  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition table
+   (nested associative data structure, mapping inputs to transformations of the state set).
+  It returns the sequence of states visited starting from the given initial state.
   Same as process-word, but the whole trajectory (initital, all intermittent states and final state) is returned."
   [delta initial-state input-word]
   (reductions
@@ -19,7 +23,9 @@
    input-word))
 
 (defn process-word
-  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state. It returns the resulting state."
+  "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition table
+   (nested associative data structure, mapping inputs to transformations of the state set) starting from the given initial state.
+   It returns the resulting state."
   [delta initial-state input-word]
   (reduce
    (fn [state input]
