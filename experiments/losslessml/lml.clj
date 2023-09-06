@@ -125,7 +125,7 @@
   (for [w (repeatedly 7
                       (fn [] (vec (repeatedly 4
                                               (partial rand-int 3)))))]
-    [w (process-word T 0 w)]))
+    [w (result-state T 0 w)]))
 
 ;is it uniquely determined?
 (first (f/transducer Ti-o-pairs 4))

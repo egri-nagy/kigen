@@ -9,7 +9,7 @@ rigid constraint."
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd]
    [taoensso.timbre :refer [info debug]]
-   [kigen.transducer.common :refer [process-wordo input-symbols-fn]]))
+   [kigen.transducer.common :refer [result-stateo input-symbols-fn]]))
 
 (defn fixed-output-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -34,6 +34,6 @@ rigid constraint."
          (l/run* [q]
                  (l/everyg #(fd/in % statesfd) lvars)
                  (l/everyg (fn [[input output]]
-                             (process-wordo delta 0 input output))
+                             (result-stateo delta 0 input output))
                            io-pairs)
                  (l/== q delta)))))

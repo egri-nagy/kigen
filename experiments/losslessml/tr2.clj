@@ -54,7 +54,7 @@
    initial-state
    input-word))
 
-(defn process-word
+(defn result-state
   "Processes an input word (sequence of input symbols) by an automaton described by the delta state transition function (as vector of vectors) starting from the given initial state. It returns the resulting state."
   [delta initial-state input-word]
   (reduce
@@ -63,14 +63,14 @@
    initial-state
    input-word))
 
-(defn process-word2
+(defn result-state2
   [delta state input-word]
   (if (empty? input-word)
     state
-    (process-word2 delta (delta [state (first input-word)]) (rest input-word))))
+    (result-state2 delta (delta [state (first input-word)]) (rest input-word))))
 
-(process-word {[0 :a] 1, [1 :a] 1} 0 [:a :a])
-(process-word2 {[0 :a] 1, [1 :a] 1} 0 [:a :a])
+(result-state {[0 :a] 1, [1 :a] 1} 0 [:a :a])
+(result-state2 {[0 :a] 1, [1 :a] 1} 0 [:a :a])
 
 
 (defn state-transitiono
@@ -84,8 +84,8 @@
 
 ;; relational code is after the functional one to see the connection
 ;; we have to use ntho explicitly (only works vectors internally)
-(defn process-wordo
-  "The relational version of process-word."
+(defn result-stateo
+  "The relational version of result-state."
   [delta initial-state input-word output]
   (kl/reduceo (fn [state input next-state]
                 (state-transitiono delta input state next-state))
@@ -93,7 +93,7 @@
               input-word
               output))
 
-(defn process-wordo2
+(defn result-stateo2
   [delta state input-word output]
   (l/conde
    [(l/emptyo input-word) (l/== state output)]
@@ -101,7 +101,7 @@
              (l/resto input-word r)
              (l/firsto input-word input)
              (state-transitiono delta input state nst)
-             (process-wordo2 delta nst r output))]))
+             (result-stateo2 delta nst r output))]))
 
 (l/run 1 [q]
        (l/== q {:a [(l/lvar) (l/lvar) (l/lvar)]
@@ -111,7 +111,7 @@
        ;(state-transitiono q :b 0 1)
        ;(l/project [q])
        ;(l/project [q] (println q))
-       (process-wordo q 0 [:a] 1)
+       (result-stateo q 0 [:a] 1)
        )
 
 
@@ -180,7 +180,7 @@
              (l/everyg #(fd/in % states) state-lvars)
              (l/everyg #(fd/in % outputs) output-lvars)
              (l/everyg (fn [[input output]]
-                         (process-wordo (:delta result) 0 input output))
+                         (result-stateo (:delta result) 0 input output))
                        modded-io-pairs)
              (l/== q result)))))
 
@@ -197,7 +197,7 @@
    It uses format-flexible for processing the raw solution."
   [io-pairs {delta :delta omega :omega}]
   (every? (fn [[input output]]
-            (= output (omega (process-word delta 0 input))))
+            (= output (omega (result-state delta 0 input))))
           io-pairs))
 
 (defn trajectories

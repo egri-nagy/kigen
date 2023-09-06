@@ -7,7 +7,7 @@
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd] 
    [taoensso.timbre :refer [info debug]]
-   [kigen.transducer.common :refer [process-wordo
+   [kigen.transducer.common :refer [result-stateo
                                     input-symbols-fn
                                     output-symbols-fn
                                     modded-io-pairs]]))
@@ -55,6 +55,6 @@
              (l/everyg #(fd/in % states) state-lvars)
              (l/everyg #(fd/in % outputs) output-lvars)
              (l/everyg (fn [[input output]]
-                         (process-wordo lvars 0 input output))
+                         (result-stateo lvars 0 input output))
                        m-io-pairs)
              (l/== q lvars)))))
