@@ -46,8 +46,15 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
-(def sl-3-3sol (first (f/transducer sl-3-3 3)))
+(def sl-3-3sol (first (ft/transducer sl-3-3 3)))
 (println (trajectories sl-3-3 sl-3-3sol))
+
+(def sl-3-3b
+  [["|__" :first]
+   ["_|_" :second]
+   ["__|" :third]
+   ["___" :none]])
+(def sl-3-3bsol (first (ft/transducer sl-3-3b 4)))
 
 (def sl-6-2
   [["|_____" :first]
@@ -202,6 +209,10 @@
 
 (spit "sl.dot" (DotSolution sl-3-3 sl-3-3sol))
 (DotSolution2PDF (DotSolution sl-3-3 sl-3-3sol) "sl-3-3")
+
+(spit "slb.dot" (DotSolution sl-3-3b sl-3-3bsol))
+(DotSolution2PDF (DotSolution sl-3-3b sl-3-3bsol) "sl-3-3b")
+(trajectories sl-3-3b sl-3-3bsol)
 
 (defn get-maps
   " "
