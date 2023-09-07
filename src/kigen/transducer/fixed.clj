@@ -18,7 +18,7 @@ rigid constraint."
   The first vector is the transformation realized by
   input symbol 0, second for input symbol 1, and so on.
   It produces all solutions lazily, so if only a solution is needed, the first
-  one can be used."
+  one can be used. The output function is the identity."
   [io-pairs n]
   (let [i (count (input-symbols-fn io-pairs))
         statesfd (fd/interval 0 (dec n))

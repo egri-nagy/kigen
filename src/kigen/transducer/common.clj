@@ -103,4 +103,3 @@
          [readout-symbol]))
        ;;the new encoded output
        (index output-symbols output)])))
-
