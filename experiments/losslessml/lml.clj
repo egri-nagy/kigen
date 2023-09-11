@@ -17,7 +17,7 @@
                (fn [state]
                  {:id (str "node" state)
                   :label (str state " " (omega state))})
-               (range (count (first (vals delta)))))
+               (range (count omega)))
         edges (mapcat
                (fn [input-sym]
                  (map
