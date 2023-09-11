@@ -9,8 +9,9 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
-(defn DotSolution
-
+(defn DotTransducer
+  "Produces GraphViz source code for the state transition diagram of a transducer.
+   io-pairs are needed to define the names of the inputs and outputs."
   [io-pairs {omega :omega delta :delta}]
   (let [nodes (map
                (fn [state]
@@ -31,7 +32,8 @@
       :node->id (fn [n] (if (keyword? n) (name n) (:id n)))
       :node->descriptor (fn [n] (when-not (keyword? n) n))})))
 
-(defn DotSolution2PDF
+(defn Dot2PDF
+  "Exporting a .dot file to its generated PDF image."
   [dotstring name]
   (copy (tangle/dot->image dotstring
                            "pdf")
@@ -110,7 +112,7 @@
 
 (def plndrm4 (palindromes 4))
 (def plndrm4sol (first (f/transducer plndrm4 5)))
-(DotSolution2PDF (DotSolution plndrm4 plndrm4sol) "palindrome")
+(Dot2PDF (DotTransducer plndrm4 plndrm4sol) "palindrome")
 
 ; (def plndrm5 (palindromes 5))
 ; (first (f/transducer plndrm5 7)) ;??
@@ -175,7 +177,7 @@
 (def paritysol  (first (f/transducer parity 2)))
 (trajectories parity paritysol)
 (check parity paritysol)
-(DotSolution2PDF (DotSolution parity paritysol) "parity")
+(Dot2PDF (DotTransducer parity paritysol) "parity")
 
 (def binary
   [[[0 0 0] :0]
@@ -189,7 +191,7 @@
 (def binarysol  (first (f/transducer binary 8)))
 (trajectories binary binarysol)
 (check binary binarysol)
-(DotSolution2PDF (DotSolution binary binarysol) "binary")
+(Dot2PDF (DotTransducer binary binarysol) "binary")
 
 (def binary2
   [[[0 0 0] :0]
@@ -203,15 +205,15 @@
 (def binary2sol  (first (f/transducer binary2 8)))
 (trajectories binary2 binary2sol)
 (check binary2 binary2sol)
-(DotSolution2PDF (DotSolution binary2 binary2sol) "binary2")
+(Dot2PDF (DotTransducer binary2 binary2sol) "binary2")
 
 
 
-(spit "sl.dot" (DotSolution sl-3-3 sl-3-3sol))
-(DotSolution2PDF (DotSolution sl-3-3 sl-3-3sol) "sl-3-3")
+(spit "sl.dot" (DotTransducer sl-3-3 sl-3-3sol))
+(Dot2PDF (DotTransducer sl-3-3 sl-3-3sol) "sl-3-3")
 
-(spit "slb.dot" (DotSolution sl-3-3b sl-3-3bsol))
-(DotSolution2PDF (DotSolution sl-3-3b sl-3-3bsol) "sl-3-3b")
+(spit "slb.dot" (DotTransducer sl-3-3b sl-3-3bsol))
+(Dot2PDF (DotTransducer sl-3-3b sl-3-3bsol) "sl-3-3b")
 (trajectories sl-3-3b sl-3-3bsol)
 
 (defn get-maps
