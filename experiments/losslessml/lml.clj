@@ -188,7 +188,8 @@
   "Collects all the maps from applying the transducer to an input word. It computes the trajectory, and labels the state transitions with input symbols."
   [delta initial-state input-word]
   (let [traj (trajectory delta initial-state input-word)]
-    (map vector input-word (partition 2 1 traj))))
+    (map vector input-word
+         (map vec (partition 2 1 traj)))))
 
 (defn extract-all-maps
   [io-pairs {delta :delta}]
@@ -197,7 +198,8 @@
         by-input (group-by first (reduce into #{} maps))]
     (update-vals
      by-input
-     (partial map second))))
+     (fn [ms]
+       (into {} (map second ms))))))
 
 ;; (defn partial-state-transition-table
 ;;   [extracted-maps n]
