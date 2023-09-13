@@ -25,6 +25,7 @@
    ["__|" :third]
    ["___" :none]])
 (def sl-3-3bsol (first (ft/transducer sl-3-3b 4)))
+(def sl-3-3bsol5 (first (f/transducer sl-3-3b 5)))
 
 (def sl-6-2
   [["|_____" :first]
@@ -201,8 +202,22 @@
      (fn [ms]
        (into {} (map second ms))))))
 
-(defn partial-state-transition-table
-  [m n]
-  (mapv m (range n)))
+(defn partial-delta
+  [io-pairs {delta :delta :as transducer}]
+  (let [n (count (second (first delta))) ;assuming that we have a vector
+        a-m (extract-all-maps io-pairs transducer)]
+       (update-vals
+        a-m
+        (fn [m] (mapv m (range n))))))
+
+(defn partial-omega
+  "It processes all input words and removes the states
+   from omega that are never used."
+  [io-pairs {delta :delta omega :omega}]
+  ( let [states (set (map (partial result-state delta 0)
+                          (map first io-pairs)))]
+   (mapv
+    (fn [i] (when (states i) (omega i)))
+    (range (count omega)))))
 
 (count (extract-all-maps binary binarysol))
