@@ -201,8 +201,8 @@
      (fn [ms]
        (into {} (map second ms))))))
 
-;; (defn partial-state-transition-table
-;;   [extracted-maps n]
-;;   )
+(defn partial-state-transition-table
+  [m n]
+  (mapv m (range n)))
 
 (count (extract-all-maps binary binarysol))
