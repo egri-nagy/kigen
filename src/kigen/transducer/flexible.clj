@@ -52,6 +52,10 @@
                       (butlast solution)))
         :omega (mapv (output-symbols-fn io-pairs) (last solution))})
      (l/run* [q]
+             ;this can make the result partial, but makes the search longer
+             ;(l/everyg #(l/conde [(l/nilo %)] [(fd/in % states)]) state-lvars)
+             ;this fails when creating :omega at the end
+             ;(l/everyg #(l/conde [(l/nilo %)] [(fd/in % outputs)]) output-lvars)
              (l/everyg #(fd/in % states) state-lvars)
              (l/everyg #(fd/in % outputs) output-lvars)
              (l/everyg (fn [[input output]]
