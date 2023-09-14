@@ -50,7 +50,8 @@
                         [symbol transformation])
                       input-symbols
                       (butlast solution)))
-        :omega (mapv (output-symbols-fn io-pairs) (last solution))})
+        :omega (mapv (fn [i] (when (int? i) (output-symbols i))) ;defending against nil
+                     (last solution))})
      (l/run* [q]
              ;this can make the result partial, but makes the search longer
              ;(l/everyg #(l/conde [(l/nilo %)] [(fd/in % states)]) state-lvars)
