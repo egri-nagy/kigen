@@ -8,6 +8,24 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
+(defn degrees-of-freedom
+  [{delta :delta omega :omega}]
+  (let [inputs (count delta)
+        states (count omega)
+        dof (* states (inc inputs))
+        nils (count (filter nil? (apply concat omega (vals delta))))]
+    [(- dof nils) dof]))
+
+(defn experiment
+  [name io-pairs n transducer-function]
+  (println name)
+  (let [transducer (first  (transducer-function io-pairs n))
+        partial (partial-transducer io-pairs transducer)]
+   (doseq [l (trajectories io-pairs transducer)]
+     (println l))
+    (println "Check partial:" (check io-pairs partial))
+    (println (degrees-of-freedom partial))))
+
 ;;SIGNAL LOCATORS
 ;; where is the 'pulse'?
 ;; sl-n-k signal locator for n symbols with k regions 
@@ -16,16 +34,18 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
-(def sl-3-3sol (first (ft/transducer sl-3-3 3)))
-(println (trajectories sl-3-3 sl-3-3sol))
+(experiment "sl-3-3 flexible" sl-3-3 3 f/transducer)
+(experiment "sl-3-3 from trajectories"  sl-3-3 3 ft/transducer)
+(experiment "sl-3-3 from trajectories" sl-3-3 4 ft/transducer)
 
 (def sl-3-3b
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]
    ["___" :none]])
-(def sl-3-3bsol (first (ft/transducer sl-3-3b 4)))
-(def sl-3-3bsol5 (first (f/transducer sl-3-3b 5)))
+(experiment "sl-3-3b flexible" sl-3-3b 4 f/transducer)
+(experiment "sl-3-3b from trajectories" sl-3-3b 4 ft/transducer)
+
 
 (def sl-6-2
   [["|_____" :first]
@@ -34,7 +54,8 @@
    ["___|__" :second]
    ["____|_" :second]
    ["_____|" :second]])
-(first (f/transducer sl-6-2 4))
+(experiment "sl-6-2 flexible" sl-6-2 4 f/transducer)
+; takes too long (experiment "sl-6-2 from trajectories" sl-6-2 4 ft/transducer)
 
 (def sl-6-3
   [[[1 0 0  0 0 0] :beginning]
@@ -43,7 +64,7 @@
    [[0 0 0 1 0 0] :middle]
    [[0 0 0 0 1 0] :end]
    [[0 0 0 0 0 1] :end]])
-(first (f/transducer sl-6-3 4))
+(experiment "sl-6-3 flexible" sl-6-3 4 f/transducer)
 
 (def sl-6-6
   [[[1 0 0  0 0 0] :1]
@@ -52,7 +73,7 @@
    [[0 0 0 1 0 0] :4]
    [[0 0 0 0 1 0] :5]
    [[0 0 0 0 0 1] :6]])
-(first (f/transducer sl-6-6 6))
+(experiment "sl-6-3 flexible" sl-6-3 6 f/transducer)
 
 (def sl-9-3
   [[[1 0 0  0 0 0  0 0 0] :1st]
@@ -65,6 +86,7 @@
    [[0 0 0 0 0 0 0 1 0] :3rd]
    [[0 0 0 0 0 0 0 0 1] :3rd]])
 (first (f/transducer sl-9-3 5))
+(experiment "sl-9-3 flexible" sl-9-3 5 f/transducer)
 
 ;; PALINDROMES
 (defn palindromes
@@ -77,14 +99,13 @@
         (combo/selections [0 1] n)))
 
 (def plndrm3 (palindromes 3))
-(first (f/transducer plndrm3 4))
+(experiment "palindromes 3 flexible" plndrm3 4 f/transducer)
 
 (def plndrm4 (palindromes 4))
-(def plndrm4sol (first (f/transducer plndrm4 5)))
-(Dot2PDF (DotTransducer plndrm4 plndrm4sol) "palindrome")
+(experiment "palindromes 4 flexible" plndrm4 5 f/transducer)
 
-; (def plndrm5 (palindromes 5))
-; (first (f/transducer plndrm5 7)) ;??
+(def plndrm5 (palindromes 5))
+(experiment "palindromes 5 flexible" plndrm5 32 f/transducer)
 
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
@@ -176,14 +197,4 @@
 (check binary2 binary2sol)
 (Dot2PDF (DotTransducer binary2 binary2sol) "binary2")
 
-
-
-(spit "sl.dot" (DotTransducer sl-3-3 sl-3-3sol))
-(Dot2PDF (DotTransducer sl-3-3 sl-3-3sol) "sl-3-3")
-
-(spit "slb.dot" (DotTransducer sl-3-3b sl-3-3bsol))
-(Dot2PDF (DotTransducer sl-3-3b sl-3-3bsol) "sl-3-3b")
-(trajectories sl-3-3b sl-3-3bsol)
-
-
-(check sl-3-3b  (partial-transducer sl-3-3b sl-3-3bsol5))
+;(Dot2PDF (DotTransducer sl-3-3 sl-3-3sol) "sl-3-3")
