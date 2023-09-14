@@ -19,12 +19,16 @@
 (defn experiment
   [name io-pairs n transducer-function]
   (println name)
-  (let [transducer (first  (transducer-function io-pairs n))
-        partial (partial-transducer io-pairs transducer)]
-   (doseq [l (trajectories io-pairs transducer)]
-     (println l))
-    (println "Check partial:" (check io-pairs partial))
-    (println (degrees-of-freedom partial))))
+  (if-let [transducer (first  (transducer-function io-pairs n))]
+    ;then
+    (let [partial (partial-transducer io-pairs transducer)]
+      (doseq [l (trajectories io-pairs transducer)]
+        (println l))
+      (println "Check partial:" (check io-pairs partial))
+      (println (degrees-of-freedom partial))
+      (println partial))
+    ;else
+    "no solution"))
 
 ;;SIGNAL LOCATORS
 ;; where is the 'pulse'?
@@ -104,8 +108,9 @@
 (def plndrm4 (palindromes 4))
 (experiment "palindromes 4 flexible" plndrm4 5 f/transducer)
 
-(def plndrm5 (palindromes 5))
-(experiment "palindromes 5 flexible" plndrm5 32 f/transducer)
+;too long
+;(def plndrm5 (palindromes 5))
+;(experiment "palindromes 5 flexible" plndrm5 32 f/transducer)
 
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
@@ -114,13 +119,13 @@
         [1 0 2 3]])
 
 (def Ti-o-pairs
-  (for [w (repeatedly 7
+  (for [w (repeatedly 3
                       (fn [] (vec (repeatedly 4
                                               (partial rand-int 3)))))]
     [w (result-state T 0 w)]))
 
-;is it uniquely determined?
-(first (f/transducer Ti-o-pairs 4))
+;is it uniquely determined? we can measure how partial it is
+(experiment "starting from T flexible" Ti-o-pairs 4 f/transducer)
 
 ;;COUNTING ONES : length of input word + 1 states needed
 (first
@@ -130,44 +135,39 @@
        (combo/selections [0 1] 4)) 5))
 
 ;; deciding whether there are more zeroes or ones, or equal
-;; not easy, for 4 inputs minimum 9 states needed - better with flexible output?
-;; (def zo
-;;   (mapv (fn [l]
-;;           [(vec l) (let [ones (count (filter #{1} l))
-;;                          zeroes (count (filter #{0} l))]
-;;                      (cond
-;;                        (< zeroes ones) :moreones
-;;                        (= zeroes ones) :eq
-;;                        :else :morezeros))])
-;;         (mapcat #(combo/selections [0 1] %) [1 2 3 4])))
+(defn zof
+  [n]
+  (mapv (fn [l]
+          [(vec l) (let [ones (count (filter #{1} l))
+                         zeroes (count (filter #{0} l))]
+                     (cond
+                       (< zeroes ones) :moreones
+                       (= zeroes ones) :eq
+                       :else :morezeros))])
+        (mapcat #(combo/selections [0 1] %) (range 1 (inc n)))))
 
-;; (def zosol (first (f/transducer zo 9)))
-;; (trajectories zo zosol)
+(def zo3 (zof 3))
+(experiment "more zeroes or more ones flexible - max 3"
+            zo3 5 f/transducer)
 
-;; ;;old method - seven states
-;; (def zo2
-;;   (mapv (fn [l]
-;;           [(vec l) (let [ones (count (filter #{1} l))
-;;                          zeroes (count (filter #{0} l))]
-;;                      (cond
-;;                        (< zeroes ones) 1
-;;                        (= zeroes ones) 2
-;;                        :else 3))])
-;;         (combo/selections [0 1] 4)))
+;interestingly this is the same
+(def zo4 (zof 4))
+(experiment "more zeroes or more ones flexible - max 4"
+            zo4 5 f/transducer)
 
-;; (def zo2sol (first (f/transducer zo2 7)))
-;; (check zo2 zo2sol)
-;; (trajectories zo2 zo2sol)
+;??
+;(def zo5 (zof 5))
+;(experiment "more zeroes or more ones flexible - max 5"
+;            zo5 6 f/transducer)
+
 
 (def parity
   [[[0 0] :0]
    [[0 1] :1]
    [[1 0] :1] 
    [[1 1] :0]])
-(def paritysol  (first (f/transducer parity 2)))
-(trajectories parity paritysol)
-(check parity paritysol)
-(Dot2PDF (DotTransducer parity paritysol) "parity")
+(experiment "parity flexible" parity 2 f/transducer)
+(experiment "parity from trajectories" parity 2 ft/transducer)
 
 (def binary
   [[[0 0 0] :0]
@@ -178,23 +178,16 @@
    [[1 0 1] :5]
    [[1 1 0] :6]
    [[1 1 1] :7]])
-(def binarysol  (first (f/transducer binary 8)))
-(trajectories binary binarysol)
-(check binary binarysol)
-(Dot2PDF (DotTransducer binary binarysol) "binary")
+(experiment "binary encoding flexible" binary 8 f/transducer)
+(experiment "binary encoding from trajectories" binary 8 ft/transducer)
 
-(def binary2
-  [[[0 0 0] :0]
-   [[1 0 0] :1]
-   [[0 1 0] :2]
-   [[1 1 0] :3]
-   [[0 0 1] :4]
-   [[1 0 1] :5]
-   [[0 1 1] :6]
-   [[1 1 1] :7]])
-(def binary2sol  (first (f/transducer binary2 8)))
-(trajectories binary2 binary2sol)
-(check binary2 binary2sol)
-(Dot2PDF (DotTransducer binary2 binary2sol) "binary2")
+(def reversed-binary
+  (mapv
+   (fn [[ word output]]
+     [(reverse word) output])
+   binary))
 
-;(Dot2PDF (DotTransducer sl-3-3 sl-3-3sol) "sl-3-3")
+(experiment "reversed binary encoding flexible"
+            reversed-binary 8 f/transducer)
+(experiment "reversed binary encoding from trajectories"
+            reversed-binary 8 ft/transducer)
