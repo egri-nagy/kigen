@@ -38,7 +38,11 @@
      "logic variables for"
      n "states"
      num-of-inputs "input symbols"
-     (count output-symbols) "output symbols")
+     (count output-symbols) "output symbols"
+     "search space size:"
+     (str n "^" (count state-lvars)
+          "*" (count output-symbols) "^" (count output-lvars))
+     "total input length" (reduce + (map count (map first io-pairs))))
     (debug ;debug information about the modified input
      "modified io pairs" m-io-pairs
      input-symbols)
