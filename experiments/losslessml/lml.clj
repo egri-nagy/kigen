@@ -8,27 +8,6 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
-(defn degrees-of-freedom
-  [{delta :delta omega :omega}]
-  (let [inputs (count delta)
-        states (count omega)
-        dof (* states (inc inputs))
-        nils (count (filter nil? (apply concat omega (vals delta))))]
-    [(- dof nils) dof]))
-
-(defn experiment
-  [name io-pairs n transducer-function]
-  (println name)
-  (if-let [transducer (first  (transducer-function io-pairs n))]
-    ;then
-    (let [partial (partial-transducer io-pairs transducer)]
-      (doseq [l (trajectories io-pairs transducer)]
-        (println l))
-      (println "Check partial:" (check io-pairs partial))
-      (println (degrees-of-freedom partial))
-      (println partial))
-    ;else
-    "no solution"))
 
 ;;SIGNAL LOCATORS
 ;; where is the 'pulse'?

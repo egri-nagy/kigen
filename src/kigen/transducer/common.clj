@@ -148,3 +148,30 @@
   [io-pairs transducer]
   {:delta (partial-delta io-pairs transducer)
    :omega (partial-omega io-pairs transducer)})
+
+;;automating experiments
+(defn degrees-of-freedom
+  "Computes the total degrees of freedom for the transducer, and also how many is actually used of those. Returns a pair of used dofs, and the total number of them. Used as a measure how partial the transducer is."
+  [{delta :delta omega :omega}]
+  (let [inputs (count delta)
+        states (count omega)
+        dof (* states (inc inputs))
+        nils (count (filter nil? (apply concat omega (vals delta))))]
+    [(- dof nils) dof]))
+
+(defn experiment
+  "A script to run an experiment for constructing a transducer for the given
+   input-output pairs and number of states. The construction method is given as
+   a function."
+  [title io-pairs n transducer-function]
+  (println title)
+  (if-let [transducer (first  (transducer-function io-pairs n))]
+    ;then
+    (let [partial (partial-transducer io-pairs transducer)]
+      (doseq [l (trajectories io-pairs transducer)]
+        (println l))
+      (println "Check partial:" (check io-pairs partial))
+      (println (degrees-of-freedom partial))
+      (println partial))
+    ;else
+    "no solution"))
