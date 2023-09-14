@@ -185,39 +185,5 @@
 (Dot2PDF (DotTransducer sl-3-3b sl-3-3bsol) "sl-3-3b")
 (trajectories sl-3-3b sl-3-3bsol)
 
-(defn extract-maps
-  "Collects all the maps from applying the transducer to an input word. It computes the trajectory, and labels the state transitions with input symbols."
-  [delta initial-state input-word]
-  (let [traj (trajectory delta initial-state input-word)]
-    (map vector input-word
-         (map vec (partition 2 1 traj)))))
 
-(defn extract-all-maps
-  [io-pairs {delta :delta}]
-  (let [maps (map (partial extract-maps delta 0)
-                  (map first io-pairs))
-        by-input (group-by first (reduce into #{} maps))]
-    (update-vals
-     by-input
-     (fn [ms]
-       (into {} (map second ms))))))
-
-(defn partial-delta
-  [io-pairs {delta :delta :as transducer}]
-  (let [n (count (second (first delta))) ;assuming that we have a vector
-        a-m (extract-all-maps io-pairs transducer)]
-       (update-vals
-        a-m
-        (fn [m] (mapv m (range n))))))
-
-(defn partial-omega
-  "It processes all input words and removes the states
-   from omega that are never used."
-  [io-pairs {delta :delta omega :omega}]
-  ( let [states (set (map (partial result-state delta 0)
-                          (map first io-pairs)))]
-   (mapv
-    (fn [i] (when (states i) (omega i)))
-    (range (count omega)))))
-
-(count (extract-all-maps binary binarysol))
+(check sl-3-3b  (partial-transducer sl-3-3b sl-3-3bsol5))

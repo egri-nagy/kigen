@@ -103,3 +103,48 @@
          [readout-symbol]))
        ;;the new encoded output
        (index output-symbols output)])))
+
+;; creating a partial transducer if there are some never-used
+;; state transitions
+(defn extract-maps
+  "Collects all the maps from applying the transducer to an input word. It computes the trajectory, and labels the state transitions with input symbols."
+  [delta initial-state input-word]
+  (let [traj (trajectory delta initial-state input-word)]
+    (map vector input-word
+         (map vec (partition 2 1 traj))))) ;need pairs in vectors for hash-map
+
+(defn extract-all-maps
+  "Collects all the maps used by processing all input-output pairs."
+  [io-pairs {delta :delta}]
+  (let [maps (map (partial extract-maps delta 0)
+                  (map first io-pairs))
+        by-input (group-by first (reduce into #{} maps))]
+    (update-vals
+     by-input
+     (fn [ms]
+       (into {} (map second ms))))))
+
+(defn partial-delta
+  "Returns a new partial state transition table, nils when the particular map
+   is not used when processing all input-output pairs."
+  [io-pairs {delta :delta :as transducer}]
+  (let [n (count (second (first delta))) ;assuming that we have a vector
+        a-m (extract-all-maps io-pairs transducer)]
+    (update-vals
+     a-m
+     (fn [m] (mapv m (range n))))))
+
+(defn partial-omega
+  "It processes all input words and removes the states
+   from omega that are never used."
+  [io-pairs {delta :delta omega :omega}]
+  (let [states (set (map (partial result-state delta 0)
+                         (map first io-pairs)))]
+    (mapv
+     (fn [i] (when (states i) (omega i)))
+     (range (count omega)))))
+
+(defn partial-transducer
+  [io-pairs transducer]
+  {:delta (partial-delta io-pairs transducer)
+   :omega (partial-omega io-pairs transducer)})
