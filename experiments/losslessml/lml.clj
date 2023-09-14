@@ -8,7 +8,6 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
-
 ;;SIGNAL LOCATORS
 ;; where is the 'pulse'?
 ;; sl-n-k signal locator for n symbols with k regions 
