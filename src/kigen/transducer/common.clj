@@ -174,4 +174,4 @@
       (println (degrees-of-freedom partial))
       (println partial))
     ;else
-    "no solution"))
+    (println "no solution")))
