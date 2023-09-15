@@ -8,9 +8,15 @@
 ;; levels: :warn, :info, :debug
 (timbre/set-min-level! :info)
 
-
+;; comparators
 ;; deciding whether there are more zeroes or ones, or equal
-(defn zof
+;; obvious solution: we need to count how many more ones we saw, or
+;; how many more zeroes we saw.
+;; Due to finiteness, we don't need to count more than half of the input length
+
+(defn compared-bitstrings
+  "Returns all bitstrings up to length n, labeled according to the
+   comparisons of zeroes and ones."
   [n]
   (mapv (fn [l]
           [(vec l) (let [ones (count (filter #{1} l))
@@ -21,17 +27,17 @@
                        :else :morezeros))])
         (mapcat #(combo/selections [0 1] %) (range 1 (inc n)))))
 
-(def zo3 (zof 3))
+(def zo3 (compared-bitstrings 3))
 (experiment "more zeroes or more ones flexible - max 3"
             zo3 5 f/transducer)
 
-;interestingly this is the same
-(def zo4 (zof 4))
+;interestingly this is the same, because we need to count up to two anyway
+(def zo4 (compared-bitstrings 4))
 (experiment "more zeroes or more ones flexible - max 4"
             zo4 5 f/transducer)
 
-;??
-(def zo5 (zof 5))
+;this should work with 7 states, but difficult to compute
+(def zo5 (compared-bitstrings 7))
 (experiment "more zeroes or more ones flexible - max 5"
-            zo5 6 f/transducer)
+            zo5 7 f/transducer)
 
