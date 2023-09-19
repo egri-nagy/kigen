@@ -83,7 +83,7 @@
      (if (= (count trie) (count elts))
        (conj result new-so-far)
        (reduce
-        (fn [r v]  (g v new-so-far r))
+        (fn [r v]  (retrieve v new-so-far r))
         result
         (last trie))))))
 
