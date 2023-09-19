@@ -71,13 +71,22 @@
           newnode
           (update-in trie location (constantly newnode)))))))
 
-(defn insert [trie word]
+(defn insert
+  "Inserts a word into the trie. It takes care of finding the location of
+   mismatch if any."
+  [trie word]
   (let [match-result (search trie word)]
     (if (= match-result :matched)
       trie
       (insert-at trie word match-result))))
 
+(defn build-trie
+  "Builds a trie form a collection of words"
+  [words]
+  (reduce insert words))
+
 (defn retrieve
+  "Returns all the words stored in the trie."
   ([trie] (retrieve trie [] []))
   ([trie so-far result]
    (let [elts (take-while (fn [x] (not (vector? x))) trie)
@@ -99,8 +108,9 @@
 
 (defn check
   [words]
-  (let [trie (reduce insert words)]
+  (let [trie (build-trie words)]
     (= (set words)
        (set (map (partial apply str) (retrieve trie))))))
 
+(check words)
 (check common-words-terminated)
