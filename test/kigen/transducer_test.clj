@@ -7,6 +7,11 @@
             [clojure.math.combinatorics :as combo]))
 
 ;;hardcoded test cases
+(deftest test-empty-string
+  (testing "Testing for the output for the empty word."
+    (is (= {:delta {} :omega [:nothing]}
+           (first (transducer [[[] :nothing]] 1))))))
+
 (deftest test-minimal-example
   (testing "Testing an edge-case automaton with one state one input symbol."
     (is (= [[0]]

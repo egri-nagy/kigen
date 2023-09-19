@@ -36,8 +36,9 @@
 (experiment "more zeroes or more ones flexible - max 4"
             zo4 5 f/transducer)
 
-;this should work with 7 states, but difficult to compute
-(def zo5 (compared-bitstrings 7))
-(experiment "more zeroes or more ones flexible - max 5"
-            zo5 7 f/transducer)
+;long calculation - shuffling helps to ease memory consumption - yes,
+; the order of the input-output pairs does matter
+;(def zo5 (shuffle (zof 5)))
+;(experiment "more zeroes or more ones flexible - max 5"
+;            zo5 6 f/transducer)
 
