@@ -21,59 +21,61 @@
                (partial map first)))
 
 (defn search
-  "It returns the the coords (the nested keys) in the trie and the position in the
-  word where the search fails. If the word is fully matched, it returns :matched."
+  "Searching a word in a trie, reporting the location of mismatch if the word
+   is not in the trie.
+   It returns the the coords (the nested keys) in the trie and the position in
+   the word where the search fails. If the word is fully matched, it returns
+   :matched."
   [trie word]
   (loop [coords [0], pos 0] ;start with the first entry and first symbol 
-    (let [stored (get-in trie coords) ;try to get them
+    (let [entry (get-in trie coords) ;try to get them
           letter (get word pos)]
-      ;(println "stored " stored  "letter " letter)
       (cond
         (nil? letter) :matched ;no more letters in word
-        (nil? stored) [coords, pos] ;no more entries in trie, the word is longer
+        (nil? entry) [coords, pos] ;no more entries in trie, the word is longer
         :else (cond
-                ;vector means branching, but we need to find the right branch
-                (vector? stored) (let [branch (filter
-                                               (fn [i] (= letter (first (get stored i))))
-                                               (range (count stored)))]
-                                   (if (empty? branch)
-                                     [coords pos] ;mismatch if no good branch found
-                                     ;otherwise continue matching in the right branch
-                                     (recur (conj coords (first branch) 0) pos)))
-                ;letter matches, keep going
-                (= stored letter) (recur
-                                   (update coords (dec (count coords)) inc)
-                                   (inc pos))
+                (vector? entry) ;vector means branching
+                  ;;which one is the right branch?
+                  (let [branch (filter
+                                (fn [i] (= letter (first (get entry i))))
+                                (range (count entry)))] ;branch indices
+                    (if (empty? branch)
+                      [coords pos] ;mismatch if no good branch found
+                      ;;otherwise continue matching in the right branch
+                      (recur (conj coords (first branch) 0) pos)))
+                ;letter matches, keep going, next in entry, and next symbol
+                (= entry letter) (recur
+                                  (update coords (dec (count coords)) inc)
+                                  (inc pos))
                 ;different symbol so return the mismatch positions
                 :else [coords, pos])))))
 
 (defn insert-at
-  [trie word coords pos]
-  (let [suffix (vec (drop pos word))
-        stored (get-in trie coords)]
-    (if (vector? stored)
+  "Insert a word into the trie at the location given by search."
+  [trie word [coords pos]]
+  (let [suffix (vec (drop pos word)) ;we only insert this suffix
+        entry (get-in trie coords)]
+    (if (vector? entry)
       ;adding a new branch by adding a new vector
       (update-in trie coords (fn [v] (conj v suffix)))
       ;we don't have a vector so we may need to create one
-      (let [location (butlast coords)
-            the_vec_we_are_in (if (empty? location)
-                                trie
-                                (get-in trie location))]
-        ;(println "we are in " the_vec_we_are_in) 
-        (let [[pref suff] (split-at (last coords) the_vec_we_are_in)
-              newnode (if (empty? suff)
-                        (into (vec pref) suffix) ;when no need to branch
-                        (conj (vec pref) [(vec suff) suffix]))]
-          (if (empty? location)
-            newnode
-            (update-in trie location (fn [v] newnode))))))))
+      (let [location (butlast coords) ;where we make the change
+            parent (if (empty? location)
+                     trie ;we are on the top level
+                     (get-in trie location))
+            [pref suff] (split-at (last coords) parent)
+            newnode (if (empty? suff)
+                      (into (vec pref) suffix) ;when no need to branch
+                      (conj (vec pref) [(vec suff) suffix]))]
+        (if (empty? location)
+          newnode
+          (update-in trie location (constantly newnode)))))))
 
 (defn insert [trie word]
-  (let [result (search trie word)]
-    (if (= result :matched)
+  (let [match-result (search trie word)]
+    (if (= match-result :matched)
       trie
-      (let [ [coords pos] result]
-        (insert-at trie word coords pos)))))
+      (insert-at trie word match-result))))
 
 (defn retrieve
   ([trie] (retrieve trie [] []))
@@ -100,3 +102,5 @@
   (let [trie (reduce insert words)]
     (= (set words)
        (set (map (partial apply str) (retrieve trie))))))
+
+(check common-words-terminated)
