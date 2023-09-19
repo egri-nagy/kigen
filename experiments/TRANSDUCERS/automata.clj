@@ -27,7 +27,7 @@
   (loop [coords [0], pos 0] ;start with the first entry and first symbol 
     (let [stored (get-in trie coords) ;try to get them
           letter (get word pos)]
-      (println "stored " stored  "letter " letter)
+      ;(println "stored " stored  "letter " letter)
       (cond
         (nil? letter) :matched ;no more letters in word
         (nil? stored) [coords, pos] ;no more entries in trie, the word is longer
@@ -59,18 +59,21 @@
             the_vec_we_are_in (if (empty? location)
                                 trie
                                 (get-in trie location))]
-        (println "we are in " the_vec_we_are_in) 
+        ;(println "we are in " the_vec_we_are_in) 
         (let [[pref suff] (split-at (last coords) the_vec_we_are_in)
               newnode (if (empty? suff)
                         (into (vec pref) suffix) ;when no need to branch
                         (conj (vec pref) [(vec suff) suffix]))]
           (if (empty? location)
             newnode
-            (update-in trie location (fn [v] newnode))))))))ß
+            (update-in trie location (fn [v] newnode))))))))
 
 (defn insert [trie word]
-  (let [[coords pos] (search trie word)]
-   (insert-at trie word coords pos)))
+  (let [result (search trie word)]
+    (if (= result :matched)
+      trie
+      (let [ [coords pos] result]
+        (insert-at trie word coords pos)))))
 
 (defn retrieve
   ([trie] (retrieve trie [] []))
