@@ -33,6 +33,38 @@
     :else #{(first trie)}))
 
 ;traversing the trie, collecting stored things and their coordinates
+;; recursive 
+(defn rec-traverse
+  ([trie] (rec-traverse trie [0] 0))
+  ([trie coords state]
+   (let [parent (get-in trie (butlast coords))
+         pos (last coords)
+         thing (get-in trie coords)]
+     (if (vector? thing)
+       (doseq [i (range (count thing))]
+         (rec-traverse trie (into coords [i 0]) state))
+       (when (< pos (count parent))
+         (do
+           (println coords thing state "->" (inc state))
+           (rec-traverse trie (update coords (dec (count coords)) inc) (inc state))))))))
+
+(defn rec-count
+  ([trie] (rec-count trie [0]))
+  ([trie coords]
+   (let [parent (get-in trie (butlast coords))
+         pos (last coords)
+         thing (get-in trie coords)]
+     (if (vector? thing)
+       (reduce
+       (fn [sum i]
+         (+ sum (rec-count trie (into coords [i 0])))) 
+        0 (range (count thing)))
+       (if (< pos (count parent))
+         (do
+           (println coords thing)
+           (inc (rec-count trie (update coords (dec (count coords)) inc))))
+         0)))))
+
 (defn traverse
   [trie]
   (let [stopper [(count trie)]]
