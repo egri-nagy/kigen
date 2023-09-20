@@ -40,7 +40,7 @@
         thing (get-in trie coords)]
     (if (vector? thing)
       (doseq [i (range (count thing))]
-        (traverse trie (conj coords i))) 
+        (traverse trie (into coords [i 0]))) 
       (when (< pos (count parent))
         (do
           (println coords thing)
