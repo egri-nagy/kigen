@@ -32,16 +32,26 @@
     (vector? (first trie)) (into #{} (map first (first trie)))
     :else #{(first trie)}))
 
-;do a mechanism that goes through the trie
+;traversing the trie, collecting stored things and their coordinates
 (defn traverse
-  [trie coords]
-  (let [parent (get-in trie (butlast coords))
-        pos (last coords)
-        thing (get-in trie coords)]
-    (if (vector? thing)
-      (doseq [i (range (count thing))]
-        (traverse trie (into coords [i 0]))) 
-      (when (< pos (count parent))
-        (do
-          (println coords thing)
-          (traverse trie (update coords (dec (count coords)) inc)))))))
+  [trie]
+  (let [stopper [(count trie)]]
+    (loop [ coords [0] bag []] 
+      (let [location (vec (butlast coords))
+            parent (get-in trie location)
+            pos (last coords)
+            thing (get-in trie coords)
+            ncoords (cond
+                      (vector? thing)  (conj coords 0)
+                      (< pos (count parent)) (update coords
+                                                     (dec (count coords))
+                                                     inc)
+                      (nil? thing) (update location
+                                           (dec (count location))
+                                           inc))
+            nbag (if (or (nil? thing) (vector? thing))
+                   bag
+                   (conj bag ["coords:" coords "thing:" thing]))] 
+        (if (= stopper ncoords)
+          nbag
+          (recur ncoords nbag))))))
