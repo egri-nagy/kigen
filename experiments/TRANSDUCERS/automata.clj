@@ -32,16 +32,16 @@
     (vector? (first trie)) (into #{} (map first (first trie)))
     :else #{(first trie)}))
 
-(defn recognizer
-  "Returns a recognizer FA for the trie."
-  ([trie] (recognizer trie 0 {} #{:accept}))
-  ([trie state delta acceptors]
-   (let [elts (take-while (fn [x] (not (vector? x))) trie)
-         (reduce (fn [])
-                 delta)]
-     (if (= (count trie) (count elts))
-       (conj result new-so-far)
-       (reduce
-        (fn [r v]  (retrieve v new-so-far r))
-        result
-        (last trie))))))
+;do a mechanism that goes through the trie
+(defn traverse
+  [trie coords]
+  (let [parent (get-in trie (butlast coords))
+        pos (last coords)
+        thing (get-in trie coords)]
+    (if (vector? thing)
+      (doseq [i (range (count thing))]
+        (traverse trie (conj coords i))) 
+      (when (< pos (count parent))
+        (do
+          (println coords thing)
+          (traverse trie (update coords (dec (count coords)) inc)))))))
