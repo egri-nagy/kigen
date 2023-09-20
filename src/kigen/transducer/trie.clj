@@ -40,9 +40,7 @@
       (update-in trie coords (fn [v] (conj v suffix)))
       ;we don't have a vector so we may need to create one
       (let [location (butlast coords) ;where we make the change
-            parent (if (empty? location)
-                     trie ;we are on the top level
-                     (get-in trie location))
+            parent (get-in trie location)
             [pref suff] (split-at (last coords) parent)
             newnode (if (empty? suff)
                       (into (vec pref) suffix) ;when no need to branch
