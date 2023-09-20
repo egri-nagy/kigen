@@ -36,7 +36,7 @@
 (defn traverse
   [trie]
   (let [stopper [(count trie)]]
-    (loop [ coords [0] bag []] 
+    (loop [ coords [0] bag [] counter 0] 
       (let [location (vec (butlast coords))
             parent (get-in trie location)
             pos (last coords)
@@ -49,9 +49,11 @@
                       (nil? thing) (update location
                                            (dec (count location))
                                            inc))
-            nbag (if (or (nil? thing) (vector? thing))
+            not-real? (or (nil? thing) (vector? thing)) 
+            nbag (if not-real?
                    bag
-                   (conj bag ["coords:" coords "thing:" thing]))] 
+                   (conj bag ["coords:" coords "thing:" thing counter]))
+            ncounter (if not-real? counter (inc counter))] 
         (if (= stopper ncoords)
           nbag
-          (recur ncoords nbag))))))
+          (recur ncoords nbag ncounter))))))
