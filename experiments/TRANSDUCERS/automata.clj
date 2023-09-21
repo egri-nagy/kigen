@@ -67,28 +67,36 @@
 
 (defn rec-maps
   "Information traveling in recursion:
-   going-in only: coords, current state
+   going-in only: the trie itself (unchanged), coords to pick entries,
+   current state
    going in coming back: the maps, the next available state"
-  ([trie] (rec-maps trie [0] 0 {:delta {} :next 1}))
+  ;setting up the recursion with the initial input arguments
+  ([trie] (rec-maps trie [0] ;pointing to the root of the trie
+                    0 ;the defualt initial state
+                    {:delta {} ;empty state transition table,
+                     :next 1})) ;the next assignable state 
   ([trie coords state maps]
    (let [parent (get-in trie (butlast coords))
          pos (last coords)
          thing (get-in trie coords)]
      (if (vector? thing)
-       (reduce
+       (reduce ;just making sure that the result form a branch is passed on
         (fn [m i]
           (rec-maps trie (into coords [i 0]) state m))
         maps
-        (range (count thing)))
-       (if (= pos (count parent))
-         maps
-         (let [nstate (:next maps)
+        (range (count thing))) ;thing is a vector, so these are the branch indices
+       (if (= pos (count parent)) ;we reached the end
+         maps ;this is where recursion stops, we return the collected maps
+         (let [nstate (:next maps) ;we use the next available state
                nmaps (-> maps
+                         ;add the mapping state -> new state
                          (update-in [:delta thing state] (constantly nstate))
                          (update :next inc))]
-           (println coords thing state "->" nstate)
-           (rec-maps trie (update coords (dec (count coords)) inc)
-                     nstate nmaps)))))))
+           ;(println coords thing state "->" nstate)
+           (rec-maps trie
+                     (update coords (dec (count coords)) inc)
+                     nstate
+                     nmaps)))))))
 
 
 
