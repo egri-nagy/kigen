@@ -65,6 +65,25 @@
            (inc (rec-count trie (update coords (dec (count coords)) inc))))
          0)))))
 
+(defn rec-maps
+  ([trie] (rec-maps trie [0] 0))
+  ([trie coords state]
+   (let [parent (get-in trie (butlast coords))
+         pos (last coords)
+         thing (get-in trie coords)]
+     (if (vector? thing)
+       (reduce
+        (fn [sum i]
+          (+ sum (rec-count trie (into coords [i 0]))))
+        0 (range (count thing)))
+       (if (< pos (count parent))
+         (do
+           (println coords thing)
+           (rec-count trie (update coords (dec (count coords)) inc) (inc state)))
+         state)))))
+
+
+
 (defn traverse
   [trie]
   (let [stopper [(count trie)]]
