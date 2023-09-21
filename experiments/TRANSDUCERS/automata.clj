@@ -1,21 +1,24 @@
 (require '[kigen.transducer.trie :refer :all])
+(require '[kigen.transducer.common :refer :all])
+
+
 ;;automata related functions
 
 ;;TODO write a function that checks the io-pairs for contradicting pairs
 ;; like the same word requiring two different outputs
 
+;a symbol that indicates the end of a word in the tree
+;it is assumed that this character is not used anywhere
 (def stopper \⏹)
 
 (defn add-stoppers
+  "Adding stopper to a list of words.
+   The words are converted to vectors."
   [words]
   (map (fn [w] (conj (vec w) stopper))
        words))
 
 (defn proper-prefixes
-  "All proper prefixes of the given word, starting from the empty word."
-  [coll]
-  (butlast (reductions conj [] coll)))
-
 (def i-o [["aa" :as]
           ["bb" :bs]
           ["ab" :mixed]
@@ -105,6 +108,7 @@
                      (update coords (dec (count coords)) inc)
                      nstate
                      nmaps)))))))
+
 
 
 
