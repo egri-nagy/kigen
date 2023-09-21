@@ -4,7 +4,12 @@
 ;;TODO write a function that checks the io-pairs for contradicting pairs
 ;; like the same word requiring two different outputs
 
-(def stop \⏹)
+(def stopper \⏹)
+
+(defn add-stoppers
+  [words]
+  (map (fn [w] (conj (vec w) stopper))
+       words))
 
 (defn proper-prefixes
   "All proper prefixes of the given word, starting from the empty word."
@@ -74,6 +79,7 @@
   ([trie] (rec-maps trie [0] ;pointing to the root of the trie
                     0 ;the defualt initial state
                     {:delta {} ;empty state transition table,
+                     :acceptors #{}
                      :next 1})) ;the next assignable state 
   ([trie coords state maps]
    (let [parent (get-in trie (butlast coords))
@@ -88,10 +94,12 @@
        (if (= pos (count parent)) ;we reached the end
          maps ;this is where recursion stops, we return the collected maps
          (let [nstate (:next maps) ;we use the next available state
-               nmaps (-> maps
+               nmaps (if (= thing stopper)
+                       (update maps :acceptors (fn [m] (conj m state)))
+                       (-> maps
                          ;add the mapping state -> new state
-                         (update-in [:delta thing state] (constantly nstate))
-                         (update :next inc))]
+                           (update-in [:delta thing state] (constantly nstate))
+                           (update :next inc)))]
            ;(println coords thing state "->" nstate)
            (rec-maps trie
                      (update coords (dec (count coords)) inc)
