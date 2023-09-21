@@ -66,21 +66,29 @@
          0)))))
 
 (defn rec-maps
-  ([trie] (rec-maps trie [0] 0))
-  ([trie coords state]
+  "Information traveling in recursion:
+   going-in only: coords, current state
+   going in coming back: the maps, the next available state"
+  ([trie] (rec-maps trie [0] 0 {:delta {} :next 1}))
+  ([trie coords state maps]
    (let [parent (get-in trie (butlast coords))
          pos (last coords)
          thing (get-in trie coords)]
      (if (vector? thing)
        (reduce
-        (fn [sum i]
-          (+ sum (rec-count trie (into coords [i 0]))))
-        0 (range (count thing)))
-       (if (< pos (count parent))
-         (do
-           (println coords thing)
-           (rec-count trie (update coords (dec (count coords)) inc) (inc state)))
-         state)))))
+        (fn [m i]
+          (rec-maps trie (into coords [i 0]) state m))
+        maps
+        (range (count thing)))
+       (if (= pos (count parent))
+         maps
+         (let [nstate (:next maps)
+               nmaps (-> maps
+                         (update-in [:delta thing state] (constantly nstate))
+                         (update :next inc))]
+           (println coords thing state "->" nstate)
+           (rec-maps trie (update coords (dec (count coords)) inc)
+                     nstate nmaps)))))))
 
 
 
