@@ -1,5 +1,6 @@
 (require '[kigen.transducer.trie :refer :all])
 (require '[kigen.transducer.common :refer :all])
+(require '[clojure.set :refer [difference]])
 
 
 ;;automata related functions
@@ -18,7 +19,6 @@
   (map (fn [w] (conj (vec w) stopper))
        words))
 
-(defn proper-prefixes
 (def i-o [["aa" :as]
           ["bb" :bs]
           ["ab" :mixed]
@@ -31,50 +31,11 @@
   (update-vals (group-by second io-pairs)
                (partial map first)))
 
-(defn firsts-in-trie
-  "Returns a set of the elements that appear the first positions in the
-   branches."
-  [trie]
-  (cond
-    (empty? trie) #{}
-    (vector? (first trie)) (into #{} (map first (first trie)))
-    :else #{(first trie)}))
-
-;traversing the trie, collecting stored things and their coordinates
-;; recursive 
-(defn rec-traverse
-  ([trie] (rec-traverse trie [0] 0))
-  ([trie coords state]
-   (let [parent (get-in trie (butlast coords))
-         pos (last coords)
-         thing (get-in trie coords)]
-     (if (vector? thing)
-       (doseq [i (range (count thing))]
-         (rec-traverse trie (into coords [i 0]) state))
-       (when (< pos (count parent))
-         (do
-           (println coords thing state "->" (inc state))
-           (rec-traverse trie (update coords (dec (count coords)) inc) (inc state))))))))
-
-(defn rec-count
-  ([trie] (rec-count trie [0]))
-  ([trie coords]
-   (let [parent (get-in trie (butlast coords))
-         pos (last coords)
-         thing (get-in trie coords)]
-     (if (vector? thing)
-       (reduce
-       (fn [sum i]
-         (+ sum (rec-count trie (into coords [i 0])))) 
-        0 (range (count thing)))
-       (if (< pos (count parent))
-         (do
-           (println coords thing)
-           (inc (rec-count trie (update coords (dec (count coords)) inc))))
-         0)))))
-
 (defn rec-maps
-  "Information traveling in recursion:
+  "Recursively constructs state transition mappings from a trie.
+   If the stopper symbols is used for denoting word ends, then the set of
+   acceptor states is also returned.
+   Information traveling in recursion:
    going-in only: the trie itself (unchanged), coords to pick entries,
    current state
    going in coming back: the maps, the next available state"
@@ -109,30 +70,43 @@
                      nstate
                      nmaps)))))))
 
+(defn recognizer
+  [words]
+  (dissoc (rec-maps (build-trie (add-stoppers words))) :next))
 
+(defn initial-partition
+  "0 as the initial state is added to the non-acceptors in case it is not
+   in acceptors."
+  [{delta :delta acceptors :acceptors}]
+  (let [stateset (set (mapcat (comp vals second) delta))
+        non-acceptors (into (difference stateset acceptors)
+                            (if (acceptors 0) [] [0]))]
+    [non-acceptors acceptors #{nil}]))
 
+(defn split
+  "What a split version of this set?
+   Set S from partition P, state transition table delta"
+  [S P delta]
+  (if (= 1 (count S))
+    nil
+    (let [inputs (keys delta)
+          parts (loop [symbols inputs]
+                  (if (empty? symbols)
+                    nil
+                    (let [a (first symbols)
+                          classes (group-by (fn [i] (some #(% ((delta a) i)) P)) S)]
+                      (if (> (count classes) 1)
+                        (map set (vals classes))
+                        (recur (rest symbols))))))]
+      parts)))
 
-(defn traverse
-  [trie]
-  (let [stopper [(count trie)]]
-    (loop [ coords [0] bag [] counter 0] 
-      (let [location (vec (butlast coords))
-            parent (get-in trie location)
-            pos (last coords)
-            thing (get-in trie coords)
-            ncoords (cond
-                      (vector? thing)  (conj coords 0)
-                      (< pos (count parent)) (update coords
-                                                     (dec (count coords))
-                                                     inc)
-                      (nil? thing) (update location
-                                           (dec (count location))
-                                           inc))
-            not-real? (or (nil? thing) (vector? thing)) 
-            nbag (if not-real?
-                   bag
-                   (conj bag ["coords:" coords "thing:" thing counter]))
-            ncounter (if not-real? counter (inc counter))] 
-        (if (= stopper ncoords)
-          nbag
-          (recur ncoords nbag ncounter))))))
+(defn refined-partition
+  [{delta :delta :as FA}]
+  (let [refine-one (fn [S P]
+                     (let [parts (split S P delta)]
+                       (when parts
+                         (into (difference (set P) #{S}) parts))))
+        refine-any (fn [P]
+                     (some #(refine-one % P) P))
+        ip (initial-partition FA)]
+    (last (take-while (comp not nil?) (iterate refine-any ip)))))
