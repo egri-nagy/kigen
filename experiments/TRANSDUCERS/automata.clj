@@ -5,20 +5,6 @@
 
 ;;automata related functions
 
-;;TODO write a function that checks the io-pairs for contradicting pairs
-;; like the same word requiring two different outputs
-
-;a symbol that indicates the end of a word in the tree
-;it is assumed that this character is not used anywhere
-(def stopper \⏹)
-
-(defn add-stoppers
-  "Adding stopper to a list of words.
-   The words are converted to vectors."
-  [words]
-  (map (fn [w] (conj (vec w) stopper))
-       words))
-
 (defn outputs-as-stoppers
   [io-pairs]
   (map
@@ -50,7 +36,7 @@
                              [0] ;pointing to the root of the trie
                              0 ;the defualt initial state
                              {:delta {} ;empty state transition table,
-                              :acceptors #{}
+                              :omega {}
                               :next 1})) ;the next assignable state 
   ([trie stoppers coords state maps]
    (let [parent (get-in trie (butlast coords))
@@ -66,7 +52,7 @@
          maps ;this is where recursion stops, we return the collected maps
          (let [nstate (:next maps) ;we use the next available state
                nmaps (if (stoppers thing)
-                       (update maps :acceptors (fn [m] (conj m state)))
+                       (update-in maps [:omega state] (constantly thing))
                        (-> maps
                          ;add the mapping state -> new state
                            (update-in [:delta thing state] (constantly nstate))
@@ -77,12 +63,10 @@
                      nstate
                      nmaps)))))))
 
-
-
-
-(defn recognizer
-  [words]
-  (dissoc (rec-maps (build-trie (add-stoppers words))) :next))
+(defn transducer
+  [io-pairs]
+  (dissoc (rec-maps (build-trie (outputs-as-stoppers io-pairs))
+                    (set (output-symbols-fn io-pairs))) :next))
 
 (defn initial-partition
   "0 as the initial state is added to the non-acceptors in case it is not
