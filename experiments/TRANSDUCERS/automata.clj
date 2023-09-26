@@ -5,21 +5,14 @@
 
 ;;automata related functions
 
-;;TODO write a function that checks the io-pairs for contradicting pairs
-;; like the same word requiring two different outputs
+(defn outputs-as-stoppers
+  [io-pairs]
+  (map
+   (fn [[w s]] (conj (vec w) s))
+   io-pairs))
 
-;a symbol that indicates the end of a word in the tree
-;it is assumed that this character is not used anywhere
-(def stopper \⏹)
-
-(defn add-stoppers
-  "Adding stopper to a list of words.
-   The words are converted to vectors."
-  [words]
-  (map (fn [w] (conj (vec w) stopper))
-       words))
-
-(def i-o [["aa" :as]
+(def i-o [["" :mixed]
+          ["aa" :as]
           ["bb" :bs]
           ["ab" :mixed]
           ["ba" :mixed]])
@@ -46,48 +39,48 @@
    current state
    going in coming back: the maps, the next available state"
   ;setting up the recursion with the initial input arguments
-  ([trie] (rec-maps trie [0] ;pointing to the root of the trie
-                    0 ;the defualt initial state
-                    {:delta {} ;empty state transition table,
-                     :acceptors #{}
-                     :next 1})) ;the next assignable state 
-  ([trie coords state maps]
+  ([trie stoppers] (rec-maps trie stoppers
+                             [0] ;pointing to the root of the trie
+                             0 ;the defualt initial state
+                             {:delta {} ;empty state transition table,
+                              :omega {}
+                              :next 1})) ;the next assignable state 
+  ([trie stoppers coords state maps]
    (let [parent (get-in trie (butlast coords))
          pos (last coords)
          thing (get-in trie coords)]
      (if (vector? thing)
        (reduce ;just making sure that the result form a branch is passed on
         (fn [m i]
-          (rec-maps trie (into coords [i 0]) state m))
+          (rec-maps trie stoppers (into coords [i 0]) state m))
         maps
         (range (count thing))) ;thing is a vector, so these are the branch indices
        (if (= pos (count parent)) ;we reached the end
          maps ;this is where recursion stops, we return the collected maps
          (let [nstate (:next maps) ;we use the next available state
-               nmaps (if (= thing stopper)
-                       (update maps :acceptors (fn [m] (conj m state)))
+               nmaps (if (stoppers thing)
+                       (update-in maps [:omega state] (constantly thing))
                        (-> maps
                          ;add the mapping state -> new state
                            (update-in [:delta thing state] (constantly nstate))
                            (update :next inc)))]
            ;(println coords thing state "->" nstate)
-           (rec-maps trie
+           (rec-maps trie stoppers
                      (update coords (dec (count coords)) inc)
                      nstate
                      nmaps)))))))
 
-(defn recognizer
-  [words]
-  (dissoc (rec-maps (build-trie (add-stoppers words))) :next))
+(defn transducer
+  [io-pairs]
+  (dissoc (rec-maps (build-trie (outputs-as-stoppers io-pairs))
+                    (set (output-symbols-fn io-pairs))) :next))
 
 (defn initial-partition
   "0 as the initial state is added to the non-acceptors in case it is not
    in acceptors."
-  [{delta :delta acceptors :acceptors}]
-  (let [stateset (set (mapcat (comp vals second) delta))
-        non-acceptors (into (difference stateset acceptors)
-                            (if (acceptors 0) [] [0]))]
-    [non-acceptors acceptors #{nil}]))
+  [{delta :delta omega :omega}]
+  (let [stateset (conj (set (mapcat (comp vals second) delta)) 0)]
+    (map (comp set second) (group-by omega stateset))))
 
 (defn split
   "What a split version of this set?
