@@ -11,7 +11,8 @@
    (fn [[w s]] (conj (vec w) s))
    io-pairs))
 
-(def i-o [["aa" :as]
+(def i-o [["" :mixed]
+          ["aa" :as]
           ["bb" :bs]
           ["ab" :mixed]
           ["ba" :mixed]])
@@ -71,11 +72,9 @@
 (defn initial-partition
   "0 as the initial state is added to the non-acceptors in case it is not
    in acceptors."
-  [{delta :delta acceptors :acceptors}]
-  (let [stateset (set (mapcat (comp vals second) delta))
-        non-acceptors (into (difference stateset acceptors)
-                            (if (acceptors 0) [] [0]))]
-    [non-acceptors acceptors #{nil}]))
+  [{delta :delta omega :omega}]
+  (let [stateset (conj (set (mapcat (comp vals second) delta)) 0)]
+    (map (comp set second) (group-by omega stateset))))
 
 (defn split
   "What a split version of this set?
