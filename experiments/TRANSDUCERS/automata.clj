@@ -18,7 +18,12 @@
   (map (fn [w] (conj (vec w) stopper))
        words))
 
-(defn proper-prefixes
+(defn outputs-as-stoppers
+  [io-pairs]
+  (map
+   (fn [[w s]] (conj (vec w) s))
+   io-pairs))
+
 (def i-o [["aa" :as]
           ["bb" :bs]
           ["ab" :mixed]
@@ -64,8 +69,8 @@
          thing (get-in trie coords)]
      (if (vector? thing)
        (reduce
-       (fn [sum i]
-         (+ sum (rec-count trie (into coords [i 0])))) 
+        (fn [sum i]
+          (+ sum (rec-count trie (into coords [i 0]))))
         0 (range (count thing)))
        (if (< pos (count parent))
          (do
@@ -79,32 +84,33 @@
    current state
    going in coming back: the maps, the next available state"
   ;setting up the recursion with the initial input arguments
-  ([trie] (rec-maps trie [0] ;pointing to the root of the trie
-                    0 ;the defualt initial state
-                    {:delta {} ;empty state transition table,
-                     :acceptors #{}
-                     :next 1})) ;the next assignable state 
-  ([trie coords state maps]
+  ([trie stoppers] (rec-maps trie stoppers
+                             [0] ;pointing to the root of the trie
+                             0 ;the defualt initial state
+                             {:delta {} ;empty state transition table,
+                              :acceptors #{}
+                              :next 1})) ;the next assignable state 
+  ([trie stoppers coords state maps]
    (let [parent (get-in trie (butlast coords))
          pos (last coords)
          thing (get-in trie coords)]
      (if (vector? thing)
        (reduce ;just making sure that the result form a branch is passed on
         (fn [m i]
-          (rec-maps trie (into coords [i 0]) state m))
+          (rec-maps trie stoppers (into coords [i 0]) state m))
         maps
         (range (count thing))) ;thing is a vector, so these are the branch indices
        (if (= pos (count parent)) ;we reached the end
          maps ;this is where recursion stops, we return the collected maps
          (let [nstate (:next maps) ;we use the next available state
-               nmaps (if (= thing stopper)
+               nmaps (if (stoppers thing)
                        (update maps :acceptors (fn [m] (conj m state)))
                        (-> maps
                          ;add the mapping state -> new state
                            (update-in [:delta thing state] (constantly nstate))
                            (update :next inc)))]
            ;(println coords thing state "->" nstate)
-           (rec-maps trie
+           (rec-maps trie stoppers
                      (update coords (dec (count coords)) inc)
                      nstate
                      nmaps)))))))
@@ -115,7 +121,7 @@
 (defn traverse
   [trie]
   (let [stopper [(count trie)]]
-    (loop [ coords [0] bag [] counter 0] 
+    (loop [coords [0] bag [] counter 0]
       (let [location (vec (butlast coords))
             parent (get-in trie location)
             pos (last coords)
@@ -128,11 +134,11 @@
                       (nil? thing) (update location
                                            (dec (count location))
                                            inc))
-            not-real? (or (nil? thing) (vector? thing)) 
+            not-real? (or (nil? thing) (vector? thing))
             nbag (if not-real?
                    bag
                    (conj bag ["coords:" coords "thing:" thing counter]))
-            ncounter (if not-real? counter (inc counter))] 
+            ncounter (if not-real? counter (inc counter))]
         (if (= stopper ncoords)
           nbag
           (recur ncoords nbag ncounter))))))
