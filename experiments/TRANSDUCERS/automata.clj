@@ -17,11 +17,11 @@
           ["ab" :mixed]
           ["ba" :mixed]])
 
-(def suffs [[kisnyuszi :ok]
-            [nagynyuszi :ok]
-            [nyuszimuszi] :ok
-            [farkas :nem]
-            [roka :nem]])
+(def suffs [["kisnyuszi" :ok]
+            ["nagynyuszi" :ok]
+            ["nyuszimuszi" :ok]
+            ["farkas" :nem]
+            ["roka" :nem]])
 
 (defn recognizer-inputs
   "Takes transducer i-o pairs and separates them into recognizer
