@@ -27,6 +27,9 @@
           ["baa" :1]
           ["abb" :2]])
 
+(def A {:delta {0 [1 0 4 4 5 5] 1 [2 3 5 4 5 5]}
+        :omega [:reject :reject :accept :accept :accept :reject]})
+
 (defn recognizer-inputs
   "Takes transducer i-o pairs and separates them into recognizer
    inputs."
@@ -83,7 +86,10 @@
   "0 as the initial state is added to the non-acceptors in case it is not
    in acceptors."
   [{delta :delta omega :omega}]
-  (let [stateset (conj (set (mapcat (comp vals second) delta)) 0)]
+  (let [delta-entry (second (first delta)) ;map or vector?
+        stateset (if (map? delta-entry)
+                   (conj (set (mapcat (comp vals second) delta)) 0)
+                   (set (range (count delta-entry))))]
     (map (comp set second) (group-by omega stateset))))
 
 (defn split
@@ -104,6 +110,8 @@
                       (if (> (count classes) 1)
                         (map set (vals classes))
                         (recur (rest symbols))))))]
+      (when parts
+        (println S "into" parts))
       parts)))
 
 (defn refined-partition
