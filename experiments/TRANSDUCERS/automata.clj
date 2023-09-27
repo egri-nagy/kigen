@@ -23,6 +23,10 @@
             ["farkas" :nem]
             ["roka" :nem]])
 
+(def ex3 [["aaa" :1]
+          ["baa" :1]
+          ["abb" :2]])
+
 (defn recognizer-inputs
   "Takes transducer i-o pairs and separates them into recognizer
    inputs."
@@ -87,13 +91,16 @@
    Set S from partition P, state transition table delta"
   [S P delta]
   (if (= 1 (count S))
-    nil
+    nil ;indicating that no splitting happened
     (let [inputs (keys delta)
-          parts (loop [symbols inputs]
-                  (if (empty? symbols)
+          parts (loop [symbols inputs] ;we loop over input symbols
+                  (if (empty? symbols) ;no symbols left, no splitting
                     nil
                     (let [a (first symbols)
-                          classes (group-by (fn [i] (some #(% ((delta a) i)) P)) S)]
+                          ta (delta a)
+                          result-set (fn [state] ;which set the image lands in
+                                       (some #(% (ta state)) P))
+                          classes (group-by result-set S)]
                       (if (> (count classes) 1)
                         (map set (vals classes))
                         (recur (rest symbols))))))]
@@ -108,4 +115,4 @@
         refine-any (fn [P]
                      (some #(refine-one % P) P))
         ip (initial-partition FA)]
-    (last (take-while (comp not nil?) (iterate refine-any ip)))))
+    (take-while (comp not nil?) (iterate refine-any ip))))
