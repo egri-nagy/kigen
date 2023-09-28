@@ -27,7 +27,7 @@
           ["baa" :1]
           ["abb" :2]])
 
-(def A {:delta {0 [1 0 4 4 5 5] 1 [2 3 5 4 5 5]}
+(def A {:delta {\a [1 0 4 4 4 5] \b [2 3 5 5 5 5]}
         :omega [:reject :reject :accept :accept :accept :reject]})
 
 (defn recognizer-inputs
@@ -118,7 +118,7 @@
     (into {}
           (concat
            (map (fn [pair] [pair :x]) non-eqs)
-           (map (fn [pair] [pair []])
+           (map (fn [pair] [pair #{}])
                 (difference (set (ordered-pairs stateset))
                             (set non-eqs)))))))
 
@@ -142,9 +142,49 @@
                remainder (filter (comp not (partial rel? S)) pz)]
            (recur remainder (conj result S)))))))
 
+(defn rec-mark
+  [table pair]
+  (println "Marking " pair)
+  (if (= :x (table pair))
+    table ;recursion stops when it is already marked
+    (let [to-be-marked (table pair)]
+      (reduce
+       (fn [tab pr]
+         (rec-mark tab pr))
+       (update table pair (constantly :x))
+       to-be-marked))))
+
 (defn minimize
   [{delta :delta omega :omega :as T}]
   (let [iP (initial-partition T)
         table (initial-table T)
-        inputs (keys delta)]
-    ))
+        inputs (keys delta)
+        pairs (mapcat ordered-pairs
+                      (filter (fn [S] (> (count S) 1)) iP))
+        resultpair (fn [pair input]
+                     (vec (sort (map (delta input) pair))))
+        resultpairs (fn [pair]
+                      
+                      (remove
+                       (fn [[f s]] (= f s))
+                       (distinct (map
+                                  (partial resultpair  pair)
+                                  inputs))))]
+    (reduce
+     (fn [tab pair]
+       (println "Doing " pair)
+       (let [rps (resultpairs pair)]
+         (println rps)
+         (if (or
+              (some nil? (apply concat rps))
+              (some #{:x} (map tab rps)))
+           (rec-mark tab pair)
+           (reduce
+            (fn [tab pr]
+              (if (= pair pr)
+                tab
+                (update tab pr (fn [callbacks] (conj callbacks pair)))))
+            tab
+            rps))))
+     table
+     pairs)))
