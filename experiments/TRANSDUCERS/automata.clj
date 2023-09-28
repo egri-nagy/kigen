@@ -164,17 +164,17 @@
        to-be-marked))))
 
 (defn minimize
+  "The Hopcroft-Ullman 1979 textbook minimization algorithm."
   [{delta :delta :as T}]
   (let [P (initial-partition T)
         table (initial-table P)
         inputs (keys delta)
-        pairs (mapcat ordered-pairs
-                      (filter (fn [S] (> (count S) 1)) P))
-        resultpair (fn [pair input]
-                     (vec (sort (map (delta input) pair))))
+        pairs (mapcat ordered-pairs P)
+        ;function computing the resulting pair (sorted) when applying input
+        resultpair (fn [pair input] (vec (sort (map (delta input) pair))))
         resultpairs (fn [pair] 
                       (remove
-                       (fn [[f s]] (and (= f s) (not (nil? f))))
+                       (fn [[f s]] (and (= f s) (not (nil? f)))) ;TODO revise
                        (distinct (map
                                   (partial resultpair  pair)
                                   inputs))))]
