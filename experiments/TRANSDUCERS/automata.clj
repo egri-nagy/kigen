@@ -1,6 +1,6 @@
 (require '[kigen.transducer.trie :refer :all])
 (require '[kigen.transducer.common :refer :all])
-(require '[clojure.set :refer [difference intersection]])
+(require '[clojure.set :refer [difference intersection union]])
 
 
 ;;automata related functions
@@ -32,6 +32,9 @@
 
 (def A {:delta {\a [1 0 4 4 4 5] \b [2 3 5 5 5 5]}
         :omega [:reject :reject :accept :accept :accept :reject]})
+
+(def HU {:delta {\a [1 6 0 2 7 2 6 6] \b [5 2 2 6 5 6 4 2]}
+         :omega [:reject :reject :accept :reject :reject :reject :reject :reject]})
 
 (defn recognizer-inputs
   "Takes transducer i-o pairs and separates them into recognizer
@@ -99,25 +102,25 @@
 ;;the Hopcroft-Ullman 1979 algorithm
 (defn ordered-pairs
   "Returns all strictly ordered pairs in A, or from A and B.
-   Not a direct product!"
+   A and B are sets of numbers (or anything that can be compared).
+   Not a direct product! Only returns different entries in pairs."
   ([A] (ordered-pairs A A))
   ([A B]
-   (let [pairs (for [a A
-                     b B]
-                 (sort [a b]))]
-     (map vec
-          (distinct (filter (fn [[a b]] (< a b))
-                            pairs))))))
+   (let [pairs (for [a A, b B] (sort [a b]))
+         ordered (filter (fn [[a b]] (< a b))
+                         pairs)]
+     (map vec (distinct ordered)))))
 
 (defn initial-table
   "Intitialzing the table of non-equivalence."
-  [{delta :delta omega :omega}]
-  (let [delta-entry (second (first delta)) ;map or vector?
-        stateset (if (map? delta-entry)
-                   (conj (set (mapcat (comp vals second) delta)) 0)
-                   (set (range (count delta-entry))))
-        P (map (comp set second) (group-by omega stateset))
-        non-eqs (mapcat (fn [S] (ordered-pairs S (difference stateset S))) P)]
+  [T]
+  (let [P (initial-partition T)
+        stateset (apply union P)
+        non-eqs (mapcat (fn [S]
+                          (ordered-pairs
+                           S
+                           (difference stateset S)))
+                        P)]
     (into {}
           (concat
            (map (fn [pair] [pair :x]) non-eqs)
