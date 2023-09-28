@@ -9,7 +9,7 @@
                  [orbit "22.04.15"]
                  [rolling-stones "1.0.3"]
                  [org.clojure/core.logic "1.0.1"]
-                 [com.taoensso/timbre "6.2.2"]
+                 [com.taoensso/timbre "6.3.1"]
                  [com.clojure-goes-fast/clj-memory-meter "0.3.0"]
                  [progrock "0.1.2"]
                  [com.bhauman/rebel-readline "0.1.4"]
