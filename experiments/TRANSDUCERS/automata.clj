@@ -112,75 +112,75 @@
      (map vec (distinct ordered)))))
 
 (defn initial-table
-  "Intitialzing the table of non-equivalence."
-  [T]
-  (let [P (initial-partition T)
-        stateset (apply union P)
-        non-eqs (mapcat (fn [S]
+  "Intitialzing the table of non-equivalence." 
+  [P]
+  (let [stateset (apply union P)
+        non-eqs (mapcat (fn [S] ;a set S against the rest
                           (ordered-pairs
                            S
                            (difference stateset S)))
                         P)]
     (into {}
           (concat
-           (map (fn [pair] [pair :x]) non-eqs)
-           (map (fn [pair] [pair #{}])
+           (map (fn [pair] [pair :x]) non-eqs) ;known-noneq
+           (map (fn [pair] [pair #{}]) ;collecting possible noneqs here
                 (difference (set (ordered-pairs stateset))
                             (set non-eqs)))))))
 
-(defn partition-from-table
+(defn equivalence-classes
+  "Not reporting the singletons."
   [table]
-  (let [pairs (map first
-                   (filter (fn [[_ v]] (not= v :x)) table))
+  (let [;getting the pairs that are in non-trivial equivalence classes
+        equiv-pairs (map first (filter (fn [[_ v]] (not= v :x)) table))
         ;are the two pairs related?
-        rel? (fn [A B] (not (empty? (intersection (set A) (set B)))))
+        rel? (fn [p1 p2] (not (empty? (intersection (set p1) (set p2)))))
         ;extracting the equivalent elements
-        extract (fn [A pz] (reduce (fn [result pair]
-                                     (if (rel? result pair)
-                                       (into result pair)
-                                       result))
-                                  (set A)
-                                  pz))]
-     (loop [pz pairs result #{}]
-       (if (empty? pz)
-         result
-         (let [S (extract (first pz) pz)
-               remainder (filter (comp not (partial rel? S)) pz)]
-           (recur remainder (conj result S)))))))
+        extract (fn [p1 pairs]
+                  (reduce ;collecting everything equivalent to p1
+                   (fn [result pair]
+                     (if (rel? result pair)
+                       (into result pair)
+                       result))
+                   (set p1)
+                   pairs))]
+    ;in each run of the loop we sweep up an equivalence class
+    (loop [pairs equiv-pairs result #{}]
+      (if (empty? pairs)
+        result
+        (let [S (extract (first pairs) pairs)
+              remainder (filter (comp not (partial rel? S)) pairs)]
+          (recur remainder (conj result S)))))))
 
 (defn rec-mark
+  "Marking a pair in the table as non-equivalent and recursively the pairs that
+   can be distinguished by this pair."
   [table pair]
-  (println "Marking " pair)
   (if (= :x (table pair))
     table ;recursion stops when it is already marked
     (let [to-be-marked (table pair)]
       (reduce
-       (fn [tab pr]
-         (rec-mark tab pr))
-       (update table pair (constantly :x))
+       rec-mark
+       (update table pair (constantly :x)) ;mark the pair first
        to-be-marked))))
 
 (defn minimize
-  [{delta :delta omega :omega :as T}]
-  (let [iP (initial-partition T)
-        table (initial-table T)
+  [{delta :delta :as T}]
+  (let [P (initial-partition T)
+        table (initial-table P)
         inputs (keys delta)
         pairs (mapcat ordered-pairs
-                      (filter (fn [S] (> (count S) 1)) iP))
+                      (filter (fn [S] (> (count S) 1)) P))
         resultpair (fn [pair input]
                      (vec (sort (map (delta input) pair))))
-        resultpairs (fn [pair]
-                      
+        resultpairs (fn [pair] 
                       (remove
-                       (fn [[f s]] (= f s))
+                       (fn [[f s]] (and (= f s) (not (nil? f))))
                        (distinct (map
                                   (partial resultpair  pair)
                                   inputs))))]
     (reduce
      (fn [tab pair]
-       (println "Doing " pair)
        (let [rps (resultpairs pair)]
-         (println rps)
          (if (or
               (some nil? (apply concat rps))
               (some #{:x} (map tab rps)))
