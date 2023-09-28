@@ -27,6 +27,9 @@
           ["baa" :1]
           ["abb" :2]])
 
+(def ex4 [["aaa" :1]
+          ["baa" :1]])
+
 (def A {:delta {\a [1 0 4 4 4 5] \b [2 3 5 5 5 5]}
         :omega [:reject :reject :accept :accept :accept :reject]})
 
