@@ -1,6 +1,6 @@
 (require '[kigen.transducer.trie :refer :all])
 (require '[kigen.transducer.common :refer :all])
-(require '[clojure.set :refer [difference]])
+(require '[clojure.set :refer [difference intersection]])
 
 
 ;;automata related functions
@@ -92,35 +92,59 @@
                    (set (range (count delta-entry))))]
     (map (comp set second) (group-by omega stateset))))
 
-(defn split
-  "What a split version of this set?
-   Set S from partition P, state transition table delta"
-  [S P delta]
-  (if (= 1 (count S))
-    nil ;indicating that no splitting happened
-    (let [inputs (keys delta)
-          parts (loop [symbols inputs] ;we loop over input symbols
-                  (if (empty? symbols) ;no symbols left, no splitting
-                    nil
-                    (let [a (first symbols)
-                          ta (delta a)
-                          result-set (fn [state] ;which set the image lands in
-                                       (some #(% (ta state)) P))
-                          classes (group-by result-set S)]
-                      (if (> (count classes) 1)
-                        (map set (vals classes))
-                        (recur (rest symbols))))))]
-      (when parts
-        (println S "into" parts))
-      parts)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;the Hopcroft-Ullman 1979 algorithm
+(defn ordered-pairs
+  "Returns all strictly ordered pairs in A, or from A and B.
+   Not a direct product!"
+  ([A] (ordered-pairs A A))
+  ([A B]
+   (let [pairs (for [a A
+                     b B]
+                 (sort [a b]))]
+     (map vec
+          (distinct (filter (fn [[a b]] (< a b))
+                            pairs))))))
 
-(defn refined-partition
-  [{delta :delta :as FA}]
-  (let [refine-one (fn [S P]
-                     (let [parts (split S P delta)]
-                       (when parts
-                         (into (difference (set P) #{S}) parts))))
-        refine-any (fn [P]
-                     (some #(refine-one % P) P))
-        ip (initial-partition FA)]
-    (take-while (comp not nil?) (iterate refine-any ip))))
+(defn initial-table
+  "Intitialzing the table of non-equivalence."
+  [{delta :delta omega :omega}]
+  (let [delta-entry (second (first delta)) ;map or vector?
+        stateset (if (map? delta-entry)
+                   (conj (set (mapcat (comp vals second) delta)) 0)
+                   (set (range (count delta-entry))))
+        P (map (comp set second) (group-by omega stateset))
+        non-eqs (mapcat (fn [S] (ordered-pairs S (difference stateset S))) P)]
+    (into {}
+          (concat
+           (map (fn [pair] [pair :x]) non-eqs)
+           (map (fn [pair] [pair []])
+                (difference (set (ordered-pairs stateset))
+                            (set non-eqs)))))))
+
+(defn partition-from-table
+  [table]
+  (let [pairs (map first
+                   (filter (fn [[_ v]] (not= v :x)) table))
+        ;are the two pairs related?
+        rel? (fn [A B] (not (empty? (intersection (set A) (set B)))))
+        ;extracting the equivalent elements
+        extract (fn [A pz] (reduce (fn [result pair]
+                                     (if (rel? result pair)
+                                       (into result pair)
+                                       result))
+                                  (set A)
+                                  pz))]
+     (loop [pz pairs result #{}]
+       (if (empty? pz)
+         result
+         (let [S (extract (first pz) pz)
+               remainder (filter (comp not (partial rel? S)) pz)]
+           (recur remainder (conj result S)))))))
+
+(defn minimize
+  [{delta :delta omega :omega :as T}]
+  (let [iP (initial-partition T)
+        table (initial-table T)
+        inputs (keys delta)]
+    ))
