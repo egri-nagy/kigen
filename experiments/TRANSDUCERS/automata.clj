@@ -195,4 +195,4 @@
      table
      pairs)))
 
-(equivalence-classes (minimize (transducer HU)))
+(equivalence-classes (minimize HU))
