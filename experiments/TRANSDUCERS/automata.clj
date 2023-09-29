@@ -57,7 +57,7 @@
                              0 ;the defualt initial state
                              {:delta {} ;empty state transition table,
                               :omega {}
-                              :next 1})) ;the next assignable state 
+                              :next 1})) ;the next assignable state
   ([trie stoppers coords state maps]
    (let [parent (get-in trie (butlast coords))
          pos (last coords)
@@ -112,7 +112,7 @@
      (map vec (distinct ordered)))))
 
 (defn initial-table
-  "Intitialzing the table of non-equivalence." 
+  "Intitialzing the table of non-equivalence."
   [P]
   (let [stateset (apply union P)
         non-eqs (mapcat (fn [S] ;a set S against the rest
@@ -172,7 +172,7 @@
         pairs (mapcat ordered-pairs P)
         ;function computing the resulting pair (sorted) when applying input
         resultpair (fn [pair input] (vec (sort (map (delta input) pair))))
-        resultpairs (fn [pair] 
+        resultpairs (fn [pair]
                       (remove
                        (fn [[f s]] (and (= f s) (not (nil? f)))) ;TODO revise
                        (distinct (map
@@ -194,3 +194,5 @@
             rps))))
      table
      pairs)))
+
+(equivalence-classes (minimize (transducer HU)))
