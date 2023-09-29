@@ -174,7 +174,8 @@
         resultpair (fn [pair input] (vec (sort (map (delta input) pair))))
         resultpairs (fn [pair]
                       (remove
-                       (fn [[f s]] (and (= f s) (not (nil? f)))) ;TODO revise
+                       (fn [[f s]] (= f s))
+                       ;(fn [[f s]] (and (= f s) (not (nil? f)))) ;TODO why this breaks
                        (distinct (map
                                   (partial resultpair  pair)
                                   inputs))))]
@@ -195,4 +196,5 @@
      table
      pairs)))
 
-(equivalence-classes (minimize HU))
+(equivalence-classes (minimize  HU))
+(equivalence-classes (minimize (transducer suffs)))
