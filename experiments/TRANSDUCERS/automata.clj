@@ -127,7 +127,7 @@
                 (difference (set (ordered-pairs stateset))
                             (set non-eqs)))))))
 
-(defn equivalence-classes
+(defn joined-states
   "Not reporting the singletons."
   [table]
   (let [;getting the pairs that are in non-trivial equivalence classes
@@ -196,5 +196,9 @@
      table
      pairs)))
 
-(equivalence-classes (minimize  HU))
-(equivalence-classes (minimize (transducer suffs)))
+(recode-transducer
+ [T joined]
+ )
+
+(joined-states (minimize  HU))
+(joined-states (minimize (transducer suffs)))
