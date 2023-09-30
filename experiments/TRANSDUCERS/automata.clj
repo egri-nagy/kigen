@@ -88,15 +88,21 @@
   (dissoc (rec-maps (build-trie (outputs-as-stoppers io-pairs))
                     (set (output-symbols-fn io-pairs))) :next))
 
-(defn initial-partition
-  "0 as the initial state is added to the non-acceptors in case it is not
-   in acceptors."
-  [{delta :delta omega :omega}]
+(defn state-set
+  "Trying to guess the state of the transducer. This is somewhat difficult
+   since the state transition table could be vector, or hash-map."
+  [{delta :delta}]
   (let [delta-entry (second (first delta)) ;map or vector?
         stateset (if (map? delta-entry)
                    (conj (set (mapcat (comp vals second) delta)) 0)
                    (set (range (count delta-entry))))]
-    (map (comp set second) (group-by omega stateset))))
+    stateset))
+
+(defn initial-partition
+  "The states are grouped by their known behaviour, i.e., byt their output
+   value."
+  [{omega :omega :as T}] 
+  (map (comp set second) (group-by omega (state-set T))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;the Hopcroft-Ullman 1979 algorithm
@@ -196,9 +202,14 @@
      table
      pairs)))
 
-(recode-transducer
+(defn recode-transducer
  [T joined]
- )
+ (let [stateset (state-set T)
+       n (- (count stateset) (apply + (map (comp dec count) joined)))]
+   (println  ( count stateset) "->" n)))
 
 (joined-states (minimize  HU))
-(joined-states (minimize (transducer suffs)))
+(map (partial apply sorted-set) (joined-states (minimize (transducer suffs))))
+
+(let [T (transducer suffs)]
+  (recode-transducer T (joined-states (minimize T))))
