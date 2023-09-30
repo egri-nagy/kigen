@@ -2,7 +2,6 @@
 (require '[kigen.transducer.common :refer :all])
 (require '[clojure.set :refer [difference intersection union]])
 
-
 ;;automata related functions
 
 (defn outputs-as-stoppers
@@ -242,3 +241,10 @@
 (defn minimize-transducer
   [T]
   (recode-transducer T (joined-states (hopcroft-ullman T))))
+
+(defn experiment2
+  [io-pairs]
+  (let [T (transducer io-pairs)
+        minT (minimize-transducer T)]
+    (println (count (state-set T)) "->" (count (state-set minT)))
+    (println "works?" (check io-pairs minT) )))
