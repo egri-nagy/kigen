@@ -203,13 +203,44 @@
      pairs)))
 
 (defn recode-transducer
- [T joined]
+ [{delta :delta omega :omega :as T}
+  joined]
  (let [stateset (state-set T)
-       n (- (count stateset) (apply + (map (comp dec count) joined)))]
-   (println  ( count stateset) "->" n)))
+       n (- (count stateset) (apply + (map (comp dec count) joined)))
+       joined-states (reduce union joined)
+       singletons (apply sorted-set (difference stateset joined-states))
+       ;the map from new states to original ones
+       new-to-orig (zipmap
+                    (range)
+                    (into (vec singletons) joined))
+       phi (reduce
+            (fn [m [k v]]
+              (if (number? v)
+                (conj m [v k])
+                (into m (map (fn [x] [x k]) v))))
+            {}
+            new-to-orig)
+       phi-inv (into {} (map
+                         (fn [[k v]]
+                           (if (number? v)
+                             [k v]
+                             [k (apply min v)]))
+                         new-to-orig))]
+   {:delta (into {}
+                 (map (fn [input]
+                        [input (mapv
+                                (fn [state]
+                                  (phi ((delta input) (phi-inv state))))
+                                (range n))])
+                      (keys delta)))
+    :omega (mapv
+            (fn [state]
+              (omega (phi-inv state)))
+            (range n))}))
 
 (joined-states (minimize  HU))
 (map (partial apply sorted-set) (joined-states (minimize (transducer suffs))))
 
-(let [T (transducer suffs)]
-  (recode-transducer T (joined-states (minimize T))))
+(def minT
+  (let [T (transducer suffs)]
+    (recode-transducer T (joined-states (minimize T)))))
