@@ -117,6 +117,7 @@
                          pairs)]
      (map vec (distinct ordered)))))
 
+;; TABLE OF MARKS FOR NON_EQUIVALENCE ;;;;;;;;;;;;;;;;;
 (defn initial-table
   "Intitialzing the table of non-equivalence."
   [P]
@@ -169,7 +170,7 @@
        (update table pair (constantly :x)) ;mark the pair first
        to-be-marked))))
 
-(defn minimize
+(defn hopcroft-ullman
   "The Hopcroft-Ullman 1979 textbook minimization algorithm."
   [{delta :delta :as T}]
   (let [P (initial-partition T)
@@ -238,9 +239,6 @@
               (omega (phi-inv state)))
             (range n))}))
 
-(joined-states (minimize  HU))
-(map (partial apply sorted-set) (joined-states (minimize (transducer suffs))))
-
-(def minT
-  (let [T (transducer suffs)]
-    (recode-transducer T (joined-states (minimize T)))))
+(defn minimize-transducer
+  [T]
+  (recode-transducer T (joined-states (hopcroft-ullman T))))
