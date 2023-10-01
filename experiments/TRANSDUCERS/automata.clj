@@ -35,13 +35,6 @@
 (def HU {:delta {\a [1 6 0 2 7 2 6 6] \b [5 2 2 6 5 6 4 2]}
          :omega [:reject :reject :accept :reject :reject :reject :reject :reject]})
 
-(defn recognizer-inputs
-  "Takes transducer i-o pairs and separates them into recognizer
-   inputs."
-  [io-pairs]
-  (update-vals (group-by second io-pairs)
-               (partial map first)))
-
 (defn rec-maps
   "Recursively constructs state transition mappings from a trie.
    If the stopper symbols is used for denoting word ends, then the set of
@@ -56,7 +49,7 @@
                              0 ;the defualt initial state
                              {:delta {} ;empty state transition table,
                               :omega {}
-                              :next 1})) ;the next assignable state
+                              :n 1})) ;the next assignable state (also #states)
   ([trie stoppers coords state maps]
    (let [parent (get-in trie (butlast coords))
          pos (last coords)
@@ -69,13 +62,13 @@
         (range (count thing))) ;thing is a vector, so these are the branch indices
        (if (= pos (count parent)) ;we reached the end
          maps ;this is where recursion stops, we return the collected maps
-         (let [nstate (:next maps) ;we use the next available state
+         (let [nstate (:n maps) ;we use the next available state
                nmaps (if (stoppers thing)
                        (update-in maps [:omega state] (constantly thing))
                        (-> maps
                          ;add the mapping state -> new state
                            (update-in [:delta thing state] (constantly nstate))
-                           (update :next inc)))]
+                           (update :n inc)))]
            ;(println coords thing state "->" nstate)
            (rec-maps trie stoppers
                      (update coords (dec (count coords)) inc)
@@ -84,12 +77,15 @@
 
 (defn transducer
   [io-pairs]
-  (dissoc (rec-maps (build-trie (outputs-as-stoppers io-pairs))
-                    (set (output-symbols-fn io-pairs))) :next))
+  (rec-maps (build-trie (outputs-as-stoppers io-pairs))
+            (set (output-symbols-fn io-pairs))))
 
 (defn state-set
   "Trying to guess the state of the transducer. This is somewhat difficult
-   since the state transition table could be vector, or hash-map."
+   since the state transition table entry could be vector, or hash-map.
+   If it's a vector, then the 0..size is the state set.
+   If it's a hash-map, then just collecting all possible resulting states.
+   TODO: consider storing the state-set, or the number of states."
   [{delta :delta}]
   (let [delta-entry (second (first delta)) ;map or vector?
         stateset (if (map? delta-entry)
