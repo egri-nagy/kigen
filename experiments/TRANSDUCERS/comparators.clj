@@ -3,6 +3,7 @@
 (require '[kigen.transducer.flexible :as f])
 (require '[kigen.transducer.from-trajectories :as ft])
 (require '[kigen.transducer.trie :as trie])
+(require '[kigen.transducer.minimal :refer [minimize-transducer]])
 (require '[taoensso.timbre :as timbre])
 (require '[kigen.transducer.viz :refer [DotTransducer Dot2PDF]])
 
@@ -43,10 +44,10 @@
 ;(experiment "more zeroes or more ones flexible - max 5"
 ;            zo5 6 f/transducer)
 (experiment "more zeroes or more ones max 5 - trie"
-            zo5 trie/transducer)
+            zo4 (comp minimize-transducer trie/transducer))
 
-(trajectories zo5 (trie/transducer zo5))
-(check zo5 (partial-transducer zo5 (trie/transducer zo5)))
+(trajectories zo3 (trie/transducer zo3))
+(check zo3 (partial-transducer zo3 (minimize-transducer (trie/transducer zo3))))
 
 
 

@@ -136,12 +136,12 @@
 (defn partial-omega
   "It processes all input words and removes the states
    from omega that are never used."
-  [io-pairs {delta :delta omega :omega}]
+  [io-pairs {delta :delta omega :omega n :n}]
   (let [states (set (map (partial result-state delta 0)
                          (map first io-pairs)))]
     (mapv
      (fn [i] (when (states i) (omega i)))
-     (range (count omega)))))
+     (range n))))
 
 (defn partial-transducer
   [io-pairs transducer]
