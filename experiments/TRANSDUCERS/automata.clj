@@ -4,11 +4,6 @@
 
 ;;automata related functions
 
-(defn outputs-as-stoppers
-  [io-pairs]
-  (map
-   (fn [[w s]] (conj (vec w) s))
-   io-pairs))
 
 (def i-o [["" :mixed]
           ["aa" :as]
@@ -37,49 +32,7 @@
          :omega [:reject :reject :accept :reject :reject :reject :reject :reject]
          :n 8})
 
-(defn rec-maps
-  "Recursively constructs state transition mappings from a trie.
 
-   Information traveling in recursion:
-   going-in only: the trie itself (unchanged), coords to pick entries,
-   current state
-   going in coming back: the maps, the next available state"
-  ;setting up the recursion with the initial input arguments
-  ([trie stoppers] (rec-maps trie stoppers
-                             [0] ;pointing to the root of the trie
-                             0 ;the default initial state
-                             {:delta {} ;empty state transition table,
-                              :omega {}
-                              :n 1})) ;the next assignable state (also #states)
-  ([trie stoppers coords state maps]
-   (let [parent (get-in trie (butlast coords))
-         pos (last coords)
-         thing (get-in trie coords)]
-     (if (vector? thing)
-       (reduce ;just making sure that the result form a branch is passed on
-        (fn [m i]
-          (rec-maps trie stoppers (into coords [i 0]) state m))
-        maps
-        (range (count thing))) ;thing is a vector, so these are the branch indices
-       (if (= pos (count parent)) ;we reached the end
-         maps ;this is where recursion stops, we return the collected maps
-         (let [nstate (:n maps) ;we use the next available state
-               nmaps (if (stoppers thing)
-                       (update-in maps [:omega state] (constantly thing))
-                       (-> maps
-                         ;add the mapping state -> new state
-                           (update-in [:delta thing state] (constantly nstate))
-                           (update :n inc)))]
-           ;(println coords thing state "->" nstate)
-           (rec-maps trie stoppers
-                     (update coords (dec (count coords)) inc)
-                     nstate
-                     nmaps)))))))
-
-(defn transducer
-  [io-pairs]
-  (rec-maps (build-trie (outputs-as-stoppers io-pairs))
-            (set (output-symbols-fn io-pairs))))
 
 (defn initial-partition
   "The states are grouped by their known behaviour, i.e., byt their output

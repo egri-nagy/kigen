@@ -1,4 +1,9 @@
-(ns kigen.transducer.trie)
+(ns kigen.transducer.trie
+  "A custom implementation of a search trie with the added feature that
+   if there is no branching, then a (sub)word is stored as a sequential data structure.
+   WARNING! The outputs are assumed to be different from the input symbols, as they
+   are used as leaf nodes in the trie when constructing a transducer."
+  (:require [kigen.transducer.common :refer (output-symbols-fn)]))
 
 (defn search
   "Searching a word in a trie, reporting the location of mismatch if the word
@@ -75,3 +80,58 @@
         (fn [r v]  (retrieve v new-so-far r))
         result
         (last trie))))))
+
+;; creating a transducer from a trie ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn outputs-as-stoppers
+  "Puts the outputs into the input words so in a trie for the inputs
+   it is still possible to see the outputs.
+   WARNING! It is assumed that that the inputs and outputs are of different kind!"
+  [io-pairs]
+  (map
+   (fn [[w s]] (conj (vec w) s))
+   io-pairs))
+
+(defn mappings-from-trie
+  "Recursively constructs state transition mappings from a trie and the output values.
+   The stoppers (the output values) are expected to be in the trie. A counter is
+   maintained through recursion the have a new state if needed.
+   Information traveling in recursion:
+   going-in only: the trie itself (unchanged), coords to pick entries, current state
+   going in and coming back: the maps, the next available state"
+  ;setting up the recursion with the initial input arguments
+  ([trie stoppers] (mappings-from-trie trie stoppers
+                                       [0] ;pointing to the root of the trie
+                                       0 ;the default initial state
+                                       {:delta {} ;empty state transition table,
+                                        :omega {}
+                                        :n 1})) ;the next assignable state (also #states)
+  ([trie stoppers coords state maps]
+   (let [parent (get-in trie (butlast coords))
+         pos (last coords)
+         thing (get-in trie coords)]
+     (if (vector? thing)
+       (reduce ;just making sure that the result form a branch is passed on
+        (fn [m i]
+          (mappings-from-trie trie stoppers (into coords [i 0]) state m))
+        maps
+        (range (count thing))) ;thing is a vector, so these are the branch indices
+       (if (= pos (count parent)) ;we reached the end
+         maps ;this is where recursion stops, we return the collected maps
+         (let [nstate (:n maps) ;we use the next available state
+               nmaps (if (stoppers thing)
+                       (update-in maps [:omega state] (constantly thing))
+                       (-> maps
+                         ;add the mapping state -> new state
+                           (update-in [:delta thing state] (constantly nstate))
+                           (update :n inc)))]
+           (mappings-from-trie trie stoppers
+                               (update coords (dec (count coords)) inc)
+                               nstate
+                               nmaps)))))))
+
+(defn transducer
+  "Creates a transducer for the given input-output pairs by building a trie.
+   Not minimized. Inputs and outputs should have empty intersection!"
+  [io-pairs]
+  (mappings-from-trie (build-trie (outputs-as-stoppers io-pairs))
+                      (set (output-symbols-fn io-pairs))))
