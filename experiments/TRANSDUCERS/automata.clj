@@ -232,5 +232,5 @@
   [io-pairs]
   (let [T (transducer io-pairs)
         minT (minimize-transducer T)]
-    (println (count (state-set T)) "->" (count (state-set minT)))
+    (println (:n T) "->"  (:n minT))
     (println "works?" (check io-pairs minT) )))
