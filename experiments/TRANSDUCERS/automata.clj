@@ -30,10 +30,12 @@
           ["baa" :1]])
 
 (def A {:delta {\a [1 0 4 4 4 5] \b [2 3 5 5 5 5]}
-        :omega [:reject :reject :accept :accept :accept :reject]})
+        :omega [:reject :reject :accept :accept :accept :reject]
+        :n 6})
 
 (def HU {:delta {\a [1 6 0 2 7 2 6 6] \b [5 2 2 6 5 6 4 2]}
-         :omega [:reject :reject :accept :reject :reject :reject :reject :reject]})
+         :omega [:reject :reject :accept :reject :reject :reject :reject :reject]
+         :n 8})
 
 (defn rec-maps
   "Recursively constructs state transition mappings from a trie.
@@ -80,24 +82,11 @@
   (rec-maps (build-trie (outputs-as-stoppers io-pairs))
             (set (output-symbols-fn io-pairs))))
 
-(defn state-set
-  "Trying to guess the state of the transducer. This is somewhat difficult
-   since the state transition table entry could be vector, or hash-map.
-   If it's a vector, then the 0..size is the state set.
-   If it's a hash-map, then just collecting all possible resulting states.
-   TODO: consider storing the state-set, or the number of states."
-  [{delta :delta}]
-  (let [delta-entry (second (first delta)) ;map or vector?
-        stateset (if (map? delta-entry)
-                   (conj (set (mapcat (comp vals second) delta)) 0)
-                   (set (range (count delta-entry))))]
-    stateset))
-
 (defn initial-partition
   "The states are grouped by their known behaviour, i.e., byt their output
    value."
-  [{omega :omega :as T}] 
-  (map (comp set second) (group-by omega (state-set T))))
+  [{omega :omega n :n :as T}] 
+  (map (comp set second) (group-by omega (range n))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;the Hopcroft-Ullman 1979 algorithm
@@ -199,10 +188,10 @@
      pairs)))
 
 (defn recode-transducer
- [{delta :delta omega :omega :as T}
+ [{delta :delta omega :omega n :n :as T}
   joined]
- (let [stateset (state-set T)
-       n (- (count stateset) (apply + (map (comp dec count) joined)))
+ (let [stateset (set (range n))
+       nn (- (count stateset) (apply + (map (comp dec count) joined))) ;new #states
        joined-states (reduce union joined)
        singletons (apply sorted-set (difference stateset joined-states))
        ;the map from new states to original ones
@@ -227,12 +216,13 @@
                         [input (mapv
                                 (fn [state]
                                   (phi ((delta input) (phi-inv state))))
-                                (range n))])
+                                (range nn))])
                       (keys delta)))
     :omega (mapv
             (fn [state]
               (omega (phi-inv state)))
-            (range n))}))
+            (range nn))
+    :n nn}))
 
 (defn minimize-transducer
   [T]
