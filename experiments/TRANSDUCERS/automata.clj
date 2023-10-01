@@ -32,14 +32,6 @@
          :omega [:reject :reject :accept :reject :reject :reject :reject :reject]
          :n 8})
 
-
-
-(defn initial-partition
-  "The states are grouped by their known behaviour, i.e., byt their output
-   value."
-  [{omega :omega n :n :as T}] 
-  (map (comp set second) (group-by omega (range n))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;the Hopcroft-Ullman 1979 algorithm
 (defn ordered-pairs
@@ -53,16 +45,22 @@
                          pairs)]
      (map vec (distinct ordered)))))
 
+(defn behaviour-classes
+  "The states are grouped by their known behaviour, i.e., by their output value."
+  [{omega :omega n :n}]
+  (map (comp set second) (group-by omega (range n))))
+
 ;; TABLE OF MARKS FOR NON_EQUIVALENCE ;;;;;;;;;;;;;;;;;
+; :x is used as the symbol for indicating non-equivalence of a pair
 (defn initial-table
-  "Intitialzing the table of non-equivalence."
-  [P]
-  (let [stateset (apply union P)
+  "Intitialzing the table of non-equivalence for the Hopcroft-Ullman minimization."
+  [classes]
+  (let [stateset (apply union classes)
         non-eqs (mapcat (fn [S] ;a set S against the rest
                           (ordered-pairs
                            S
                            (difference stateset S)))
-                        P)]
+                        classes)]
     (into {}
           (concat
            (map (fn [pair] [pair :x]) non-eqs) ;known-noneq
@@ -71,7 +69,8 @@
                             (set non-eqs)))))))
 
 (defn joined-states
-  "Not reporting the singletons."
+  "When the Hopcroft-Ullman algorithm finished marking non-equivalences,
+  we extract the remaining non-singleton equivalence classes."
   [table]
   (let [;getting the pairs that are in non-trivial equivalence classes
         equiv-pairs (map first (filter (fn [[_ v]] (not= v :x)) table))
@@ -94,7 +93,7 @@
               remainder (filter (comp not (partial rel? S)) pairs)]
           (recur remainder (conj result S)))))))
 
-(defn rec-mark
+(defn mark-nonequivalence
   "Marking a pair in the table as non-equivalent and recursively the pairs that
    can be distinguished by this pair."
   [table pair]
@@ -102,14 +101,14 @@
     table ;recursion stops when it is already marked
     (let [to-be-marked (table pair)]
       (reduce
-       rec-mark
+       mark-nonequivalence
        (update table pair (constantly :x)) ;mark the pair first
        to-be-marked))))
 
 (defn hopcroft-ullman
   "The Hopcroft-Ullman 1979 textbook minimization algorithm."
   [{delta :delta :as T}]
-  (let [P (initial-partition T)
+  (let [P (behaviour-classes T)
         table (initial-table P)
         inputs (keys delta)
         pairs (mapcat ordered-pairs P)
@@ -118,7 +117,7 @@
         resultpairs (fn [pair]
                       (remove
                        (fn [[f s]] (= f s))
-                       ;(fn [[f s]] (and (= f s) (not (nil? f)))) ;TODO why this breaks
+                       ;(fn [[f s]] (and (= f s) (not (nil? f)))) ;TODO why does this break
                        (distinct (map
                                   (partial resultpair  pair)
                                   inputs))))]
@@ -128,7 +127,7 @@
          (if (or
               (some nil? (apply concat rps))
               (some #{:x} (map tab rps)))
-           (rec-mark tab pair)
+           (mark-nonequivalence tab pair)
            (reduce
             (fn [tab pr]
               (if (= pair pr)
@@ -140,6 +139,8 @@
      pairs)))
 
 (defn recode-transducer
+  "Recoding a transducer when a minimization algorithm gives the list of
+   of non-singleton equivalence classes."
  [{delta :delta omega :omega n :n :as T}
   joined]
  (let [stateset (set (range n))
@@ -150,6 +151,7 @@
        new-to-orig (zipmap
                     (range)
                     (into (vec singletons) joined))
+       ;original to minimized 
        phi (reduce
             (fn [m [k v]]
               (if (number? v)
@@ -157,6 +159,7 @@
                 (into m (map (fn [x] [x k]) v))))
             {}
             new-to-orig)
+       ;minimized to original, the inverse of phi
        phi-inv (into {} (map
                          (fn [[k v]]
                            (if (number? v)
@@ -177,6 +180,8 @@
     :n nn}))
 
 (defn minimize-transducer
+  "Given a transducer T this creates its unique minimal transducer
+   by using the classic Hopcroft-Ullman 1979 minimization algorithm."
   [T]
   (recode-transducer T (joined-states (hopcroft-ullman T))))
 

@@ -2,9 +2,12 @@
   "A custom implementation of a search trie with the added feature that
    if there is no branching, then a (sub)word is stored as a sequential data structure.
    WARNING! The outputs are assumed to be different from the input symbols, as they
-   are used as leaf nodes in the trie when constructing a transducer."
+   are used as leaf nodes in the trie when constructing a transducer.
+   The code is separated into two parts: 1. the trie data structure,
+   2. transducer generation."
   (:require [kigen.transducer.common :refer (output-symbols-fn)]))
 
+;;; trie functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn search
   "Searching a word in a trie, reporting the location of mismatch if the word
    is not in the trie.
