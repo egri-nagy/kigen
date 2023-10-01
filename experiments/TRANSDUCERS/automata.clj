@@ -39,8 +39,7 @@
 
 (defn rec-maps
   "Recursively constructs state transition mappings from a trie.
-   If the stopper symbols is used for denoting word ends, then the set of
-   acceptor states is also returned.
+
    Information traveling in recursion:
    going-in only: the trie itself (unchanged), coords to pick entries,
    current state
@@ -48,7 +47,7 @@
   ;setting up the recursion with the initial input arguments
   ([trie stoppers] (rec-maps trie stoppers
                              [0] ;pointing to the root of the trie
-                             0 ;the defualt initial state
+                             0 ;the default initial state
                              {:delta {} ;empty state transition table,
                               :omega {}
                               :n 1})) ;the next assignable state (also #states)
@@ -124,7 +123,7 @@
   (let [;getting the pairs that are in non-trivial equivalence classes
         equiv-pairs (map first (filter (fn [[_ v]] (not= v :x)) table))
         ;are the two pairs related?
-        rel? (fn [p1 p2] (not (empty? (intersection (set p1) (set p2)))))
+        rel? (fn [p1 p2] (seq (intersection (set p1) (set p2)))) ;idiom for "not empty?"
         ;extracting the equivalent elements
         extract (fn [p1 pairs]
                   (reduce ;collecting everything equivalent to p1
@@ -234,3 +233,5 @@
         minT (minimize-transducer T)]
     (println (:n T) "->"  (:n minT))
     (println "works?" (check io-pairs minT) )))
+
+(experiment2 suffs)
