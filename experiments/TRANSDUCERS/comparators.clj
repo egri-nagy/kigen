@@ -49,5 +49,10 @@
 (trajectories zo3 (trie/transducer zo3))
 (check zo3 (partial-transducer zo3 (minimize-transducer (trie/transducer zo3))))
 
-
-
+(def zo7 (compared-bitstrings 7))
+(def trie-zo7 (trie/transducer zo7))
+(def ptrie-zo7 (partial-transducer zo7 trie-zo7))
+(def mtrie-zo7 (minimize-transducer trie-zo7))
+(check zo7 trie-zo7)
+(check zo7 ptrie-zo7)
+(check zo7 mtrie-zo7)
