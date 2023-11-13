@@ -127,9 +127,8 @@
 (defn partial-delta
   "Returns a new partial state transition table, nils when the particular map
    is not used when processing all input-output pairs."
-  [io-pairs {delta :delta :as transducer}]
-  (let [n (count (second (first delta))) ;assuming that we have a vector
-        a-m (extract-all-maps io-pairs transducer)]
+  [io-pairs {delta :delta n :n :as transducer}]
+  (let [a-m (extract-all-maps io-pairs transducer)]
     (update-vals
      a-m
      (fn [m] (mapv m (range n))))))
@@ -137,17 +136,18 @@
 (defn partial-omega
   "It processes all input words and removes the states
    from omega that are never used."
-  [io-pairs {delta :delta omega :omega}]
+  [io-pairs {delta :delta omega :omega n :n}]
   (let [states (set (map (partial result-state delta 0)
                          (map first io-pairs)))]
     (mapv
      (fn [i] (when (states i) (omega i)))
-     (range (count omega)))))
+     (range n))))
 
 (defn partial-transducer
   [io-pairs transducer]
   {:delta (partial-delta io-pairs transducer)
-   :omega (partial-omega io-pairs transducer)})
+   :omega (partial-omega io-pairs transducer)
+   :n (:n transducer)})
 
 ;;automating experiments
 (defn degrees-of-freedom
@@ -161,11 +161,13 @@
 
 (defn experiment
   "A script to run an experiment for constructing a transducer for the given
-   input-output pairs and number of states. The construction method is given as
-   a function."
-  [title io-pairs n transducer-function]
+   input-output pairs. The construction method is given as
+   a function.
+   If the transducer-function is producing a lazy list (like core.logic output),
+   then it should composed with first."
+  [title io-pairs transducer-function]
   (println title)
-  (if-let [transducer (first  (transducer-function io-pairs n))]
+  (if-let [transducer (transducer-function io-pairs)]
     ;then
     (let [partial (partial-transducer io-pairs transducer)]
       (doseq [l (trajectories io-pairs transducer)]

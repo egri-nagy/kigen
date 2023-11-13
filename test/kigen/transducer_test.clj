@@ -9,7 +9,7 @@
 ;;hardcoded test cases
 (deftest test-empty-string
   (testing "Testing for the output for the empty word."
-    (is (= {:delta {} :omega [:nothing]}
+    (is (= {:delta {} :omega [:nothing] :n 1}
            (first (transducer [[[] :nothing]] 1))))))
 
 (deftest test-minimal-example

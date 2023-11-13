@@ -30,7 +30,8 @@ rigid constraint."
     (debug lvars)
     (map (fn [solution]
            {:delta solution
-            :omega identity})
+            :omega identity
+            :n n})
          (l/run* [q]
                  (l/everyg #(fd/in % statesfd) lvars)
                  (l/everyg (fn [[input output]]

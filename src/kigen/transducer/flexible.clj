@@ -55,7 +55,8 @@
                       input-symbols
                       (butlast solution)))
         :omega (mapv (fn [i] (when (int? i) (output-symbols i))) ;defending against nil
-                     (last solution))})
+                     (last solution))
+        :n n})
      (l/run* [q]
              ;this can make the result partial, but makes the search longer
              ;(l/everyg #(l/conde [(l/nilo %)] [(fd/in % states)]) state-lvars)

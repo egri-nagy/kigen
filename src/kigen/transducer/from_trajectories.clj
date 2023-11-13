@@ -99,7 +99,8 @@
          {:delta (update-keys (dissoc ts readout-symbol)
                               input-symbols)
           :omega (mapv (fn [i] (when (int? i) (output-symbols i))) ;defending against nil
-                       (ts readout-symbol))}))
+                       (ts readout-symbol))
+          :n n}))
      (l/run* [q]
              (l/== q trajectories)
              (l/everyg #(fd/in % state-dom) state-lvars)
