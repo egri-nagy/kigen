@@ -18,8 +18,8 @@
             [lein-kibit "0.1.8"]
             [lein-ancient "0.7.0"]
             [lein-bikeshed "0.5.2"]
-            [jonase/eastwood "1.4.0"]
-            [cider/cider-nrepl "0.30.0"]]
+            [jonase/eastwood "1.4.2"]
+            [cider/cider-nrepl "0.43.3"]]
   :jvm-opts ["-Djdk.attach.allowAttachSelf"]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
