@@ -165,9 +165,9 @@
    a function.
    If the transducer-function is producing a lazy list (like core.logic output),
    then it should composed with first."
-  [title io-pairs transducer-function]
+  [title io-pairs n transducer-function]
   (println title)
-  (if-let [transducer (transducer-function io-pairs)]
+  (if-let [transducer (transducer-function io-pairs n)]
     ;then
     (let [partial (partial-transducer io-pairs transducer)]
       (doseq [l (trajectories io-pairs transducer)]

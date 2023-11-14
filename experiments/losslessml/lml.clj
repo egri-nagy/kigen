@@ -16,17 +16,21 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
-(experiment "sl-3-3 flexible" sl-3-3 3 f/transducer)
-(experiment "sl-3-3 from trajectories"  sl-3-3 3 ft/transducer)
-(experiment "sl-3-3 from trajectories" sl-3-3 4 ft/transducer)
+(experiment "sl-3-3 flexible" sl-3-3 3 (comp first f/transducer))
+(experiment "sl-3-3 from trajectories 3 states"
+            sl-3-3 3 (comp first ft/transducer))
+(experiment "sl-3-3 from trajectories 4 states"
+            sl-3-3 4 (comp first ft/transducer))
 
 (def sl-3-3b
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]
    ["___" :none]])
-(experiment "sl-3-3b flexible" sl-3-3b 4 f/transducer)
-(experiment "sl-3-3b from trajectories" sl-3-3b 4 ft/transducer)
+(experiment "sl-3-3b flexible 4 states"
+            sl-3-3b 4 (comp first f/transducer))
+(experiment "sl-3-3b from trajectories 4 states"
+            sl-3-3b 4 (comp first ft/transducer))
 
 
 (def sl-6-2
@@ -36,8 +40,8 @@
    ["___|__" :second]
    ["____|_" :second]
    ["_____|" :second]])
-(experiment "sl-6-2 flexible" sl-6-2 4 f/transducer)
-; takes too long (experiment "sl-6-2 from trajectories" sl-6-2 4 ft/transducer)
+(experiment "sl-6-2 flexible" sl-6-2 4 (comp first f/transducer))
+; takes too long (experiment "sl-6-2 from trajectories" sl-6-2 4 (comp first ft/transducer))
 
 (def sl-6-3
   [[[1 0 0  0 0 0] :beginning]
@@ -46,7 +50,7 @@
    [[0 0 0 1 0 0] :middle]
    [[0 0 0 0 1 0] :end]
    [[0 0 0 0 0 1] :end]])
-(experiment "sl-6-3 flexible" sl-6-3 4 f/transducer)
+(experiment "sl-6-3 flexible" sl-6-3 4 (comp first f/transducer))
 
 (def sl-6-6
   [[[1 0 0  0 0 0] :1]
@@ -55,7 +59,7 @@
    [[0 0 0 1 0 0] :4]
    [[0 0 0 0 1 0] :5]
    [[0 0 0 0 0 1] :6]])
-(experiment "sl-6-3 flexible" sl-6-3 6 f/transducer)
+(experiment "sl-6-3 flexible" sl-6-3 6 (comp first f/transducer))
 
 (def sl-9-3
   [[[1 0 0  0 0 0  0 0 0] :1st]
@@ -67,28 +71,8 @@
    [[0 0 0 0 0 0 1 0 0] :3rd]
    [[0 0 0 0 0 0 0 1 0] :3rd]
    [[0 0 0 0 0 0 0 0 1] :3rd]])
-(first (f/transducer sl-9-3 5))
-(experiment "sl-9-3 flexible" sl-9-3 5 f/transducer)
-
-;; PALINDROMES
-(defn palindromes
-  [n]
-  (mapv (fn [l]
-          [(vec l)
-           (if (= l (reverse l))
-             :palindrome
-             :ordinary)])
-        (combo/selections [0 1] n)))
-
-(def plndrm3 (palindromes 3))
-(experiment "palindromes 3 flexible" plndrm3 4 f/transducer)
-
-(def plndrm4 (palindromes 4))
-(experiment "palindromes 4 flexible" plndrm4 5 f/transducer)
-
-;too long
-;(def plndrm5 (palindromes 5))
-;(experiment "palindromes 5 flexible" plndrm5 32 f/transducer)
+(first ((comp first f/transducer) sl-9-3 5))
+(experiment "sl-9-3 flexible" sl-9-3 5 (comp first f/transducer))
 
 ;;can we recover the exact same automaton?
 ;; T has 4 states and 3 input symbols
@@ -103,7 +87,7 @@
     [w (result-state T 0 w)]))
 
 ;is it uniquely determined? we can measure how partial it is
-(experiment "starting from T flexible" Ti-o-pairs 4 f/transducer)
+(experiment "starting from T flexible" Ti-o-pairs 4 (comp first f/transducer))
 
 ;;COUNTING ONES : length of input word + 1 states needed
 (first
@@ -126,12 +110,12 @@
 
 (def zo3 (zof 3))
 (experiment "more zeroes or more ones flexible - max 3"
-            zo3 5 f/transducer)
+            zo3 5 (comp first f/transducer))
 
 ;interestingly this is the same
 (def zo4 (zof 4))
 (experiment "more zeroes or more ones flexible - max 4"
-            zo4 5 f/transducer)
+            zo4 5 (comp first f/transducer))
 
 ;??
 ;(def zo5 (zof 5))
@@ -144,8 +128,8 @@
    [[0 1] :1]
    [[1 0] :1] 
    [[1 1] :0]])
-(experiment "parity flexible" parity 2 f/transducer)
-(experiment "parity from trajectories" parity 2 ft/transducer)
+(experiment "parity flexible" parity 2 (comp first f/transducer))
+(experiment "parity from trajectories" parity 2 (comp first ft/transducer))
 
 (def binary
   [[[0 0 0] :0]
@@ -157,7 +141,7 @@
    [[1 1 0] :6]
    [[1 1 1] :7]])
 (experiment "binary encoding flexible" binary 8 f/transducer)
-(experiment "binary encoding from trajectories" binary 8 ft/transducer)
+(experiment "binary encoding from trajectories" binary 8 (comp first ft/transducer))
 
 (def reversed-binary
   (mapv
@@ -168,4 +152,4 @@
 (experiment "reversed binary encoding flexible"
             reversed-binary 8 f/transducer)
 (experiment "reversed binary encoding from trajectories"
-            reversed-binary 8 ft/transducer)
+            reversed-binary 8 (comp first ft/transducer))
