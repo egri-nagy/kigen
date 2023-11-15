@@ -15,15 +15,15 @@
   (let [nodes (map
                (fn [state]
                  {:id (str "node" state)
-                  :label (str state " " (omega state))})
+                  :label (str state "," (omega state))})
                (range (count omega)))
         edges (mapcat
                (fn [input-sym]
                  (map
                   (fn [a b]
                     (if b
-                      [(str "node" a ",") (str "node" b) {:label input-sym}]
-                      [(str "node" a ",")  "nil" {:label input-sym}]))
+                      [(str "node" a) (str "node" b) {:label input-sym}]
+                      [(str "node" a)  "nil" {:label input-sym}]))
                   (range) (delta input-sym)))
                (input-symbols-fn io-pairs))]
     (tangle/graph->dot
