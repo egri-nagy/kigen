@@ -25,6 +25,6 @@
 (experiment "palindromes 4 flexible" plndrm4 5 (comp first f/transducer))
 
 (def plndrm5 (palindromes 5))
-(experiment "palindromes 5 flexible" plndrm5 32 (comp first f/transducer))
+(experiment "palindromes 5 flexible" plndrm5 6 (comp first f/transducer))
 
 (experiment "palindromes 5 flexible" plndrm5 8 (comp first f/transducer))
