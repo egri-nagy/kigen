@@ -63,4 +63,6 @@
 ;            zo5 6 f/transducer)
 (Dot2PDF (DotTransducer zo4 (partial-transducer zo4 (first (f/transducer zo4 5)))) "zo4")
 
-(Dot2PDF (DotTransducer zo4 (partial-transducer zo4 (minimize-transducer (tr/transducer zo4)))) "zo4classic")
+(Dot2PDF (DotTransducer zo4 (partial-transducer zo4 (minimize-transducer (tr/transducer zo4)))) "zo4classicmin")
+
+(Dot2PDF (DotTransducer zo4 (partial-transducer zo4 (tr/transducer zo4))) "zo4classic")
