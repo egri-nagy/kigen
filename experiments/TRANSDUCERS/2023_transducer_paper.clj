@@ -33,18 +33,18 @@
 (minimize-transducer (tr/transducer sl-9-3))
 
 (def sl-8-4
-  [[[1 0 0 0 0 0 0 0] 1]
-   [[0 1 0 0 0 0 0 0] 1]
-   [[0 0 1 0 0 0 0 0] 2]
-   [[0 0 0 1 0 0 0 0] 2]
-   [[0 0 0 0 1 0 0 0] 3]
-   [[0 0 0 0 0 1 0 0] 3]
-   [[0 0 0 0 0 0 1 0] 4]
-   [[0 0 0 0 0 0 0 1] 4]])
+  [[[1 0 0 0 0 0 0 0] :1]
+   [[0 1 0 0 0 0 0 0] :1]
+   [[0 0 1 0 0 0 0 0] :2]
+   [[0 0 0 1 0 0 0 0] :2]
+   [[0 0 0 0 1 0 0 0] :3]
+   [[0 0 0 0 0 1 0 0] :3]
+   [[0 0 0 0 0 0 1 0] :4]
+   [[0 0 0 0 0 0 0 1] :4]])
 (Dot2PDF (DotTransducer sl-8-4 (partial-transducer sl-8-4 (first (f/transducer sl-8-4 6)))) "sl-8-4")
 ;(experiment "sl-9-3 flexible" sl-9-3 4 (comp first ft/transducer))
 ;(def ft-sl-9-3 (ft/transducer sl-9-3 5)) too much
-(minimize-transducer (tr/transducer sl-8-4))
+(Dot2PDF (DotTransducer sl-8-4 (minimize-transducer (tr/transducer sl-8-4))) "sl-8-4classic")
 
 ;; deciding whether there are more zeroes or ones, or equal
 (defn zof

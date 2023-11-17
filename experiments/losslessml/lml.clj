@@ -26,12 +26,22 @@
   [["|__" :first]
    ["_|_" :second]
    ["__|" :third]])
+(distinct (map (comp degrees-of-freedom (partial partial-transducer sl-3-3))
+               (ft/transducer sl-3-3 3)))
+(count (distinct (map (partial partial-transducer sl-3-3)(f/transducer sl-3-3 3))))
+(count (ft/transducer sl-3-3 3)) ;the two methods should produce the same
+(def sl-3-3-flex (first (f/transducer sl-3-3 3)))
+(partial-transducer sl-3-3 sl-3-3-flex)
 (experiment "sl-3-3 flexible" sl-3-3 3 (comp first f/transducer))
 (experiment "sl-3-3 from trajectories 3 states"
             sl-3-3 3 (comp first ft/transducer))
 (experiment "sl-3-3 from trajectories 4 states"
             sl-3-3 4 (comp first ft/transducer))
+(build-trie (outputs-as-stoppers sl-3-3))
 (experiment2 sl-3-3)
+(Dot2PDF (DotTransducer sl-3-3 (minimize-transducer (transducer sl-3-3))) "sl-3-3classical")
+(Dot2PDF (DotTransducer sl-3-3 (transducer sl-3-3)) "sl-3-3classicalnonminimal")
+
 
 (def sl-3-3b
   [["|__" :first]
