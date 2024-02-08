@@ -2,6 +2,7 @@
 ;; semigroups of the same type
 ;; generic code for diagram semigroups using the transformation representation
 (require '[kigen.transf :as t]
+         '[kigen.sgp :refer [->Sgp]]
          '[kigen.conjugacy :as c]
          '[kigen.transf-conj :as t-c]
          '[kigen.genmorph :as gmorph]
@@ -11,17 +12,18 @@
 (timbre/merge-config! {:level :info})
 
 (defn Dn-into-Dm [gf n m]
-  (let [Tngens (gf n)
-        Tmgens (gf m)
-        targets (gmorph/index-period-matched (gmorph/->Sgp Tngens t/mul)
-                                             Tmgens t/mul)]
-    (gmorph/embeddings-distinct Tngens t/mul targets t/mul
-                                ;;(c/conjugation-fn-bundle
-                                ;;  t/conjugate
-                                ;;  (t/sgp-by-gens (t/symmetric-gens m))))))
-                                (c/->ConjugationFunctionBundle t-c/conjrep
-                                                               t-c/setconjrep
-                                                               t-c/conj-conj))))
+  (let [Dngens (gf n)
+        Dmgens (gf m)
+        targets (gmorph/index-period-matched (->Sgp Dngens t/mul)
+                                             Dmgens t/mul)]
+    (gmorph/embeddings-distinct
+     Dngens
+     t/mul
+     targets
+     t/mul
+     (c/->ConjugationFunctionBundle t-c/conjrep
+                                    t-c/setconjrep
+                                    t-c/conj-conj))))
 
 (defn Dn->Dm-table [gf n]
   (let [pairs (for [i (range 1 (inc n))
@@ -34,8 +36,8 @@
          pairs)))
 
 (binding [orbit.extension/*task-size* 1]
-  (def result (Dn-into-Dm t/full-ts-gens 5 6)))
+  (def result (Dn-into-Dm t/full-ts-gens 3 8)))
 
 (println (count result))
 
-;;(pprint result)
+;(pprint result)
