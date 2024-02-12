@@ -36,7 +36,7 @@
          pairs)))
 
 ;(binding [orbit.extension/*task-size* 1]
-  (def result (Dn-into-Dm t/full-ts-gens 3 6))
+  (def result (Dn-into-Dm t/full-ts-gens 3 5))
  ; )
 
 (defn involved
@@ -48,13 +48,15 @@
               result))
           #{}
           (map vector (range) t)))
+  
+(defn all-involved
+  [ts]
+  (reduce into #{} (map involved ts)))  
 
 (println (count result))
 
-(pprint (filter (fn [m]
-                  (let [ invd (into #{}
-                                    (map involved (vals m)))]
-                    (= (count (first (vals m)))
-                       (count invd))))
+(pprint (filter (fn [m] 
+                  (= (count (first (vals m)))
+                     (count (all-involved (vals m)))))
                 result))
 
