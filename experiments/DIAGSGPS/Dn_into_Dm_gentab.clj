@@ -54,9 +54,17 @@
   (reduce into #{} (map involved ts)))  
 
 (println (count result))
-
-(pprint (filter (fn [m] 
+  
+(def ir (filter (fn [m]
                   (= (count (first (vals m)))
                      (count (all-involved (vals m)))))
                 result))
+  
+(println (count ir) )
 
+(defn print-gens
+  [solution]
+  (doseq [gen (t/full-ts-gens 3)]
+    (println gen "->" (solution gen))))
+
+(map print-gens ir)
