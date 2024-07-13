@@ -3,23 +3,23 @@
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"
             :url "http://www.gnu.org/copyleft/gpl.html"}
-  :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/math.combinatorics "0.2.0"]
-                 [org.clojure/data.int-map "1.2.1"]
+  :dependencies [[org.clojure/clojure "1.11.3"]
+                 [org.clojure/math.combinatorics "0.3.0"]
+                 [org.clojure/data.int-map "1.3.0"]
                  [orbit "22.04.15"]
                  [rolling-stones "1.0.3"]
-                 [org.clojure/core.logic "1.0.1"]
-                 [com.taoensso/timbre "6.3.1"]
+                 [org.clojure/core.logic "1.1.0"]
+                 [com.taoensso/timbre "6.5.0"]
                  [com.clojure-goes-fast/clj-memory-meter "0.3.0"]
                  [progrock "0.1.2"]
                  [com.bhauman/rebel-readline "0.1.4"]
                  [macroz/tangle "0.2.2"]]
   :plugins [[lein-cloverage "1.2.4"]
-            [lein-kibit "0.1.8"]
+            [lein-kibit "0.1.11"]
             [lein-ancient "0.7.0"]
             [lein-bikeshed "0.5.2"]
-            [jonase/eastwood "1.4.2"]
-            [cider/cider-nrepl "0.45.0"]]
+            [jonase/eastwood "1.4.3"]
+            [cider/cider-nrepl "0.49.1"]]
   :jvm-opts ["-Djdk.attach.allowAttachSelf"]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
