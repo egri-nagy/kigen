@@ -15,6 +15,7 @@
    [[1 0] 1]
    [[1 1] 0]])
 (def parity_transducer (first (f/transducer parity 2)))
+;(print (DotTransducer parity parity_transducer))
 (Dot2PDF (DotTransducer parity parity_transducer) "parity")
 
 (def sl-9-3
@@ -66,3 +67,23 @@
 (Dot2PDF (DotTransducer zo4 (partial-transducer zo4 (minimize-transducer (tr/transducer zo4)))) "zo4classicmin")
 
 (Dot2PDF (DotTransducer zo4 (partial-transducer zo4 (tr/transducer zo4))) "zo4classic")
+
+(def words
+  [["eruption" :e]
+   ["erudite" :e]
+   ["origami" :j]
+   ["arigato" :j]
+   ["oriental" :e]
+   ["eki" :j]
+   ["serendipity" :e]
+   ["topology" :e]
+   ["tonari" :j]
+   ["asztal" :h]
+   ["mester" :h]])
+
+;(Dot2PDF (DotTransducer words (partial-transducer words 
+(print (first (f/transducer words 3)))
+;))"words")
+(print (:n (tr/transducer words)))
+
+(print (:n (minimize-transducer (tr/transducer words)))) 
