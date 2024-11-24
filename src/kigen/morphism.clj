@@ -99,10 +99,11 @@
   (distinct
    (mapcat
     (fn [partition]
-      (letfn [(generator [hom]
+      (letfn [(generator
+                [hom]
                 (if (total? S hom)
                   #{}
-                  (let [rts (remove (set hom) partition)]
+                  (let [rts (remove (set (vals hom)) partition)] ;here we use the fact that hom is a hash-map, maybe ok
                     (filter (partial multab-relmorphic? S T)
                             (map (partial conj hom)
                                  (map (fn [a] [(count hom) a]) rts))))))]
