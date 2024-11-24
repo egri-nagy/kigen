@@ -1,6 +1,6 @@
 (ns kigen.morphism-test
   (:require [clojure.test :refer :all]
-            [kigen.morphism :refer :all]
+            [kigen.multab-morphism :refer :all]
             [kigen.multab :as mt]
             [kigen.transf :as transf]))
 

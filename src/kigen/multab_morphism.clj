@@ -1,4 +1,4 @@
-(ns kigen.morphism
+(ns kigen.multab-morphism
   "Constructing morphisms and morphic relations for multiplication tables.
   input: two multiplication tables (source, target)
   output: hash-maps describing morphisms, index i -> image
