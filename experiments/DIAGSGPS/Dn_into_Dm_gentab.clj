@@ -36,7 +36,7 @@
          pairs)))
 
 ;(binding [orbit.extension/*task-size* 1]
-  (def result (Dn-into-Dm t/full-ts-gens 3 5))
+  (def result (Dn-into-Dm t/full-ts-gens 3 7))
  ; )
 
 (defn involved
