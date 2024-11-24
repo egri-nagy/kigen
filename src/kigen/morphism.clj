@@ -1,16 +1,18 @@
 (ns kigen.morphism
-  "Constructing morphisms and morphic relations.
+  "Constructing morphisms and morphic relations for multiplication tables.
   input: two multiplication tables (source, target)
-  output: vectors describing morphisms, index i -> image
+  output: hash-maps describing morphisms, index i -> image
 
   These functions are relatively inefficient (compared to generator table
-  methods). More for reference purposes, not for the high-end computations.
+  methods).
+  They are for reference purposes, not for the high-end computations.
 
   This is a reference implementation for the paper:
   Finite Computational Structures and Implementations: Semigroups and
   Morphic Relations
   International Journal of Networking and Computing,
-  Volume 7, Number 2, pages 318–335, July 2017"
+  Volume 7, Number 2, pages 318–335, July 2017
+  https://doi.org/10.15803/ijnc.7.2_318"
   (:require [kigen.multab :as multab]
             [orbit.core :refer [tree-search]]
             [kigen.combinatorics :refer [non-empty-subsets
