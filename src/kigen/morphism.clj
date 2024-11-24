@@ -11,18 +11,49 @@
   Morphic Relations
   International Journal of Networking and Computing,
   Volume 7, Number 2, pages 318–335, July 2017"
-  (:require [kigen.multab :as multab :refer [at]]
+  (:require [kigen.multab :as multab]
             [orbit.core :refer [tree-search]]
-            [clojure.set :refer [subset?]]
             [kigen.combinatorics :refer [non-empty-subsets
-                                         big-enough-partitions]]))
+                                         big-enough-partitions]]
+            [kigen.morphic :refer [relmorphic?
+                                   homomorphic?]]))
 
 (declare relmorphisms ; high-level functions
          divisions
          homomorphisms
-         isomorphisms
-         relmorphic? ; predicates for deciding the morphic property
-         homomorphic?)
+         isomorphisms)
+
+;;------------------------------------------------------------------------------
+;; Predicates for checking the 'morphicity' of a mapping.
+;; These rely on lazy evaluation, still they can be redundant in checks.
+
+(defn multab-relmorphic?
+  "Decides whether the (partial) mapping hom from multab S to multab T is
+   a relational morphism or not. "
+  [S T hom]
+  (let [dom (range (count hom))
+        m? (partial relmorphic?
+                    (fn [a b] ((S a) b)) ;;replacing the macro
+                    (partial multab/set-mul T)
+                    hom)]
+    (every? identity
+           (for [x dom
+                 y dom]
+             (m? x y)))))
+
+(defn multab-homomorphic?
+  "Decides whether the partial mapping hom from S to T is homomorphic or not.
+  It lazily checks all products."
+  [S T hom]
+  (let [dom (range (count hom))
+        m? (partial homomorphic?
+                    (fn [a b] ((S a) b)) ;;replacing the macro
+                    (fn [a b] ((T a) b))
+                    hom)]
+    (every? identity
+           (for [x dom
+                 y dom]
+             (m? x y)))))
 
 ;;------------------------------------------------------------------------------
 ;; high-level functions for finding all morphisms of a given type
@@ -40,10 +71,11 @@
   (letfn [(generator [hom]
             (if (total? S hom)
               #{}
-              (filter (partial relmorphic? S T)
+              (filter (partial multab-relmorphic? S T)
                       (map (partial conj hom)
-                           (non-empty-subsets (multab/elts T))))))]
-    (tree-search [[]]
+                           (map (fn [A] [(count hom) A])
+                            (non-empty-subsets (multab/elts T)))))))]
+    (tree-search [{}]
                  generator
                  (fn [v] (total? S v)))))
 
@@ -53,10 +85,11 @@
   (letfn [(generator [hom]
             (if (total? S hom)
               #{}
-              (filter (partial homomorphic? S T)
+              (filter (partial multab-homomorphic? S T)
                       (map (partial conj hom)
-                           (multab/elts T)))))]
-    (tree-search [[]]
+                           (map (fn [a] [(count hom) a])
+                                (multab/elts T))))))]
+    (tree-search [{}]
                  generator
                  (fn [v] (total? S v)))))
 
@@ -70,9 +103,10 @@
                 (if (total? S hom)
                   #{}
                   (let [rts (remove (set hom) partition)]
-                    (filter (partial relmorphic? S T)
-                            (map (partial conj hom) rts)))))]
-        (tree-search [[]]
+                    (filter (partial multab-relmorphic? S T)
+                            (map (partial conj hom)
+                                 (map (fn [a] [(count hom) a]) rts))))))]
+        (tree-search [{}]
                      generator
                      (fn [v] (total? S v)))))
     (big-enough-partitions (multab/elts T) (count S)))))
@@ -92,44 +126,9 @@
                #{}
                (let [ts (cands-fn (count hom))
                      rts (remove (set hom) ts)]
-                 (filter (partial homomorphic? S T)
-                         (map (partial conj hom) rts)))))]
-    (tree-search [[]]
+                 (filter (partial multab-homomorphic? S T)
+                         (map (partial conj hom) 
+                              (map (fn [a] [(count hom) a]) rts))))))]
+    (tree-search [{}]
                  generator
                  (fn [v] (total? S v)))))
-
-;;------------------------------------------------------------------------------
-;; Predicates for checking the 'morphicity' of a mapping.
-;; These rely on lazy evaluation, still they can be redundant in checks.
-
-(defn relmorphic?
-  "Decides whether the (partial) mapping hom from S to T with given domain and
-  codomain is a relational morphism or not."
-  [S T hom]
-  (let [k (count hom)
-        dom (range k)
-        fail? (fn
-            [[x y]]
-            (let [xy (at S x y)
-                  XY (multab/set-mul T (hom x) (hom y))]
-              (and (< xy k)
-                   (not (subset? XY (hom xy))))))]
-    (not-any? fail?
-              (for [x dom y dom]
-                [x y]))))
-
-
-(defn homomorphic?
-  "Decides whether the partial mapping hom from S to T is homomorphic or not.
-  It lazily checks all products."
-  [S T hom]
-  (let [k (count hom)
-        dom (range k)
-        good? (fn [[x y]]
-                (let [xy (at S x y)]
-                  (or (>= xy k)
-                      (= (hom xy)
-                         (at T (hom x) (hom y))))))]
-    (every? good?
-            (for [x dom y dom]
-              [x y]))))
