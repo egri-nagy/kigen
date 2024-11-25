@@ -31,28 +31,24 @@
 ;; These rely on lazy evaluation, still they can be redundant in checks.
 
 (defn multab-relmorphism?
-  "Decides whether the (partial) mapping morph-fn from multab S to multab T is
+  "Decides whether the (partial) mapping morph-m from multab S to multab T is
    a relational morphism or not. "
-  [S T morph-fn]
+  [S T morph-m] 
   (morphism?
    subset?
    (fn [a b] ((S a) b)) ;;replacing the macro
    (partial multab/set-mul T)
-   morph-fn
-   (range (count morph-fn))
-   (range (count morph-fn))))
+   morph-m))
 
 (defn multab-homomorphism?
-  "Decides whether the partial mapping morph-fn from S to T is homomorphic or not.
+  "Decides whether the partial mapping morph-m from S to T is homomorphic or not.
   It lazily checks all products."
-  [S T morph-fn] 
+  [S T morph-m] 
   (morphism?
    =
    (fn [a b] ((S a) b)) ;;replacing the macro
    (fn [a b] ((T a) b))
-   morph-fn
-   (range (count morph-fn))
-   (range (count morph-fn))))
+   morph-m))
 
 ;;------------------------------------------------------------------------------
 ;; high-level functions for finding all morphisms of a given type
@@ -60,19 +56,19 @@
 
 (defn total?
   "Returns true if the given morphism is total, false if it is partial."
-  [S morph-fn]
-  (= (count S) (count morph-fn)))
+  [S morph-m]
+  (= (count S) (count morph-m)))
 
 (defn relmorphisms
   "All relational morphisms from S to T. These are one-to-many set-valued
   morphic mappings."
   [S T]
-  (letfn [(generator [morph-fn]
-            (if (total? S morph-fn)
+  (letfn [(generator [morph-m]
+            (if (total? S morph-m)
               #{}
               (filter (partial multab-relmorphism? S T)
-                      (map (partial conj morph-fn)
-                           (map (fn [A] [(count morph-fn) A])
+                      (map (partial conj morph-m)
+                           (map (fn [A] [(count morph-m) A])
                             (non-empty-subsets (multab/elts T)))))))]
     (tree-search [{}]
                  generator
@@ -81,12 +77,12 @@
 (defn homomorphisms
   "All homomorphisms from S to T."
   [S T]
-  (letfn [(generator [morph-fn]
-            (if (total? S morph-fn)
+  (letfn [(generator [morph-m]
+            (if (total? S morph-m)
               #{}
               (filter (partial multab-homomorphism? S T)
-                      (map (partial conj morph-fn)
-                           (map (fn [a] [(count morph-fn) a])
+                      (map (partial conj morph-m)
+                           (map (fn [a] [(count morph-m) a])
                                 (multab/elts T))))))]
     (tree-search [{}]
                  generator
@@ -99,13 +95,13 @@
    (mapcat
     (fn [partition]
       (letfn [(generator
-                [morph-fn]
-                (if (total? S morph-fn)
+                [morph-m]
+                (if (total? S morph-m)
                   #{}
-                  (let [rts (remove (set (vals morph-fn)) partition)] ;here we use the fact that morph-fn is a hash-map, maybe ok
+                  (let [rts (remove (set (vals morph-m)) partition)] ;here we use the fact that morph-m is a hash-map, maybe ok
                     (filter (partial multab-relmorphism? S T)
-                            (map (partial conj morph-fn)
-                                 (map (fn [a] [(count morph-fn) a]) rts))))))]
+                            (map (partial conj morph-m)
+                                 (map (fn [a] [(count morph-m) a]) rts))))))]
         (tree-search [{}]
                      generator
                      (fn [v] (total? S v)))))
@@ -121,14 +117,14 @@
         Sips (map (partial multab/index-period S)
                   (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)
-        generator (fn [morph-fn]
-             (if (total? S morph-fn)
+        generator (fn [morph-m]
+             (if (total? S morph-m)
                #{}
-               (let [ts (cands-fn (count morph-fn))
-                     rts (remove (set morph-fn) ts)]
+               (let [ts (cands-fn (count morph-m))
+                     rts (remove (set morph-m) ts)]
                  (filter (partial multab-homomorphism? S T)
-                         (map (partial conj morph-fn) 
-                              (map (fn [a] [(count morph-fn) a]) rts))))))]
+                         (map (partial conj morph-m) 
+                              (map (fn [a] [(count morph-m) a]) rts))))))]
     (tree-search [{}]
                  generator
                  (fn [v] (total? S v)))))
