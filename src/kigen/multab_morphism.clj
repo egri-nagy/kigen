@@ -28,7 +28,6 @@
 
 ;;------------------------------------------------------------------------------
 ;; Predicates for checking the 'morphicity' of a mapping.
-;; These rely on lazy evaluation, still they can be redundant in checks.
 
 (defn multab-relmorphism?
   "Decides whether the (partial) mapping morph-m from multab S to multab T is
@@ -59,35 +58,39 @@
   [S morph-m]
   (= (count S) (count morph-m)))
 
+;; the generic generator function for extending morphisms, to use with
+;; orbit's tree-search
+(defn generator-fn
+  "For extension mechanisms for fixed candidate sets."
+  [S morphims?-fn candidates]
+  (fn [morph-m]
+    (if (total? S morph-m) ; do we need this?
+      #{}
+      (filter morphims?-fn
+              (map (partial conj morph-m)
+                   (map (fn [A] [(count morph-m) A]);the next number is the key 
+                        candidates))))))
+
 (defn relmorphisms
   "All relational morphisms from S to T. These are one-to-many set-valued
   morphic mappings."
-  [S T]
-  (letfn [(generator [morph-m]
-            (if (total? S morph-m)
-              #{}
-              (filter (partial multab-relmorphism? S T)
-                      (map (partial conj morph-m)
-                           (map (fn [A] [(count morph-m) A])
-                            (non-empty-subsets (multab/elts T)))))))]
-    (tree-search [{}]
-                 generator
-                 (fn [v] (total? S v)))))
+  [S T] 
+  (tree-search [{}]
+               (generator-fn S
+                             (partial multab-relmorphism? S T)
+                             (non-empty-subsets (multab/elts T)))
+               (fn [v] (total? S v))))
 
 (defn homomorphisms
   "All homomorphisms from S to T."
-  [S T]
-  (letfn [(generator [morph-m]
-            (if (total? S morph-m)
-              #{}
-              (filter (partial multab-homomorphism? S T)
-                      (map (partial conj morph-m)
-                           (map (fn [a] [(count morph-m) a])
-                                (multab/elts T))))))]
-    (tree-search [{}]
-                 generator
-                 (fn [v] (total? S v)))))
+  [S T] 
+  (tree-search [{}]
+               (generator-fn S
+                             (partial multab-homomorphism? S T)
+                             (multab/elts T))
+               (fn [v] (total? S v))))
 
+;; these below are more complicated as they have changing candidates
 (defn divisions
   "All divisions from S to T."
   [S T]
