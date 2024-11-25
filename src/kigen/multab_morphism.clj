@@ -95,16 +95,16 @@
   (distinct
    (mapcat
     (fn [partition]
-      (letfn [(generator
+      (letfn [(generator-fn
                 [morph-m]
                 (if (= (count S) (count morph-m))
                   #{}
-                  (let [rts (remove (set (vals morph-m)) partition)] ;here we use the fact that morph-m is a hash-map, maybe ok
+                  (let [rts (remove (set (vals morph-m)) partition)]
                     (filter (partial multab-relmorphism? S T)
                             (map (partial conj morph-m)
                                  (map (fn [a] [(count morph-m) a]) rts))))))]
         (tree-search [{}]
-                     generator
+                     generator-fn
                      (fn [morph-m] ;sol?
                        (= (count S) (count morph-m))))))
     (big-enough-partitions (multab/elts T) (count S)))))
@@ -119,15 +119,15 @@
         Sips (map (partial multab/index-period S)
                   (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)
-        generator (fn [morph-m]
-             (if (= (count S) (count morph-m))
-               #{}
-               (let [ts (cands-fn (count morph-m))
-                     rts (remove (set morph-m) ts)]
-                 (filter (partial multab-homomorphism? S T)
-                         (map (partial conj morph-m) 
-                              (map (fn [a] [(count morph-m) a]) rts))))))]
+        generator-fn (fn [morph-m]
+                       (if (= (count S) (count morph-m))
+                         #{}
+                         (let [ts (cands-fn (count morph-m))
+                               rts (remove (set morph-m) ts)]
+                           (filter (partial multab-homomorphism? S T)
+                                   (map (partial conj morph-m)
+                                        (map (fn [a] [(count morph-m) a]) rts))))))]
     (tree-search [{}]
-                 generator
+                 generator-fn
                  (fn [morph-m] ;sol?
                    (= (count S) (count morph-m))))))
