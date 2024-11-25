@@ -52,11 +52,6 @@
 ;; high-level functions for finding all morphisms of a given type
 ;; only the soruce and target multiplication tables needs to be given
 
-(defn total?
-  "Returns true if the given morphism is total, false if it is partial."
-  [S morph-m]
-  (= (count S) (count morph-m)))
-
 ;; the generic generator function for extending morphisms, to use with
 ;; orbit's tree-search
 (defn generator-fn
@@ -65,7 +60,7 @@
    the key, using all possible values from candidates."
   [S morphims?-fn candidates]
   (fn [morph-m]
-    (if (total? S morph-m) ;we need this to stop overextending
+    (if (= (count S) (count morph-m)) ;stop overextending
       #{}
       (filter morphims?-fn
               (map (partial conj morph-m)
@@ -80,7 +75,8 @@
                (generator-fn S
                              (partial multab-relmorphism? S T)
                              (non-empty-subsets (multab/elts T)))
-               (fn [v] (total? S v))))
+               (fn [morph-m] ;sol?
+                 (= (count S) (count morph-m))))) ;total?
 
 (defn homomorphisms
   "All homomorphisms from multiplication table `S` to `T`."
@@ -89,7 +85,8 @@
                (generator-fn S
                              (partial multab-homomorphism? S T)
                              (multab/elts T))
-               (fn [v] (total? S v))))
+               (fn [morph-m] ;sol?
+                 (= (count S) (count morph-m))))); total?
 
 ;; these below are more complicated as they have changing candidates
 (defn divisions
@@ -100,7 +97,7 @@
     (fn [partition]
       (letfn [(generator
                 [morph-m]
-                (if (total? S morph-m)
+                (if (= (count S) (count morph-m))
                   #{}
                   (let [rts (remove (set (vals morph-m)) partition)] ;here we use the fact that morph-m is a hash-map, maybe ok
                     (filter (partial multab-relmorphism? S T)
@@ -108,7 +105,8 @@
                                  (map (fn [a] [(count morph-m) a]) rts))))))]
         (tree-search [{}]
                      generator
-                     (fn [v] (total? S v)))))
+                     (fn [morph-m] ;sol?
+                       (= (count S) (count morph-m))))))
     (big-enough-partitions (multab/elts T) (count S)))))
 
 (defn isomorphisms
@@ -122,7 +120,7 @@
                   (multab/elts S))
         cands-fn (mapv TsetsbyIP Sips)
         generator (fn [morph-m]
-             (if (total? S morph-m)
+             (if (= (count S) (count morph-m))
                #{}
                (let [ts (cands-fn (count morph-m))
                      rts (remove (set morph-m) ts)]
@@ -131,4 +129,5 @@
                               (map (fn [a] [(count morph-m) a]) rts))))))]
     (tree-search [{}]
                  generator
-                 (fn [v] (total? S v)))))
+                 (fn [morph-m] ;sol?
+                   (= (count S) (count morph-m))))))
