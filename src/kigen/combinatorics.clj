@@ -18,5 +18,4 @@
   "All partitions of T with at least n many elements. The elements of the partitions are sets."
   [T n]
   (map (partial map set)
-       (filter #(<= n (count %))
-               (partitions (seq T)))))
+       (partitions (seq T) :min n)))
