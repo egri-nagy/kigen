@@ -1,6 +1,9 @@
-(ns kigen.morphism-test
-  (:require [clojure.test :refer :all]
-            [kigen.multab-morphism :refer :all]
+(ns kigen.multab-morphism-test
+  (:require [clojure.test :refer [deftest testing is]]
+            [kigen.multab-morphism :refer [relmorphisms
+                                           divisions
+                                           isomorphisms
+                                           homomorphisms]]
             [kigen.multab :as mt]
             [kigen.transf :as transf]))
 

@@ -25,7 +25,6 @@
          divisions
          homomorphisms
          isomorphisms)
-
 ;;------------------------------------------------------------------------------
 ;; Predicates for checking the 'morphicity' of a mapping.
 
@@ -61,10 +60,12 @@
 ;; the generic generator function for extending morphisms, to use with
 ;; orbit's tree-search
 (defn generator-fn
-  "For extension mechanisms for fixed candidate sets."
+  "For extension mechanisms for fixed candidate sets.
+   We extend the morphism by a new mapping using the size of the hash-map as
+   the key, using all possible values from candidates."
   [S morphims?-fn candidates]
   (fn [morph-m]
-    (if (total? S morph-m) ; do we need this?
+    (if (total? S morph-m) ;we need this to stop overextending
       #{}
       (filter morphims?-fn
               (map (partial conj morph-m)
@@ -72,8 +73,8 @@
                         candidates))))))
 
 (defn relmorphisms
-  "All relational morphisms from S to T. These are one-to-many set-valued
-  morphic mappings."
+  "All relational morphisms from multiplication table `S` to `T`.
+  These are one-to-many set-valued morphic mappings."
   [S T] 
   (tree-search [{}]
                (generator-fn S
@@ -82,7 +83,7 @@
                (fn [v] (total? S v))))
 
 (defn homomorphisms
-  "All homomorphisms from S to T."
+  "All homomorphisms from multiplication table `S` to `T`."
   [S T] 
   (tree-search [{}]
                (generator-fn S
