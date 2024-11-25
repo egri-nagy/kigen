@@ -13,12 +13,13 @@
   International Journal of Networking and Computing,
   Volume 7, Number 2, pages 318–335, July 2017
   https://doi.org/10.15803/ijnc.7.2_318"
-  (:require [kigen.multab :as multab]
-            [orbit.core :refer [tree-search]]
-            [kigen.combinatorics :refer [non-empty-subsets
-                                         big-enough-partitions]]
-            [kigen.morphic :refer [relmorphic?
-                                   homomorphic?]]))
+  (:require
+   [clojure.set :refer [subset?]]
+   [orbit.core :refer [tree-search]]
+   [kigen.multab :as multab]
+   [kigen.combinatorics :refer [non-empty-subsets
+                                big-enough-partitions]]
+   [kigen.morphic :refer [morphism?]]))
 
 (declare relmorphisms ; high-level functions
          divisions
@@ -29,33 +30,29 @@
 ;; Predicates for checking the 'morphicity' of a mapping.
 ;; These rely on lazy evaluation, still they can be redundant in checks.
 
-(defn multab-relmorphic?
+(defn multab-relmorphism?
   "Decides whether the (partial) mapping morph-fn from multab S to multab T is
    a relational morphism or not. "
   [S T morph-fn]
-  (let [dom (range (count morph-fn))
-        m? (partial relmorphic?
-                    (fn [a b] ((S a) b)) ;;replacing the macro
-                    (partial multab/set-mul T)
-                    morph-fn)]
-    (every? identity
-           (for [x dom
-                 y dom]
-             (m? x y)))))
+  (morphism?
+   subset?
+   (fn [a b] ((S a) b)) ;;replacing the macro
+   (partial multab/set-mul T)
+   morph-fn
+   (range (count morph-fn))
+   (range (count morph-fn))))
 
-(defn multab-homomorphic?
+(defn multab-homomorphism?
   "Decides whether the partial mapping morph-fn from S to T is homomorphic or not.
   It lazily checks all products."
-  [S T morph-fn]
-  (let [dom (range (count morph-fn))
-        m? (partial homomorphic?
-                    (fn [a b] ((S a) b)) ;;replacing the macro
-                    (fn [a b] ((T a) b))
-                    morph-fn)]
-    (every? identity
-           (for [x dom
-                 y dom]
-             (m? x y)))))
+  [S T morph-fn] 
+  (morphism?
+   =
+   (fn [a b] ((S a) b)) ;;replacing the macro
+   (fn [a b] ((T a) b))
+   morph-fn
+   (range (count morph-fn))
+   (range (count morph-fn))))
 
 ;;------------------------------------------------------------------------------
 ;; high-level functions for finding all morphisms of a given type
@@ -73,7 +70,7 @@
   (letfn [(generator [morph-fn]
             (if (total? S morph-fn)
               #{}
-              (filter (partial multab-relmorphic? S T)
+              (filter (partial multab-relmorphism? S T)
                       (map (partial conj morph-fn)
                            (map (fn [A] [(count morph-fn) A])
                             (non-empty-subsets (multab/elts T)))))))]
@@ -87,7 +84,7 @@
   (letfn [(generator [morph-fn]
             (if (total? S morph-fn)
               #{}
-              (filter (partial multab-homomorphic? S T)
+              (filter (partial multab-homomorphism? S T)
                       (map (partial conj morph-fn)
                            (map (fn [a] [(count morph-fn) a])
                                 (multab/elts T))))))]
@@ -106,7 +103,7 @@
                 (if (total? S morph-fn)
                   #{}
                   (let [rts (remove (set (vals morph-fn)) partition)] ;here we use the fact that morph-fn is a hash-map, maybe ok
-                    (filter (partial multab-relmorphic? S T)
+                    (filter (partial multab-relmorphism? S T)
                             (map (partial conj morph-fn)
                                  (map (fn [a] [(count morph-fn) a]) rts))))))]
         (tree-search [{}]
@@ -129,7 +126,7 @@
                #{}
                (let [ts (cands-fn (count morph-fn))
                      rts (remove (set morph-fn) ts)]
-                 (filter (partial multab-homomorphic? S T)
+                 (filter (partial multab-homomorphism? S T)
                          (map (partial conj morph-fn) 
                               (map (fn [a] [(count morph-fn) a]) rts))))))]
     (tree-search [{}]
