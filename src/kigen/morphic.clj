@@ -12,8 +12,8 @@
   This abstract function is not meant to be used directly, but for creating
   custom tests by pre-filling the arguments by partial.
   If the product ab in the source domain does not yet have a morphic image,
-   then ther is nothing to check, so it returns true, meaning that the
-   we have a partial morphism, which potentially can be completed."
+  then there is nothing to check, so it returns true, meaning that the
+  we have a partial morphism, which potentially can be completed."
   [eq-fn
    source-composition-fn
    target-composition-fn
@@ -23,8 +23,7 @@
   (let [mab (morph-m (source-composition-fn a b))]
     (or
      (nil? mab) ;in case it is partial
-     (eq-fn (target-composition-fn (morph-m a)
-                                   (morph-m b))
+     (eq-fn (target-composition-fn (morph-m a) (morph-m b))
             mab))))
 
 (defn morphism?
@@ -37,13 +36,13 @@
    source-composition-fn
    target-composition-fn
    morph-m]
-  (let [sourcedom (keys morph-m)]
+  (let [sourcedom (keys morph-m)
+        m? (partial morphic?
+                    eq-fn
+                    source-composition-fn
+                    target-composition-fn
+                    morph-m)]
     (every? identity ;we simply check for truthiness
             (for [a sourcedom
                   b sourcedom]
-              ((partial morphic?
-                        eq-fn
-                        source-composition-fn
-                        target-composition-fn
-                        morph-m)
-               a b)))))
+              (m? a b)))))
