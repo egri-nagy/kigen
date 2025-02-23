@@ -25,5 +25,7 @@
 
 (isomorphisms mtS3 mtS3)
 
-;;too big
-;;(println  (count (divisions mtT3 mtT3)))
+(def S13 (sgp-by-gens  [[2 1 0] [1 0 0]] mul))
+(def mtS13 (multab S13 mul))
+
+(println  (count (divisions mtT2 mtS13)))
