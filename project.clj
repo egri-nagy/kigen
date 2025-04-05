@@ -19,7 +19,7 @@
             [lein-ancient "0.7.0"]
             [lein-bikeshed "0.5.2"]
             [jonase/eastwood "1.4.3"]
-            [cider/cider-nrepl "0.52.0"]]
+            [cider/cider-nrepl "0.53.2"]]
   :jvm-opts ["-Djdk.attach.allowAttachSelf"]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
