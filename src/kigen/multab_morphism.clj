@@ -11,7 +11,7 @@
   Finite Computational Structures and Implementations: Semigroups and
   Morphic Relations
   International Journal of Networking and Computing,
-  Volume 7, Number 2, pages 318–335, July 2017
+  Volume 7, Number 2, pages 318-335, July 2017
   https://doi.org/10.15803/ijnc.7.2_318"
   (:require
    [clojure.set :refer [subset?]]
@@ -25,8 +25,9 @@
          divisions
          homomorphisms
          isomorphisms)
+
 ;;------------------------------------------------------------------------------
-;; Predicates for checking the 'morphicity' of a mapping.
+;; Predicates for checking the morphic-property of mappings.
 
 (defn multab-relmorphism?
   "Decides whether the (partial) mapping morph-m from multab S to multab T is
@@ -34,7 +35,7 @@
   [S T morph-m] 
   (morphism?
    subset?
-   (fn [a b] ((S a) b)) ;;replacing the macro
+   (fn [a b] ((S a) b)) ;;multiplication in the table
    (partial multab/set-mul T)
    morph-m))
 
@@ -44,7 +45,7 @@
   [S T morph-m] 
   (morphism?
    =
-   (fn [a b] ((S a) b)) ;;replacing the macro
+   (fn [a b] ((S a) b)) ;;multiplication in the table
    (fn [a b] ((T a) b))
    morph-m))
 
@@ -57,7 +58,7 @@
 (defn generator-fn
   "For extension mechanisms for fixed candidate sets.
    We extend the morphism by a new mapping using the size of the hash-map as
-   the key, using all possible values from candidates."
+   the key for the new entry, using candidates for possible values."
   [S morphims?-fn candidates]
   (fn [morph-m]
     (if (= (count S) (count morph-m)) ;stop overextending
@@ -75,8 +76,8 @@
                (generator-fn S
                              (partial multab-relmorphism? S T)
                              (non-empty-subsets (multab/elts T)))
-               (fn [morph-m] ;sol?
-                 (= (count S) (count morph-m))))) ;total?
+               (fn [morph-m] ;we have a solution when the mapping is total
+                 (= (count S) (count morph-m)))))
 
 (defn homomorphisms
   "All homomorphisms from multiplication table `S` to `T`."
@@ -85,10 +86,12 @@
                (generator-fn S
                              (partial multab-homomorphism? S T)
                              (multab/elts T))
-               (fn [morph-m] ;sol?
-                 (= (count S) (count morph-m))))); total?
+               (fn [morph-m]
+                 (= (count S) (count morph-m)))))
 
 ;; these below are more complicated as they have changing candidates
+
+;; injective relational morphism
 (defn divisions
   "All divisions from S to T."
   [S T]
