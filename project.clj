@@ -9,7 +9,7 @@
                  [orbit "24.11.25"]
                  [rolling-stones "1.0.3"]
                  [org.clojure/core.logic "1.1.0"]
-                 [com.taoensso/timbre "6.6.1"]
+                 [com.taoensso/timbre "6.7.0"]
                  [com.clojure-goes-fast/clj-memory-meter "0.4.0"]
                  [progrock "1.0.0"]
                  [com.bhauman/rebel-readline "0.1.5"]
@@ -19,7 +19,7 @@
             [lein-ancient "0.7.0"]
             [lein-bikeshed "0.5.2"]
             [jonase/eastwood "1.4.3"]
-            [cider/cider-nrepl "0.55.0"]]
+            [cider/cider-nrepl "0.55.2"]]
   :jvm-opts ["-Djdk.attach.allowAttachSelf"]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"

@@ -1,7 +1,7 @@
 (ns kigen.morphic
   "The most abstract description of checking whether a relation is morphic
    or not.
-   morph-m  - (partial) morphisms are represented as hash-maps")
+   morph-m  - morphisms are represented as hash-maps, thus they can be partial ")
 
 (defn morphic?
   "Decides whether `morph-m` is a morphic relation for elements `a` and `b`.
@@ -22,9 +22,9 @@
    b]
   (let [mab (morph-m (source-composition-fn a b))]
     (or
-     (nil? mab) ;in case it is partial
+     (nil? mab) ;if morph-m is partial then we consider it potentially morphic
      (eq-fn (target-composition-fn (morph-m a) (morph-m b))
-            mab))))
+            mab)))) ;when defined, they should match
 
 (defn morphism?
   "Decides whether the (partial) mapping `morph-m` from the source domain
