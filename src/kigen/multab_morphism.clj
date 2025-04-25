@@ -103,10 +103,10 @@
                (= (count S) (count morph-m)))
               (generator-fn
                [morph-m]
-               (let [rts (remove (set (vals morph-m)) partition)]
+               (let [mappings (map (fn [a] [(count morph-m) a])
+                                   (remove (set (vals morph-m)) partition))]
                  (filter (partial multab-relmorphism? S T)
-                         (map (partial conj morph-m)
-                              (map (fn [a] [(count morph-m) a]) rts)))))]
+                         (map (partial conj morph-m) mappings))))]
         (terminating-tree-search [{}] generator-fn sol?)))
     ;;we need a distinct subset for each s in S
     (big-enough-partitions (multab/elts T)
