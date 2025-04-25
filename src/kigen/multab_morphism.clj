@@ -15,7 +15,7 @@
   https://doi.org/10.15803/ijnc.7.2_318"
   (:require
    [clojure.set :refer [subset?]]
-   [orbit.core :refer [tree-search]]
+   [orbit.core :refer [terminating-tree-search tree-search]]
    [kigen.multab :as multab]
    [kigen.combinatorics :refer [non-empty-subsets
                                 big-enough-partitions]]
@@ -98,19 +98,19 @@
   (distinct
    (mapcat
     (fn [partition]
-      (letfn [(generator-fn
-                [morph-m]
-                (if (= (count S) (count morph-m))
-                  #{}
-                  (let [rts (remove (set (vals morph-m)) partition)]
-                    (filter (partial multab-relmorphism? S T)
-                            (map (partial conj morph-m)
-                                 (map (fn [a] [(count morph-m) a]) rts))))))]
-        (tree-search [{}]
-                     generator-fn
-                     (fn [morph-m] ;sol?
-                       (= (count S) (count morph-m))))))
-    (big-enough-partitions (multab/elts T) (count S)))))
+      (letfn [(sol?
+               [morph-m]
+               (= (count S) (count morph-m)))
+              (generator-fn
+               [morph-m]
+               (let [rts (remove (set (vals morph-m)) partition)]
+                 (filter (partial multab-relmorphism? S T)
+                         (map (partial conj morph-m)
+                              (map (fn [a] [(count morph-m) a]) rts)))))]
+        (terminating-tree-search [{}] generator-fn sol?)))
+    ;;we need a distinct subset for each s in S
+    (big-enough-partitions (multab/elts T)
+                           (count S)))))
 
 (defn isomorphisms
   "All isomorphisms from S to T."
