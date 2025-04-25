@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.12.0"]
                  [org.clojure/math.combinatorics "0.3.0"]
                  [org.clojure/data.int-map "1.3.0"]
-                 [orbit "24.11.25"]
+                 [orbit "25.04.25"]
                  [rolling-stones "1.0.3"]
                  [org.clojure/core.logic "1.1.0"]
                  [com.taoensso/timbre "6.7.0"]
