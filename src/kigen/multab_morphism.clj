@@ -91,7 +91,7 @@
 
 ;; these below are more complicated as they have changing candidates
 
-;; injective relational morphism
+;; injective relational morphism - the image sets do not overlap
 (defn divisions
   "All divisions from S to T."
   [S T]
