@@ -128,7 +128,7 @@
         generator-fn ;takes a partial morphism and extends it all possibel ways
         (fn [morph-m]
           (let [ts (cands-fn (count morph-m))
-                rts (remove (set morph-m) ts)]
+                rts (remove (set (vals morph-m)) ts)]
             (filter (partial multab-homomorphism? S T)
                     (map (partial conj morph-m)
                          (map (fn [a] [(count morph-m) a]) rts)))))
