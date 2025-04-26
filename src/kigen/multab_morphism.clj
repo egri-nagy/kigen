@@ -121,17 +121,17 @@
         ;; lookup table for elements of with a given index-period
         TsetsbyIP (into {} (map (fn [k] [k (set (TbyIP k))])
                                 (keys TbyIP)))
-        ;; index-periods for elements of S   TODO: ordering is assumed here!
-        SIPs (map (partial multab/index-period S)
-                  (multab/elts S))
-        ;; gives for an element of S the set of possible targets
-        cands-fn (mapv TsetsbyIP SIPs)
-        generator-fn (fn [morph-m]
-                       (let [ts (cands-fn (count morph-m))
-                             rts (remove (set morph-m) ts)]
-                         (filter (partial multab-homomorphism? S T)
-                                 (map (partial conj morph-m)
-                                      (map (fn [a] [(count morph-m) a]) rts)))))
+        ;; the set of possible targets for each element of S
+        cands-fn (mapv (comp TsetsbyIP
+                             (partial multab/index-period S))
+                       (range (count S))) ;;(multab/elts S)) may not be ordered
+        generator-fn ;takes a partial morphism and extends it all possibel ways
+        (fn [morph-m]
+          (let [ts (cands-fn (count morph-m))
+                rts (remove (set morph-m) ts)]
+            (filter (partial multab-homomorphism? S T)
+                    (map (partial conj morph-m)
+                         (map (fn [a] [(count morph-m) a]) rts)))))
         sol? (fn [morph-m] (= (count S) (count morph-m)))]
     (terminating-tree-search [{}]
                              generator-fn
