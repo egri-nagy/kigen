@@ -125,13 +125,15 @@
         cands-fn (mapv (comp TsetsbyIP
                              (partial multab/index-period S))
                        (range (count S))) ;;(multab/elts S)) may not be ordered
-        generator-fn ;takes a partial morphism and extends it all possibel ways
+        generator-fn ;takes a partial morphism and extends it all possible ways
         (fn [morph-m]
-          (let [ts (cands-fn (count morph-m))
-                rts (remove (set (vals morph-m)) ts)]
+          (let [ts (remove (set (vals morph-m)) ;removing already used targets
+                           (cands-fn (count morph-m)))]
             (filter (partial multab-homomorphism? S T)
                     (map (partial conj morph-m)
-                         (map (fn [a] [(count morph-m) a]) rts)))))
+                         (map (fn [t]
+                                [(count morph-m) t])
+                              ts)))))
         sol? (fn [morph-m] (= (count S) (count morph-m)))]
     (terminating-tree-search [{}]
                              generator-fn
