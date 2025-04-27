@@ -14,7 +14,9 @@
                  [progrock "1.0.0"]
                  [com.bhauman/rebel-readline "0.1.5"]
                  [macroz/tangle "0.2.2"]]
-  :plugins [[lein-cloverage "1.2.4"]
+  :plugins [
+	    [lein-hiera "2.0.0"]
+            [lein-cloverage "1.2.4"]
             [lein-kibit "0.1.11"]
             [lein-ancient "0.7.0"]
             [lein-bikeshed "0.5.2"]
