@@ -1,4 +1,4 @@
-(ns kigen.semigroupoid.core
+(ns kigen.semigroupoid.transformation
   "The core definitions for dealing with semigroupoids.")
 
 ; an example semigroupoid element
