@@ -12,8 +12,9 @@
           {:s 0, :t 1, :m [0 0]}
           {:s 1, :t 0, :m [0 0 0]}]})
 
-(defn mul
-  "Right multiplication of typed transformations."
+(defn compose
+  "Right multiplication of typed transformations.
+   Returns nil when the arrows a and b are not composable."
   [a b]
   (when (= (:t a) (:s b))
     {:s (:s a)
@@ -27,9 +28,9 @@
     (let [generated (reduce
                      (fn [coll a]
                        (reduce into coll
-                               [(map (partial mul a)
+                               [(map (partial compose a)
                                      (filter (comp (partial = (:t a)) :s) S))
-                                (map #(mul % a)
+                                (map #(compose % a)
                                      (filter (comp (partial = (:s a)) :t) S))]))
                      #{}
                      S)
