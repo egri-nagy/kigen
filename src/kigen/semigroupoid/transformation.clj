@@ -2,7 +2,9 @@
   "Transformation semigroupoids.
    :s - source, domain
    :t - target, codomain
-   :m - morphism, map")
+   :m - morphism, map"
+  (:require [clojure.set :refer [union]]
+            [orbit.core :refer [full-orbit]]))
 
 ; example transformation semigroupoid
 (def ExA1 ; example from semigroupoid paper
@@ -21,33 +23,29 @@
      :t (:t b)
      :m (mapv (:m b) (:m a))}))
 
-(defn sgpoid-by-gens
-  [gens]
-  (loop [S (set gens)]
-    (print (count S) "\n")
-    (let [generated (reduce
-                     (fn [coll a]
-                       (reduce into coll
-                               [(map (partial compose a)
-                                     (filter (comp (partial = (:t a)) :s) S))
-                                (map #(compose % a)
-                                     (filter (comp (partial = (:s a)) :t) S))]))
-                     #{}
-                     S)
-          newelts (remove S generated)]
-      (println (count newelts) newelts)
-      (if (empty? newelts)
-        S
-        (recur (into S newelts))))))
-
-(def ExA1full (sgpoid-by-gens (:gens ExA1)))
-
-
-(filter #(and (= 0 (:t %)) (= 0 (:s %))) ExA1full)
-
-(defn morphisms [S]
+(defn morphisms
+  "Returns a hash-map with key [dom,codomain] pairs and values are the
+   corresponding arrows."
+  [S]
   (update-vals
    (group-by (fn [a] [(:s a) (:t a)]) S)
    (partial map :m)))
 
+(defn sgpoid-by-gens
+  [gens]
+  (let [sources (group-by :s gens)
+        targets (group-by :t gens)
+        generator-fn
+        (fn [a]
+          (union
+           (set (map (partial compose a)
+                     (sources (:t a) [])))
+           (set (map #(compose % a)
+                     (targets (:s a) [])))))]
+    (full-orbit gens generator-fn)))
+
+(sgpoid-by-gens (:gens ExA1))
+(def ExA1full (sgpoid-by-gens (:gens ExA1)))
+
 (morphisms ExA1full)
+(count ExA1full)
