@@ -9,13 +9,6 @@
 (declare compose
          sgpoid-by-gens)
 
-; example transformation semigroupoid
-(def ExA1 ; example from semigroupoid paper
-  {:objects [2,3]
-   :gens [{:s 0, :t 0, :m [1 0]}
-          {:s 1, :t 1, :m [1 2 0] }
-          {:s 0, :t 1, :m [0 0]}
-          {:s 1, :t 0, :m [0 0 0]}]})
 
 (defn compose
   "Composition of typed transformations.
@@ -50,9 +43,3 @@
            (set (map #(compose % a) ;prepend generator
                      (targets (:s a))))))]
     (full-orbit gens generator-fn)))
-
-(sgpoid-by-gens (:gens ExA1))
-(def ExA1full (sgpoid-by-gens (:gens ExA1)))
-
-(morphisms ExA1full)
-(count ExA1full)
