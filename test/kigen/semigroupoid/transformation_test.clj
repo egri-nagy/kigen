@@ -1,6 +1,7 @@
 (ns kigen.semigroupoid.transformation-test
   (:require [clojure.test :refer :all]
-            [kigen.semigroupoid.transformation :refer [sgpoid-by-gens]]))
+            [kigen.semigroupoid.transformation :refer [sgpoid-by-gens
+                                                       morphisms-by-type]]))
 
 ; example transformation semigroupoid
 ; Example A.1 in https://arxiv.org/abs/2504.04660
@@ -12,7 +13,9 @@
 
 (deftest dual-mode-counter-semigroupoid-from-generators
   (testing "Testing the closure algorithm for semigroupoid generators."
-    (is (= 15 (count (sgpoid-by-gens dual-mode-counter-gens))))))
+    (let [S (sgpoid-by-gens dual-mode-counter-gens)]
+      (is (= 15 (count S)))
+      (is (= 4 (count (morphisms-by-type S)))))))
 
 ; Example 3.2 - original example missing arrow ef
 (def two-objs-seven-arrows
