@@ -1,6 +1,6 @@
 (ns kigen.position
   "Getting the indices of elements in vectors by giving a predicate
-  or by equality.")
+  or by equality. Linear-time algorithms.")
 
 (defn positions
   "All positions of elements of a vector satisfying a predicate."

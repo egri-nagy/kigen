@@ -51,6 +51,32 @@
    (comp set ;TODO do we need set? transformations of same type form a set
          (partial map :m)))) ;stripping off the type information
 
+(def S (sgpoid-by-gens [{:s 0, :t 0, :m [1 0]}
+                        {:s 1, :t 1, :m [1 2 0]}
+                        {:s 0, :t 1, :m [0 0]}
+                        {:s 1, :t 0, :m [0 0 0]}]))
+(def S2 (sgpoid-by-gens [{:s 0 :t 0 :m [1 0]} ;a
+                           ;{:s 0 :t 0 :m [0 1]} ;b
+                         {:s 0 :t 1 :m [0 1]} ;c
+                           ;{:s 0 :t 1 :m [1 0]} ;d
+                         {:s 0 :t 1 :m [0 0]} ;e
+                         {:s 1 :t 1 :m [0 0]} ;f
+                         ]))
+
+(defn sort-by-type
+  [S]
+  (sort-by
+   #(into (arrow-type %) (:m %)) ; sort by type+transformation
+   S))
+
 (defn multab
   ""
-  [S])
+  [S]
+  (let [ordered (sort-by-type S)
+        arrow2index (zipmap ordered (range))]
+    (for [a ordered]
+      (mapv (comp arrow2index (partial compose a)) ordered))))
+(defn symbol-multab
+  [S]
+  (let [converter (conj (zipmap (range) "abcdefghijklmnopqrstuvwxyz") [nil \space])]
+    (map (comp (partial apply str) (partial map converter)) (multab S))))
