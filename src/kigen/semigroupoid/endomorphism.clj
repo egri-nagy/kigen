@@ -35,7 +35,8 @@
   [S] ;given as a composition table
   (let [n (count S)
         phi (repeatedly n l/lvar)
-        elts (fd/interval 0 (dec n))]
+        elts (fd/interval 0 (dec n))
+        pairs (composable-pairs S)]
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)
@@ -54,3 +55,6 @@
                (map vec (endomorphisms S))))
 
 (endomorphic? S (vec (repeat 6 0)))
+
+; for getting some simpler constraints
+(group-by (fn [[a b]] (compf S a b)) (composable-pairs S))
