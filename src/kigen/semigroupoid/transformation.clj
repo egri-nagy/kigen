@@ -64,19 +64,34 @@
                          ]))
 
 (defn sort-by-type
+  "The elements of the semigroupoid sorted by type then by transformations."
   [S]
   (sort-by
    #(into (arrow-type %) (:m %)) ; sort by type+transformation
    S))
 
-(defn multab
-  ""
+(defn comptab
+  "The composition table for semigroupoid sorted by type."
   [S]
   (let [ordered (sort-by-type S)
         arrow2index (zipmap ordered (range))]
     (for [a ordered]
       (mapv (comp arrow2index (partial compose a)) ordered))))
-(defn symbol-multab
+
+; for semigroupoids with less then 52 elements we can some symbolic printouts
+(def symbols "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+(defn symbols-for-elts
+  "For checking the symbols and their corresponding elements."
   [S]
-  (let [converter (conj (zipmap (range) "abcdefghijklmnopqrstuvwxyz") [nil \space])]
-    (map (comp (partial apply str) (partial map converter)) (multab S))))
+  (map vector symbols (sort-by-type S)))
+
+(defn symbol-comptab
+  "Sequence of strings representing the composition table of the semigroupoid
+   sorted by type and transformation."
+  [S]
+  (let [converter (conj (zipmap (range) symbols) [nil \.])]
+    (map (comp (partial apply str)
+               (partial map converter))
+         (comptab S))))
+

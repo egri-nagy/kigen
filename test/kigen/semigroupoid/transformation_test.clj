@@ -1,7 +1,9 @@
 (ns kigen.semigroupoid.transformation-test
   (:require [clojure.test :refer :all]
             [kigen.semigroupoid.transformation :refer [sgpoid-by-gens
-                                                       morphisms-by-type]]))
+                                                       morphisms-by-type
+                                                       symbols-for-elts
+                                                       symbol-comptab]]))
 
 ; example transformation semigroupoid
 ; Example A.1 in https://arxiv.org/abs/2504.04660
@@ -18,15 +20,28 @@
       (is (= 4 (count (morphisms-by-type S)))))))
 
 ; Example 3.2 - original example missing arrow ef
-(def two-objs-seven-arrows
-  [{:s 0 :t 0 :m [1 0]} ;a
-   ;{:s 0 :t 0 :m [0 1]} ;b
-   {:s 0 :t 1 :m [0 1]} ;c
-   ;{:s 0 :t 1 :m [1 0]} ;d
-   {:s 0 :t 1 :m [0 0]} ;e
-   {:s 1 :t 1 :m [1 1]} ;f
-   ])
+(def two-objs-six-arrows-gens
+  [;{:s 0, :t 0, :m [0 1]} ;a
+   {:s 0, :t 0, :m [1 0]} ;b
+   {:s 0, :t 1, :m [0 0]} ;c
+   {:s 0, :t 1, :m [0 1]} ;d
+   ;{:s 0, :t 1, :m [1 0]} ;e
+   {:s 1, :t 1, :m [0 0]}]) ;f
 
 (deftest Ex3.2-semigroupoid-from-generators
   (testing "Example 3.2"
-    (is (= 7 (count (sgpoid-by-gens two-objs-seven-arrows))))))
+    (let [S (sgpoid-by-gens two-objs-six-arrows-gens)]
+      (is (= 6 (count S)))
+      (is (= (symbols-for-elts S) [[\a {:s 0, :t 0, :m [0 1]}]
+                                   [\b {:s 0, :t 0, :m [1 0]}]
+                                   [\c {:s 0, :t 1, :m [0 0]}]
+                                   [\d {:s 0, :t 1, :m [0 1]}]
+                                   [\e {:s 0, :t 1, :m [1 0]}]
+                                   [\f {:s 1, :t 1, :m [0 0]}]]))
+      (is (= (symbol-comptab S)
+             ["abcde."
+              "baced."
+              ".....c"
+              ".....c"
+              ".....c"
+              ".....f"])))))
