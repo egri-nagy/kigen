@@ -19,7 +19,7 @@
       (is (= 15 (count S)))
       (is (= 4 (count (morphisms-by-type S)))))))
 
-; Example 3.2 - original example missing arrow ef
+; Example 3.2
 (def two-objs-six-arrows-gens
   [;{:s 0, :t 0, :m [0 1]} ;a
    {:s 0, :t 0, :m [1 0]} ;b
@@ -45,3 +45,16 @@
               ".....c"
               ".....c"
               ".....f"])))))
+
+(def A2-gens ;communicating vessels
+  [{:s 0 :t 0 :m [1 0]}
+   {:s 1 :t 1 :m [1 1]}
+   {:s 0 :t 1 :m [1 0]}
+   {:s 1 :t 0 :m [1 0]}])
+
+(deftest ExA2
+  (testing "Communicating Vessels Example A2"
+    (let [A2 (sgpoid-by-gens A2-gens)]
+      (is (= 16 (count A2)))
+      (is (= #{[0 0] [0 1] [1 0] [1 1]}
+             (first (distinct (vals (morphisms-by-type A2)))))))))

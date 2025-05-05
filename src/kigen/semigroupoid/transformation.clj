@@ -51,18 +51,6 @@
    (comp set ;TODO do we need set? transformations of same type form a set
          (partial map :m)))) ;stripping off the type information
 
-(def S (sgpoid-by-gens [{:s 0, :t 0, :m [1 0]}
-                        {:s 1, :t 1, :m [1 2 0]}
-                        {:s 0, :t 1, :m [0 0]}
-                        {:s 1, :t 0, :m [0 0 0]}]))
-(def S2 (sgpoid-by-gens [{:s 0 :t 0 :m [1 0]} ;a
-                           ;{:s 0 :t 0 :m [0 1]} ;b
-                         {:s 0 :t 1 :m [0 1]} ;c
-                           ;{:s 0 :t 1 :m [1 0]} ;d
-                         {:s 0 :t 1 :m [0 0]} ;e
-                         {:s 1 :t 1 :m [0 0]} ;f
-                         ]))
-
 (defn sort-by-type
   "The elements of the semigroupoid sorted by type then by transformations."
   [S]
