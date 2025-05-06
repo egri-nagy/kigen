@@ -20,6 +20,17 @@
       [a b])))
 
 (defn endomorphic?
+  "another test for endomorphisms, trying to reformulate constrains"
+  [S phi]
+  (let [s2factors (group-by (fn [[a b]] (compf S a b))
+                            (composable-pairs S))]
+    (every? (fn [s] (every?
+                     (fn [[a b]]
+                       (= (phi s) (compf S (phi a) (phi b))))
+                     (s2factors s)))
+           (keys s2factors))))
+
+(defn endomorphic2?
   "S is a composition table of a semigroupoid
    phi is a vector representing the endomorphism
    just for checking how to do it functionally, before realtionally"
@@ -55,6 +66,3 @@
                (map vec (endomorphisms S))))
 
 (endomorphic? S (vec (repeat 6 0)))
-
-; for getting some simpler constraints
-(group-by (fn [[a b]] (compf S a b)) (composable-pairs S))
