@@ -3,19 +3,21 @@
    programming."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
-            [kigen.logic :refer [ntho]]))
+            [kigen.logic :refer [ntho]]
+            [clojure.math.combinatorics :refer [selections]]))
 
 (defn compf
   "Composition function for the given composition table S."
   [S a b]
-  (nth (nth S a) b)) ;get is more tolerant than nth, gives nil when troubled
+  (nth (nth S a) b))
 
 (defn compfo
+  "This goal succeds if a composed with b is ab in the composition table S."
   [S a b ab]
   (l/fresh
-   [v]
-   (ntho S a v)
-   (ntho v b ab)))
+   [row]
+   (ntho S a row) ;the row of a
+   (ntho row b ab))) ;the bth entry in that row should be ab
 
 (defn composable-pairs
   "All the composable pairs of elements of semigroupoid S given as a composition
@@ -36,9 +38,8 @@
    pairs))
 
 (defn endomorphico
+  "Goal succeeds if all pairs compose to ab in S."
   [S ab pairs]
-  ;(println "ab:" ab)
-  ;(println "pairs:" pairs)
   (l/everyg (fn [[a b]]
               (compfo S a b ab))
             pairs))
@@ -74,9 +75,9 @@
                       (composable-pairs S))
             (update-keys phi)
             (update-vals (partial map (partial map phi))))
-        S2 (mapv (partial mapv #({nil n} % %)) S)]
-    ;(println "phi:" phi)
-    ;(println "ab2factors" ab2factors) (println)
+        S2 (mapv
+            (partial mapv #({nil n} % %)) ;replace nil with sg outside the fd
+            S)]
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)
@@ -108,6 +109,6 @@
 
 ;quick to get the endomorphisms
 (count (filter (partial endomorphism? S)
-               (map vec (endomorphisms S))))
+               (map vec (selections (range 6) 6))))
 
 (endomorphism? S (vec (repeat 6 0)))
