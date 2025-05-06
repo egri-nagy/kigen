@@ -2,12 +2,21 @@
   "Enumearing all endomorphisms of a semigroupoid using relational
    programming."
   (:require [clojure.core.logic :as l]
-            [clojure.core.logic.fd :as fd]))
+            [clojure.core.logic.fd :as fd]
+            [kigen.logic :refer [ntho]]))
 
 (defn compf
   "Composition function for the given composition table S." 
   [S a b]
   (nth (nth S a) b)) ;get is more tolerant than nth, gives nil when troubled
+
+(defn compfo
+  [S a b ab]
+  (l/fresh
+   [v]
+   (ntho S a v)
+   (ntho v b ab)))
+
 
 (defn composable-pairs
   "All the composable pairs of elements of semigroupoid S given as a composition
@@ -29,6 +38,7 @@
                        (= (phi s) (compf S (phi a) (phi b))))
                      (s2factors s)))
            (keys s2factors))))
+
 
 (defn endomorphic2?
   "S is a composition table of a semigroupoid
