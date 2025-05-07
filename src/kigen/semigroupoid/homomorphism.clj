@@ -3,8 +3,7 @@
    programming."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
-            [kigen.logic :refer [ntho]]
-            [clojure.math.combinatorics :refer [selections]]))
+            [kigen.logic :refer [ntho]]))
 
 (defn compf
   "Composition function for the given composition table S."
@@ -30,27 +29,27 @@
       [a b])))
 
 (defn homomorphic?
-  "ab - an element of S
+  "ab - an element of T
    pairs - all the a,b pairs such that ab=ab"
-  [S phi ab pairs]
+  [T phi ab pairs]
   (every?
-   (fn [[a b]] (= (phi ab) (compf S (phi a) (phi b))))
+   (fn [[a b]] (= (phi ab) (compf T (phi a) (phi b))))
    pairs))
 
 (defn homomorphico
-  "Goal succeeds if all pairs compose to ab in S."
-  [S ab pairs]
+  "Goal succeeds if all pairs compose to ab in T."
+  [T ab pairs]
   (l/everyg (fn [[a b]]
-              (compfo S a b ab))
+              (compfo T a b ab))
             pairs))
 
 (defn homomorphism?
   "another test for homomorphisms, trying to reformulate constrains"
-  [S phi]
+  [S T phi]
   (let [ab2factors (group-by (fn [[a b]] (compf S a b))
                              (composable-pairs S))]
     (every? (fn [[ab pairs]]
-              (homomorphic? S phi ab pairs))
+              (homomorphic? T phi ab pairs))
             ab2factors)))
 
 (defn homomorphism2?
@@ -66,49 +65,23 @@
 (defn homomorphisms
   "Logic search for all homomoprhisms of semigroupoid S given as a composition
    table."
-  [S] ;given as a composition table
+  [S T] ;given as composition tables
   (let [n (count S)
         phi (vec (repeatedly n l/lvar))
-        elts (fd/interval 0 (dec n))
+        elts (fd/interval 0 (dec (count T)))
         ab2factors
         (-> (group-by (fn [[a b]] (compf S a b))
                       (composable-pairs S))
             (update-keys phi)
             (update-vals (partial map (partial map phi))))
-        S2 (mapv
+        T2 (mapv
             (partial mapv #({nil n} % %)) ;replace nil with sg outside the fd
-            S)]
+            T)]
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)
      (l/everyg (fn [[ab pairs]]
                  ;(println ab pairs)
-                 (homomorphico S2 ab pairs))
+                 (homomorphico T2 ab pairs))
                ab2factors)
      (l/== q phi))))
-
-(def S
-  [[0 1 2 3 4 nil]
-   [1 0 2 4 3 nil]
-   [nil nil nil nil nil 2]
-   [nil nil nil nil nil 2]
-   [nil nil nil nil nil 2]
-   [nil nil nil nil nil 5]])
-
-(count (homomorphisms S))
-
-(group-by (fn [[a b]] (compf S a b))
-          (composable-pairs S))
-
-;what pairs produce 3?
-(l/run*
- [p q]
- (compfo S p q 3))
-
-(count (homomorphisms S))
-
-;quick to get the homomorphisms
-(count (filter (partial homomorphism? S)
-               (map vec (selections (range 6) 6))))
-
-(homomorphism? S (vec (repeat 6 0)))
