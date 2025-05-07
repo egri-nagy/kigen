@@ -1,5 +1,5 @@
-(ns kigen.semigroupoid.endomorphism
-  "Enumearing all endomorphisms of a semigroupoid using relational
+(ns kigen.semigroupoid.homomorphism
+  "Enumearing all homomorphisms of a semigroupoid using relational
    programming."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
@@ -29,7 +29,7 @@
           :when (compf S a b)]
       [a b])))
 
-(defn endomorphic?
+(defn homomorphic?
   "ab - an element of S
    pairs - all the a,b pairs such that ab=ab"
   [S phi ab pairs]
@@ -37,25 +37,25 @@
    (fn [[a b]] (= (phi ab) (compf S (phi a) (phi b))))
    pairs))
 
-(defn endomorphico
+(defn homomorphico
   "Goal succeeds if all pairs compose to ab in S."
   [S ab pairs]
   (l/everyg (fn [[a b]]
               (compfo S a b ab))
             pairs))
 
-(defn endomorphism?
-  "another test for endomorphisms, trying to reformulate constrains"
+(defn homomorphism?
+  "another test for homomorphisms, trying to reformulate constrains"
   [S phi]
   (let [ab2factors (group-by (fn [[a b]] (compf S a b))
                              (composable-pairs S))]
     (every? (fn [[ab pairs]]
-              (endomorphic? S phi ab pairs))
+              (homomorphic? S phi ab pairs))
             ab2factors)))
 
-(defn endomorphism2?
+(defn homomorphism2?
   "S is a composition table of a semigroupoid
-   phi is a vector representing the endomorphism
+   phi is a vector representing the homomorphism
    just for checking how to do it functionally, before realtionally"
   [S phi]
   (every? (fn [[a b]]
@@ -63,8 +63,8 @@
                (compf S (phi a) (phi b))))
           (composable-pairs S)))
 
-(defn endomorphisms
-  "Logic search for all endomoprhisms of semigroupoid S given as a composition
+(defn homomorphisms
+  "Logic search for all homomoprhisms of semigroupoid S given as a composition
    table."
   [S] ;given as a composition table
   (let [n (count S)
@@ -83,7 +83,7 @@
      (l/everyg #(fd/in % elts) phi)
      (l/everyg (fn [[ab pairs]]
                  ;(println ab pairs)
-                 (endomorphico S2 ab pairs))
+                 (homomorphico S2 ab pairs))
                ab2factors)
      (l/== q phi))))
 
@@ -95,7 +95,7 @@
    [nil nil nil nil nil 2]
    [nil nil nil nil nil 5]])
 
-(count (endomorphisms S))
+(count (homomorphisms S))
 
 (group-by (fn [[a b]] (compf S a b))
           (composable-pairs S))
@@ -105,10 +105,10 @@
  [p q]
  (compfo S p q 3))
 
-(count (endomorphisms S))
+(count (homomorphisms S))
 
-;quick to get the endomorphisms
-(count (filter (partial endomorphism? S)
+;quick to get the homomorphisms
+(count (filter (partial homomorphism? S)
                (map vec (selections (range 6) 6))))
 
-(endomorphism? S (vec (repeat 6 0)))
+(homomorphism? S (vec (repeat 6 0)))
