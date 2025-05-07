@@ -56,10 +56,10 @@
   "S is a composition table of a semigroupoid
    phi is a vector representing the homomorphism
    just for checking how to do it functionally, before realtionally"
-  [S phi]
+  [S T phi]
   (every? (fn [[a b]]
             (= (phi (compf S a b))
-               (compf S (phi a) (phi b))))
+               (compf T (phi a) (phi b))))
           (composable-pairs S)))
 
 (defn homomorphisms
@@ -75,7 +75,7 @@
             (update-keys phi)
             (update-vals (partial map (partial map phi))))
         T2 (mapv
-            (partial mapv #({nil n} % %)) ;replace nil with sg outside the fd
+            (partial mapv #({nil (count T)} % %)) ;replace nil with sg outside the fd
             T)]
     (l/run*
      [q]
