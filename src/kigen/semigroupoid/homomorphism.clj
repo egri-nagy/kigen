@@ -1,6 +1,6 @@
 (ns kigen.semigroupoid.homomorphism
-  "Enumearing all homomorphisms of a semigroupoid using relational
-   programming."
+  "Enumearing all homomorphisms of a semigroupoid using relational programming.
+   Semigroupoids are represented as composition tables, a vector of vectors."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [kigen.logic :refer [ntho]]))
@@ -8,10 +8,10 @@
 (defn compf
   "Composition function for the given composition table S."
   [S a b]
-  (nth (nth S a) b))
+  (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
 (defn compfo
-  "This goal succeds if a composed with b is ab in the composition table S."
+  "This goal succeeds if a composed with b is ab in the composition table S."
   [S a b ab]
   (l/fresh
    [row]
@@ -25,18 +25,24 @@
   (let [n (count S)]
     (for [a (range n)
           b (range n)
-          :when (compf S a b)]
+          :when (compf S a b)] ;when composition gives something not nil
       [a b])))
 
 (defn homomorphic?
-  "ab - an element of T
-   pairs - all the a,b pairs such that ab=ab"
+  "Checks the compatibility condition for the given element and the pairs. These
+   should be in a special relationship: the pairs all compose to the given
+   element.
+   T - composition table
+   phi - the homomorphism map S->T, a vector
+   ab - an element of T
+   pairs - all the a,b pairs such that a compose b=ab"
   [T phi ab pairs]
   (every?
-   (fn [[a b]] (= (phi ab) (compf T (phi a) (phi b))))
+   (fn [[a b]] (= (phi ab)
+                  (compf T (phi a) (phi b))))
    pairs))
 
-(defn homomorphico
+(defn homomorphico ;TODO this is not a faithful image of homomorphic? all in T 
   "Goal succeeds if all pairs compose to ab in T."
   [T ab pairs]
   (l/everyg (fn [[a b]]
