@@ -55,7 +55,7 @@
 (defn homomorphism2?
   "S is a composition table of a semigroupoid
    phi is a vector representing the homomorphism
-   just for checking how to do it functionally, before realtionally"
+   just for checking how to do it functionally, before relationally"
   [S T phi]
   (every? (fn [[a b]]
             (= (phi (compf S a b))
