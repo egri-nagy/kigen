@@ -28,6 +28,11 @@
           :when (compf S a b)] ;when composition gives something not nil
       [a b])))
 
+(defn composition-relation
+  [S]
+  (group-by (fn [[a b]] (compf S a b))
+            (composable-pairs S)))
+
 (defn homomorphic?
   "Checks the compatibility condition for the given element and the pairs. These
    should be in a special relationship: the pairs all compose to the given
@@ -52,11 +57,10 @@
 (defn homomorphism?
   "another test for homomorphisms, trying to reformulate constrains"
   [S T phi]
-  (let [ab2factors (group-by (fn [[a b]] (compf S a b))
-                             (composable-pairs S))]
+  (let [comprel (composition-relation S)]
     (every? (fn [[ab pairs]]
               (homomorphic? T phi ab pairs))
-            ab2factors)))
+            comprel)))
 
 (defn homomorphism2?
   "S is a composition table of a semigroupoid
@@ -76,8 +80,7 @@
         phi (vec (repeatedly n l/lvar))
         elts (fd/interval 0 (dec (count T)))
         ab2factors
-        (-> (group-by (fn [[a b]] (compf S a b))
-                      (composable-pairs S))
+        (-> (composition-relation S)
             (update-keys phi)
             (update-vals (partial map (partial map phi))))
         T2 (mapv
