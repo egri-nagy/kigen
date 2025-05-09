@@ -32,6 +32,11 @@
   [S]
   (group-by (fn [[a b]] (compf S a b))
             (composable-pairs S)))
+(defn substitute
+  [comprel phi]
+  (-> comprel
+   (update-keys phi)
+   (update-vals (partial map (partial map phi)))))
 
 (defn homomorphic?
   "Checks the compatibility condition for the given element and the pairs. These
@@ -47,20 +52,12 @@
                   (compf T (phi a) (phi b))))
    pairs))
 
-(defn homomorphico ;TODO this is not a faithful image of homomorphic? all in T 
-  "Goal succeeds if all pairs compose to ab in T."
-  [T ab pairs]
-  (l/everyg (fn [[a b]]
-              (compfo T a b ab))
-            pairs))
-
 (defn homomorphism?
   "another test for homomorphisms, trying to reformulate constrains"
-  [S T phi]
-  (let [comprel (composition-relation S)]
-    (every? (fn [[ab pairs]]
-              (homomorphic? T phi ab pairs))
-            comprel)))
+  [S T phi] 
+  (every? (fn [[ab pairs]]
+            (homomorphic? T phi ab pairs))
+          (composition-relation S)))
 
 (defn homomorphism2?
   "S is a composition table of a semigroupoid
@@ -79,10 +76,7 @@
   (let [n (count S)
         phi (vec (repeatedly n l/lvar))
         elts (fd/interval 0 (dec (count T)))
-        ab2factors
-        (-> (composition-relation S)
-            (update-keys phi)
-            (update-vals (partial map (partial map phi))))
+        constraints (substitute (composition-relation S) phi)
         T2 (mapv
             (partial mapv #({nil (count T)} % %)) ;replace nil with sg outside the fd
             T)]
@@ -90,7 +84,8 @@
      [q]
      (l/everyg #(fd/in % elts) phi)
      (l/everyg (fn [[ab pairs]]
-                 ;(println ab pairs)
-                 (homomorphico T2 ab pairs))
-               ab2factors)
+                 (l/everyg (fn [[a b]]
+                             (compfo T2 a b ab))
+                           pairs))
+               constraints)
      (l/== q phi))))
