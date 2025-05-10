@@ -11,8 +11,8 @@
 
 (defn compose
   "Composition of typed transformations.
-   Given a nd b, the arrow a then b is returned. Note the automata
-   theoretic composition.
+   Given a and b, the composite arrow a then b is returned. Note the automata
+   theoretic composition notation.
    Returns nil when the arrows a and b are not composable."
   [a b]
   (when (= (:t a) (:s b)) ;checking composability
@@ -41,10 +41,9 @@
                      (targets (:s a))))))]
     (full-orbit gens generator-fn)))
 
-
-
 (defn morphisms-by-type
-  "Returns a hash-map with  keys as types, i.e., [dom,codomain] pairs, and values as the set of all arrows of that type."
+  "Returns a hash-map with  keys as types, i.e., [dom,codomain] pairs,
+   and values as the set of all arrows of that type."
   [S]
   (update-vals
    (group-by arrow-type S)
@@ -59,7 +58,7 @@
    S))
 
 (defn comptab
-  "The composition table for semigroupoid sorted by type."
+  "The composition table for semigroupoid sorted by type. "
   [S]
   (let [ordered (sort-by-type S)
         arrow2index (zipmap ordered (range))]
@@ -76,10 +75,9 @@
 
 (defn symbol-comptab
   "Sequence of strings representing the composition table of the semigroupoid
-   sorted by type and transformation."
+   sorted by type and transformation. nils replaced by dots"
   [S]
   (let [converter (conj (zipmap (range) symbols) [nil \.])]
     (map (comp (partial apply str)
                (partial map converter))
          (comptab S))))
-

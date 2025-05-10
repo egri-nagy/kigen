@@ -6,7 +6,8 @@
             [kigen.logic :refer [ntho]]))
 
 (defn compf
-  "Composition function for the given composition table S."
+  "Composition function for arrows a and b in the given composition table S.
+   Computing the composite is two vector lookups. "
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
