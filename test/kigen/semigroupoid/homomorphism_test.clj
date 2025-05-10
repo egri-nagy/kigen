@@ -4,7 +4,7 @@
             [clojure.math.combinatorics :refer [selections]]
             [kigen.semigroupoid.homomorphism :refer [compfo
                                                      homomorphism?
-                                                     homomorphism2?
+                                                     homomorphism?-by-comprel
                                                      homomorphisms]]))
 
 (def S
@@ -51,7 +51,7 @@
 ;; (count (homomorphisms S))
 
 ;; ;quick to get the homomorphisms
-(count (filter (partial homomorphism2? S T)
+(count (filter (partial homomorphism? S T)
                 (map vec (selections (range 15) 6))))
 
 ;; (homomorphism? S (vec (repeat 6 0)))

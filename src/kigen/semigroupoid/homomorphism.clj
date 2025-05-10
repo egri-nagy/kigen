@@ -38,28 +38,26 @@
    (update-keys phi)
    (update-vals (partial map (partial map phi)))))
 
-(defn homomorphic?
+(defn compatible?
   "Checks the compatibility condition for the given element and the pairs. These
    should be in a special relationship: the pairs all compose to the given
    element.
    T - composition table
-   phi - the homomorphism map S->T, a vector
    ab - an element of T
    pairs - all the a,b pairs such that a compose b=ab"
-  [T phi ab pairs]
+  [T ab pairs]
   (every?
-   (fn [[a b]] (= (phi ab)
-                  (compf T (phi a) (phi b))))
+   (fn [[a b]] (=  ab (compf T  a  b)))
    pairs))
 
-(defn homomorphism?
+(defn homomorphism?-by-comprel
   "another test for homomorphisms, trying to reformulate constrains"
   [S T phi] 
   (every? (fn [[ab pairs]]
-            (homomorphic? T phi ab pairs))
-          (composition-relation S)))
+            (compatible? T ab pairs))
+          (substitute (composition-relation S) phi)))
 
-(defn homomorphism2?
+(defn homomorphism?
   "S is a composition table of a semigroupoid
    phi is a vector representing the homomorphism
    just for checking how to do it functionally, before relationally"
