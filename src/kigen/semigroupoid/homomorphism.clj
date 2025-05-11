@@ -33,6 +33,7 @@
   [S]
   (group-by (fn [[a b]] (compf S a b))
             (composable-pairs S)))
+
 (defn substitute
   [comprel phi]
   (-> comprel
@@ -68,6 +69,7 @@
                (compf T (phi a) (phi b))))
           (composable-pairs S)))
 
+
 (defn homomorphisms
   "Logic search for all homomoprhisms of semigroupoid S given as a composition
    table."
@@ -82,6 +84,28 @@
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)
+     (l/everyg (fn [[ab pairs]]
+                 (l/everyg (fn [[a b]]
+                             (compfo T2 a b ab))
+                           pairs))
+               constraints)
+     (l/== q phi))))
+
+(defn isomorphisms
+  "Logic search for all homomoprhisms of semigroupoid S given as a composition
+   table."
+  [S T] ;given as composition tables
+  (let [n (count S)
+        phi (vec (repeatedly n l/lvar))
+        elts (fd/interval 0 (dec (count T)))
+        constraints (substitute (composition-relation S) phi)
+        T2 (mapv
+            (partial mapv #({nil (count T)} % %)) ;replace nil with sg outside the fd
+            T)]
+    (l/run*
+     [q]
+     (l/everyg #(fd/in % elts) phi)
+     (fd/distinct phi)
      (l/everyg (fn [[ab pairs]]
                  (l/everyg (fn [[a b]]
                              (compfo T2 a b ab))

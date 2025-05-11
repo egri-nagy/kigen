@@ -1,10 +1,16 @@
 (ns kigen.semigroupoid.homomorphism-test
   (:require [clojure.test :refer [deftest testing is]]
             [clojure.core.logic :as l]
+            [clojure.core.logic.fd :as fd]
+            [kigen.logic :refer [ntho]]
             [clojure.math.combinatorics :refer [selections]]
+            [kigen.multab-morphism :as mtm]
             [kigen.semigroupoid.homomorphism :refer [compfo
+                                                     compf
+                                                     composable-pairs
                                                      homomorphism?
                                                      homomorphism?-by-comprel
+                                                     isomorphisms
                                                      homomorphisms]]))
 
 (def S
@@ -38,10 +44,61 @@
     (is (= [[0 3] [1 4]]
            (l/run*
             [p q]
-            (compfo S p q 3))))))
+            (compfo S p q 3))))
+    (is (= (set (composable-pairs S))
+           (set (let [S2 (mapv
+                          (partial mapv #({nil (count S)} % %))
+                          S)]
+                  (l/run*
+                         [p q]
+                         (l/fresh [r]
+                                  (fd/in r (fd/interval 0 (dec (count S2))))
+                                  (compfo S2 p q r)))))))))
+
+(l/run*
+ [q]
+ (l/fresh [a b c]
+          (l/everyg
+           (fn [r]
+             (l/conde
+              [(l/nilo r)]
+              [(l/== r 1)]))
+           [a b c])
+          (l/== q [a b c])))
+
+(def S3
+  (reduce
+   (fn [sgps S]
+     (if (some (fn [T]
+                 (or (first (mtm/isomorphisms S T))
+                     (first (mtm/isomorphisms (apply mapv vector S) T))))
+               sgps)
+       sgps
+       (conj sgps S)))
+   #{}
+   ))
 
 
-(count (homomorphisms S T))
+
+(def X [[1 2 0] [2 0 1] [0 1 2]])
+(def Y [[1 1 1] [0 1 2] [2 1 2]])
+
+(first (homomorphisms Y 
+                     Y))
+
+(apply map vector Y)
+
+(count (isomorphisms X Y))
+
+(selections [:A :b :c] 3)
+
+(mtm/isomorphisms X X)
+
+(first #{})
+
+(apply mapv vector [[1 2 ] [3 4]])
+
+;(count (homomorphisms S T))
 
 ;; (group-by (fn [[a b]] (compf S a b))
 ;;           (composable-pairs S))
@@ -51,7 +108,7 @@
 ;; (count (homomorphisms S))
 
 ;; ;quick to get the homomorphisms
-(count (filter (partial homomorphism? S T)
-                (map vec (selections (range 15) 6))))
+;(count (filter (partial homomorphism? S T)
+;                (map vec (selections (range 15) 6))))
 
 ;; (homomorphism? S (vec (repeat 6 0)))
