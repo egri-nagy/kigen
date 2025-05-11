@@ -3,7 +3,8 @@
    Semigroupoids are represented as composition tables, a vector of vectors."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
-            [kigen.semigroupoid :refer [compfo]]))
+            [clojure.math.combinatorics :refer [selections]]
+            [kigen.semigroupoid.homomorphism :refer [compfo compf]]))
 
 (defn associativity?
   "Brute-force checking associativity for a composition table."
@@ -35,4 +36,3 @@
      (l/everyg #(fd/in % elts) lvars)
      (l/everyg (partial associativo S) triples)
      (l/== q S))))
-
