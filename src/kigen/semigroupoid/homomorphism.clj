@@ -112,3 +112,18 @@
                            pairs))
                constraints)
      (l/== q phi))))
+
+(defn sgps-up-to-morphisms
+  "Given a collection of composition tables, it returns the isomoprhims
+   anti-isomporhism class representatives."
+  [sgps]
+  (reduce
+   (fn [reps S]
+     (if (some (fn [T]
+                 (or (first (isomorphisms S T))
+                     (first (isomorphisms (apply mapv vector S) T))))
+               reps)
+       reps
+       (conj reps S)))
+   #{}
+   sgps))

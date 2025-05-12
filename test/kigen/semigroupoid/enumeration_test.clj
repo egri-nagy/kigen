@@ -5,20 +5,10 @@
             [kigen.logic :refer [ntho]]
             [clojure.math.combinatorics :refer [selections]]
             [kigen.multab-morphism :as mtm]
-            [kigen.semigroupoid.enumeration :refer [semigroups-order-n]]))
-
-(def sgps-order-3
-  (reduce
-   (fn [sgps S]
-     (if (some (fn [T]
-                 (or (first (mtm/isomorphisms S T))
-                     (first (mtm/isomorphisms (apply mapv vector S) T))))
-               sgps)
-       sgps
-       (conj sgps S)))
-   #{}
-   (semigroups-order-n 3)))
+            [kigen.semigroupoid.enumeration :refer [semigroups-order-n]]
+            [kigen.semigroupoid.homomorphism :refer [sgps-up-to-morphisms]]))
 
 (deftest sgp-enum-test
   (testing "Order 3 semigroups up iso and anti-iso morphisms."
-    (is (= 18 (count sgps-order-3)))))
+    (is (= 18
+           (count (sgps-up-to-morphisms (semigroups-order-n 3)))))))
