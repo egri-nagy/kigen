@@ -15,7 +15,8 @@
             (reduceo relo result-so-far remaining result))))
 
 (defn ntho
-  "Succeeds if the collection has x as the index n element."
+  "Succeeds if the collection has x as the index n element.
+   Classic recursive implementation."
   ([coll n x] (ntho coll n x 0))
   ([coll n x current]
    (l/fresh [head tail]
