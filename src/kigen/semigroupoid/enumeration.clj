@@ -26,6 +26,10 @@
    (compfo S b c bc)))
 
 (defn semigroups-order-n
+  "Enumerating semigroups of order n by constructing all n by n composition
+   tables.
+   Constraints: table entries should be in 0..n-1, all triples should satisy
+   associativity."
   [n]
   (let [elts (fd/interval 0 (dec n))
         S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
