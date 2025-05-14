@@ -70,10 +70,11 @@
           (composable-pairs S)))
 
 
-(defn homomorphisms
-  "Logic search for all homomoprhisms of semigroupoid S given as a composition
-   table."
-  [S T] ;given as composition tables
+(defn morphism-search
+  "Logic search for all homorphisms of semigroupoid S to T given as
+   composition tables.
+   If bijective? then only isomorphisms are enuemrated."
+  [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (vec (repeatedly n l/lvar))
         elts (fd/interval 0 (dec (count T)))
@@ -84,6 +85,9 @@
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)
+     (if bijective?
+       (fd/distinct phi) ;permutations only
+       l/succeed)
      (l/everyg (fn [[ab pairs]]
                  (l/everyg (fn [[a b]]
                              (compfo T2 a b ab))
@@ -92,26 +96,16 @@
      (l/== q phi))))
 
 (defn isomorphisms
-  "Logic search for all homomoprhisms of semigroupoid S given as a composition
-   table."
+  "Logic search for all isomorphisms from semigroupoid S to T given as
+   composition tables."
+  [S T]
+  (morphism-search S T true))
+
+(defn homomorphisms
+  "Logic search for all homomorphisms from semigroupoid S to T given as
+   composition tables."
   [S T] ;given as composition tables
-  (let [n (count S)
-        phi (vec (repeatedly n l/lvar))
-        elts (fd/interval 0 (dec (count T)))
-        constraints (substitute (composition-relation S) phi)
-        T2 (mapv
-            (partial mapv #({nil (count T)} % %)) ;replace nil with sg outside the fd
-            T)]
-    (l/run*
-     [q]
-     (l/everyg #(fd/in % elts) phi)
-     (fd/distinct phi)
-     (l/everyg (fn [[ab pairs]]
-                 (l/everyg (fn [[a b]]
-                             (compfo T2 a b ab))
-                           pairs))
-               constraints)
-     (l/== q phi))))
+  (morphism-search S T false))
 
 (defn sgps-up-to-morphisms
   "Given a collection of composition tables, it returns the isomoprhims
