@@ -3,7 +3,7 @@
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"
             :url "http://www.gnu.org/copyleft/gpl.html"}
-  :dependencies [[org.clojure/clojure "1.12.0"]
+  :dependencies [[org.clojure/clojure "1.12.1"]
                  [org.clojure/math.combinatorics "0.3.0"]
                  [org.clojure/data.int-map "1.3.0"]
                  [orbit "25.04.25"]

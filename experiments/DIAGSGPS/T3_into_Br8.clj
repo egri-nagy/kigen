@@ -6,7 +6,7 @@
          '[clojure.pprint :refer [pprint]]
          '[taoensso.timbre :as timbre])
 
-(timbre/merge-config! {:level :info})
+(timbre/set-min-level! :trace)
 
 (def result (gmorph/sgp-embeddings-by-gens (t/full-ts-gens 3) t/mul
                                            (pbr/brauer-gens 6) pbr/mul))
