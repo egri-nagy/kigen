@@ -77,25 +77,23 @@
   images of the generators."
   [Sgens Smul tgs Tmul]
   (trace "Number of targets:" (vec (map count tgs)))
-  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, phis - morphs
-        generator (fn [[n phis :as v]]
+  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, phi - morph
+        generator (fn [[n phi :as v]]
                     (if (solution? v)
                       []
-                      (let [f (fn [g]
-                                (add-gen-and-close phis (nth Sgens n) g
-                                                   (take (inc n) Sgens)
-                                                   Smul Tmul))
+                      (let [f (fn [G] ; G is the candidate generator in G
+                                (when-not (some #{G} (vals phi)) ;no dups!
+                                  (add-gen-and-close phi (nth Sgens n) G
+                                                     (take (inc n) Sgens)
+                                                     Smul Tmul)))
                             result (r/reduce
                                     #(conj %1 [(inc n) %2])
                                     []
-                                    (r/filter #(apply distinct? (vals %))
-                                              (r/remove nil?
-                                                        (r/map f
-                                                               (nth tgs n)))))]
+                                    (r/remove nil? (r/map f (nth tgs n))))]
                         (trace "Generators:" n
-                              " Partial morphs:" (count phis)
-                              " Targets: " (count (nth tgs n))
-                              " Realized:" (count result))
+                               " Partial morphs:" (count phi)
+                               " Targets: " (count (nth tgs n))
+                               " Realized:" (count result))
                         result)))]
     (map second (ptree-search [[0 {}]]
                               generator
