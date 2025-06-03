@@ -7,7 +7,7 @@
   The elements of target semigroups are classified by their index-periods in
   order to find possible targets for generators."
   (:require [kigen.sgp :refer [sgp-by-gens index-period ->Sgp]]
-            [orbit.core :refer [ptree-search]] ;tree-search for single-threaded execution
+            [orbit.core :refer [ptree-search-depth-first]] ;tree-search for single-threaded execution
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]
             [taoensso.timbre :refer [trace]]))
@@ -76,7 +76,7 @@
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
   [Sgens Smul tgs Tmul]
-  (trace "Number of targets:" (vec (map count tgs)))
+  (trace (str "Number of targets:" (vec (map count tgs))))
   (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, phi - morph
         generator (fn [[n phi :as v]]
                     (if (solution? v)
@@ -90,14 +90,15 @@
                                     #(conj %1 [(inc n) %2])
                                     []
                                     (r/remove nil? (r/map f (nth tgs n))))]
-                        (trace "Generators:" n
-                               " Partial morphs:" (count phi)
-                               " Targets: " (count (nth tgs n))
-                               " Realized:" (count result))
+                        (trace (str "#gens:" n
+                                    " #phi:" (count phi)
+                                    " #targets:" (count (nth tgs n))
+                                    " #extensions:" (count result)))
                         result)))]
-    (map second (ptree-search [[0 {}]]
-                              generator
-                              solution?))))
+    (map second 
+         (ptree-search-depth-first [[0 {}]] generator solution?)
+         ;(partial-orbit  [0 {}] generator (constantly true) solution?)
+         )))
 
 (defn distinct-up-to-f
   "Classifies the elements of coll by function f and keeps only
@@ -159,9 +160,9 @@
                                (count ngens) "targets for gen" n ","
                                (count result) "realized" (mem-info))
                         result)))
-        morphs (map second (ptree-search [[0 {}]]
-                                         generator
-                                         solution?))]
+        morphs (map second (ptree-search-depth-first [[0 {}]]
+                                                     generator
+                                                     solution?))]
     (trace (count morphs) "morphisms found." (mem-info))
     (morphisms-up-to-conjugation morphs (:setconjrep conj-fn-bundle))))
 
