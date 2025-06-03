@@ -81,10 +81,12 @@
         generator (fn [[n phi :as v]]
                     (if (solution? v)
                       []
-                      (let [f (fn [G] ; G is the candidate generator in G
+                      (let [g (nth Sgens n)
+                            ngens (take (inc n) Sgens)
+                            f (fn [G] ; G is the candidate generator in G
                                 (when-not (some #{G} (vals phi)) ;no dups!
-                                  (add-gen-and-close phi (nth Sgens n) G
-                                                     (take (inc n) Sgens)
+                                  (add-gen-and-close phi g G
+                                                     ngens
                                                      Smul Tmul)))
                             result (r/reduce
                                     #(conj %1 [(inc n) %2])
