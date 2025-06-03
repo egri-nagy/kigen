@@ -175,16 +175,16 @@
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph.
   There are two phases for adding a new generator
-  1. we multiply everything (including itself by the new generator)
+  1. we multiply everything (including itself) by the new generator only
   2. for any new elements generated we go through with all generators so far"
-  [phi gen phiofgen gens Smul Tmul]
-  (let [ephi (conj phi [gen phiofgen])
-        res (sys-mul ephi (keys ephi) [gen] Smul Tmul)] ;phase 1
+  [phi g G ngens Smul Tmul]
+  (let [ephi (conj phi [g G])
+        res (sys-mul ephi (keys ephi) [g] Smul Tmul)] ;phase 1
     (when-not (nil? res)
-      (loop [phi (:phi res) newelts (conj (:new res) gen)]
+      (loop [ephi (:phi res) newelts (conj (:new res) g)]
         (if (empty? newelts)
-          phi
-          (let [res (sys-mul phi newelts gens Smul Tmul)]
+          ephi
+          (let [res (sys-mul ephi newelts ngens Smul Tmul)]
             (when-not (nil? res)
               (recur (:phi res) (:new res)))))))))
 
