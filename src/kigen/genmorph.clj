@@ -77,12 +77,12 @@
   images of the generators."
   [Sgens Smul tgs Tmul]
   (trace "Number of targets:" (vec (map count tgs)))
-  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, m - morphs
-        generator (fn [[n m :as v]]
+  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, phis - morphs
+        generator (fn [[n phis :as v]]
                     (if (solution? v)
                       []
                       (let [f (fn [g]
-                                (add-gen-and-close m (nth Sgens n) g
+                                (add-gen-and-close phis (nth Sgens n) g
                                                    (take (inc n) Sgens)
                                                    Smul Tmul))
                             result (r/reduce
@@ -93,7 +93,7 @@
                                                         (r/map f
                                                                (nth tgs n)))))]
                         (trace "Generators:" n
-                              " Partial morphs:" (count m)
+                              " Partial morphs:" (count phis)
                               " Targets: " (count (nth tgs n))
                               " Realized:" (count result))
                         result)))]
