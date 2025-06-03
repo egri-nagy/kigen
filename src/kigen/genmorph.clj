@@ -199,19 +199,22 @@
       {:phi phi :new newelts}
       (let [[a g] (first pairs)
             p (new-mapping phi a g Smul Tmul)]
-        (cond (nil? p) nil
-              (empty? p) (recur phi
+        (cond (nil? p) nil ;not morphic
+              (empty? p) (recur phi ;we know the product, it is morphic
                                 newelts
                                 (rest pairs))
-              :else (recur (conj phi p)
+              :else (recur (conj phi p) ;we extended phi
                            (conj newelts (first p))
                            (rest pairs)))))))
 
 (defn new-mapping
-  "Extends the morphism phi by multiplying a by g and finding phi(a,g) if
-  the map is homomorphic, if not it returns nil.
-  If phi(ag) is already known, then it returns an empty vector. If it is newly
-  found, it gives a vector [ag phi(ag)], that can be conjoined to phi.
+  "Attempt to extends the morphism phi for the product of element a by generator
+  g and finding phi(ag). The product ag may be known or a new one.
+  If phi(ag) is already known and it is morphic, then an empty vector is
+  returned. 
+  If it is newly found, it gives a vector [ag phi(ag)],
+  that can be conjoined to phi.
+  If it is not homomorphic, nil is returned.
   phi - morphism represented as a map
   a,g - elements of S  already in phi, g is a generator
   mulS, mulT - multiplication in S and T"
