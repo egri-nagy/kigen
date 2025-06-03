@@ -196,8 +196,7 @@
          pairs (for [a elts g gens] [a g])] ;possible a,g pairs for products
     (if (empty? pairs)
       {:phi phi :new newelts}
-      (let [[a g] (first pairs)
-            p (new-mapping phi a g Smul Tmul)]
+      (let [p (new-mapping phi (first pairs) Smul Tmul)]
         (cond (nil? p) nil ;not morphic
               (empty? p) (recur phi ;we know the product, it is morphic
                                 newelts
@@ -217,7 +216,7 @@
   phi - morphism represented as a map
   a,g - elements of S  already in phi, g is a generator
   mulS, mulT - multiplication in S and T"
-  [phi a g mulS mulT]
+  [phi [a g] mulS mulT]
   (let [ag (mulS a g)
         AG (mulT (phi a) (phi g))]
     (if (contains? phi ag)
