@@ -28,8 +28,8 @@
   Otherwise, table indexing would be more complicated."
   [gens mul]
   (let [S (sgp-by-gens gens mul)
-        elts (vec (concat gens (remove (set gens) S)))
-        indices (zipmap elts (range (count elts)))
+        elts (vec (concat gens (remove (set gens) S))) ;generators first
+        indices (zipmap elts (range (count elts))) ;elts -> indices 
         gt (vec (pmap
                  (fn [x] (->> gens
                               (map #(mul x %))
@@ -194,12 +194,12 @@
   [phi elts gens Smul Tmul]
   (loop [phi phi
          newelts [] ;newly generated elements
-         pairs (for [a elts b gens] [a b])] ;possible a,b pairs for products
+         pairs (for [a elts g gens] [a g])] ;possible a,g pairs for products
     (if (empty? pairs)
       {:phi phi :new newelts}
-      (let [v (first pairs)
-            p (new-mapping phi (first v) (second v) Smul Tmul)]
-        (cond (nil? p) p
+      (let [[a g] (first pairs)
+            p (new-mapping phi a g Smul Tmul)]
+        (cond (nil? p) nil
               (empty? p) (recur phi
                                 newelts
                                 (rest pairs))
@@ -208,16 +208,16 @@
                            (rest pairs)))))))
 
 (defn new-mapping
-  "Extends the morphism phi by multiplying a by b and finding phi(a,b) if
+  "Extends the morphism phi by multiplying a by g and finding phi(a,g) if
   the map is homomorphic, if not it returns nil.
-  If phi(a,b) is already known, then it returns an empty vector. If it is newly
-  found, it gives a vector [ab phi(a,b)], that can be conjoined to phi.
+  If phi(ag) is already known, then it returns an empty vector. If it is newly
+  found, it gives a vector [ag phi(ag)], that can be conjoined to phi.
   phi - morphism represented as a map
-  a,b - elements of S  already in phi
+  a,g - elements of S  already in phi, g is a generator
   mulS, mulT - multiplication in S and T"
-  [phi a b mulS mulT]
-  (let [ab (mulS a b)
-        AB (mulT (phi a) (phi b))]
-    (if (contains? phi ab)
-      (when (= AB (phi ab)) [])
-      [ab AB])))
+  [phi a g mulS mulT]
+  (let [ag (mulS a g)
+        AG (mulT (phi a) (phi g))]
+    (if (contains? phi ag)
+      (when (= AG (phi ag)) [])
+      [ag AG])))

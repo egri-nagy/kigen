@@ -4,6 +4,8 @@
             [kigen.transf :as transf]
             [kigen.conjugacy :as c]))
 
+;(deftest gentab)
+
 (deftest test-multab
   (testing "Testing embeddings by generators."
     (let [T1gens (transf/full-ts-gens 1)
