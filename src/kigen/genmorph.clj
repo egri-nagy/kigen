@@ -72,6 +72,12 @@
                                Tmul
                                conj-fn-bundle)))))
 
+(defn bijective?
+  "Returns true if the given hash-map is bijective, i.e., the values are all
+   distinct."
+  [m]
+  (apply distinct? (vals m)))
+
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
@@ -89,18 +95,19 @@
                                                      ngens
                                                      Smul Tmul)))
                             result (r/reduce
-                                    #(conj %1 [(inc n) %2])
+                                    (fn [coll phi]
+                                      (conj coll [(inc n) phi]))
                                     []
-                                    (r/remove nil? (r/map f (nth tgs n))))]
+                                    (r/filter bijective? ; we may get dups!
+                                              (r/remove nil?
+                                                        (r/map f (nth tgs n)))))]
                         (trace (str "#gens:" n
                                     " #phi:" (count phi)
                                     " #targets:" (count (nth tgs n))
                                     " #extensions:" (count result)))
                         result)))]
-    (map second 
-         (ptree-search-depth-first [[0 {}]] generator solution?)
-         ;(partial-orbit  [0 {}] generator (constantly true) solution?)
-         )))
+    (map second ; get the phi's
+         (ptree-search-depth-first [[0 {}]] generator solution?))))
 
 (defn distinct-up-to-f
   "Classifies the elements of coll by function f and keeps only
