@@ -48,7 +48,7 @@
         T-index-period (ipfunc Tmul)
         T (sgp-by-gens Tgens Tmul)
         Tip->Tset (group-by T-index-period T)]
-    (map Tip->Tset (map  S-index-period Sgens))))
+    (mapv Tip->Tset (map  S-index-period Sgens))))
 
 (defn sgp-embeddings-by-gens
   "Computes all embeddings from source semigroup to target semigroup.
@@ -109,15 +109,50 @@
     (map second ; get the phi's
          (ptree-search-depth-first [[0 {}]] generator solution?))))
 
+
 (defn embedding
   "Finding an embedding of source semigroup into target induced by the possible
   images of the generators by a backtrack algorithm."
   [Sgens Smul tgs Tmul]
   (trace (str "Number of targets:" (vec (map count tgs))))
-  (loop [morphs [{}]
-         coords []]
-    (let )
-    ))
+  (let [N (count Sgens)] ;; the max number of levels
+    (loop [morphs [{} nil]
+           coords [-1]]
+      (println coords)
+      (when-not (empty? coords) ;when empty, we just return nil
+        ;; we try the next coordinate value if available, if not back one level
+        (let [n (dec (count coords))
+              prevmorphs (pop morphs)
+              coordval (coords n)]
+          (if (< coordval (dec (count (tgs n))))
+            (let [g (nth Sgens n)
+                  ncoord (inc coordval)
+                  G ((tgs n) ncoord)
+                  ngens (take (inc n) Sgens)
+                  phi (peek prevmorphs)
+                  nphi (add-gen-and-close phi g G ngens Smul Tmul)]
+              ;(println nphi)
+              (cond
+                ;when we don't have a a good new phi
+                (or (nil? nphi)
+                    (not (bijective? nphi))) (recur (conj prevmorphs nil)
+                                                    (conj (pop coords) ncoord))
+                ;if it is a solution, just return it
+                (= (count coords) N) nphi
+                ;not a solution, but good, so add a new generator
+                :else (recur (conj (conj prevmorphs nphi) nil)
+                             (conj (conj (pop coords) ncoord) -1))))
+            (recur prevmorphs
+                   (pop coords))))))))
+
+(defn call-embedding
+  [Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
+  (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)]
+    (map (fn [m] (zipmap Sgens (map m mSgens))) ; mappings of the generators
+         (embedding mSgens
+                    mSmul
+                    (index-period-matched mS Tgens Tmul)
+                    Tmul))))
 
 
 (defn distinct-up-to-f

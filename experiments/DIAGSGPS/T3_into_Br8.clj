@@ -14,6 +14,7 @@
 
 
 (binding [orbit.extension/*task-size* 64]
-  (println (first
-            (gmorph/sgp-embeddings-by-gens T3gens t/mul
-                                           (pbr/brauer-gens 6) pbr/mul))))
+ (println (first
+           (gmorph/call-embedding T3gens t/mul
+                                  (pbr/brauer-gens 6) pbr/mul))))
+
