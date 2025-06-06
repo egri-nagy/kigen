@@ -109,6 +109,17 @@
     (map second ; get the phi's
          (ptree-search-depth-first [[0 {}]] generator solution?))))
 
+(defn embedding
+  "Finding an embedding of source semigroup into target induced by the possible
+  images of the generators by a backtrack algorithm."
+  [Sgens Smul tgs Tmul]
+  (trace (str "Number of targets:" (vec (map count tgs))))
+  (loop [morphs [{}]
+         coords []]
+    (let )
+    ))
+
+
 (defn distinct-up-to-f
   "Classifies the elements of coll by function f and keeps only
   a representative element from each class."
