@@ -27,10 +27,31 @@
         nnils (repeat n nil) ; for padding 
         A (into a nnils) ; a with nils at the end
         B (into (vec nnils) ; b shifted by n, and n nils in front
-                (mapv (partial + n) b))]
-    (println A B)
-    (trace 0 (alternate A B))))
+                (mapv (partial + n) b))
+        shift-back (fn [pt] (if (< pt n) pt (- pt n)))
+        maps (loop [pairs []
+                    processed #{}
+                    pts (concat (range n) (range (* 2 n) (* 3 n)))]
+               (if (empty? pts)
+                 pairs
+                 (let [pt (first pts)]
+                   (if (processed pt)
+                     (recur pairs
+                            processed
+                            (rest pts))
+                     (let [diags (if (< pt n)
+                                   (alternate A B)
+                                   (alternate B A))
+                           [img traced] (trace pt diags)]
+                       (recur (conj pairs [(shift-back pt)
+                                           (shift-back img)])
+                              (into processed traced)
+                              (rest pts)))))))] 
+    (mapv second 
+          (sort (into maps
+                      (map (fn [[s t]] [t s]) maps))))))
 
 (def i [3 4 5 0 1 2]) ;identity
 (def t [4 3 5 1 0 2]) ; transposition
-(def l [2 1 3 4 3 5]) ;loop
+(def c [4 5 3 2 0 1]) ; cycle
+(def l [1 0 5 4 3 2]) ;loop
