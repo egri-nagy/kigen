@@ -3,7 +3,7 @@
    A degree n diagram is represented by a single vector of length 2n.
    The value at position i is the image of point i." 
   (:require
-    [kigen.multab :as multab]))
+    [kigen.sgp :as sgp]))
 
 (defn mul
   [a b]
@@ -14,4 +14,6 @@
                 (mapv (partial + n) b))]
     [A B]))
 
-(def a [3 4 5 0 1 2]) ;identity
+(def i [3 4 5 0 1 2]) ;identity
+(def t [4 3 5 1 0 2]) ; transposition
+(def l [2 1 3 4 3 5]) ;loop
