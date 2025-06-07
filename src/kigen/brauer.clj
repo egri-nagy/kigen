@@ -21,6 +21,14 @@
         [point processed]
         (recur npt (conj processed npt) (rest diags))))))
 
+(defn complete
+  "Given half the maps individually (arrows in one direction), this completes
+   the diagram."
+  [maps]
+  (mapv second
+        (sort (into maps
+                    (map (fn [[s t]] [t s]) maps)))))
+
 (defn mul
   [a b]
   (let [n (/ (count a) 2) ; get the degree
@@ -47,11 +55,9 @@
                                            (shift-back img)])
                               (into processed traced)
                               (rest pts)))))))] 
-    (mapv second 
-          (sort (into maps
-                      (map (fn [[s t]] [t s]) maps))))))
+    (complete maps)))
 
 (def i [3 4 5 0 1 2]) ;identity
-(def t [4 3 5 1 0 2]) ; transposition
-(def c [4 5 3 2 0 1]) ; cycle
+(def t [4 3 5 1 0 2]) ;transposition
+(def c [4 5 3 2 0 1]) ;cycle
 (def l [1 0 5 4 3 2]) ;loop
