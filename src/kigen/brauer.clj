@@ -69,8 +69,7 @@
 (defn brauer-gens
   "The standard generators for the symmetric group and a cup-cap."
   [n]
-  (let [identity (when (= n 1)
-                   (complete [[0 1]]))
+  (let [identity (when (= n 1) [[0 1]])
         transposition (when (> n 1)
                         (into [[0 (inc n)] [1 n]]
                               (map (fn [x] [x (+ x n)])
@@ -80,7 +79,7 @@
                       (map (fn [x] [x (inc (+ x n))])
                            (range (dec n)))))
         cup-cap (when (> n 1)
-                  (into [ [0 1] [n (inc n)]]
+                  (into [[0 1] [n (inc n)]]
                         (map (fn [x] [x (+ x n)])
                              (range 2 n))))]
     (map complete
