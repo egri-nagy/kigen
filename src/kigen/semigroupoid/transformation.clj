@@ -12,7 +12,7 @@
 (defn compose
   "Composition of typed transformations.
    Given a and b, the composite arrow a then b is returned. Note the automata
-   theoretic composition notation.
+   theoretic composition notation!
    Returns nil when the arrows a and b are not composable."
   [a b]
   (when (= (:t a) (:s b)) ;checking composability
