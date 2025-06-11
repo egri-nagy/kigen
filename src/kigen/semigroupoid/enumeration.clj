@@ -50,6 +50,15 @@
   [S]
   (associativity? S (composable-triples S)))
 
+(defn all-composition-tables
+  "Lazy, brute force enumeration of all nxn composition tables.
+   For testing purposes only. n=4 is already not feasible!"
+  [n]
+  (map
+   (fn [entries]
+     (mapv vec (partition n entries)))
+   (selections (range (inc n)) (* n n))))
+
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
    tables.
@@ -63,7 +72,7 @@
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) lvars)
-     (l/everyg (partial associativo S) triples)
+     (l/everyg (fn [[a b c]] (associativo S a b c)) triples)
      (l/== q S))))
 
 (defn composablo
@@ -90,7 +99,7 @@
      [q]
      (l/everyg #(fd/in % allvals) lvars) ;the valid table entries
      (l/everyg (fn [[a b c]]
-                 (l/conde
+                 (l/conde ;we write down all possibilities
                   [(composablo S a b elts) ;both composable and associative
                    (composablo S b c elts)
                    (associativo S a b c)]
