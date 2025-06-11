@@ -30,11 +30,14 @@
       [a b])))
 
 (defn composition-relation
+  "A hash-map with keys the elements of S, and te values are pairs that compose
+   to the key."
   [S]
   (group-by (fn [[a b]] (compf S a b))
             (composable-pairs S)))
 
 (defn substitute
+  "Transfer the composition through morphism phi."
   [comprel phi]
   (-> comprel
    (update-keys phi)
