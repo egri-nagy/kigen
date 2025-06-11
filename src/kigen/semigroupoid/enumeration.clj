@@ -40,3 +40,27 @@
      (l/everyg #(fd/in % elts) lvars)
      (l/everyg (partial associativo S) triples)
      (l/== q S))))
+
+(defn semigroupoids-order-n
+  "Enumerating semigroups of order n by constructing all n by n composition
+   tables.
+   Constraints: table entries should be in 0..n-1 or nil,
+   and all triples should satisy associativity."
+  [n]
+  (let [elts (fd/interval 0 (dec n))
+        S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
+        lvars (apply concat S)
+        triples (selections (range n) 3)]
+    (l/run*
+     [q]
+     (l/everyg #(l/conde  ;nil or element
+                 [(l/nilo %)]
+                 [(fd/in % elts)])
+               lvars)
+     (l/everyg (fn [[a b c]]
+                 (l/conda
+                  [(compfo S a b nil)]
+                  [(compfo S b c nil)]
+                  [(associativo S [a b c]) ]))
+               triples)
+     (l/== q S))))
