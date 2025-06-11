@@ -1,9 +1,7 @@
-(ns kigen.brauer
+(ns kigen.diagram.brauer
   "Brauer-monoid direct implementation.
    A degree n diagram is represented by a single vector of length 2n.
-   The value at position i is the image of point i." 
-  (:require
-    [kigen.sgp :as sgp]))
+   The value at position i is the image of point i.")
 
 (defn alternate
   "Lazy infinite list repeating x y."
@@ -84,9 +82,3 @@
                              (range 2 n))))]
     (map complete
          (remove nil? [identity transposition cycle cup-cap]))))
-
-
-(def i [3 4 5 0 1 2]) ;identity
-(def t [4 3 5 1 0 2]) ;transposition
-(def c [4 5 3 2 0 1]) ;cycle
-(def l [1 0 5 4 3 2]) ;loop
