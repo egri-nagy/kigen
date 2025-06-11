@@ -8,12 +8,35 @@
 
 (defn associativity?
   "Brute-force checking associativity for a composition table."
+  ([S] (associativity? S (selections (range (count S)) 3)))
+  ([S triples]
+   (every?
+    (fn [[a b c]] (= (compf S a (compf S b c))
+                     (compf S (compf S a b) c)))
+    triples)))
+
+(defn composable-triples
+  "Returns all the composable triples for a composition table.
+   A pair is composable if the element corresponding to their composition
+   in the table is an element of the semigroupoid, i.e., not nil or some
+   bigger index integer outside of the table. Here we do not have the domains
+   and codomains, so we need to infer composability backwards,
+   from the results."
   [S]
-  (let [triples (selections (range (count S)) 3)]
-    (every?
-     (fn [[a b c]] (= (compf S a (compf S b c))
-                      (compf S (compf S a b) c)))
+  (let [n (count S)
+        elts (set (range n))
+        triples (selections elts 3)]
+    ;todo: there is a better way finding all composable pairs and combine
+    (filter
+     (fn [[a b c]]
+       (and (elts (compf S a b)) ;checking set memberhsip
+            (elts (compf S b c))))
      triples)))
+
+(defn semigroupoid?
+  "A composition table is "
+  [S]
+  (associativity? S (composable-triples S)))
 
 (defn associativo
   "The goal for associativity for a given triple."
