@@ -7,13 +7,24 @@
             [kigen.semigroupoid.homomorphism :refer [compfo compf]]))
 
 (defn associativity?
-  "Brute-force checking associativity for a composition table."
+  "Brute-force checking associativity for a composition table. If the triples
+   are not given then all possible triples are checked."
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every?
     (fn [[a b c]] (= (compf S a (compf S b c))
                      (compf S (compf S a b) c)))
     triples)))
+
+(defn associativo
+  "The goal for associativity for a given triple."
+  [S a b c]
+  (l/fresh
+   [ab bc abc]
+   (compfo S ab c abc)
+   (compfo S a bc abc)
+   (compfo S a b ab)
+   (compfo S b c bc)))
 
 (defn composable-triples
   "Returns all the composable triples for a composition table.
@@ -34,19 +45,10 @@
      triples)))
 
 (defn semigroupoid?
-  "A composition table is "
+  "A composition table describes a semigroupoid if all composable triples
+   satisfy associativity."
   [S]
   (associativity? S (composable-triples S)))
-
-(defn associativo
-  "The goal for associativity for a given triple."
-  [S [a b c]]
-  (l/fresh
-   [ab bc abc]
-   (compfo S ab c abc)
-   (compfo S a bc abc)
-   (compfo S a b ab)
-   (compfo S b c bc)))
 
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
@@ -65,7 +67,7 @@
      (l/== q S))))
 
 (defn composablo
-  "The goal for associativity for a given triple."
+  "The goal for associativity for a given pair."
   [S a b elts]
   (l/fresh
    [ab]
@@ -75,8 +77,9 @@
 (defn semigroupoids-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
    tables.
-   Constraints: table entries should be in 0..n-1, all triples should satisy
-   associativity."
+   Constraints: table entries should be in 0..n-1,  or n,
+   and all composable triples should satisy associativity.
+   The value n stands for nil, and represents undefined composition."
   [n]
   (let [elts (fd/interval 0 (dec n))
         allvals (fd/interval 0 n) ;we include n itself, instead of nil
@@ -85,12 +88,12 @@
         triples (selections (range n) 3)]
     (l/run*
      [q]
-     (l/everyg #(fd/in % allvals) lvars)
+     (l/everyg #(fd/in % allvals) lvars) ;the valid table entries
      (l/everyg (fn [[a b c]]
                  (l/conde
                   [(composablo S a b elts) ;both composable and associative
                    (composablo S b c elts)
-                   (associativo S [a b c])]
+                   (associativo S a b c)]
                   [(composablo S a b elts) ;a,b composable; b,c not
                    (compfo S b c n)]
                   [(composablo S b c elts) ;b,c composable, a,b not
