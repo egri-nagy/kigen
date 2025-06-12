@@ -1,6 +1,7 @@
 (ns kigen.semigroupoid.homomorphism
-  "Enumearing all homomorphisms of a semigroupoid using relational programming.
-   Semigroupoids are represented as composition tables, a vector of vectors."
+  "Enumerating all homomorphisms of a semigroupoid using relational programming.
+   Semigroupoids are represented abstractly, as composition tables, a vector of
+   vectors."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [kigen.logic :refer [ntho]]))
@@ -21,7 +22,8 @@
 
 (defn composable-pairs
   "All the composable pairs of elements of semigroupoid S given as a composition
-   table."
+   table. In the abstract setting we do not have domains and codomains, we
+   reason backwards, arrows are composable if the composite in the table."
   [S]
   (let [n (count S)]
     (for [a (range n)
@@ -30,34 +32,36 @@
       [a b])))
 
 (defn composition-relation
-  "A hash-map with keys the elements of S, and te values are pairs that compose
-   to the key."
+  "A hash-map with keys as the elements of S, and the values are pairs that
+   compose to that key value. Composition turned backwards."
   [S]
-  (group-by (fn [[a b]] (compf S a b))
+  (group-by (fn [[a b]]
+              (compf S a b))
             (composable-pairs S)))
 
 (defn substitute
-  "Transfer the composition through morphism phi."
+  "Transfer the composition relation through a morphism phi, i.e., converting
+   all keys and values by phi."
   [comprel phi]
   (-> comprel
-   (update-keys phi)
-   (update-vals (partial map (partial map phi)))))
+      (update-keys phi)
+      (update-vals (partial map (partial map phi)))))
 
 (defn compatible?
   "Checks the compatibility condition for the given element and the pairs. These
    should be in a special relationship: the pairs all compose to the given
-   element.
+   element. Used in homomorphism test.
    T - composition table
    ab - an element of T
-   pairs - all the a,b pairs such that a compose b=ab"
+   pairs - all the a,b pairs such that a composed with  b is ab"
   [T ab pairs]
   (every?
-   (fn [[a b]] (=  ab (compf T  a  b)))
+   (fn [[a b]] (=  ab (compf T a b)))
    pairs))
 
 (defn homomorphism?-by-comprel
   "another test for homomorphisms, trying to reformulate constrains"
-  [S T phi] 
+  [S T phi]
   (every? (fn [[ab pairs]]
             (compatible? T ab pairs))
           (substitute (composition-relation S) phi)))
@@ -73,6 +77,16 @@
           (composable-pairs S)))
 
 
+(defn n2nil
+  "Replace all n values (non-elements) with nil in composition table T."
+  [T]
+  (mapv (partial mapv #({(count T) nil} % %)) T)) ;using default values
+
+(defn nil2n
+  "Replace all nil values with (non-element) n with in composition table T."
+  [T]
+  (mapv (partial mapv #({nil (count T)} % %)) T))
+
 (defn morphism-search
   "Logic search for all homorphisms of semigroupoid S to T given as
    composition tables.
@@ -82,9 +96,7 @@
         phi (vec (repeatedly n l/lvar))
         elts (fd/interval 0 (dec (count T)))
         constraints (substitute (composition-relation S) phi)
-        T2 (mapv
-            (partial mapv #({nil (count T)} % %)) ;replace nil with sg outside the fd
-            T)]
+        T2 (nil2n T)]
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)

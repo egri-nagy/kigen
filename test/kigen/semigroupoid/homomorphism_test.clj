@@ -11,7 +11,8 @@
                                                      homomorphism?
                                                      homomorphism?-by-comprel
                                                      isomorphisms
-                                                     homomorphisms]]))
+                                                     homomorphisms
+                                                     nil2n n2nil]]))
 
 (def S
   [[0 1 2 3 4 nil]
@@ -46,22 +47,13 @@
             [p q]
             (compfo S p q 3))))
     (is (= (set (composable-pairs S))
-           (set (let [S2 (mapv
-                          (partial mapv #({nil (count S)} % %))
-                          S)]
+           (set (let [S2 (nil2n S)]
                   (l/run*
-                         [p q]
-                         (l/fresh [r]
-                                  (fd/in r (fd/interval 0 (dec (count S2))))
-                                  (compfo S2 p q r)))))))))
+                   [p q]
+                   (l/fresh [r]
+                            (fd/in r (fd/interval 0 (dec (count S2))))
+                            (compfo S2 p q r)))))))))
 
-(l/run*
- [q]
- (l/fresh [a b c]
-          (l/everyg
-           (fn [r]
-             (l/conde
-              [(l/nilo r)]
-              [(l/== r 1)]))
-           [a b c])
-          (l/== q [a b c])))
+(deftest n-nil-conversion-test
+  (testing "Testing n-nil conversion"
+    (is (= S (n2nil (nil2n S))))))
