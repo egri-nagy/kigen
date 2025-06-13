@@ -1,7 +1,7 @@
 (ns kigen.semigroupoid.transformation-test
   (:require [clojure.test :refer :all]
             [kigen.semigroupoid.transformation :refer [sgpoid-by-gens
-                                                       morphisms-by-type
+                                                       arrows-by-type
                                                        symbols-for-elts
                                                        symbol-comptab]]))
 
@@ -17,7 +17,7 @@
   (testing "Testing the closure algorithm for semigroupoid generators."
     (let [S (sgpoid-by-gens dual-mode-counter-gens)]
       (is (= 15 (count S)))
-      (is (= 4 (count (morphisms-by-type S)))))))
+      (is (= 4 (count (arrows-by-type S)))))))
 
 ; Example 3.2
 (def two-objs-six-arrows-gens
@@ -57,4 +57,4 @@
     (let [A2 (sgpoid-by-gens A2-gens)]
       (is (= 16 (count A2)))
       (is (= #{[0 0] [0 1] [1 0] [1 1]}
-             (first (distinct (vals (morphisms-by-type A2)))))))))
+             (first (distinct (vals (arrows-by-type A2)))))))))

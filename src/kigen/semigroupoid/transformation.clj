@@ -41,7 +41,7 @@
                      (targets (:s a))))))]
     (full-orbit gens generator-fn)))
 
-(defn morphisms-by-type
+(defn arrows-by-type
   "Returns a hash-map with  keys as types, i.e., [dom,codomain] pairs,
    and values as the set of all arrows of that type."
   [S]
