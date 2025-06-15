@@ -3,7 +3,8 @@
             [kigen.semigroupoid.transformation :refer [sgpoid-by-gens
                                                        arrows-by-type
                                                        symbols-for-elts
-                                                       symbol-comptab]]))
+                                                       symbol-comptab
+                                                       graph]]))
 
 ; example transformation semigroupoid
 ; Example A.1 in https://arxiv.org/abs/2504.04660
@@ -58,3 +59,9 @@
       (is (= 16 (count A2)))
       (is (= #{[0 0] [0 1] [1 0] [1 1]}
              (first (distinct (vals (arrows-by-type A2)))))))))
+
+(deftest graph-test
+  (testing "Getting the underlying graph"
+    (is (= (graph (sgpoid-by-gens [{:s 0 :t 1 :m [0 1]}
+                                   {:s 1 :t 2 :m [0 1]}]))
+           #{[0 2] [1 2] [0 1]}))))

@@ -41,6 +41,14 @@
   [a]
   [(:s a), (:t a)])
 
+(defn graph
+  "Returns the underlying graph of the arrow collection S."
+  [S]
+  (reduce (fn [g a]
+            (conj g (arrow-type a)))
+          #{}
+          S))
+
 (defn arrows-by-type ;todo What's the use?
   "Returns a hash-map with  keys as types, i.e., [dom,codomain] pairs,
    and values as the set of all arrows of that type."
