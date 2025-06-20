@@ -1,4 +1,4 @@
-(ns kigen.transf
+(ns kigen.diagram.transf
   "Transformations and permutations simply representated as vectors."
   (:require [kigen.sgp :as sgp]
             [kigen.position :as pos]))

@@ -1,7 +1,7 @@
-(ns kigen.transf-pbr
+(ns kigen.diagram.transf-pbr
   "Transformations and permutations embedded into partitioned
   binary relations."
-  (:require [kigen.pbr :as pbr]
+  (:require [kigen.diagram.pbr :as pbr]
             [kigen.combinatorics :refer [singleton?]]))
 
 (declare transf->binrel
@@ -64,3 +64,14 @@
   [pbr]
   (vec (map #(- % (count (:dom pbr)))
             (mapcat (fn [x] (filter (:cod pbr) (pbr x)) ) (sort (:dom pbr))))))
+
+;;pbr is a permutation if images of elements of the domain yield the codomain
+(defn binrel-perm?
+  [pbr]
+  (and (binrel-transf? pbr)
+       (= (:cod pbr) (reduce into #{} (for [key (:dom pbr)] (pbr key))))))
+
+(defn conjugate
+  "the conjugate of x by p, i.e. p^{-1}xp"
+  [x p]
+  (pbr/mul (pbr/mul (pbr/flip p) x) p))

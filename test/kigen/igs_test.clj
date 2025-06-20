@@ -4,7 +4,7 @@
             [orbit.core :refer [full-orbit]]
             [kigen.igs :as igs]
             [kigen.multab :as multab]
-            [kigen.transf :as transf]))
+            [kigen.diagram.transf :as transf]))
 
 (deftest num-of-igs-test
   (testing "Testing S3 for ."

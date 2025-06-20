@@ -1,10 +1,8 @@
-(ns kigen.transf-pbr-test
+(ns kigen.diagram.transf-pbr-test
   (:require [clojure.test :refer :all]
-            [kigen.transf-pbr :as tpbr]
-            [kigen.transf :as t]
-            [kigen.sgp :as sgp]
-            [kigen.pbr :as pbr]
-            [kigen.conjugacy :as conjugacy]))
+            [kigen.diagram.transf-pbr :as tpbr]
+            [kigen.diagram.transf :as t]
+            [kigen.sgp :as sgp]))
 
 (deftest transf-binrel-test
   (testing "Testing the binary relation embedding."
@@ -29,3 +27,18 @@
         (is (= true
                (every? pred
                        (sgp/sgp-by-gens (t/full-ts-gens n) t/mul))))))))
+
+(deftest perm-binrel-test
+  (testing "Testing the binary relation embedding of permutations."
+    (let [ts [[5 4 3 2 1] [2 1 3 4 5]]
+          pbrs (map tpbr/transf->binrel ts)]
+      (is (every? #(= 5 %) (map tpbr/transf-binrel-degree pbrs)))
+      (is (every? tpbr/binrel-perm? pbrs))
+      (is (= ts (map tpbr/binrel->transf pbrs))))))
+
+(deftest perm-conjugate-test
+  (testing "Testing permutation conjugation."
+    (let [ts [[2 3 4 5 1] [2 1 3 4 5] [3 1 4 5 2]]
+          pbrs (map tpbr/transf->bipart ts)]
+      (is (= (last pbrs) (tpbr/conjugate (first pbrs)
+                                         (second pbrs)))))))

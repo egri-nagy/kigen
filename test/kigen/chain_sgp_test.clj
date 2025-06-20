@@ -1,6 +1,6 @@
 (ns kigen.chain-sgp-test
   (:require [clojure.test :refer [deftest testing is]]
-            [kigen.transf :as t]
+            [kigen.diagram.transf :as t]
             [kigen.chain-sgp :refer [check-morphism]]))
 
 ;from resources/sgpbestiary.clj

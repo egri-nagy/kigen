@@ -1,6 +1,6 @@
 (ns kigen.sgp-test
   (:require [clojure.test :refer :all]
-            [kigen.transf :as t]
+            [kigen.diagram.transf :as t]
             [kigen.sgp :as sgp]))
 
 (deftest commutativity-test

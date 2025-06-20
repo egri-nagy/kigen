@@ -7,7 +7,7 @@
             [kigen.scc :refer [scc]]
             [kigen.poset :as p]
             [kigen.chain :as chain]
-            [kigen.transf :as t]
+            [kigen.diagram.transf :as t]
             [kigen.combinatorics :refer [singleton?]]))
 
 (defn finite-set

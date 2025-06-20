@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [kigen.multab :as mt]
             [kigen.sgp :as sgp]
-            [kigen.transf :as transf]
-            [kigen.pbr :as pbr]))
+            [kigen.diagram.transf :as transf]))
 
 (deftest test-multab
   (testing "Testing multiplication tables."

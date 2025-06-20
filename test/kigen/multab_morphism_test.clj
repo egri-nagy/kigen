@@ -5,7 +5,7 @@
                                            isomorphisms
                                            homomorphisms]]
             [kigen.multab :as mt]
-            [kigen.transf :as transf]))
+            [kigen.diagram.transf :as transf]))
 
 (deftest test-multab
   (testing "Testing morphisms by multiplication tables."

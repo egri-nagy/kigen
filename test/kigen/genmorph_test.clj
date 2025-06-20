@@ -1,7 +1,7 @@
 (ns kigen.genmorph-test
   (:require [clojure.test :refer :all]
             [kigen.genmorph :refer :all]
-            [kigen.transf :as transf]
+            [kigen.diagram.transf :as transf]
             [kigen.conjugacy :as c]))
 
 ;(deftest gentab)

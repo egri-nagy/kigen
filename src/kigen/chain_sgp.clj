@@ -3,8 +3,8 @@
   (:require [clojure.set :refer [subset?]]
             [kigen.chain :as chain]
             [kigen.poset :as poset]
-            [kigen.transf :as t]
-            [kigen.transf-conj :as t-conj]
+            [kigen.diagram.transf :as t]
+            [kigen.diagram.transf-conj :as t-conj]
             [kigen.skeleton :as sk]
             [clojure.math.combinatorics :refer [selections]]))
 

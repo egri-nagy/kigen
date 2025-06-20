@@ -1,4 +1,4 @@
-(ns kigen.pbr
+(ns kigen.diagram.pbr
   "partitioned binary relations stored as maps: integers -> set of integers
    e.g. {1 #{1 2}, 2 #{2}}
    for degree n, domain is 1..n, codomain is n+1..2n

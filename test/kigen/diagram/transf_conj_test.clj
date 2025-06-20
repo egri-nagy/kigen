@@ -1,8 +1,7 @@
-(ns kigen.transf-conj-test
+(ns kigen.diagram.transf-conj-test
   (:require [clojure.test :refer :all]
-            [kigen.transf :as t]
-            [kigen.transf-conj :as t-c]
-            [kigen.sgp :as sgp]
+            [kigen.diagram.transf :as t]
+            [kigen.diagram.transf-conj :as t-c]
             [kigen.conjugacy :as conjugacy]))
 
 ;;CONJUGATION

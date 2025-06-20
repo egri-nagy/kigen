@@ -1,7 +1,7 @@
 (ns kigen.skeleton-test
   (:require [clojure.test :refer :all]
             [kigen.skeleton :as sk]
-            [kigen.transf :as transf]))
+            [kigen.diagram.transf :as transf]))
 
 ;from resources/sgpbestiary.clj
 (def becks

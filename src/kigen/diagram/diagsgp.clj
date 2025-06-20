@@ -1,5 +1,5 @@
-(ns kigen.diagsgp
-  (:require [kigen.pbr :as pbr]
+(ns kigen.diagram.diagsgp
+  (:require [kigen.diagram.pbr :as pbr]
             [kigen.sgp :as sgp]
             [kigen.transf :as transf]))
 

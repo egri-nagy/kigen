@@ -1,9 +1,9 @@
-(ns kigen.transf-conj
+(ns kigen.diagram.transf-conj
   "'Native' conjugacy class representative calculation. Transformations are
   separated into single point mappings of the form [source image].
   A permutation is constructed by finding the minimal relabeling of a
   transformation."
-  (:require   [kigen.transf :as t]
+  (:require   [kigen.diagram.transf :as t]
               [orbit.core :refer [tree-search]]
               [kigen.conjugacy :as conjugacy]
               [clojure.set :refer [map-invert]]

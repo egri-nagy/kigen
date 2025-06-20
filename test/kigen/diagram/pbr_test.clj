@@ -1,6 +1,6 @@
-(ns kigen.pbr-test
+(ns kigen.diagram.pbr-test
   (:require [clojure.test :refer [deftest testing is]]
-            [kigen.pbr :as pbr]))
+            [kigen.diagram.pbr :as pbr]))
 
 ;from resources/arxiv1102.0862.clj
 (def alpha {:dom #{1 2 3 4 5 6 7} :cod #{8 9 10 11 12 13 14 15 16}

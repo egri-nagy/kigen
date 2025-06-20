@@ -1,7 +1,6 @@
-(ns kigen.transf-test
+(ns kigen.diagram.transf-test
   (:require [clojure.test :refer :all]
-            [kigen.transf :as t]
-            [kigen.sgp :as sgp]))
+            [kigen.diagram.transf :as t]))
 
 (deftest transf-full-ts-test
   (testing "Testing full transformation semigroups."
