@@ -20,16 +20,16 @@
 (defn minconjugators
   "Finds the minimal conjugate of t under permutations G.
   Also returns the subset of G that takes t to that rep."
-  [conjugation-function t G]
+  [conjugation-function t symmetries]
   (reduce (fn [[mint conjugators :as r] p]
             (let [nt (conjugation-function t p)
                   comparison-result (compare nt mint)]
               (cond  (neg? comparison-result) [nt [p]]
                      (zero? comparison-result) [mint (conj conjugators p)]
                      :else r)))
-          ;start with symmetry and its result
-          [(conjugation-function t (first G)) [(first G)]]
-          (rest G)))
+          [(conjugation-function t (first symmetries)) ;first conjugate
+           [(first symmetries)]] ;and its conjugators
+          (rest symmetries)))
 
 (defn min-rep-and-class
   "Finds the minimal conjugacy class representative and its class
