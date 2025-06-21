@@ -1,8 +1,8 @@
-(ns kigen.subsgp-test
+(ns kigen.semigroup.subsgp-test
   (:require [clojure.test :refer :all]
             [kigen.diagram.transf :as t]
             [kigen.semigroup.sgp :as sgp]
-            [kigen.subsgp :as subsgp]))
+            [kigen.semigroup.subsgp :as subsgp]))
 
 (deftest subsgp-closure-test
   (testing "Testing subsemigroup closure with a single new generator."

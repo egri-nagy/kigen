@@ -1,6 +1,6 @@
-(ns kigen.genmorph-test
+(ns kigen.semigroup.genmorph-test
   (:require [clojure.test :refer :all]
-            [kigen.genmorph :refer :all]
+            [kigen.semigroup.genmorph :refer :all]
             [kigen.semigroup.sgp :refer [sgp-by-gens]]
             [kigen.diagram.transf :as transf]
             [kigen.semigroup.conjugacy :as c]))

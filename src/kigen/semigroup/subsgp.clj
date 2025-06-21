@@ -1,4 +1,4 @@
-(ns kigen.subsgp
+(ns kigen.semigroup.subsgp
   "General functions for computing subsemigroups.
   Black box style, the element(s) and the operation need to be supplied."
   (:require   [orbit.core :refer [full-orbit]]

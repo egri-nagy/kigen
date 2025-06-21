@@ -1,4 +1,4 @@
-(ns kigen.genmorph
+(ns kigen.semigroup.genmorph
   "Constructing isomorphisms/embeddings between semigroups given  by generators.
   In other words, searching for an isomorphisms of Cayley-graphs.
   The elements of both semigroups are fully enumerated.
