@@ -2,6 +2,7 @@
   "Abstract functions for calculating conjugate elements, conjugacy classes,
   and representatives.")
 
+;;; conjugating a single thing ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn conjrep-by-minimum
   "Naive brute force implementation of finding the minimal conjugacy class
   representative of a thing by going through all of its conjugates
@@ -16,20 +17,6 @@
                 minimal-thing)))
           thing
           symmetries))
-
-(defn minconjugators
-  "Finds the minimal conjugate of t under permutations G.
-  Also returns the subset of G that takes t to that rep."
-  [conjugation-function t symmetries]
-  (reduce (fn [[mint conjugators :as r] p]
-            (let [nt (conjugation-function t p)
-                  comparison-result (compare nt mint)]
-              (cond  (neg? comparison-result) [nt [p]]
-                     (zero? comparison-result) [mint (conj conjugators p)]
-                     :else r)))
-          [(conjugation-function t (first symmetries)) ;first conjugate
-           [(first symmetries)]] ;and its conjugators
-          (rest symmetries)))
 
 (defn min-rep-and-class
   "Finds the minimal conjugacy class representative and its class
@@ -48,7 +35,21 @@
    [(conjrepfunc (first T)) [(first T)]]
    (rest T)))
 
+(defn minconjugators
+  "Finds the minimal conjugate of t under permutations G.
+  Also returns the subset of G that takes t to that rep."
+  [conjugation-function t symmetries]
+  (reduce (fn [[mint conjugators :as r] p]
+            (let [nt (conjugation-function t p)
+                  comparison-result (compare nt mint)]
+              (cond  (neg? comparison-result) [nt [p]]
+                     (zero? comparison-result) [mint (conj conjugators p)]
+                     :else r)))
+          [(conjugation-function t (first symmetries)) ;first conjugate
+           [(first symmetries)]] ;and its conjugators
+          (rest symmetries)))
 
+;;; conjugating a set of things ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn conjugateset
   "Generalized conjugation function for sets."
   [conjugation-function things sym]
@@ -65,7 +66,7 @@
            (vec (apply sorted-set things))
            symmetries))
 
-
+;;; conjugating a sequence ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn conj-conj
 
   [conjugation-function [L G] t]
