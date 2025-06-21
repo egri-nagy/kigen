@@ -41,7 +41,7 @@
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
   values. WARNING: It fully enumerates T."
-  [{Sgens :gens Smul :mul} Tgens Tmul]
+  [Sgens Smul Tgens Tmul]
   (let [ipfunc (fn [mul] (fn [x] (index-period x mul)))
         S-index-period (ipfunc Smul)
         T-index-period (ipfunc Tmul)
@@ -56,18 +56,18 @@
   containing the images of the source generators, or an empty list.
   Results are up to conjugation if conjugation action and symmetries are given."
   ([Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
-   (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)]
+   (let [{mSgens :gens mSmul :mul} (gentab Sgens Smul)]
      (map (fn [m] (zipmap Sgens (map m mSgens))) ; mappings of the generators
           (embeddings mSgens
                       mSmul
-                      (index-period-matched mS Tgens Tmul)
+                      (index-period-matched mSgens mSmul Tgens Tmul)
                       Tmul))))
   ([Sgens Smul Tgens Tmul conj-fn-bundle] ; ALL EMBEDDINGS UP TO CONJUGATION
-   (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)]
+   (let [{mSgens :gens mSmul :mul} (gentab Sgens Smul)]
      (map (fn [m] (zipmap Sgens (map m mSgens)))
           (embeddings-distinct mSgens
                                mSmul
-                               (index-period-matched mS Tgens Tmul)
+                               (index-period-matched mSgens mSmul Tgens Tmul)
                                Tmul
                                conj-fn-bundle)))))
 
@@ -146,13 +146,12 @@
 
 (defn call-embedding
   [Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
-  (let [{mSgens :gens mSmul :mul :as mS} (gentab Sgens Smul)]
+  (let [{mSgens :gens mSmul :mul} (gentab Sgens Smul)]
     (map (fn [m] (zipmap Sgens (map m mSgens))) ; mappings of the generators
          (embedding mSgens
                     mSmul
-                    (index-period-matched mS Tgens Tmul)
+                    (index-period-matched mSgens mSmul Tgens Tmul)
                     Tmul))))
-
 
 (defn distinct-up-to-f
   "Classifies the elements of coll by function f and keeps only
