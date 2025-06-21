@@ -4,17 +4,18 @@
 
 (defn conjrep-by-minimum
   "Naive brute force implementation of finding the minimal conjugacy class
-  representative of a ting by going through all of its conjugates
+  representative of a thing by going through all of its conjugates
   induced by the given symmetries using a conjugation function.
   The conjugation function has the form: thing symmetry -> conjugated thing.
   Assumption is that things can be compared."
   [conjugation-function thing symmetries]
-  (letfn [(f [minimal-thing sym]
+  (reduce (fn [minimal-thing sym]
             (let [new-thing (conjugation-function thing sym)]
               (if (neg? (compare new-thing minimal-thing))
                 new-thing
-                minimal-thing)))]
-    (reduce f thing symmetries)))
+                minimal-thing)))
+          thing
+          symmetries))
 
 (defn minconjugators
   "Finds the minimal conjugate of t under permutations G.
