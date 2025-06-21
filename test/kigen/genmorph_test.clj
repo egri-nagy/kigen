@@ -1,6 +1,7 @@
 (ns kigen.genmorph-test
   (:require [clojure.test :refer :all]
             [kigen.genmorph :refer :all]
+            [kigen.sgp :refer [sgp-by-gens]]
             [kigen.diagram.transf :as transf]
             [kigen.conjugacy :as c]))
 
@@ -12,8 +13,8 @@
           T2gens (transf/full-ts-gens 2)
           T3gens (transf/full-ts-gens 3)
           T4gens (transf/full-ts-gens 4)
-          S3 (transf/sgp-by-gens (transf/symmetric-gens 3))
-          S4 (transf/sgp-by-gens (transf/symmetric-gens 4))
+          S3 (sgp-by-gens (transf/symmetric-gens 3) transf/mul)
+          S4 (sgp-by-gens (transf/symmetric-gens 4) transf/mul)
           tmul transf/mul
           tconj transf/conjugate]
       (is (= 6 (count

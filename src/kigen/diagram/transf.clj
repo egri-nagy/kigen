@@ -46,10 +46,10 @@
   [s t]
   (mapv t s)) ; as simple as that
 
-(defn sgp-by-gens
-  "Transformation semigroup by generators. "
-  [gens]
-  (sgp/sgp-by-gens gens mul))
+;; (defn sgp-by-gens
+;;   "Transformation semigroup by generators. "
+;;   [gens]
+;;   (sgp/sgp-by-gens gens mul))
 
 (defn act
   "Transformation t acting on a set of points."

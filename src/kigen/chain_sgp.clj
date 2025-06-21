@@ -1,6 +1,7 @@
 (ns kigen.chain-sgp
   "Chain semigroups based on a skeleton."
   (:require [clojure.set :refer [subset?]]
+            [kigen.sgp :refer [sgp-by-gens]]
             [kigen.chain :as chain]
             [kigen.poset :as poset]
             [kigen.diagram.transf :as t]
@@ -95,7 +96,7 @@
   "Takes a generator set of transformations, produces a chain semigroup and
   checks the morphic relation by checking all products."
   [gens]
-  (let [S (t/sgp-by-gens gens)
+  (let [S (sgp-by-gens gens t/mul)
         sk (sk/skeleton gens)
         chains (max-chains (:stateset sk) (:supsethd sk))
         up (partial ->chain-transf sk chains)

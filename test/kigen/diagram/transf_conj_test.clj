@@ -1,5 +1,6 @@
 (ns kigen.diagram.transf-conj-test
   (:require [clojure.test :refer :all]
+            [kigen.sgp :refer [sgp-by-gens]]
             [kigen.diagram.transf :as t]
             [kigen.diagram.transf-conj :as t-c]
             [kigen.conjugacy :as conjugacy]))
@@ -25,8 +26,8 @@
 
 (deftest transf-conjrep-test
   (testing "Conjugacy class representatives, direct search vs. naive method."
-    (let [S5 (t/sgp-by-gens (t/symmetric-gens 5))
-          T5 (t/sgp-by-gens (t/full-ts-gens 5))
+    (let [S5 (sgp-by-gens (t/symmetric-gens 5) t/mul)
+          T5 (sgp-by-gens (t/full-ts-gens 5) t/mul)
           sets [
                 [[1 2 1 2 1] [3 3 1 2 0] [4 1 3 0 2]]
                 [[3 3 1 2 0] [4 1 3 0 2]]
@@ -42,8 +43,8 @@
 
 (deftest transf-test-conjugators
   (testing "Minimal conjugators."
-    (let [T4 (t/sgp-by-gens (t/full-ts-gens 4))
-          S4 (t/sgp-by-gens (t/symmetric-gens 4))]
+    (let [T4 (sgp-by-gens (t/full-ts-gens 4) t/mul)
+          S4 (sgp-by-gens (t/symmetric-gens 4) t/mul)]
       (is (empty?
            (filter
             (fn [x] (not= (set (t-c/conjugators x (t-c/conjrep x)))

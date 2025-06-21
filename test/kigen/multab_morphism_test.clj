@@ -4,14 +4,15 @@
                                            divisions
                                            isomorphisms
                                            homomorphisms]]
+            [kigen.sgp :refer [sgp-by-gens]]
             [kigen.multab :as mt]
             [kigen.diagram.transf :as transf]))
 
 (deftest test-multab
   (testing "Testing morphisms by multiplication tables."
-    (let [mtT2 (mt/multab (transf/sgp-by-gens (transf/full-ts-gens 2))
+    (let [mtT2 (mt/multab (sgp-by-gens (transf/full-ts-gens 2) transf/mul)
                           transf/mul)
-          mtS3 (mt/multab (transf/sgp-by-gens (transf/symmetric-gens 3))
+          mtS3 (mt/multab (sgp-by-gens (transf/symmetric-gens 3) transf/mul)
                           transf/mul)]
       ;T2 -> T2
       (is (= 120 (count (relmorphisms mtT2 mtT2))))

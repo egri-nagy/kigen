@@ -5,19 +5,19 @@
 
 (deftest commutativity-test
   (testing "Testing commutative?"
-    (is (sgp/commutative? (t/sgp-by-gens
-                           (t/cyclic-gens 11))
+    (is (sgp/commutative? (sgp/sgp-by-gens
+                           (t/cyclic-gens 11) t/mul)
                           t/mul))
-    (is (not (sgp/commutative? (t/sgp-by-gens
-                                (t/full-ts-gens 4))
+    (is (not (sgp/commutative? (sgp/sgp-by-gens
+                                (t/full-ts-gens 4) t/mul)
                                t/mul)))))
 (deftest k-nilpotency-test
   (testing "Testing k-nilpotency."
-    (is (sgp/k-nilpotent? 4 (t/sgp-by-gens
-                             [[0 0 1 2]])
+    (is (sgp/k-nilpotent? 4 (sgp/sgp-by-gens
+                             [[0 0 1 2]] t/mul)
                           t/mul))
-    (is (not (sgp/k-nilpotent? 3 (t/sgp-by-gens
-                                  (t/full-ts-gens 3))
+    (is (not (sgp/k-nilpotent? 3 (sgp/sgp-by-gens
+                                  (t/full-ts-gens 3) t/mul)
                                t/mul)))))
 
 (deftest index-period-test
