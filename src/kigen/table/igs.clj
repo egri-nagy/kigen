@@ -1,7 +1,7 @@
-(ns kigen.igs
+(ns kigen.table.igs
   "Independent sets of semigroups represented by multiplication tables."
   (:require [clojure.data.int-map :refer [dense-int-set difference]]
-            [kigen.multab :as multab]))
+            [kigen.table.multab :as multab]))
 
 (defn independent?
   "Decides whether the set A is an independent set in multiplication table mt."

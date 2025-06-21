@@ -1,11 +1,11 @@
-(ns kigen.multab-morphism-test
+(ns kigen.table.multab-morphism-test
   (:require [clojure.test :refer [deftest testing is]]
-            [kigen.multab-morphism :refer [relmorphisms
-                                           divisions
-                                           isomorphisms
-                                           homomorphisms]]
+            [kigen.table.multab-morphism :refer [relmorphisms
+                                                 divisions
+                                                 isomorphisms
+                                                 homomorphisms]]
             [kigen.semigroup.sgp :refer [sgp-by-gens]]
-            [kigen.multab :as mt]
+            [kigen.table.multab :as mt]
             [kigen.diagram.transf :as transf]))
 
 (deftest test-multab

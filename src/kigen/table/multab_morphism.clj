@@ -1,4 +1,4 @@
-(ns kigen.multab-morphism
+(ns kigen.table.multab-morphism
   "Constructing morphisms and morphic relations for multiplication tables.
   input: two multiplication tables (source, target)
   output: hash-maps describing morphisms, index i -> image
@@ -16,7 +16,7 @@
   (:require
    [clojure.set :refer [subset?]]
    [orbit.core :refer [terminating-tree-search tree-search]]
-   [kigen.multab :as multab]
+   [kigen.table.multab :as multab]
    [kigen.combinatorics :refer [non-empty-subsets
                                 big-enough-partitions]]
    [kigen.morphic :refer [morphism?]]))

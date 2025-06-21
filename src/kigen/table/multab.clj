@@ -1,4 +1,4 @@
-(ns kigen.multab
+(ns kigen.table.multab
   "Functions for dealing with abstract multiplication tables of semigroups.
   The multiplicative elements are represented by their indices in a
   given sequence. The tables are vectors of vectors (the rows of the table),

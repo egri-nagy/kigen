@@ -2,9 +2,6 @@
   (:require [clojure.test :refer [deftest testing is]]
             [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
-            [kigen.logic :refer [ntho]]
-            [clojure.math.combinatorics :refer [selections]]
-            [kigen.multab-morphism :as mtm]
             [kigen.semigroupoid.homomorphism :refer [compfo
                                                      compf
                                                      composable-pairs

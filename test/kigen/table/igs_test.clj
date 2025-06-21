@@ -1,10 +1,10 @@
-(ns kigen.igs-test
+(ns kigen.table.igs-test
   (:require [clojure.test :refer :all]
             [clojure.data.int-map :refer [dense-int-set]]
             [orbit.core :refer [full-orbit]]
             [kigen.semigroup.sgp :refer [sgp-by-gens]]
-            [kigen.igs :as igs]
-            [kigen.multab :as multab]
+            [kigen.table.igs :as igs]
+            [kigen.table.multab :as multab]
             [kigen.diagram.transf :as transf]))
 
 (deftest num-of-igs-test
