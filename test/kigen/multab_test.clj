@@ -1,7 +1,7 @@
 (ns kigen.multab-test
   (:require [clojure.test :refer :all]
             [kigen.multab :as mt]
-            [kigen.sgp :as sgp]
+            [kigen.semigroup.sgp :as sgp]
             [kigen.diagram.transf :as transf]))
 
 (deftest test-multab

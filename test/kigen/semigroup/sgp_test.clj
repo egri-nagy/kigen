@@ -1,7 +1,7 @@
-(ns kigen.sgp-test
+(ns kigen.semigroup.sgp-test
   (:require [clojure.test :refer :all]
             [kigen.diagram.transf :as t]
-            [kigen.sgp :as sgp]))
+            [kigen.semigroup.sgp :as sgp]))
 
 (deftest commutativity-test
   (testing "Testing commutative?"

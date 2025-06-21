@@ -8,7 +8,7 @@
   efficient int-sets."
   (:require [clojure.set :refer [union subset?]]
             [orbit.core :refer [partial-orbit full-orbit pfull-orbit]]
-            [kigen.sgp :as sgp]
+            [kigen.semigroup.sgp :as sgp]
             [clojure.core.reducers :as r]
             [clojure.data.int-map :as i-m]))
 

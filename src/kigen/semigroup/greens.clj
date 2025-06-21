@@ -1,8 +1,8 @@
-(ns kigen.greens
+(ns kigen.semigroup.greens
   "Black box algorithms to compute Green's relations. Basic implementations,
    not efficient ones. Suitable for small semigroups, written for processing
    the enumerated transformation semigroups."
-  (:require [kigen.action :refer [right-action]]))
+  (:require [kigen.semigroup.action :refer [right-action]]))
 
 (declare principal-right-ideal
          principal-left-ideal

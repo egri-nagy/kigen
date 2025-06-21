@@ -1,4 +1,4 @@
-(ns kigen.conjugacy
+(ns kigen.semigroup.conjugacy
   "Abstract functions for calculating conjugate elements, conjugacy classes,
   and representatives.")
 

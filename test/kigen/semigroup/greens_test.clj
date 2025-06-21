@@ -1,8 +1,8 @@
-(ns kigen.greens-test
+(ns kigen.semigroup.greens-test
   (:require [clojure.test :refer [deftest testing is]]
             [kigen.diagram.transf :as t]
-            [kigen.sgp :as s]
-            [kigen.greens :refer :all]))
+            [kigen.semigroup.sgp :as s]
+            [kigen.semigroup.greens :refer :all]))
 
 (def T3 (s/sgp-by-gens (t/full-ts-gens 3) t/mul))
 

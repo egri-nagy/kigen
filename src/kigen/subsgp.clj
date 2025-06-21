@@ -2,7 +2,7 @@
   "General functions for computing subsemigroups.
   Black box style, the element(s) and the operation need to be supplied."
   (:require   [orbit.core :refer [full-orbit]]
-              [kigen.action :refer [right-action]]))
+              [kigen.semigroup.action :refer [right-action]]))
 
 (defn new-elts
   "Takes a set and an element and returns the closure with that element

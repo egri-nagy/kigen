@@ -1,9 +1,9 @@
 (ns kigen.genmorph-test
   (:require [clojure.test :refer :all]
             [kigen.genmorph :refer :all]
-            [kigen.sgp :refer [sgp-by-gens]]
+            [kigen.semigroup.sgp :refer [sgp-by-gens]]
             [kigen.diagram.transf :as transf]
-            [kigen.conjugacy :as c]))
+            [kigen.semigroup.conjugacy :as c]))
 
 ;(deftest gentab)
 

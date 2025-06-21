@@ -6,7 +6,7 @@
   table containing all the images of right multiplication by generators).
   The elements of target semigroups are classified by their index-periods in
   order to find possible targets for generators."
-  (:require [kigen.sgp :refer [sgp-by-gens index-period ->Sgp]]
+  (:require [kigen.semigroup.sgp :refer [sgp-by-gens index-period ->Sgp]]
             [orbit.core :refer [ptree-search-depth-first]] ;tree-search for single-threaded execution
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]

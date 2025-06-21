@@ -1,7 +1,7 @@
 (ns kigen.subsgp-test
   (:require [clojure.test :refer :all]
             [kigen.diagram.transf :as t]
-            [kigen.sgp :as sgp]
+            [kigen.semigroup.sgp :as sgp]
             [kigen.subsgp :as subsgp]))
 
 (deftest subsgp-closure-test

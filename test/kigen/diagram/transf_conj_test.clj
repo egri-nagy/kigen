@@ -1,9 +1,9 @@
 (ns kigen.diagram.transf-conj-test
   (:require [clojure.test :refer :all]
-            [kigen.sgp :refer [sgp-by-gens]]
+            [kigen.semigroup.sgp :refer [sgp-by-gens]]
             [kigen.diagram.transf :as t]
             [kigen.diagram.transf-conj :as t-c]
-            [kigen.conjugacy :as conjugacy]))
+            [kigen.semigroup.conjugacy :as conjugacy]))
 
 ;;CONJUGATION
 (deftest realize-a-mapping-test

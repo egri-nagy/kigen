@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [clojure.data.int-map :refer [dense-int-set]]
             [orbit.core :refer [full-orbit]]
-            [kigen.sgp :refer [sgp-by-gens]]
+            [kigen.semigroup.sgp :refer [sgp-by-gens]]
             [kigen.igs :as igs]
             [kigen.multab :as multab]
             [kigen.diagram.transf :as transf]))

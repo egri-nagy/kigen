@@ -1,4 +1,4 @@
-(ns kigen.action
+(ns kigen.semigroup.action
   "Producing actions from binary functions.")
 
 (declare right-action  ; binary function to single argument operator

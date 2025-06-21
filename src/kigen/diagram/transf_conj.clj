@@ -5,7 +5,7 @@
   transformation."
   (:require   [kigen.diagram.transf :as t]
               [orbit.core :refer [tree-search]]
-              [kigen.conjugacy :as conjugacy]
+              [kigen.semigroup.conjugacy :as conjugacy]
               [clojure.set :refer [map-invert]]
               [clojure.data.int-map :refer [dense-int-set]]))
 

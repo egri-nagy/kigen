@@ -1,7 +1,7 @@
 (ns kigen.chain-sgp
   "Chain semigroups based on a skeleton."
   (:require [clojure.set :refer [subset?]]
-            [kigen.sgp :refer [sgp-by-gens]]
+            [kigen.semigroup.sgp :refer [sgp-by-gens]]
             [kigen.chain :as chain]
             [kigen.poset :as poset]
             [kigen.diagram.transf :as t]

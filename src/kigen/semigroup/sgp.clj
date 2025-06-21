@@ -1,9 +1,9 @@
-(ns kigen.sgp
+(ns kigen.semigroup.sgp
   "General functions for semigroups. Black box style, the element(s)
   and the operation need to be supplied."
   (:require [clojure.math.combinatorics :refer [selections]]
             [orbit.core :refer [full-orbit]]
-            [kigen.action :refer [right-action right-actions set-action]]
+            [kigen.semigroup.action :refer [right-action right-actions set-action]]
             [kigen.memory-info :refer [mem-info]]
             [taoensso.timbre :refer [trace]]))
 

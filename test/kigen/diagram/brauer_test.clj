@@ -2,7 +2,7 @@
   (:require
    [clojure.test :refer [deftest is]]
    [kigen.diagram.brauer :as br]
-   [kigen.sgp :as sgp]))
+   [kigen.semigroup.sgp :as sgp]))
 
 ;;https://oeis.org/A001147
 (deftest brauer-monoid-size

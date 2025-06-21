@@ -4,7 +4,7 @@
                                            divisions
                                            isomorphisms
                                            homomorphisms]]
-            [kigen.sgp :refer [sgp-by-gens]]
+            [kigen.semigroup.sgp :refer [sgp-by-gens]]
             [kigen.multab :as mt]
             [kigen.diagram.transf :as transf]))
 

@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [kigen.diagram.transf-pbr :as tpbr]
             [kigen.diagram.transf :as t]
-            [kigen.sgp :as sgp]))
+            [kigen.semigroup.sgp :as sgp]))
 
 (deftest transf-binrel-test
   (testing "Testing the binary relation embedding."
