@@ -1,4 +1,4 @@
-(ns kigen.trie-test
+(ns kigen.transducer.trie-test
   (:require [clojure.test :refer :all]
             [kigen.transducer.trie :refer :all]))
 

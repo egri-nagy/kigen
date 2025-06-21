@@ -1,4 +1,4 @@
-(ns kigen.transducer-from-trajectories-test
+(ns kigen.transducer.transducer-from-trajectories-test
   (:require [clojure.test :refer :all]
             [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]

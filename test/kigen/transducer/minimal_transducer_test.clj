@@ -1,4 +1,4 @@
-(ns kigen.minimal-transducer-test
+(ns kigen.transducer.minimal-transducer-test
   (:require [clojure.test :refer [is testing deftest]]
             [kigen.transducer.minimal :refer [minimize-transducer]]
             [kigen.transducer.trie :as trie]
