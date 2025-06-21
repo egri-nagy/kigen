@@ -1,12 +1,12 @@
-(ns kigen.chain-sgp
+(ns kigen.holonomy.chain-sgp
   "Chain semigroups based on a skeleton."
   (:require [clojure.set :refer [subset?]]
             [kigen.semigroup.sgp :refer [sgp-by-gens]]
-            [kigen.chain :as chain]
-            [kigen.poset :as poset]
+            [kigen.holonomy.chain :as chain]
+            [kigen.holonomy.poset :as poset]
             [kigen.diagram.transf :as t]
             [kigen.diagram.transf-conj :as t-conj]
-            [kigen.skeleton :as sk]
+            [kigen.holonomy.skeleton :as sk]
             [clojure.math.combinatorics :refer [selections]]))
 
 (defn max-chains

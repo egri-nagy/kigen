@@ -1,4 +1,4 @@
-(ns kigen.chain
+(ns kigen.holonomy.chain
   "Chains in partially ordered sets given by their Hasse diagrams.
   A Hasse diagram  is a hash-map from elements to the set of related elements."
  (:require [orbit.core :refer [tree-search]]

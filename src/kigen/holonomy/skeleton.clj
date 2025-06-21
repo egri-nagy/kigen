@@ -1,12 +1,12 @@
-(ns kigen.skeleton
+(ns kigen.holonomy.skeleton
   "Skeleton of a transformation semigroup given by a set of  generators."
   (:require [clojure.set :refer [subset? superset?]]
             [orbit.core :refer [full-orbit partial-orbit]]
             [kigen.semigroup.action :refer [set-action right-actions]]
-            [kigen.cayley-graph :refer [cayley-graph]]
-            [kigen.scc :refer [scc]]
-            [kigen.poset :as p]
-            [kigen.chain :as chain]
+            [kigen.holonomy.cayley-graph :refer [cayley-graph]]
+            [kigen.holonomy.scc :refer [scc]]
+            [kigen.holonomy.poset :as p]
+            [kigen.holonomy.chain :as chain]
             [kigen.diagram.transf :as t]
             [kigen.combinatorics :refer [singleton?]]))
 

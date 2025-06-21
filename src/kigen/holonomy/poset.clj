@@ -1,4 +1,4 @@
-(ns kigen.poset
+(ns kigen.holonomy.poset
   "Computing partially ordered sets. Ways of defining binary relations:
   1. elements and a relation function (implicit)
   2. a map: element x -> set of related elements (explicit)")

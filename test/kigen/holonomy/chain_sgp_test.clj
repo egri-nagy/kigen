@@ -1,7 +1,7 @@
-(ns kigen.chain-sgp-test
+(ns kigen.holonomy.chain-sgp-test
   (:require [clojure.test :refer [deftest testing is]]
             [kigen.diagram.transf :as t]
-            [kigen.chain-sgp :refer [check-morphism]]))
+            [kigen.holonomy.chain-sgp :refer [check-morphism]]))
 
 ;from resources/sgpbestiary.clj
 (def bex [[0 1 0 0] [3 3 3 2] [2 2 3 3] [3 3 0 1] [1 0 3 3]])

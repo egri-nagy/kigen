@@ -1,6 +1,6 @@
-(ns kigen.poset-test
+(ns kigen.holonomy.poset-test
   (:require [clojure.test :refer [deftest testing is]]
-            [kigen.poset :as poset]))
+            [kigen.holonomy.poset :as poset]))
 
 (deftest poset-explicit-test
   (testing "Testing implicit to explicit conversion."

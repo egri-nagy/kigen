@@ -1,4 +1,4 @@
-(ns kigen.cayley-graph
+(ns kigen.holonomy.cayley-graph
   "Computing Cayley-graphs.")
 
 ;; elts - a set of elements

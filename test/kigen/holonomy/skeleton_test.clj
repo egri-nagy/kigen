@@ -1,6 +1,6 @@
-(ns kigen.skeleton-test
+(ns kigen.holonomy.skeleton-test
   (:require [clojure.test :refer :all]
-            [kigen.skeleton :as sk]
+            [kigen.holonomy.skeleton :as sk]
             [kigen.diagram.transf :as transf]))
 
 ;from resources/sgpbestiary.clj

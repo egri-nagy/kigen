@@ -1,6 +1,6 @@
-(ns kigen.chain-test
+(ns kigen.holonomy.chain-test
   (:require [clojure.test :refer :all]
-            [kigen.chain :as chain]))
+            [kigen.holonomy.chain :as chain]))
 
 (deftest chains-test
   (testing "Testing chains in cover relation."

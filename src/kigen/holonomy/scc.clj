@@ -1,4 +1,4 @@
-(ns kigen.scc
+(ns kigen.holonomy.scc
   "Strongly connected components of digraphs.")
 
 ;;adapted from:
