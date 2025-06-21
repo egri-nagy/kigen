@@ -1,7 +1,6 @@
 (ns kigen.diagram.transf
   "Transformations and permutations simply representated as vectors."
-  (:require [kigen.sgp :as sgp]
-            [kigen.position :as pos]))
+  (:require [kigen.position :as pos]))
 
 ;; STANDARD GENERATING SETS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -45,11 +44,6 @@
   "Right multiplication of transformations represented by vectors."
   [s t]
   (mapv t s)) ; as simple as that
-
-;; (defn sgp-by-gens
-;;   "Transformation semigroup by generators. "
-;;   [gens]
-;;   (sgp/sgp-by-gens gens mul))
 
 (defn act
   "Transformation t acting on a set of points."
