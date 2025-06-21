@@ -21,13 +21,13 @@
   "Finds the minimal conjugate of t under permutations G.
   Also returns the subset of G that takes t to that rep."
   [conjugation-function t G]
-  (reduce (fn [r p]
+  (reduce (fn [[mint conjugators :as r] p]
             (let [nt (conjugation-function t p)
-                  mint (first r)
                   comparison-result (compare nt mint)]
               (cond  (neg? comparison-result) [nt [p]]
-                     (zero? comparison-result) [mint (conj (second r) p)]
+                     (zero? comparison-result) [mint (conj conjugators p)]
                      :else r)))
+          ;start with symmetry and its result
           [(conjugation-function t (first G)) [(first G)]]
           (rest G)))
 
