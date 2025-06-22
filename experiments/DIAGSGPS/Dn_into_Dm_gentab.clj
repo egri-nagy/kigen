@@ -1,15 +1,15 @@
 ;; counting embeddings of full diagram semigroups into other full diagram
 ;; semigroups of the same type
 ;; generic code for diagram semigroups using the transformation representation
-(require '[kigen.transf :as t]
-         '[kigen.sgp :refer [->Sgp]]
-         '[kigen.conjugacy :as c]
-         '[kigen.transf-conj :as t-c]
-         '[kigen.genmorph :as gmorph]
+(require '[kigen.diagram.transf :as t]
+         '[kigen.semigroup.sgp :refer [->Sgp]]
+         '[kigen.semigroup.conjugacy :as c]
+         '[kigen.diagram.transf-conj :as t-c]
+         '[kigen.semigroup.genmorph :as gmorph]
          '[clojure.pprint :refer [pprint]]
          '[taoensso.timbre :as timbre])
 
-(timbre/merge-config! {:level :info})
+(timbre/set-min-level! :trace)
 
 (defn Dn-into-Dm [gf n m]
   (let [Dngens (gf n)
