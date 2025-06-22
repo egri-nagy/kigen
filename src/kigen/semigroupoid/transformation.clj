@@ -4,7 +4,8 @@
    :t - target, codomain
    :m - morphism, map"
   (:require [clojure.set :refer [union]]
-            [orbit.core :refer [full-orbit]]))
+            [orbit.core :refer [full-orbit]]
+            [clojure.math.combinatorics :refer [selections]]))
 
 (declare compose
          sgpoid-by-gens)
@@ -89,3 +90,15 @@
     (map (comp (partial apply str)
                (partial map converter))
          (comptab S))))
+
+(defn full-semigroupoid-gens
+  "graph - directed graph
+   sizes - number of states for each type/object"
+  [graph sizes]
+  (reduce
+   (fn [gens [s t]]
+     (into gens (map
+                 (fn [m] {:s s :t t :m (vec m)})
+                 (selections (range (sizes s)) (sizes t)))))
+   []
+   graph))
