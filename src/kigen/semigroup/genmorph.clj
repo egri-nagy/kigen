@@ -164,8 +164,8 @@
   of the image set, then by its conjugacy class representative."
   [morphs setconjrep]
   (->> morphs
-       (distinct-up-to-f (fn [m] (set (vals m))))
-       (distinct-up-to-f (fn [m] (setconjrep (vals m))))))
+       (distinct-up-to-f (comp set vals))
+       (distinct-up-to-f (comp setconjrep vals))))
 
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation. For the very first
