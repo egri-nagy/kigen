@@ -33,4 +33,8 @@
       (testing "Testing index-period."
         (is (= [4 1] (sgp/index-period [1 1 3 0 2] t/mul)))
         (is (= [1 1] (sgp/index-period [0 1 2 3 4 5 6 7] t/mul)))
-        (is (every? check [[0 0 0] [2 1 3 0] [2 1 2 1 2 1 2]])))))
+        (is (every? check [[0 0 0]
+                           [2 1 3 0]
+                           [2 1 2 1 2 1 2]
+                           [1 5 4 3 7 8 4 5 6 2 3 4 8]
+                           [1 1 1 5 5 5 5 8 8 8 1 1 1 6 7 8 9 4 3 2]])))))
