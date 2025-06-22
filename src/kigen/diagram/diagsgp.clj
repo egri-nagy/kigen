@@ -1,7 +1,7 @@
 (ns kigen.diagram.diagsgp
   (:require [kigen.diagram.pbr :as pbr]
-            [kigen.sgp :as sgp]
-            [kigen.transf :as transf]))
+            [kigen.semigroup.sgp :as sgp]
+            [kigen.diagram.transf :as transf]))
 
 (defn full-ts
   "Full transformation monoid of degree n."
