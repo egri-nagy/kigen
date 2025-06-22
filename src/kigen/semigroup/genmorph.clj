@@ -153,7 +153,7 @@
                     (index-period-matched mSgens mSmul Tgens Tmul)
                     Tmul))))
 
-(defn distinct-up-to-f
+(defn class-reps
   "Classifies the elements of coll by function f and keeps only
   a representative element from each class."
   [f coll]
@@ -164,8 +164,8 @@
   of the image set, then by its conjugacy class representative."
   [morphs setconjrep]
   (->> morphs
-       (distinct-up-to-f (comp set vals))
-       (distinct-up-to-f (comp setconjrep vals))))
+       (class-reps (comp set vals))
+       (class-reps (comp setconjrep vals))))
 
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation. For the very first
@@ -182,7 +182,7 @@
                              (r/map (partial conj-conj partconj)
                                     (nth tgs n)))
           ;we need to keep distinct generator sets
-          selected_seqs (distinct-up-to-f setconjrep conjed_seqs)]
+          selected_seqs (class-reps setconjrep conjed_seqs)]
       (into #{} (r/map last selected_seqs))))) ;set does not work here
 
 (defn embeddings-distinct
