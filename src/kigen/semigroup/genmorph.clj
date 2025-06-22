@@ -169,7 +169,9 @@
 
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation. For the very first
-  generator it chooses conjugacy class representatives. "
+  generator it chooses conjugacy class representatives.
+   Strategy: compute conjugacy class reps for sequences,
+   but filter them with setwise conjugacy."
   [phi n Sgens tgs
    {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
   (if (zero? n)
