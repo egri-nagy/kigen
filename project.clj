@@ -1,4 +1,4 @@
-(defproject org.clojars.egri-nagy/kigen "25.05.xx"
+(defproject org.clojars.egri-nagy/kigen "25.06.xx"
   :description "Computational semigroup theory software system shadowing several semigroup packages of the GAP computer algebra system."
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"
