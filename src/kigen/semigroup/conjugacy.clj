@@ -67,8 +67,12 @@
            symmetries))
 
 ;;; conjugating a sequence ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the idea is to extend the sequence with a decreasing number of symmetries
+; later in the sequence only the conjugators for the first minimal one can be
+; used, so they only get smaller, once down to the identity we can just add
+; the next
 (defn conj-conj
-
+  "Conjoining the next minimal conjugate to list L."
   [conjugation-function [L G] t]
   (let [[mint nG] (minconjugators conjugation-function t G)]
     [(conj L mint) nG]))
@@ -80,14 +84,14 @@
   (fn
     ([t] (let [[r nG] (minconjugators conjugation-function t G)]
            [[r] nG]))
-    ([ [L G] t]
+    ([[L G] t]
      (let [[r nG] (minconjugators conjugation-function t G)]
        [(conj  L r) nG]))))
 
 (defn seqconjrep
   "The conjugacy class representative of a sequence of elements L under
   permutations G."
-  [conjugation-function L G]
+  [conjugation-function L G] ;naming problem? this L is not the same as above?
   (first (reduce (partial conj-conj conjugation-function) [[] G] L)))
 
 (defrecord ConjugationFunctionBundle [conjrep setconjrep conjconj])
