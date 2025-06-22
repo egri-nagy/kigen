@@ -204,8 +204,7 @@
                                                       Smul
                                                       Tmul)]
                                           (if (and (coll? nmorph)
-                                                   (apply distinct? ;iso?
-                                                          (vals nmorph)))
+                                                   (bijective? nmorph)) ;iso?
                                             (conj newmorphs [(inc n) nmorph])
                                             newmorphs)))
                             result (reduce check-gen [] ngens)]
