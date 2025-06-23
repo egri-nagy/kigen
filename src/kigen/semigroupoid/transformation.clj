@@ -91,6 +91,7 @@
                (partial map converter))
          (comptab S))))
 
+;; todo move this graph algorithms, when there will a namespace like that
 (defn transitive-closure
   "Computes the transitive closure of the give graph."
   [graph]
@@ -108,8 +109,10 @@
                               ))]
     (full-orbit graph generator-fn)))
 
-(defn full-semigroupoid-gens
-  "graph - directed graph
+(defn full-semigroupoid
+  "Simply generating all transformation combinatorially based on the size
+   of the source and target.
+   graph - directed graph
    type2size - number of states for each type/object"
   [graph type2size]
   (reduce

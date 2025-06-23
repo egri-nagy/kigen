@@ -14,8 +14,13 @@
              [1 0 2]])
 
 
-(binding [orbit.extension/*task-size* 64]
- (println (first
-           (gmorph/sgp-embeddings-by-gens T3gens t/mul
-                                  (br/brauer-gens 8) br/mul))))
+;; this gives nil after a week or so
+;; (binding [orbit.extension/*task-size* 64]
+;;  (println (first
+;;            (gmorph/sgp-embeddings-by-gens T3gens t/mul
+;;                                   (br/brauer-gens 8) br/mul))))
 
+(binding [orbit.extension/*task-size* 64]
+  (println (first
+            (gmorph/call-embedding [[1 2 0] [0 0 2]] t/mul
+                                   (br/brauer-gens 8) br/mul))))

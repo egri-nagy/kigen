@@ -7,7 +7,7 @@
                      symbol-comptab
                      graph
                      transitive-closure
-                     full-semigroupoid-gens]]))
+                     full-semigroupoid]]))
 
 ; example transformation semigroupoid
 ; Example A.1 in https://arxiv.org/abs/2504.04660
@@ -81,8 +81,8 @@
            #{[2 2] [0 0] [1 0] [2 3] [3 3] [1 1] [3 0] [1 3] [0 3] [0 2]
              [2 0] [3 1] [2 1] [1 2] [3 2] [0 1]}))))
 
-(deftest full-semigroupoid-gens-test
+(deftest full-semigroupoid-test
   (testing "Full transformation semigroupoid."
-    (is (= 48 (count (full-semigroupoid-gens ;4 + 9 + 27 + 8
+    (is (= 48 (count (full-semigroupoid ;4 + 9 + 27 + 8
                       #{[0 0] [1 0] [1 1] [0 1]}
                       [2 3]))))))
