@@ -1,19 +1,20 @@
 (ns kigen.semigroupoid.homomorphism
-  "Enumerating all homomorphisms of a semigroupoid using relational programming.
+  "Enumerating all homomorphisms of a semigroupoid into another one using
+   relational programming.
    Semigroupoids are represented abstractly, as composition tables, a vector of
    vectors. For non-composable arrow pairs the corresponding entry is nil."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [kigen.logic :refer [ntho]]))
 
-(defn compf
+(defn compose
   "Composition function for arrows a and b in the given composition table S.
    Computing the composite is two vector lookups. Arrows a and b are assumed
    to be composable."
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
-(defn compfo
+(defn composo
   "This goal succeeds if a composed with b is ab in the composition table S."
   [S a b ab]
   (l/fresh
@@ -29,7 +30,7 @@
   (let [n (count S)]
     (for [a (range n)
           b (range n)
-          :when (compf S a b)] ;when composition gives something not nil
+          :when (compose S a b)] ;when composition gives something not nil
       [a b])))
 
 (defn composition-relation
@@ -37,7 +38,7 @@
    compose to that key value. Composition turned backwards."
   [S]
   (group-by (fn [[a b]]
-              (compf S a b))
+              (compose S a b))
             (composable-pairs S)))
 
 (defn substitute
@@ -57,7 +58,7 @@
    pairs - all the a,b pairs such that a composed with  b is ab"
   [T ab pairs]
   (every?
-   (fn [[a b]] (=  ab (compf T a b)))
+   (fn [[a b]] (=  ab (compose T a b)))
    pairs))
 
 (defn homomorphism?-by-comprel
@@ -73,8 +74,8 @@
    just for checking how to do it functionally, before relationally"
   [S T phi]
   (every? (fn [[a b]]
-            (= (phi (compf S a b))
-               (compf T (phi a) (phi b))))
+            (= (phi (compose S a b))
+               (compose T (phi a) (phi b))))
           (composable-pairs S)))
 
 (defn n2nil
@@ -105,7 +106,7 @@
        l/succeed)
      (l/everyg (fn [[ab pairs]]
                  (l/everyg (fn [[a b]]
-                             (compfo T2 a b ab))
+                             (composo T2 a b ab))
                            pairs))
                constraints)
      (l/== q phi))))

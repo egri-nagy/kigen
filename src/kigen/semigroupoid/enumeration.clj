@@ -4,7 +4,7 @@
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
-            [kigen.semigroupoid.homomorphism :refer [compfo compf]]))
+            [kigen.semigroupoid.homomorphism :refer [composo compose]]))
 
 (defn associativity?
   "Brute-force checking associativity for a composition table. If the triples
@@ -12,8 +12,8 @@
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every?
-    (fn [[a b c]] (= (compf S a (compf S b c))
-                     (compf S (compf S a b) c)))
+    (fn [[a b c]] (= (compose S a (compose S b c))
+                     (compose S (compose S a b) c)))
     triples)))
 
 (defn associativo
@@ -21,10 +21,10 @@
   [S a b c]
   (l/fresh
    [ab bc abc]
-   (compfo S ab c abc)
-   (compfo S a bc abc)
-   (compfo S a b ab)
-   (compfo S b c bc)))
+   (composo S ab c abc)
+   (composo S a bc abc)
+   (composo S a b ab)
+   (composo S b c bc)))
 
 (defn composable-triples
   "Returns all the composable triples for a composition table.
@@ -40,8 +40,8 @@
     ;todo: there is a better way finding all composable pairs and combine
     (filter
      (fn [[a b c]]
-       (and (elts (compf S a b)) ;checking set memberhsip
-            (elts (compf S b c))))
+       (and (elts (compose S a b)) ;checking set memberhsip
+            (elts (compose S b c))))
      triples)))
 
 (defn semigroupoid?
@@ -80,7 +80,7 @@
   [S a b elts]
   (l/fresh
    [ab]
-   (compfo S a b ab)
+   (composo S a b ab)
    (fd/in ab elts)))
 
 (defn semigroupoids-order-n
@@ -104,9 +104,9 @@
                    (composablo S b c elts)
                    (associativo S a b c)]
                   [(composablo S a b elts) ;a,b composable; b,c not
-                   (compfo S b c n)]
+                   (composo S b c n)]
                   [(composablo S b c elts) ;b,c composable, a,b not
-                   (compfo S a b n)]
-                  [(compfo S a b n) ; neither composable
-                   (compfo S b c n)])) triples)
+                   (composo S a b n)]
+                  [(composo S a b n) ; neither composable
+                   (composo S b c n)])) triples)
      (l/== q S))))

@@ -2,8 +2,8 @@
   (:require [clojure.test :refer [deftest testing is]]
             [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
-            [kigen.semigroupoid.homomorphism :refer [compfo
-                                                     compf
+            [kigen.semigroupoid.homomorphism :refer [composo
+                                                     compose
                                                      composable-pairs
                                                      homomorphism?
                                                      homomorphism?-by-comprel
@@ -36,20 +36,20 @@
    [nil nil nil nil nil nil nil 7 8 9 13 11 10 12 14]
    [nil nil nil nil nil nil nil 7 8 9 14 11 9 11 14]])
 
-(deftest compfo-test
-  (testing "Testing the goal compfo"
+(deftest composo-test
+  (testing "Testing the goal composo"
      ;what pairs produce 3?
     (is (= [[0 3] [1 4]]
            (l/run*
             [p q]
-            (compfo S p q 3))))
+            (composo S p q 3))))
     (is (= (set (composable-pairs S))
            (set (let [S2 (nil2n S)]
                   (l/run*
                    [p q]
                    (l/fresh [r]
                             (fd/in r (fd/interval 0 (dec (count S2))))
-                            (compfo S2 p q r)))))))))
+                            (composo S2 p q r)))))))))
 
 (deftest n-nil-conversion-test
   (testing "Testing n-nil conversion"
