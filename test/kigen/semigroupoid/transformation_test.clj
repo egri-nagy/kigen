@@ -1,10 +1,13 @@
 (ns kigen.semigroupoid.transformation-test
   (:require [clojure.test :refer :all]
-            [kigen.semigroupoid.transformation :refer [sgpoid-by-gens
-                                                       arrows-by-type
-                                                       symbols-for-elts
-                                                       symbol-comptab
-                                                       graph]]))
+            [kigen.semigroupoid.transformation
+             :refer [sgpoid-by-gens
+                     arrows-by-type
+                     symbols-for-elts
+                     symbol-comptab
+                     graph
+                     transitive-closure
+                     full-semigroupoid-gens]]))
 
 ; example transformation semigroupoid
 ; Example A.1 in https://arxiv.org/abs/2504.04660
@@ -65,3 +68,21 @@
     (is (= (graph (sgpoid-by-gens [{:s 0 :t 1 :m [0 1]}
                                    {:s 1 :t 2 :m [0 1]}]))
            #{[0 2] [1 2] [0 1]}))))
+
+(deftest transitive-closure-test
+  (testing "The transitive closure of directed graphs."
+    (is (= (transitive-closure [[0 0] [1 1]])
+           #{[0 0] [1 1]}))
+    (is (= (transitive-closure [[0 1] [1 0]])
+           #{[0 0] [1 0] [1 1] [0 1]}))
+    (is (= (transitive-closure [[0 1] [1 2] [2 3]])
+           #{[2 3] [1 3] [0 3] [0 2] [1 2] [0 1]}))
+    (is (= (transitive-closure [[0 1] [1 2] [2 3] [3 0]])
+           #{[2 2] [0 0] [1 0] [2 3] [3 3] [1 1] [3 0] [1 3] [0 3] [0 2]
+             [2 0] [3 1] [2 1] [1 2] [3 2] [0 1]}))))
+
+(deftest full-semigroupoid-gens-test
+  (testing "Full transformation semigroupoid."
+    (is (= 48 (count (full-semigroupoid-gens ;4 + 9 + 27 + 8
+                      #{[0 0] [1 0] [1 1] [0 1]}
+                      [2 3]))))))
