@@ -91,14 +91,31 @@
                (partial map converter))
          (comptab S))))
 
+(defn transitive-closure
+  "Computes the transitive closure of the give graph."
+  [graph]
+  (let [sources (group-by first graph)
+        targets (group-by second graph)
+        generator-fn (fn [[s t]]
+                       (union (set (map
+                                    (fn [[s' _]]
+                                      [s' t])
+                                    (targets s)))
+                              (set (map
+                                    (fn [[_ t']]
+                                      [s t'])
+                                    (sources t)))
+                              ))]
+    (full-orbit graph generator-fn)))
+
 (defn full-semigroupoid-gens
   "graph - directed graph
-   sizes - number of states for each type/object"
-  [graph sizes]
+   type2size - number of states for each type/object"
+  [graph type2size]
   (reduce
    (fn [gens [s t]]
      (into gens (map
                  (fn [m] {:s s :t t :m (vec m)})
-                 (selections (range (sizes s)) (sizes t)))))
+                 (selections (range (type2size s)) (type2size t)))))
    []
    graph))
