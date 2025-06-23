@@ -1,14 +1,15 @@
 (ns kigen.semigroupoid.homomorphism
   "Enumerating all homomorphisms of a semigroupoid using relational programming.
    Semigroupoids are represented abstractly, as composition tables, a vector of
-   vectors."
+   vectors. For non-composable arrow pairs the corresponding entry is nil."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [kigen.logic :refer [ntho]]))
 
 (defn compf
   "Composition function for arrows a and b in the given composition table S.
-   Computing the composite is two vector lookups. "
+   Computing the composite is two vector lookups. Arrows a and b are assumed
+   to be composable."
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
@@ -76,7 +77,6 @@
                (compf T (phi a) (phi b))))
           (composable-pairs S)))
 
-
 (defn n2nil
   "Replace all n values (non-elements) with nil in composition table T."
   [T]
@@ -123,7 +123,7 @@
   (morphism-search S T false))
 
 (defn sgps-up-to-morphisms
-  "Given a collection of composition tables, it returns the isomoprhims
+  "Given a collection of composition tables, it returns the isomorphism
    anti-isomporhism class representatives."
   [sgps]
   (reduce
@@ -132,7 +132,7 @@
                  (or (first (isomorphisms S T))
                      (first (isomorphisms (apply mapv vector S) T))))
                reps)
-       reps
-       (conj reps S)))
+       reps ;if S is (anti-)isomorphic to something in reps already
+       (conj reps S))) ;otherwise keep it
    #{}
    sgps))
