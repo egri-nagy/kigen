@@ -14,13 +14,14 @@
             (relo initial next-item result-so-far)
             (reduceo relo result-so-far remaining result))))
 
+;todo: consider a version that cuts after reaching index
 (defn ntho
   "Succeeds if the collection has x as the index n element.
    Classic recursive implementation."
-  ([coll n x] (ntho coll n x 0))
-  ([coll n x current]
+  ([coll index content] (ntho coll index content 0))
+  ([coll index content i]
    (l/fresh [head tail]
             (l/firsto coll head)
             (l/resto coll tail)
-            (l/conde [(l/== head x) (l/== n current)]
-                     [(ntho tail n x (inc current))]))))
+            (l/conde [(l/== head content) (l/== index i)]
+                     [(ntho tail index content (inc i))]))))

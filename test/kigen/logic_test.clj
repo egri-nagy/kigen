@@ -23,7 +23,8 @@
   (testing "Testing ntho."
     (is (= '(_0) (l/run 1 [q] (kl/ntho [1 2 3] 0 1))))
     (is (= [0] (l/run 1 [q] (kl/ntho [1 2 3] q 1))))
-    (is (= [1] (l/run 1 [q] (kl/ntho [q 2 3] 0 1))))))
+    (is (= [1] (l/run 1 [q] (kl/ntho [q 2 3] 0 1))))
+    (is (= [0 2] (l/run* [q] (kl/ntho [1 2 1] q 1))))))
 
 (deftest prefect-numbers
   (testing "Testing reduceo with perfect numbers."
