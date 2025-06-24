@@ -7,6 +7,7 @@
             [kigen.semigroupoid.homomorphism :refer [composo compose]]
             [kigen.logic :refer [lvar-table]]))
 
+;; SEMIGROUPS ;;;;;;;;;;;;;;
 (defn associativity?
   "Brute-force checking associativity for a composition table `S`.
    If the `triples` are not given, then all possible triples are checked."
@@ -67,15 +68,20 @@
    Constraints: table entries should be in 0..n-1, all triples should satisy
    associativity."
   [n]
-  (let [elts (fd/interval 0 (dec n))
+  (let [elt? (fn [x] (fd/in
+                      x
+                      (fd/interval 0 (dec n))))
         [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
      [q]
-     (l/everyg #(fd/in % elts) lvars)
-     (l/everyg (fn [[a b c]] (associativo S a b c)) triples)
-     (l/== q S))))
+     (l/== q S)
+     (l/everyg elt? lvars) ;;valid semigroup element
+     (l/everyg (fn [[a b c]]
+                 (associativo S a b c))
+               triples)))) ;;all triples associative
 
+;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
 (defn composablo
   "The goal for associativity for a given pair."
   [S a b elts]
