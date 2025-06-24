@@ -4,7 +4,7 @@
 
 (declare reduceo
          ntho
-         lvar-table)
+         lvar-table lvar-vector)
 
 (l/defne reduceo
   "Relational reduce, succeds if the reduction produces the result."
@@ -35,3 +35,8 @@
   (let [table (vec (repeatedly m (fn [] (vec (repeatedly n l/lvar)))))
         lvars (apply concat table)]
     [table lvars]))
+
+(defn lvar-vector
+  "Just creating a vector of length `n` containing logic variables."
+  [n]
+  (vec (repeatedly n l/lvar)))
