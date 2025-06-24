@@ -83,7 +83,9 @@
 
 ;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
 (defn composablo
-  "The goal for associativity for a given pair."
+  "The goal for composability for a given pair of arrows `a` and `b` in the
+   semigroupoid `S`. The finite domain `elts` is given in order to decide
+   composability - if the result is an arrow, then composable."
   [S a b elts]
   (l/fresh
    [ab]
@@ -91,10 +93,10 @@
    (fd/in ab elts)))
 
 (defn semigroupoids-order-n
-  "Enumerating semigroups of order n by constructing all n by n composition
+  "Enumerating semigroupoids of order n by constructing all n by n composition
    tables.
-   Constraints: table entries should be in 0..n-1,  or n,
-   and all composable triples should satisy associativity.
+   Constraints: table entries should be in 0..n-1,  or n for undefined,
+   and all composable triples should satisfy associativity.
    The value n stands for nil, and represents undefined composition."
   [n]
   (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
