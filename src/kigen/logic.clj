@@ -27,6 +27,7 @@
             (l/conde [(l/== head content) (l/== index i)]
                      [(ntho tail index content (inc i))]))))
 
+;; Functions for creating logic variables in bulk.
 (defn lvar-table
   "Creates a 2-dimensional array of logic variables with `m` rows and `n`
    columns. It returns the table and a complete sequence as a pair.
