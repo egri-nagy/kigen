@@ -1,5 +1,5 @@
 (ns kigen.semigroupoid.enumeration
-  "Enumearing all semigroup(oid)s using relational programming.
+  "Enumerating all semigroup(oid)s using relational programming.
    Semigroupoids are represented as composition tables, a vector of vectors."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
@@ -7,8 +7,8 @@
             [kigen.semigroupoid.homomorphism :refer [composo compose]]))
 
 (defn associativity?
-  "Brute-force checking associativity for a composition table. If the triples
-   are not given then all possible triples are checked."
+  "Brute-force checking associativity for a composition table `S`.
+   If the `triples` are not given, then all possible triples are checked."
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every?
@@ -27,7 +27,7 @@
    (composo S b c bc)))
 
 (defn composable-triples
-  "Returns all the composable triples for a composition table.
+  "Returns all the composable triples for a composition table `S`.
    A pair is composable if the element corresponding to their composition
    in the table is an element of the semigroupoid, i.e., not nil or some
    bigger index integer outside of the table. Here we do not have the domains
@@ -37,7 +37,7 @@
   (let [n (count S)
         elts (set (range n))
         triples (selections elts 3)]
-    ;todo: there is a better way finding all composable pairs and combine
+    ;todo: is there a better way finding all composable pairs and combine?
     (filter
      (fn [[a b c]]
        (and (elts (compose S a b)) ;checking set memberhsip
@@ -62,6 +62,7 @@
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
    tables.
+   Logic variables: the entries of S, n^2 of them in total.
    Constraints: table entries should be in 0..n-1, all triples should satisy
    associativity."
   [n]
@@ -90,7 +91,7 @@
    and all composable triples should satisy associativity.
    The value n stands for nil, and represents undefined composition."
   [n]
-  (let [elts (fd/interval 0 (dec n))
+  (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
         allvals (fd/interval 0 n) ;we include n itself, instead of nil
         S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
         lvars (apply concat S)
