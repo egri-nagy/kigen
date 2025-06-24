@@ -4,7 +4,8 @@
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
-            [kigen.semigroupoid.homomorphism :refer [composo compose]]))
+            [kigen.semigroupoid.homomorphism :refer [composo compose]]
+            [kigen.logic :refer [lvar-table]]))
 
 (defn associativity?
   "Brute-force checking associativity for a composition table `S`.
@@ -67,8 +68,7 @@
    associativity."
   [n]
   (let [elts (fd/interval 0 (dec n))
-        S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
-        lvars (apply concat S)
+        [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
      [q]
@@ -93,8 +93,7 @@
   [n]
   (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
         allvals (fd/interval 0 n) ;we include n itself, instead of nil
-        S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
-        lvars (apply concat S)
+        [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
      [q]

@@ -10,7 +10,8 @@
    [kigen.transducer.common :refer [result-stateo
                                     input-symbols-fn
                                     output-symbols-fn
-                                    modded-io-pairs]]))
+                                    modded-io-pairs]]
+   [kigen.logic :refer [lvar-table]]))
 
 (defn transducer
   "Given the input-output pairs, and the number of states, this attempts to
@@ -29,8 +30,7 @@
         outputs (fd/interval 0 (dec (count output-symbols)))
         states (fd/interval 0 (dec n))
         ;;preparing the logic variables
-        lvars  (vec (repeatedly (inc num-of-inputs)
-                                (fn [] (vec (repeatedly n l/lvar)))))
+        [lvars _] (lvar-table (inc num-of-inputs) n)
         state-lvars (apply concat (butlast lvars))
         output-lvars (last lvars)]
     (info ;bit of information about the processed input

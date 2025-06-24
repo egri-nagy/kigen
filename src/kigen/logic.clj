@@ -1,9 +1,10 @@
 (ns kigen.logic
-  "Further relations (goals) to extend core.logic."
+  "Further relations (goals) and utility functions to extend core.logic."
   (:require [clojure.core.logic :as l]))
 
 (declare reduceo
-         ntho)
+         ntho
+         lvar-table)
 
 (l/defne reduceo
   "Relational reduce, succeds if the reduction produces the result."
@@ -25,3 +26,12 @@
             (l/resto coll tail)
             (l/conde [(l/== head content) (l/== index i)]
                      [(ntho tail index content (inc i))]))))
+
+(defn lvar-table
+  "Creates a 2-dimensional array of logic variables with `m` rows and `n`
+   columns. It returns the table and a complete sequence as a pair.
+   The main purpose is to hide the irrelevant technical details."
+  [m n]
+  (let [table (vec (repeatedly m (fn [] (vec (repeatedly n l/lvar)))))
+        lvars (apply concat table)]
+    [table lvars]))
