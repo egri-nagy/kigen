@@ -16,12 +16,12 @@
 
 ;todo: consider a version that cuts after reaching index
 (defn ntho
-  "Succeeds if the collection has x as the index n element.
-   Classic recursive implementation."
-  ([coll index content] (ntho coll index content 0))
+  "Succeeds if the sequential collection `coll` has `content` at the position
+   `index`. Classic recursive implementation."
+  ([coll index content] (ntho coll index content 0)) ;initializing counter
   ([coll index content i]
    (l/fresh [head tail]
             (l/firsto coll head)
             (l/resto coll tail)
-            (l/conde [(l/== head content) (l/== index i)]
-                     [(ntho tail index content (inc i))]))))
+            (l/conde [(l/== head content) (l/== index i)] ;match at right place
+                     [(ntho tail index content (inc i))])))) ;otherwise recur
