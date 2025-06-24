@@ -92,21 +92,25 @@
    The value n stands for nil, and represents undefined composition."
   [n]
   (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
-        allvals (fd/interval 0 n) ;we include n itself, instead of nil
+        valid? (fn [x] (fd/in
+                        x
+                        (fd/interval 0 n))) ;we include n itself, instead of nil
         [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
      [q]
-     (l/everyg #(fd/in % allvals) lvars) ;the valid table entries
-     (l/everyg (fn [[a b c]]
-                 (l/conde ;we write down all possibilities
-                  [(composablo S a b elts) ;both composable and associative
-                   (composablo S b c elts)
-                   (associativo S a b c)]
-                  [(composablo S a b elts) ;a,b composable; b,c not
-                   (composo S b c n)]
-                  [(composablo S b c elts) ;b,c composable, a,b not
-                   (composo S a b n)]
-                  [(composo S a b n) ; neither composable
-                   (composo S b c n)])) triples)
-     (l/== q S))))
+     (l/== q S)
+     (l/everyg valid? lvars) ;all lvars should be valid table entries
+     (l/everyg
+      (fn [[a b c]]
+        (l/conde ;we write down all possibilities
+         [(composablo S a b elts) ;both composable and associative
+          (composablo S b c elts)
+          (associativo S a b c)]
+         [(composablo S a b elts) ;a,b composable; b,c not
+          (composo S b c n)]
+         [(composablo S b c elts) ;b,c composable, a,b not
+          (composo S a b n)]
+         [(composo S a b n) ; neither composable
+          (composo S b c n)]))
+      triples))))
