@@ -28,6 +28,21 @@
    (composo S a b ab)
    (composo S b c bc)))
 
+(defn associativo2
+  "The goal for associativity...."
+  [S a b elts]
+  (l/fresh
+   [ab]
+   (composo S a b ab)
+   (l/everyg (fn [c]
+               (l/fresh
+                [bc abc]
+                (composo S ab c abc)
+                (composo S a bc abc)
+                (composo S b c bc)))
+             elts)))
+
+
 (defn composable-triples
   "Returns all the composable triples for a composition table `S`.
    A pair is composable if the element corresponding to their composition
@@ -80,6 +95,27 @@
      (l/everyg (fn [[a b c]]
                  (associativo S a b c))
                triples)))) ;;all triples associative
+
+(defn semigroups-order-n2
+  "Enumerating semigroups of order n by constructing all n by n composition
+   tables.
+   Logic variables: the entries of S, n^2 of them in total.
+   Constraints: table entries should be in 0..n-1, all triples should satisy
+   associativity."
+  [n]
+  (let [elt? (fn [x] (fd/in
+                      x
+                      (fd/interval 0 (dec n))))
+        [S lvars] (lvar-table n n)
+        pairs (selections (range n) 2)]
+    (l/run*
+     [q]
+     (l/== q S)
+     (l/everyg elt? lvars) ;;valid semigroup element
+     (l/everyg (fn [[a b]]
+                 (associativo2 S a b lvars))
+               pairs)))) ;;all triples associative
+
 
 ;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
 (defn composablo
