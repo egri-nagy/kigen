@@ -9,7 +9,8 @@ rigid constraint."
    [clojure.core.logic :as l]
    [clojure.core.logic.fd :as fd]
    [taoensso.timbre :refer [info debug]]
-   [kigen.transducer.common :refer [result-stateo input-symbols-fn]]))
+   [kigen.transducer.common :refer [result-stateo input-symbols-fn]]
+   [kigen.logic :refer [lvar-table]]))
 
 (defn fixed-output-transducer
   "Given the the input-output pairs, and the number of states, this attempts to
@@ -22,8 +23,7 @@ rigid constraint."
   [io-pairs n]
   (let [i (count (input-symbols-fn io-pairs))
         statesfd (fd/interval 0 (dec n))
-        delta (vec (repeatedly i (fn [] (vec (repeatedly n l/lvar)))))
-        lvars (apply concat delta)]
+        [delta lvars] (lvar-table i n)]
     (info (count lvars) "logic variables for"
           n "states"
           i "symbols")

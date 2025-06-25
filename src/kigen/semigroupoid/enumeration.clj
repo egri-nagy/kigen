@@ -1,14 +1,16 @@
 (ns kigen.semigroupoid.enumeration
-  "Enumearing all semigroup(oid)s using relational programming.
+  "Enumerating all semigroup(oid)s using relational programming.
    Semigroupoids are represented as composition tables, a vector of vectors."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
-            [kigen.semigroupoid.homomorphism :refer [composo compose]]))
+            [kigen.semigroupoid.homomorphism :refer [composo compose]]
+            [kigen.logic :refer [lvar-table]]))
 
+;; SEMIGROUPS ;;;;;;;;;;;;;;
 (defn associativity?
-  "Brute-force checking associativity for a composition table. If the triples
-   are not given then all possible triples are checked."
+  "Brute-force checking associativity for a composition table `S`.
+   If the `triples` are not given, then all possible triples are checked."
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every?
@@ -27,7 +29,7 @@
    (composo S b c bc)))
 
 (defn composable-triples
-  "Returns all the composable triples for a composition table.
+  "Returns all the composable triples for a composition table `S`.
    A pair is composable if the element corresponding to their composition
    in the table is an element of the semigroupoid, i.e., not nil or some
    bigger index integer outside of the table. Here we do not have the domains
@@ -37,7 +39,7 @@
   (let [n (count S)
         elts (set (range n))
         triples (selections elts 3)]
-    ;todo: there is a better way finding all composable pairs and combine
+    ;todo: is there a better way finding all composable pairs and combine?
     (filter
      (fn [[a b c]]
        (and (elts (compose S a b)) ;checking set memberhsip
@@ -62,21 +64,28 @@
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
    tables.
+   Logic variables: the entries of S, n^2 of them in total.
    Constraints: table entries should be in 0..n-1, all triples should satisy
    associativity."
   [n]
-  (let [elts (fd/interval 0 (dec n))
-        S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
-        lvars (apply concat S)
+  (let [elt? (fn [x] (fd/in
+                      x
+                      (fd/interval 0 (dec n))))
+        [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
      [q]
-     (l/everyg #(fd/in % elts) lvars)
-     (l/everyg (fn [[a b c]] (associativo S a b c)) triples)
-     (l/== q S))))
+     (l/== q S)
+     (l/everyg elt? lvars) ;;valid semigroup element
+     (l/everyg (fn [[a b c]]
+                 (associativo S a b c))
+               triples)))) ;;all triples associative
 
+;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
 (defn composablo
-  "The goal for associativity for a given pair."
+  "The goal for composability for a given pair of arrows `a` and `b` in the
+   semigroupoid `S`. The finite domain `elts` is given in order to decide
+   composability - if the result is an arrow, then composable."
   [S a b elts]
   (l/fresh
    [ab]
@@ -84,29 +93,32 @@
    (fd/in ab elts)))
 
 (defn semigroupoids-order-n
-  "Enumerating semigroups of order n by constructing all n by n composition
+  "Enumerating semigroupoids of order n by constructing all n by n composition
    tables.
-   Constraints: table entries should be in 0..n-1,  or n,
-   and all composable triples should satisy associativity.
+   Constraints: table entries should be in 0..n-1,  or n for undefined,
+   and all composable triples should satisfy associativity.
    The value n stands for nil, and represents undefined composition."
   [n]
-  (let [elts (fd/interval 0 (dec n))
-        allvals (fd/interval 0 n) ;we include n itself, instead of nil
-        S (vec (repeatedly n (fn [] (vec (repeatedly n l/lvar)))))
-        lvars (apply concat S)
+  (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
+        valid? (fn [x] (fd/in
+                        x
+                        (fd/interval 0 n))) ;we include n itself, instead of nil
+        [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
      [q]
-     (l/everyg #(fd/in % allvals) lvars) ;the valid table entries
-     (l/everyg (fn [[a b c]]
-                 (l/conde ;we write down all possibilities
-                  [(composablo S a b elts) ;both composable and associative
-                   (composablo S b c elts)
-                   (associativo S a b c)]
-                  [(composablo S a b elts) ;a,b composable; b,c not
-                   (composo S b c n)]
-                  [(composablo S b c elts) ;b,c composable, a,b not
-                   (composo S a b n)]
-                  [(composo S a b n) ; neither composable
-                   (composo S b c n)])) triples)
-     (l/== q S))))
+     (l/== q S)
+     (l/everyg valid? lvars) ;all lvars should be valid table entries
+     (l/everyg
+      (fn [[a b c]]
+        (l/conde ;we write down all possibilities
+         [(composablo S a b elts) ;both composable and associative
+          (composablo S b c elts)
+          (associativo S a b c)]
+         [(composablo S a b elts) ;a,b composable; b,c not
+          (composo S b c n)]
+         [(composablo S b c elts) ;b,c composable, a,b not
+          (composo S a b n)]
+         [(composo S a b n) ; neither composable
+          (composo S b c n)]))
+      triples))))

@@ -5,7 +5,7 @@
    vectors. For non-composable arrow pairs the corresponding entry is nil."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
-            [kigen.logic :refer [ntho]]))
+            [kigen.logic :refer [ntho lvar-vector]]))
 
 (defn compose
   "Composition function for arrows a and b in the given composition table S.
@@ -94,7 +94,7 @@
    If bijective? then only isomorphisms are enuemrated."
   [S T bijective?] ;given as composition tables
   (let [n (count S)
-        phi (vec (repeatedly n l/lvar))
+        phi (lvar-vector n)
         elts (fd/interval 0 (dec (count T)))
         constraints (substitute (composition-relation S) phi)
         T2 (nil2n T)]
