@@ -20,7 +20,7 @@
 
 (defn associativo
   "The goal for associativity for a given triple."
-  [S a b c]
+  [S [a b c]]
   (l/fresh
    [ab bc abc]
    (composo S ab c abc)
@@ -80,7 +80,7 @@
   "Enumerating semigroups of order n by constructing all n by n composition
    tables.
    Logic variables: the entries of S, n^2 of them in total.
-   Constraints: table entries should be in 0..n-1, all triples should satisy
+   Constraints: table entries should be in 0..n-1, all triples should satisfy
    associativity."
   [n]
   (let [elt? (fn [x] (fd/in
@@ -92,9 +92,7 @@
      [q]
      (l/== q S)
      (l/everyg elt? lvars) ;;valid semigroup element
-     (l/everyg (fn [[a b c]]
-                 (associativo S a b c))
-               triples)))) ;;all triples associative
+     (l/everyg (partial associativo S) triples)))) ;;all triples associative
 
 (defn semigroups-order-n2
   "Enumerating semigroups of order n by constructing all n by n composition
@@ -146,11 +144,11 @@
      (l/== q S)
      (l/everyg valid? lvars) ;all lvars should be valid table entries
      (l/everyg
-      (fn [[a b c]]
+      (fn [[a b c :as triple]]
         (l/conde ;we write down all possibilities
          [(composablo S a b elts) ;both composable and associative
           (composablo S b c elts)
-          (associativo S a b c)]
+          (associativo S triple)]
          [(composablo S a b elts) ;a,b composable; b,c not
           (composo S b c n)]
          [(composablo S b c elts) ;b,c composable, a,b not
