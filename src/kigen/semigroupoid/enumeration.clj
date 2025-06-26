@@ -83,9 +83,7 @@
    Constraints: table entries should be in 0..n-1, all triples should satisfy
    associativity."
   [n]
-  (let [elt? (fn [x] (fd/in
-                      x
-                      (fd/interval 0 (dec n))))
+  (let [elt? (fn [x] (fd/in x (fd/interval 0 (dec n))))
         [S lvars] (lvar-table n n)
         triples (selections (range n) 3)]
     (l/run*
