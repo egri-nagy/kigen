@@ -156,27 +156,32 @@
    Constraints: table entries should be in 0..n-1,  or n for undefined,
    and all composable triples should satisfy associativity.
    The value n stands for nil, and represents undefined composition."
-  [n]
-  (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
-        valid? (fn [x] (fd/in
-                        x
-                        (fd/interval 0 n))) ;we include n itself, instead of nil
-        [S lvars] (lvar-table n n)
-        triples (selections (range n) 3)]
-    (l/run*
-     [q]
-     (l/== q S)
-     (l/everyg valid? lvars) ;all lvars should be valid table entries
-     (l/everyg
-      (fn [[a b c :as triple]]
-        (l/conde ;we write down all possibilities
-         [(composablo S a b elts) ;both composable and associative
-          (composablo S b c elts)
-          (associativo S triple)]
-         [(composablo S a b elts) ;a,b composable; b,c not
-          (composo S b c n)]
-         [(composablo S b c elts) ;b,c composable, a,b not
-          (composo S a b n)]
-         [(composo S a b n) ; neither composable
-          (composo S b c n)]))
-      triples))))
+  ([n] (semigroupoids-order-n n nil))
+  ([n partial-comptab]
+   (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
+         valid? (fn [x] (fd/in
+                         x
+                         (fd/interval 0 n))) ;we include n representing nil
+         [S lvars] (lvar-table n n)
+         triples (selections (range n) 3)]
+     (println partial-comptab)
+     (l/run*
+      [q]
+      (l/== q S)
+      (l/everyg valid? lvars) ;all lvars should be valid table entries
+      (if partial-comptab
+        (predefined lvars partial-comptab)
+        l/succeed)
+      (l/everyg
+       (fn [[a b c :as triple]]
+         (l/conde ;we write down all possibilities
+          [(composablo S a b elts) ;both composable and associative
+           (composablo S b c elts)
+           (associativo S triple)]
+          [(composablo S a b elts) ;a,b composable; b,c not
+           (composo S b c n)]
+          [(composablo S b c elts) ;b,c composable, a,b not
+           (composo S a b n)]
+          [(composo S a b n) ; neither composable
+           (composo S b c n)]))
+       triples)))))
