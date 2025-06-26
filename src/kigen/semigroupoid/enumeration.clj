@@ -85,24 +85,38 @@
      (mapv vec (partition n entries)))
    (selections (range (inc n)) (* n n))))
 
+(defn predefined
+  [[lv & lvs] [cell & cells]]
+  (if lv
+    (l/all
+     (if (= '- cell)
+       l/succeed
+       (l/== lv cell))
+     (predefined lvs cells))
+    l/succeed))
+
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
    tables.
    Logic variables: the entries of S, n^2 of them in total.
    Constraints: table entries should be in 0..n-1, all triples should satisfy
    associativity."
-  [n]
-  (let [elt? (fn [x] (fd/in x (fd/interval 0 (dec n))))
-        [S lvars] (lvar-table n n)
-        elts (range n)
-        triples (remove (partial apply =) ; triples with same values
-                        (selections elts 3))]
-    (l/run*
-     [q]
-     (l/== q S)
-     (l/everyg elt? lvars) ;;valid semigroup element
-     (l/everyg (partial associativo-diagonal S) elts)
-     (l/everyg (partial associativo S) triples)))) ;;all triples associative
+  ([n] (semigroups-order-n n nil))
+  ([n comptab]
+   (let [elt? (fn [x] (fd/in x (fd/interval 0 (dec n))))
+         [S lvars] (lvar-table n n)
+         elts (range n) ; the semigroup elements
+         triples (remove (partial apply =) ; triples with same values
+                         (selections elts 3))]
+     (l/run*
+      [q]
+      (l/== q S)
+      (if comptab
+        (predefined lvars comptab)
+        l/succeed)
+      (l/everyg elt? lvars) ;;valid semigroup element
+      (l/everyg (partial associativo-diagonal S) elts) ; check diagonals
+      (l/everyg (partial associativo S) triples))))) ;;all triples associative
 
 (defn semigroups-order-n2
   "Enumerating semigroups of order n by constructing all n by n composition
