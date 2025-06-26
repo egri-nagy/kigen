@@ -28,6 +28,15 @@
    (composo S a b ab)
    (composo S b c bc)))
 
+(defn associativo-diagonal
+  "The goal for associativity for a given triple."
+  [S a]
+  (l/fresh
+   [aa aaa]
+   (composo S aa a aaa)
+   (composo S a aa aaa)
+   (composo S a a aa)))
+
 (defn associativo2
   "The goal for associativity...."
   [S a b elts]
@@ -85,11 +94,14 @@
   [n]
   (let [elt? (fn [x] (fd/in x (fd/interval 0 (dec n))))
         [S lvars] (lvar-table n n)
-        triples (selections (range n) 3)]
+        elts (range n)
+        triples (remove (partial apply =) ; triples with same values
+                        (selections elts 3))]
     (l/run*
      [q]
      (l/== q S)
      (l/everyg elt? lvars) ;;valid semigroup element
+     (l/everyg (partial associativo-diagonal S) elts)
      (l/everyg (partial associativo S) triples)))) ;;all triples associative
 
 (defn semigroups-order-n2
