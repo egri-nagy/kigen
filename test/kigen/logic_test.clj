@@ -24,7 +24,12 @@
     (is (= '(_0) (l/run 1 [q] (kl/ntho [1 2 3] 0 1))))
     (is (= [0] (l/run 1 [q] (kl/ntho [1 2 3] q 1))))
     (is (= [1] (l/run 1 [q] (kl/ntho [q 2 3] 0 1))))
-    (is (= [0 2] (l/run* [q] (kl/ntho [1 2 1] q 1))))))
+    (is (= [0 2] (l/run* [q] (kl/ntho [1 2 1] q 1))))
+    ;figure out what is going on with the dot notation
+    ;    (is (= (l/run 1 [q] (kl/ntho q 4 1)) ;inferring the coll, only with run 1
+;           [ '(_0 _1 _2 _3 1 . _4)] ))
+    (is (= () (l/run 1 [q] (kl/ntho [1 2 3] 4 1)))) ;overindexing is ok
+    ))
 
 (deftest prefect-numbers
   (testing "Testing reduceo with perfect numbers."
