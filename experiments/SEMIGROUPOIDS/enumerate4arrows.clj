@@ -4,22 +4,15 @@
 (require '[kigen.semigroupoid.homomorphism :refer [comptabs-up-to-morphisms]])
 (require '[clojure.math.combinatorics :refer [selections]])
 
-;(doseq [sgpoid (comptabs-up-to-morphisms (semigroupoids-order-n 3))]
-;  (println sgpoid))
-
-;(println (count (semigroupoids-order-n 3)))
-
-(def T '[4 - - -
-         - 0 - -
-         - - 1 -
-         - - - 2])
-
+;all possible 4-tuples of the five values
 (def diagonals (selections (range 5) 4))
 
+;computing the coordinates for the diagonal entries
 (def diagonal-positions
   (map (fn [i] (+ i (* 4 i))) (range 4)))
 
-(defn produce-tables
+;creating the template composition table
+(defn produce-table
   [n positions diagonals]
   (let [m (zipmap positions diagonals)]
     (mapv
@@ -28,11 +21,13 @@
      (range (* n n)))))
 
 ;test
-(produce-tables 4 [0 5 10 15 ] [0 1 2 3])
+(produce-table 4 [0 5 10 15 ] [0 1 2 3])
 
+(println "(def n4solutions [")
 (doseq [diagonal diagonals]
   (println ";" diagonal)
   (doseq [sgpoid (semigroupoids-order-n
                   4
-                  (produce-tables 4 diagonal-positions diagonal))]
+                  (produce-table 4 diagonal-positions diagonal))]
     (println sgpoid)))
+(println "])")
