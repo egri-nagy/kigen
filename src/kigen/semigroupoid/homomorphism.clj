@@ -98,13 +98,13 @@
 (defn morphism-search
   "Logic search for all homomorphisms of semigroupoid S to T given as
    composition tables.
-   If bijective? then only isomorphisms are enuemrated."
+   If bijective? then only isomorphisms are enuemrated.
+   `T` should be nil2n converted"
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
         elts (fd/interval 0 (dec (count T)))
-        constraints (substitute (composition-relation S) phi)
-        T2 (nil2n T)]
+        constraints (substitute (composition-relation S) phi)]
     (l/run*
      [q]
      (l/everyg #(fd/in % elts) phi)
@@ -113,7 +113,7 @@
        l/succeed)
      (l/everyg (fn [[ab pairs]]
                  (l/everyg (fn [[a b]]
-                             (composo T2 a b ab))
+                             (composo T a b ab))
                            pairs))
                constraints)
      (l/== q phi))))
@@ -136,12 +136,13 @@
    encountered. Anti-isomporphism is isomorphism to the transposed table."
   [sgps]
   (reduce
-   (fn [reps S] ;representaitves so far and the next semigroup
-     (if (some (fn [T]
-                 (or (first (isomorphisms S T))
-                     (first (isomorphisms (apply mapv vector S) T))))
-               reps)
-       reps ;if S is (anti-)isomorphic to something in reps already
-       (conj reps S))) ;otherwise keep it
+   (fn [reps S] ;representatives so far and the next semigroup
+     (let [S' (n2nil S)]
+       (if (some (fn [T]
+                   (or (first (isomorphisms S' T))
+                       (first (isomorphisms (apply mapv vector S') T))))
+                 reps)
+         reps ;if S is (anti-)isomorphic to something in reps already
+         (conj reps S)))) ;otherwise keep it
    #{}
    sgps))
