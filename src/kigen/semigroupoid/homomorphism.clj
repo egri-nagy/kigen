@@ -96,7 +96,7 @@
   (replace-in-table T nil (count T)))
 
 (defn morphism-search
-  "Logic search for all homorphisms of semigroupoid S to T given as
+  "Logic search for all homomorphisms of semigroupoid S to T given as
    composition tables.
    If bijective? then only isomorphisms are enuemrated."
   [S T bijective?] ;given as composition tables
@@ -132,10 +132,11 @@
 
 (defn sgps-up-to-morphisms
   "Given a collection of composition tables, it returns the isomorphism
-   anti-isomporhism class representatives."
+   anti-isomorphism class representatives. Representative is the first one
+   encountered. Anti-isomporphism is isomorphism to the transposed table."
   [sgps]
   (reduce
-   (fn [reps S]
+   (fn [reps S] ;representaitves so far and the next semigroup
      (if (some (fn [T]
                  (or (first (isomorphisms S T))
                      (first (isomorphisms (apply mapv vector S) T))))
