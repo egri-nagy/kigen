@@ -49,10 +49,9 @@
       (update-keys phi)
       (update-vals (partial map (partial map phi)))))
 
-(defn compatible? ;todo: not a good name!
-  "Checks the compatibility condition for the given element and the pairs. These
-   should be in a special relationship: the pairs all compose to the given
-   element. Used in homomorphism test.
+(defn comprel?
+  "Checks composition relation for the given element and the pairs:
+   the pairs all compose to the given element. Used in homomorphism test.
    T - composition table
    ab - an element of T
    pairs - all the a,b pairs such that a composed with  b is ab"
@@ -65,7 +64,7 @@
   "another test for homomorphisms, trying to reformulate constraints"
   [S T phi]
   (every? (fn [[ab pairs]]
-            (compatible? T ab pairs))
+            (comprel? T ab pairs))
           (substitute (composition-relation S) phi)))
 
 (defn homomorphism?

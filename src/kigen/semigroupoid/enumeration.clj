@@ -164,7 +164,6 @@
                          (fd/interval 0 n))) ;we include n representing nil
          [S lvars] (lvar-table n n)
          triples (selections (range n) 3)]
-     (println partial-comptab)
      (l/run*
       [q]
       (l/== q S)
