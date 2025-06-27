@@ -2,7 +2,8 @@
   "Enumerating all homomorphisms of a semigroupoid into another one using
    relational programming.
    Semigroupoids are represented abstractly, as composition tables, a vector of
-   vectors. For non-composable arrow pairs the corresponding entry is nil."
+   vectors. For non-composable arrow pairs the corresponding entry is nil, but
+   in the logic engine, for finite domains, the next integer value is used."
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [kigen.logic :refer [ntho lvar-vector]]))
@@ -77,15 +78,22 @@
                (compose T (phi a) (phi b))))
           (composable-pairs S)))
 
+(defn replace-in-table
+  "Replaces all the occurrences of value `old` with `new` in table `T`.
+  The returned table is a vector of vectors."
+  [T old new]
+  (mapv (partial mapv (fn [val] ({old new} val val)))
+        T))
+
 (defn n2nil
   "Replace all n values (non-elements) with nil in composition table T."
   [T]
-  (mapv (partial mapv #({(count T) nil} % %)) T)) ;using default values
+  (replace-in-table T (count T) nil)) ;using default values
 
 (defn nil2n
   "Replace all nil values with (non-element) n with in composition table T."
   [T]
-  (mapv (partial mapv #({nil (count T)} % %)) T))
+  (replace-in-table T nil (count T)))
 
 (defn morphism-search
   "Logic search for all homorphisms of semigroupoid S to T given as
