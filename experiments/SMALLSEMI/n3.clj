@@ -1,4 +1,4 @@
-(require '[kigen.semigroupoid.homomorphism :refer [sgps-up-to-morphisms]])
+(require '[kigen.semigroupoid.homomorphism :refer [comptabs-up-to-morphisms]])
 (require '[kigen.semigroupoid.enumeration :refer [semigroups-order-n]])
 
 ;; this calculation is immediate
@@ -8,4 +8,4 @@
 (println "Total: " (count sgps3))
 
 (println "Up isom and anti-isom:"
-         (count (sgps-up-to-morphisms sgps3)))
+         (count (comptabs-up-to-morphisms sgps3)))
