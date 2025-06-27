@@ -130,7 +130,7 @@
   [S T] ;given as composition tables
   (morphism-search S T false))
 
-(defn sgps-up-to-morphisms
+(defn comptabs-up-to-morphisms
   "Given a collection of composition tables, it returns the isomorphism
    anti-isomorphism class representatives. Representative is the first one
    encountered. Anti-isomporphism is isomorphism to the transposed table."
