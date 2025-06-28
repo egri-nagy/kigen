@@ -15,6 +15,17 @@
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
+(defn compose2
+  "Composition function for arrows a and b in the given composition table S.
+   Computing the composite is two vector lookups. Nil is returned when arrows
+   are not composable. `a`, `b` can be nil."
+  [S a b]
+  (when a
+    (let [row (nth S a)]
+      (when b
+        (nth row b)))))
+
+
 (defn composo
   "This goal succeeds if a composed with b is ab in the composition table S."
   [S a b ab]
@@ -22,6 +33,17 @@
    [row]
    (ntho S a row) ;the row of a
    (ntho row b ab))) ;the bth entry in that row should be ab
+
+(defn composo2
+  [S a b ab]
+  (l/all
+   (l/conda
+    [(l/conde [(l/nilo a)]
+              [(l/nilo b)])
+     (l/nilo ab)]
+    [(l/fresh [row]
+              (ntho S a row)
+              (ntho row b ab))])))
 
 (defn composable-pairs
   "All the composable pairs of elements of semigroupoid S given as a composition
@@ -103,13 +125,16 @@
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
-        elts (fd/interval 0 (dec (count T)))
+        ;elts (fd/interval 0 (dec (count T)))
+        elts (concat (range (count T)) [nil])
         constraints (substitute (composition-relation S) phi)]
     (l/run*
      [q]
-     (l/everyg #(fd/in % elts) phi)
+     ;(l/everyg #(fd/in % elts) phi)
+     (l/everyg (fn [elt] (l/membero elt elts)) phi)
      (if bijective?
-       (fd/distinct phi) ;permutations only
+       ;(fd/distinct phi) ;permutations only
+       (l/distincto phi)
        l/succeed)
      (l/everyg (fn [[ab pairs]]
                  (l/everyg (fn [[a b]]
