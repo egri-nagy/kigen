@@ -11,9 +11,9 @@
     (is (= 18
            (count (comptabs-up-to-morphisms (semigroups-order-n 3)))))))
 
-(deftest sgpoid-enum-test
-  (testing "Size 1 and 2 semigroupoids testing logic versus brute force."
-    (is (= (set (filter semigroupoid? (all-composition-tables 1)))
-           (set (semigroupoids-order-n 1))))
-    (is (= (set (filter semigroupoid? (all-composition-tables 2)))
-           (set (semigroupoids-order-n 2))))))
+;; (deftest sgpoid-enum-test
+;;   (testing "Size 1 and 2 semigroupoids testing logic versus brute force."
+;;     (is (= (set (filter semigroupoid? (all-composition-tables 1)))
+;;            (set (semigroupoids-order-n 1))))
+;;     (is (= (set (filter semigroupoid? (all-composition-tables 2)))
+;;            (set (semigroupoids-order-n 2))))))

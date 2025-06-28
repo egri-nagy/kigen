@@ -13,17 +13,6 @@
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
-(defn compose2
-  "Composition function for arrows a and b in the given composition table S.
-   Computing the composite is two vector lookups. Nil is returned when arrows
-   are not composable. `a`, `b` can be nil."
-  [S a b]
-  (when a
-    (let [row (nth S a)]
-      (when b
-        (nth row b)))))
-
-
 (defn composo
   "This goal succeeds if a composed with b is ab in the composition table S."
   [S a b ab]
@@ -31,17 +20,6 @@
    [row]
    (ntho S a row) ;the row of a
    (ntho row b ab))) ;the bth entry in that row should be ab
-
-(defn composo2
-  [S a b ab]
-  (l/all
-   (l/conda
-    [(l/conde [(l/nilo a)]
-              [(l/nilo b)])
-     (l/nilo ab)]
-    [(l/fresh [row]
-              (ntho S a row)
-              (ntho row b ab))])))
 
 (defn composable-pairs
   "All the composable pairs of elements of semigroupoid S given as a composition
@@ -51,7 +29,7 @@
   (let [n (count S)]
     (for [a (range n)
           b (range n)
-          :when (compose S a b)] ;when composition gives something not nil
+          :when (not= :n (compose S a b))] ;when composition gives something not nil
       [a b])))
 
 (defn composition-relation
@@ -98,32 +76,15 @@
                (compose T (phi a) (phi b))))
           (composable-pairs S)))
 
-(defn replace-in-table
-  "Replaces all the occurrences of value `old` with `new` in table `T`.
-  The returned table is a vector of vectors."
-  [T old new]
-  (mapv (partial mapv (fn [val] ({old new} val val)))
-        T))
-
-(defn n2nil
-  "Replace all n values (non-elements) with nil in composition table T."
-  [T]
-  (replace-in-table T (count T) nil)) ;using default values
-
-(defn nil2n
-  "Replace all nil values with (non-element) n with in composition table T."
-  [T]
-  (replace-in-table T nil (count T)))
 
 (defn morphism-search
   "Logic search for all homomorphisms of semigroupoid S to T given as
    composition tables.
-   If bijective? then only isomorphisms are enuemrated.
-   `T` should be nil2n converted"
+   If bijective? then only isomorphisms are enuemrated."
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
-        elts (concat (range (count T)) [nil])
+        elts (concat (range (count T)) [:n])
         constraints (substitute (composition-relation S) phi)]
     (l/run*
      [q]
@@ -157,7 +118,7 @@
   [sgps]
   (reduce
    (fn [reps S] ;representatives so far and the next semigroup
-     (let [S' (n2nil S)]
+     (let [S' S]
        (if (some (fn [T]
                    (or (first (isomorphisms S' T))
                        (first (isomorphisms (apply mapv vector S') T))))
@@ -166,3 +127,11 @@
          (conj reps S)))) ;otherwise keep it
    #{}
    sgps))
+
+(def S
+  [[0 1 2 3 4 :n]
+   [1 0 2 4 3 :n]
+   [:n :n :n :n :n 2]
+   [:n :n :n :n :n 2]
+   [:n :n :n :n :n 2]
+   [:n :n :n :n :n 5]])

@@ -103,7 +103,7 @@
    associativity."
   ([n] (semigroups-order-n n nil))
   ([n comptab]
-   (let [elt? (fn [x] (fd/in x (fd/interval 0 (dec n))))
+   (let [elt? (fn [x] (l/membero x (range n)))
          [S lvars] (lvar-table n n)
          elts (range n) ; the semigroup elements
          triples (remove (partial apply =) ; triples with same values
@@ -125,9 +125,7 @@
    Constraints: table entries should be in 0..n-1, all triples should satisy
    associativity."
   [n]
-  (let [elt? (fn [x] (fd/in
-                      x
-                      (fd/interval 0 (dec n))))
+  (let [elt? (fn [x] (l/membero x (range n)))
         [S lvars] (lvar-table n n)
         pairs (selections (range n) 2)]
     (l/run*
@@ -135,7 +133,7 @@
      (l/== q S)
      (l/everyg elt? lvars) ;;valid semigroup element
      (l/everyg (fn [[a b]]
-                 (associativo2 S a b lvars))
+                 (associativo2 S a b (range n)))
                pairs)))) ;;all triples associative
 
 
