@@ -5,7 +5,7 @@
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
             [kigen.semigroupoid.homomorphism :refer [composo compose compose-c]]
-            [kigen.logic :refer [lvar-table]]))
+            [kigen.logic :refer [lvar-table lvar-vector]]))
 
 (defn associative-triple?
   "Checks whether the given triple is associative in `S`.
@@ -21,6 +21,14 @@
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every? (partial associative-triple? S) triples)))
+
+(defn associativity-failures
+  "Brute-force checking associativity for a composition table `S`.
+   If the `triples` are not given, then all possible triples are checked.
+   Compatible with semigroupoids."
+  ([S] (associativity-failures S (selections (range (count S)) 3)))
+  ([S triples]
+   (remove (partial associative-triple? S) triples)))
 
 ;; SEMIGROUPS ;;;;;;;;;;;;;;
 (defn associativo
@@ -99,7 +107,7 @@
 
 ;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
 (defn sgpoid-associativo ; this works, optimizations invariably fail
-  "The goal for associativity for a given triple."
+  "The goal for associativity for a given triple in a semigroupoid."
   [S [a b c]]
   (l/fresh
    [ab bc]
@@ -114,16 +122,6 @@
       [abc]
       (composo S ab c abc)
       (composo S a bc abc))])))
-
-(defn all-composition-tables
-  "Lazy, brute force enumeration of all nxn composition tables.
-   It can be filtered by [[associativity?]].
-   For testing purposes only: n=3 is fine, but n=4 has 5^16 cases."
-  [n]
-  (map
-   (fn [all-entries-in-a-row]
-     (mapv vec (partition n all-entries-in-a-row)))
-   (selections (concat (range n) [:n]) (* n n))))
 
 (defn semigroupoids-order-n
   "Enumerating semigroupoids of order n by constructing all n by n composition
@@ -146,18 +144,70 @@
         l/succeed)
       (l/everyg (partial sgpoid-associativo S) triples)))))
 
+(defn all-composition-tables
+  "Lazy, brute force enumeration of all nxn composition tables.
+   It can be filtered by [[associativity?]].
+   For testing purposes only: n=3 is fine, but n=4 has 5^16 cases."
+  [n]
+  (map
+   (fn [all-entries-in-a-row]
+     (mapv vec (partition n all-entries-in-a-row)))
+   (selections (concat (range n) [:n]) (* n n))))
+
+(defn type-inference
+  "`S` composition table
+   `m` number of objects, 1 or greater"
+  [S m]
+  (let [n (count S)
+        composable (group-by (fn [[a b]]
+                               (not= :n (compose-c S a b)))
+                             (selections (range n) 2))
+        doms (lvar-vector n)
+        cods (lvar-vector n)
+        lvars (into doms cods)
+        objects (range m)]
+    ;(println "composable " (composable true))
+    ;(println "non-composable " (composable false))
+
+    (l/run*
+     [q]
+     (l/== q {:doms doms, :cods cods})
+     (l/everyg (fn [lv] (l/membero lv objects)) lvars)
+     (l/everyg (fn [[a b]] (l/== (cods a) (doms b))) (composable true))
+     (l/everyg (fn [[a b]] (let [c (compose-c S a b)]
+                             (l/all (l/== (doms a) (doms c))
+                                    (l/== (cods b) (cods c)))))
+               (composable true))
+     (l/everyg (fn [[a b]] (l/distincto [(cods a) (doms b)])) (composable false)))))
+
+(defn find-minimal-type-structure
+  [S]
+  (first
+   (remove empty?
+           (map
+            (fn [i] (first (type-inference S i)))
+            (range 1 (* 2 (count S)))))))
 
 (def S
   '[[:n 2 :n]
     [:n :n :n]
     [:n :n :n]])
 
+(type-inference S 3)
+(find-minimal-type-structure S)
+
 (def T
   '[[:n :n :n]
     [:n :n 1]
     [:n :n :n]])
 
+(associativity? T)
+(find-minimal-type-structure T)
+
+
 (def Q
   '[[:n :n :n]
     [:n :n :n]
     [:n :n :n]])
+(find-minimal-type-structure Q)
+(type-inference Q 4)
