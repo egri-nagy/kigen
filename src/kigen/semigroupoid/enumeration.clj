@@ -117,11 +117,12 @@
 
 (defn all-composition-tables
   "Lazy, brute force enumeration of all nxn composition tables.
-   For testing purposes only. n=4 is already not feasible!"
+   It can be filtered by [[associativity?]].
+   For testing purposes only: n=3 is fine, but n=4 has 5^16 cases."
   [n]
   (map
-   (fn [entries]
-     (mapv vec (partition n entries)))
+   (fn [all-entries-in-a-row]
+     (mapv vec (partition n all-entries-in-a-row)))
    (selections (concat (range n) [:n]) (* n n))))
 
 (defn semigroupoids-order-n
