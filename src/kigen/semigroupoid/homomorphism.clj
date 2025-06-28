@@ -13,6 +13,15 @@
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
+(defn compose-c
+  [S a b]
+  (if (or (= :n a) (= :n b))
+    :n
+    (let [row (nth S a)]
+      (if (= :n row)
+        :n
+        (nth row b)))))
+
 (defn composo
   "This goal succeeds if a composed with b is ab in the composition table S."
   [S a b ab]

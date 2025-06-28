@@ -4,7 +4,7 @@
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
-            [kigen.semigroupoid.homomorphism :refer [composo compose]]
+            [kigen.semigroupoid.homomorphism :refer [composo compose compose-c]]
             [kigen.logic :refer [lvar-table]]))
 
 ;; SEMIGROUPS ;;;;;;;;;;;;;;
@@ -14,8 +14,8 @@
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every?
-    (fn [[a b c]] (= (compose S a (compose S b c))
-                     (compose S (compose S a b) c)))
+    (fn [[a b c]] (= (compose-c S a (compose-c S b c))
+                     (compose-c S (compose-c S a b) c)))
     triples)))
 
 (defn associativo
@@ -38,19 +38,18 @@
    (composo S a a aa)))
 
 (defn associativo2
-  "The goal for associativity...."
-  [S a b elts]
+  "The goal for associativity for a given triple."
+  [S [a b c]]
   (l/fresh
-   [ab]
+   [ab bc]
    (composo S a b ab)
-   (l/everyg (fn [c]
-               (l/fresh
-                [bc abc]
-                (composo S ab c abc)
-                (composo S a bc abc)
-                (composo S b c bc)))
-             elts)))
-
+   (composo S b c bc)
+   (l/conda
+    [(l/conde [(l/== ab :n)] [(l/== bc :n)])]
+    [(l/fresh
+      [abc]
+      (composo S ab c abc)
+      (composo S a bc abc))])))
 
 (defn composable-triples
   "Returns all the composable triples for a composition table `S`.
@@ -83,7 +82,7 @@
   (map
    (fn [entries]
      (mapv vec (partition n entries)))
-   (selections (range (inc n)) (* n n))))
+   (selections (concat (range n) [:n]) (* n n))))
 
 (defn predefined
   [[lv & lvs] [cell & cells]]
@@ -118,25 +117,6 @@
       (l/everyg (partial associativo-diagonal S) elts) ; check diagonals
       (l/everyg (partial associativo S) triples))))) ;;all triples associative
 
-(defn semigroups-order-n2
-  "Enumerating semigroups of order n by constructing all n by n composition
-   tables.
-   Logic variables: the entries of S, n^2 of them in total.
-   Constraints: table entries should be in 0..n-1, all triples should satisy
-   associativity."
-  [n]
-  (let [elt? (fn [x] (l/membero x (range n)))
-        [S lvars] (lvar-table n n)
-        pairs (selections (range n) 2)]
-    (l/run*
-     [q]
-     (l/== q S)
-     (l/everyg elt? lvars) ;;valid semigroup element
-     (l/everyg (fn [[a b]]
-                 (associativo2 S a b (range n)))
-               pairs)))) ;;all triples associative
-
-
 ;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
 (defn composablo
   "The goal for composability for a given pair of arrows `a` and `b` in the
@@ -156,10 +136,8 @@
    The value n stands for nil, and represents undefined composition."
   ([n] (semigroupoids-order-n n nil))
   ([n partial-comptab]
-   (let [elts (fd/interval 0 (dec n)) ;the real elements, the arrows of S
-         valid? (fn [x] (fd/in
-                         x
-                         (fd/interval 0 n))) ;we include n representing nil
+   (let [elts (range n) ;the real elements, the arrows of S
+         valid? (fn [x] (l/membero x (concat elts [:n]))) ;we include :n
          [S lvars] (lvar-table n n)
          triples (selections (range n) 3)]
      (l/run*
@@ -169,16 +147,20 @@
       (if partial-comptab
         (predefined lvars partial-comptab)
         l/succeed)
-      (l/everyg
-       (fn [[a b c :as triple]]
-         (l/conde ;we write down all possibilities
-          [(composablo S a b elts) ;both composable and associative
-           (composablo S b c elts)
-           (associativo S triple)]
-          [(composablo S a b elts) ;a,b composable; b,c not
-           (composo S b c n)]
-          [(composablo S b c elts) ;b,c composable, a,b not
-           (composo S a b n)]
-          [(composo S a b n) ; neither composable
-           (composo S b c n)]))
-       triples)))))
+      (l/everyg (partial associativo2 S) triples)))))
+
+
+(def S
+  '[[:n 2 :n]
+    [:n :n :n]
+    [:n :n :n]])
+
+(def T
+  '[[:n :n :n]
+    [:n :n 1]
+    [:n :n :n]])
+
+(def Q
+  '[[:n :n :n]
+    [:n :n :n]
+    [:n :n :n]])
