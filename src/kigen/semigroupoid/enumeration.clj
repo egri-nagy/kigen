@@ -8,15 +8,17 @@
             [kigen.logic :refer [lvar-table]]))
 
 ;; SEMIGROUPS ;;;;;;;;;;;;;;
+(defn associative-triple?
+  [S [a b c]]
+  (= (compose-c S a (compose-c S b c))
+     (compose-c S (compose-c S a b) c)))
+
 (defn associativity?
   "Brute-force checking associativity for a composition table `S`.
    If the `triples` are not given, then all possible triples are checked."
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
-   (every?
-    (fn [[a b c]] (= (compose-c S a (compose-c S b c))
-                     (compose-c S (compose-c S a b) c)))
-    triples)))
+   (every? (partial associative-triple? S) triples)))
 
 (defn associativo
   "The goal for associativity for a given triple."
@@ -37,7 +39,7 @@
    (composo S a aa aaa)
    (composo S a a aa)))
 
-(defn associativo2
+(defn sgpoid-associativo ; this worked
   "The goal for associativity for a given triple."
   [S [a b c]]
   (l/fresh
@@ -45,7 +47,10 @@
    (composo S a b ab)
    (composo S b c bc)
    (l/conda
-    [(l/conde [(l/== ab :n)] [(l/== bc :n)])]
+    [ (l/conde
+       [(l/== ab :n) (composo S a bc :n)] 
+       [(l/== bc :n) (composo S ab c :n)]
+       [(l/== bc :n) (l/== ab :n)])]
     [(l/fresh
       [abc]
       (composo S ab c abc)
@@ -118,16 +123,6 @@
       (l/everyg (partial associativo S) triples))))) ;;all triples associative
 
 ;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
-(defn composablo
-  "The goal for composability for a given pair of arrows `a` and `b` in the
-   semigroupoid `S`. The finite domain `elts` is given in order to decide
-   composability - if the result is an arrow, then composable."
-  [S a b elts]
-  (l/fresh
-   [ab]
-   (composo S a b ab)
-   (fd/in ab elts)))
-
 (defn semigroupoids-order-n
   "Enumerating semigroupoids of order n by constructing all n by n composition
    tables.
@@ -147,7 +142,7 @@
       (if partial-comptab
         (predefined lvars partial-comptab)
         l/succeed)
-      (l/everyg (partial associativo2 S) triples)))))
+      (l/everyg (partial sgpoid-associativo S) triples)))))
 
 
 (def S
