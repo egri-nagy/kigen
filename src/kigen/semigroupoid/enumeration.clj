@@ -7,21 +7,25 @@
             [kigen.semigroupoid.homomorphism :refer [composo compose compose-c]]
             [kigen.logic :refer [lvar-table]]))
 
-;; SEMIGROUPS ;;;;;;;;;;;;;;
 (defn associative-triple?
+  "Checks whether the given triple is associative in `S`.
+   It works with :n entries, thus compatible with semigroupoids."
   [S [a b c]]
   (= (compose-c S a (compose-c S b c))
      (compose-c S (compose-c S a b) c)))
 
 (defn associativity?
   "Brute-force checking associativity for a composition table `S`.
-   If the `triples` are not given, then all possible triples are checked."
+   If the `triples` are not given, then all possible triples are checked.
+   Compatible with semigroupoids."
   ([S] (associativity? S (selections (range (count S)) 3)))
   ([S triples]
    (every? (partial associative-triple? S) triples)))
 
+;; SEMIGROUPS ;;;;;;;;;;;;;;
 (defn associativo
-  "The goal for associativity for a given triple."
+  "The goal for associativity for a given triple when using semigroup
+   composition."
   [S [a b c]]
   (l/fresh
    [ab bc abc]
@@ -31,7 +35,8 @@
    (composo S b c bc)))
 
 (defn associativo-diagonal
-  "The goal for associativity for a given triple."
+  "The goal for associativity for a given triple of same elements for
+   typeless semigroup composition."
   [S a]
   (l/fresh
    [aa aaa]
@@ -39,22 +44,6 @@
    (composo S a aa aaa)
    (composo S a a aa)))
 
-(defn sgpoid-associativo ; this worked
-  "The goal for associativity for a given triple."
-  [S [a b c]]
-  (l/fresh
-   [ab bc]
-   (composo S a b ab)
-   (composo S b c bc)
-   (l/conda
-    [ (l/conde
-       [(l/== ab :n) (composo S a bc :n)] 
-       [(l/== bc :n) (composo S ab c :n)]
-       [(l/== bc :n) (l/== ab :n)])]
-    [(l/fresh
-      [abc]
-      (composo S ab c abc)
-      (composo S a bc abc))])))
 
 (defn composable-triples
   "Returns all the composable triples for a composition table `S`.
@@ -74,20 +63,6 @@
             (elts (compose S b c))))
      triples)))
 
-(defn semigroupoid?
-  "A composition table describes a semigroupoid if all composable triples
-   satisfy associativity."
-  [S]
-  (associativity? S (composable-triples S)))
-
-(defn all-composition-tables
-  "Lazy, brute force enumeration of all nxn composition tables.
-   For testing purposes only. n=4 is already not feasible!"
-  [n]
-  (map
-   (fn [entries]
-     (mapv vec (partition n entries)))
-   (selections (concat (range n) [:n]) (* n n))))
 
 (defn predefined
   [[lv & lvs] [cell & cells]]
@@ -123,6 +98,32 @@
       (l/everyg (partial associativo S) triples))))) ;;all triples associative
 
 ;; SEMIGROUPOIDS ;;;;;;;;;;;;;;;;;;
+(defn sgpoid-associativo ; this works, optimizations invariably fail
+  "The goal for associativity for a given triple."
+  [S [a b c]]
+  (l/fresh
+   [ab bc]
+   (composo S a b ab)
+   (composo S b c bc)
+   (l/conda
+    [(l/conde
+      [(l/== ab :n) (composo S a bc :n)]
+      [(l/== bc :n) (composo S ab c :n)]
+      [(l/== bc :n) (l/== ab :n)])]
+    [(l/fresh
+      [abc]
+      (composo S ab c abc)
+      (composo S a bc abc))])))
+
+(defn all-composition-tables
+  "Lazy, brute force enumeration of all nxn composition tables.
+   For testing purposes only. n=4 is already not feasible!"
+  [n]
+  (map
+   (fn [entries]
+     (mapv vec (partition n entries)))
+   (selections (concat (range n) [:n]) (* n n))))
+
 (defn semigroupoids-order-n
   "Enumerating semigroupoids of order n by constructing all n by n composition
    tables.
