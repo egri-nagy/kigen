@@ -2,10 +2,8 @@
   "Enumerating all homomorphisms of a semigroupoid into another one using
    relational programming.
    Semigroupoids are represented abstractly, as composition tables, a vector of
-   vectors. For non-composable arrow pairs the corresponding entry is nil, but
-   in the logic engine, for finite domains, the next integer value is used."
+   vectors. For non-composable arrow pairs the corresponding entry is nil."
   (:require [clojure.core.logic :as l]
-            [clojure.core.logic.fd :as fd]
             [kigen.logic :refer [ntho lvar-vector]]))
 
 (defn compose
@@ -125,15 +123,12 @@
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
-        ;elts (fd/interval 0 (dec (count T)))
         elts (concat (range (count T)) [nil])
         constraints (substitute (composition-relation S) phi)]
     (l/run*
      [q]
-     ;(l/everyg #(fd/in % elts) phi)
      (l/everyg (fn [elt] (l/membero elt elts)) phi)
      (if bijective?
-       ;(fd/distinct phi) ;permutations only
        (l/distincto phi)
        l/succeed)
      (l/everyg (fn [[ab pairs]]
