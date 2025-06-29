@@ -62,14 +62,20 @@
    from the results."
   [S]
   (let [n (count S)
-        elts (set (range n))
-        triples (selections elts 3)]
-    ;todo: is there a better way finding all composable pairs and combine?
-    (filter
-     (fn [[a b c]]
-       (and (elts (compose S a b)) ;checking set memberhsip
-            (elts (compose S b c))))
-     triples)))
+        elts (vec (range n))
+        ; vector to set of arrows that can be post-composed
+        composables (mapv
+                     (fn [a]
+                       (filter (fn [b] (not= :n (compose-c S a b))) elts))
+                     elts)
+        post-compose (fn [arrows]
+                       (mapcat
+                        (fn [arrow]
+                          (map
+                           (partial conj arrow)
+                           (composables (last arrow))))
+                        arrows))]
+    (post-compose (post-compose (map vector elts)))))
 
 
 (defn predefined
@@ -178,6 +184,11 @@
                              (l/all (l/== (doms a) (doms c))
                                     (l/== (cods b) (cods c)))))
                (composable true))
+     (l/everyg (fn [[a _ c :as triple]]
+                 (let [d (reduce (partial compose-c S) triple)]
+                   (l/all (l/== (doms a) (doms d))
+                          (l/== (cods c) (cods d)))))
+               (composable-triples S))
      (l/everyg (fn [[a b]] (l/distincto [(cods a) (doms b)])) (composable false)))))
 
 (defn find-minimal-type-structure
@@ -210,4 +221,13 @@
     [:n :n :n]
     [:n :n :n]])
 (find-minimal-type-structure Q)
-(type-inference Q 4)
+(type-inference Q 0)
+
+(def S2
+  [[0 1 2 3 4 :n]
+   [1 0 2 4 3 :n]
+   [:n :n :n :n :n 2]
+   [:n :n :n :n :n 2]
+   [:n :n :n :n :n 2]
+   [:n :n :n :n :n 5]])
+(find-minimal-type-structure S2)
