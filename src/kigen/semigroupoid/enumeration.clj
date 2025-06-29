@@ -194,13 +194,14 @@
                                     (l/== (cods b) (cods c)))))
                (composable true))
      ;not sure that these are needed or not - already follows from composition TODO check this
-     (l/everyg (fn [[a _ c :as triple]]
-                 (let [d (reduce (partial compose-c S) triple)]
-                   (if (= :n d) ;some random tables will produce this
-                     l/fail
-                     (l/all (l/== (doms a) (doms d))
-                            (l/== (cods c) (cods d))))))
-               (composable-triples S)))))
+    ;;  (l/everyg (fn [[a _ c :as triple]]
+    ;;              (let [d (reduce (partial compose-c S) triple)]
+    ;;                (if (= :n d) ;some random tables will produce this
+    ;;                  l/fail
+    ;;                  (l/all (l/== (doms a) (doms d))
+    ;;                         (l/== (cods c) (cods d))))))
+    ;;            (composable-triples S))
+     )))
 
 (defn find-minimal-type-structure
   "Starting from 1 we try to construct a type structure for composition
@@ -211,6 +212,13 @@
                  (map
                   (fn [i] (first (type-inference S i)))
                   (range 1 (inc (* 2 (count S)))))))) ; 1..2n
+
+(defn type-degree
+  [S]
+  (let [typestruct (find-minimal-type-structure S)]
+    (when typestruct
+      (inc (apply max (concat (:doms typestruct)
+                              (:cods typestruct)))))))
 
 (def S
   '[[:n 2 :n]
