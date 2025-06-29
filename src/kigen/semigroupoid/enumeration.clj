@@ -52,32 +52,6 @@
    (composo S a aa aaa)
    (composo S a a aa)))
 
-
-(defn composable-triples
-  "Returns all the composable triples for a composition table `S`.
-   A pair is composable if the element corresponding to their composition
-   in the table is an element of the semigroupoid, i.e., not nil or some
-   bigger index integer outside of the table. Here we do not have the domains
-   and codomains, so we need to infer composability backwards,
-   from the results."
-  [S]
-  (let [n (count S)
-        elts (vec (range n))
-        ; vector to set of arrows that can be post-composed
-        composables (mapv
-                     (fn [a]
-                       (filter (fn [b] (not= :n (compose-c S a b))) elts))
-                     elts)
-        post-compose (fn [arrows]
-                       (mapcat
-                        (fn [arrow]
-                          (map
-                           (partial conj arrow)
-                           (composables (last arrow))))
-                        arrows))]
-    (post-compose (post-compose (map vector elts)))))
-
-
 (defn predefined
   [[lv & lvs] [cell & cells]]
   (if lv
@@ -160,6 +134,30 @@
      (mapv vec (partition n all-entries-in-a-row)))
    (selections (concat (range n) [:n]) (* n n))))
 
+(defn composable-triples
+  "Returns all the composable triples for a composition table `S`.
+   A pair is composable if the element corresponding to their composition
+   in the table is an element of the semigroupoid, i.e., not nil or some
+   bigger index integer outside of the table. Here we do not have the domains
+   and codomains, so we need to infer composability backwards,
+   from the results."
+  [S]
+  (let [n (count S)
+        elts (vec (range n))
+        ; vector to set of arrows that can be post-composed
+        composables (mapv
+                     (fn [a]
+                       (filter (fn [b] (not= :n (compose-c S a b))) elts))
+                     elts)
+        post-compose (fn [arrows]
+                       (mapcat
+                        (fn [arrow]
+                          (map
+                           (partial conj arrow)
+                           (composables (last arrow))))
+                        arrows))]
+    (post-compose (post-compose (map vector elts)))))
+
 (defn type-inference
   "`S` composition table
    `m` number of objects, 1 or greater"
@@ -184,10 +182,12 @@
                              (l/all (l/== (doms a) (doms c))
                                     (l/== (cods b) (cods c)))))
                (composable true))
-     (l/everyg (fn [[a _ c :as triple]]
+     (l/everyg (fn [[a _ c :as triple]] ;not sure that these are needed or not - already follows from composition
                  (let [d (reduce (partial compose-c S) triple)]
-                   (l/all (l/== (doms a) (doms d))
-                          (l/== (cods c) (cods d)))))
+                   (if (= :n d) ;some random tables will produce this
+                     l/fail
+                     (l/all (l/== (doms a) (doms d))
+                            (l/== (cods c) (cods d))))))
                (composable-triples S))
      (l/everyg (fn [[a b]] (l/distincto [(cods a) (doms b)])) (composable false)))))
 
