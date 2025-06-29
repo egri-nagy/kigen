@@ -159,37 +159,48 @@
     (post-compose (post-compose (map vector elts)))))
 
 (defn type-inference
-  "`S` composition table
+  "Takes a composition table and a positive integer and tries to find type
+   structures (domains and codomains for the arrows).
+   Empty list is returned if not possible. That happens when to composition
+   table is not a semigroupoid. It also gives results for tables that fail
+   associativity, thus a solution does not guarantee semigroupoidness.
+   `S` composition table
    `m` number of objects, 1 or greater"
   [S m]
-  (let [n (count S)
-        composable (group-by (fn [[a b]]
+  (let [n (count S) ;number of arrows
+        composable (group-by (fn [[a b]] ; classify pairs by composability
                                (not= :n (compose-c S a b)))
                              (selections (range n) 2))
         doms (lvar-vector n)
         cods (lvar-vector n)
         lvars (into doms cods)
-        objects (range m)]
-    ;(println "composable " (composable true))
-    ;(println "non-composable " (composable false))
-
+        types (range m)]
     (l/run*
      [q]
      (l/== q {:doms doms, :cods cods})
-     (l/everyg (fn [lv] (l/membero lv objects)) lvars)
-     (l/everyg (fn [[a b]] (l/== (cods a) (doms b))) (composable true))
+     ; logic variables should point to types
+     (l/everyg (fn [lv] (l/membero lv types)) lvars)
+     ; for all composable pairs, the codomain of the 1st match the dom of 2nd
+     (l/everyg (fn [[a b]]
+                 (l/== (cods a) (doms b)))
+               (composable true))
+     ; when not composable, they should be distinct
+     (l/everyg (fn [[a b]]
+                 (l/distincto [(cods a) (doms b)]))
+               (composable false))
+     ; the composed arrow should have the dom of the 1st, cod of the 2nd
      (l/everyg (fn [[a b]] (let [c (compose-c S a b)]
                              (l/all (l/== (doms a) (doms c))
                                     (l/== (cods b) (cods c)))))
                (composable true))
-     (l/everyg (fn [[a _ c :as triple]] ;not sure that these are needed or not - already follows from composition
+     ;not sure that these are needed or not - already follows from composition TODO check this
+     (l/everyg (fn [[a _ c :as triple]]
                  (let [d (reduce (partial compose-c S) triple)]
                    (if (= :n d) ;some random tables will produce this
                      l/fail
                      (l/all (l/== (doms a) (doms d))
                             (l/== (cods c) (cods d))))))
-               (composable-triples S))
-     (l/everyg (fn [[a b]] (l/distincto [(cods a) (doms b)])) (composable false)))))
+               (composable-triples S)))))
 
 (defn find-minimal-type-structure
   "Starting from 1 we try to construct a type structure for composition
@@ -206,17 +217,20 @@
     [:n :n :n]
     [:n :n :n]])
 
-(type-inference S 3)
+(type-inference S 2)
 (find-minimal-type-structure S)
 
 (def T
-  '[[:n :n :n]
-    [:n :n 1]
+  '[[:n 1 :n]
+    [:n :n :n]
     [:n :n :n]])
 
 (associativity? T)
 (find-minimal-type-structure T)
-
+(def T'
+  '[[0 1 :n]
+    [:n :n :n]
+    [:n :n :n]])
 
 (def Q
   '[[:n :n :n]
