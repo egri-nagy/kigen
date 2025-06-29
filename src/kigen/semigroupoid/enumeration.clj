@@ -4,7 +4,7 @@
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
-            [kigen.semigroupoid.homomorphism :refer [composo compose compose-c]]
+            [kigen.semigroupoid.homomorphism :refer [composo compose-c]]
             [kigen.logic :refer [lvar-table lvar-vector]]))
 
 (defn associative-triple?
@@ -125,7 +125,7 @@
       (l/everyg (partial sgpoid-associativo S) triples)))))
 
 (defn all-composition-tables
-  "Lazy, brute force enumeration of all nxn composition tables.
+  "Lazy, brute force enumeration of all `n` by `n` composition tables.
    It can be filtered by [[associativity?]].
    For testing purposes only: n=3 is fine, but n=4 has 5^16 cases."
   [n]
@@ -192,12 +192,14 @@
      (l/everyg (fn [[a b]] (l/distincto [(cods a) (doms b)])) (composable false)))))
 
 (defn find-minimal-type-structure
+  "Starting from 1 we try to construct a type structure for composition
+   table `S`. It returns nil if no such structure is found with 2n types.
+   If inferencing is possible, it returns one such minimal construction."
   [S]
-  (first
-   (remove empty?
-           (map
-            (fn [i] (first (type-inference S i)))
-            (range 1 (* 2 (count S)))))))
+  (first (remove empty? ; nil is empty
+                 (map
+                  (fn [i] (first (type-inference S i)))
+                  (range 1 (inc (* 2 (count S)))))))) ; 1..2n
 
 (def S
   '[[:n 2 :n]
