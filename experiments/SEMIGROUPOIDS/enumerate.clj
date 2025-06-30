@@ -36,3 +36,26 @@
 (stats 1)
 (stats 2)
 (stats 3) ;; this is slow, maybe the type inference, or the morphisms?
+
+;; ; KIGEN 25.06.xx Clojure 1.12.1 Java 24.0.1 Mac OS X 15.5 aarch64
+;; All composition tables:  2
+;; Associative composition tables: 2
+;; up to (anti)isomorphism: 2
+;; Typed: 2
+;; up to (anti)isomorphism: 2
+;; Assoc-Typed: 2
+;; up to (anti)isomorphism: 2
+;; All composition tables:  81
+;; Associative composition tables: 20
+;; up to (anti)isomorphism: 10
+;; Typed: 24
+;; up to (anti)isomorphism: 11
+;; Assoc-Typed: 16
+;; up to (anti)isomorphism: 8
+;; All composition tables:  262144
+;; Associative composition tables: 442
+;; up to (anti)isomorphism: 67
+;; Typed: 19943
+;; up to (anti)isomorphism: 1769
+;; Assoc-Typed: 271
+;; up to (anti)isomorphism: 41
