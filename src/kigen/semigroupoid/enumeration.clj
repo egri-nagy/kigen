@@ -23,7 +23,7 @@
    (every? (partial associative-triple? S) triples)))
 
 (defn associativity-failures
-  "Brute-force checking associativity for a composition table `S`.
+  "Returns pairs where associativity fails in a composition table `S`.
    If the `triples` are not given, then all possible triples are checked.
    Compatible with semigroupoids."
   ([S] (associativity-failures S (selections (range (count S)) 3)))
@@ -53,14 +53,14 @@
    (composo S a a aa)))
 
 (defn predefined
-  [[lv & lvs] [cell & cells]]
-  (if lv
-    (l/all
-     (if (= '- cell)
-       l/succeed
-       (l/== lv cell))
-     (predefined lvs cells))
-    l/succeed))
+  [lvs cells]
+  (l/and* (map
+           (fn [lv cell]
+             (if (= '- cell)
+               l/succeed
+               (l/== lv cell)))
+           lvs
+           cells)))
 
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition
