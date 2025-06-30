@@ -203,6 +203,12 @@
     ;;            (composable-triples S))
      )))
 
+(defn typestruct2arrows
+  "Converts the results of [[type-inference]] into a graph of the arrows.
+   The arrows are in the same order as in the composition table."
+  [{doms :doms cods :cods}]
+  (mapv vector doms cods))
+
 (defn find-minimal-type-structure
   "Starting from 1 we try to construct a type structure for composition
    table `S`. It returns nil if no such structure is found with 2n types.
