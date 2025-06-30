@@ -134,7 +134,7 @@
      (mapv vec (partition n all-entries-in-a-row)))
    (selections (concat (range n) [:n]) (* n n))))
 
-(defn composable-triples
+(defn composable-triples ; slated for removal
   "Returns all the composable triples for a composition table `S`.
    A pair is composable if the element corresponding to their composition
    in the table is an element of the semigroupoid, i.e., not nil or some
@@ -214,44 +214,11 @@
                   (range 1 (inc (* 2 (count S)))))))) ; 1..2n
 
 (defn type-degree
+  "Based on the result from [[find-minimal-type-structure]] this gives the
+   minimum number of objects of an admissible type structure for composition
+   table `S`."
   [S]
   (let [typestruct (find-minimal-type-structure S)]
     (when typestruct
       (inc (apply max (concat (:doms typestruct)
                               (:cods typestruct)))))))
-
-(def S
-  '[[:n 2 :n]
-    [:n :n :n]
-    [:n :n :n]])
-
-(type-inference S 2)
-(find-minimal-type-structure S)
-
-(def T
-  '[[:n 1 :n]
-    [:n :n :n]
-    [:n :n :n]])
-
-(associativity? T)
-(find-minimal-type-structure T)
-(def T'
-  '[[0 1 :n]
-    [:n :n :n]
-    [:n :n :n]])
-
-(def Q
-  '[[:n :n :n]
-    [:n :n :n]
-    [:n :n :n]])
-(find-minimal-type-structure Q)
-(type-inference Q 0)
-
-(def S2
-  [[0 1 2 3 4 :n]
-   [1 0 2 4 3 :n]
-   [:n :n :n :n :n 2]
-   [:n :n :n :n :n 2]
-   [:n :n :n :n :n 2]
-   [:n :n :n :n :n 5]])
-(find-minimal-type-structure S2)
