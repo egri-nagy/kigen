@@ -53,14 +53,17 @@
    (composo S a a aa)))
 
 (defn predefined
+  "Sudoku-like hints for the composition table. Returns the goals for predefined
+   values."
   [lvs cells]
-  (l/and* (map
-           (fn [lv cell]
-             (if (= '- cell)
-               l/succeed
-               (l/== lv cell)))
-           lvs
-           cells)))
+  (l/and*
+   (reduce
+    (fn [goals [lv cell]]
+      (if (not= '- cell)
+        (conj goals (l/== lv cell))
+        goals))
+    ()
+    (map vector lvs cells)))) ;pairs
 
 (defn semigroups-order-n
   "Enumerating semigroups of order n by constructing all n by n composition

@@ -41,3 +41,15 @@
               [[:n :n :n]
                [:n :n :n]
                [:n :n :n]])))))
+
+(def comptab '[0 1 2 3
+               1 1 - -
+               2 2 2 2
+               3 - - 3])
+
+(deftest predefined-test
+  (testing "Predefined sudoko-like composition tables."
+    (is (= 12
+           (count (semigroups-order-n 4 comptab))))
+    (is (= 1 ;fully defined
+           (count (semigroupoids-order-n 2 [1 1 1 1]))))))
