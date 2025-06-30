@@ -134,30 +134,6 @@
      (mapv vec (partition n all-entries-in-a-row)))
    (selections (concat (range n) [:n]) (* n n))))
 
-(defn composable-triples ; slated for removal
-  "Returns all the composable triples for a composition table `S`.
-   A pair is composable if the element corresponding to their composition
-   in the table is an element of the semigroupoid, i.e., not nil or some
-   bigger index integer outside of the table. Here we do not have the domains
-   and codomains, so we need to infer composability backwards,
-   from the results."
-  [S]
-  (let [n (count S)
-        elts (vec (range n))
-        ; vector to set of arrows that can be post-composed
-        composables (mapv
-                     (fn [a]
-                       (filter (fn [b] (not= :n (compose S a b))) elts))
-                     elts)
-        post-compose (fn [arrows]
-                       (mapcat
-                        (fn [arrow]
-                          (map
-                           (partial conj arrow)
-                           (composables (last arrow))))
-                        arrows))]
-    (post-compose (post-compose (map vector elts)))))
-
 (defn type-inference
   "Takes a composition table and a positive integer and tries to find type
    structures (domains and codomains for the arrows).
@@ -192,16 +168,7 @@
      (l/everyg (fn [[a b]] (let [c (compose S a b)]
                              (l/all (l/== (doms a) (doms c))
                                     (l/== (cods b) (cods c)))))
-               (composable true))
-     ;not sure that these are needed or not - already follows from composition TODO check this
-    ;;  (l/everyg (fn [[a _ c :as triple]]
-    ;;              (let [d (reduce (partial compose-c S) triple)]
-    ;;                (if (= :n d) ;some random tables will produce this
-    ;;                  l/fail
-    ;;                  (l/all (l/== (doms a) (doms d))
-    ;;                         (l/== (cods c) (cods d))))))
-    ;;            (composable-triples S))
-     )))
+               (composable true)))))
 
 (defn typestruct2arrows
   "Converts the results of [[type-inference]] into a graph of the arrows.
