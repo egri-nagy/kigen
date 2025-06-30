@@ -4,15 +4,15 @@
   (:require [clojure.core.logic :as l]
             [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
-            [kigen.semigroupoid.homomorphism :refer [composo compose-c]]
+            [kigen.semigroupoid.homomorphism :refer [composo compose]]
             [kigen.logic :refer [lvar-table lvar-vector]]))
 
 (defn associative-triple?
   "Checks whether the given triple is associative in `S`.
    It works with :n entries, thus compatible with semigroupoids."
   [S [a b c]]
-  (= (compose-c S a (compose-c S b c))
-     (compose-c S (compose-c S a b) c)))
+  (= (compose S a (compose S b c))
+     (compose S (compose S a b) c)))
 
 (defn associativity?
   "Brute-force checking associativity for a composition table `S`.
@@ -147,7 +147,7 @@
         ; vector to set of arrows that can be post-composed
         composables (mapv
                      (fn [a]
-                       (filter (fn [b] (not= :n (compose-c S a b))) elts))
+                       (filter (fn [b] (not= :n (compose S a b))) elts))
                      elts)
         post-compose (fn [arrows]
                        (mapcat
@@ -169,7 +169,7 @@
   [S m]
   (let [n (count S) ;number of arrows
         composable (group-by (fn [[a b]] ; classify pairs by composability
-                               (not= :n (compose-c S a b)))
+                               (not= :n (compose S a b)))
                              (selections (range n) 2))
         doms (lvar-vector n)
         cods (lvar-vector n)
@@ -189,7 +189,7 @@
                  (l/distincto [(cods a) (doms b)]))
                (composable false))
      ; the composed arrow should have the dom of the 1st, cod of the 2nd
-     (l/everyg (fn [[a b]] (let [c (compose-c S a b)]
+     (l/everyg (fn [[a b]] (let [c (compose S a b)]
                              (l/all (l/== (doms a) (doms c))
                                     (l/== (cods b) (cods c)))))
                (composable true))

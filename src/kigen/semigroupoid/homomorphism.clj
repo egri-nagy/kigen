@@ -1,19 +1,21 @@
 (ns kigen.semigroupoid.homomorphism
-  "Enumerating all homomorphisms of a semigroupoid into another one using
+  "Finding all homomorphisms of a semigroupoid into another one by using
    relational programming.
    Semigroupoids are represented abstractly, as composition tables, a vector of
-   vectors. For non-composable arrow pairs the corresponding entry is nil."
+   vectors. For non-composable arrow pairs the corresponding entry is :n."
   (:require [clojure.core.logic :as l]
             [kigen.logic :refer [ntho lvar-vector]]))
 
-(defn compose
+(defn compose-NC
   "Composition function for arrows a and b in the given composition table S.
    Computing the composite is two vector lookups. Arrows a and b are assumed
    to be composable."
   [S a b]
   (nth (nth S a) b)) ;get the row for a, then composite ab is the bth entry
 
-(defn compose-c
+(defn compose
+  "Safe composition, works for all `a`,`b` arrow pairs. Composing with :n,
+   the non-defined value, yields :n."
   [S a b]
   (if (or (= :n a) (= :n b))
     :n
