@@ -7,7 +7,9 @@
                                                      homomorphism?
                                                      homomorphism?-by-comprel
                                                      isomorphisms
-                                                     homomorphisms]]))
+                                                     homomorphisms]]
+            [kigen.semigroupoid.enumeration
+             :refer [all-composition-tables]]))
 
 (def S
   [[0 1 2 3 4 :n]
@@ -47,3 +49,17 @@
                  (l/fresh [r]
                           (l/membero r (range (count S)))
                           (composo S p q r))))))))
+
+(deftest isomorphism-test
+  (testing "Testing isomorphisms")
+  ;; being isomorphic to should be a symmetric relation
+  (is (= (set (filter
+               (fn [T]
+                 (not (empty? (isomorphisms T [[0 :n] [:n :n]]))))
+               (all-composition-tables 2)))
+         (set (filter
+               (fn [T]
+                 (not (empty? (isomorphisms [[0 :n] [:n :n]] T))))
+               (all-composition-tables 2)))))
+  (is (= (set (isomorphisms S S))
+         #{[0 1 2 3 4 5] [0 1 2 4 3 5]})))

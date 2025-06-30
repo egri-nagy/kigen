@@ -30,11 +30,15 @@
 (isomorphisms [[0 :n] [:n :n]]
               [[:n :n] [:n 1]])
 
+
 (isomorphisms [[:n :n] [:n 1]]
               [[0 :n] [:n :n]])
 
+(homomorphisms [[:n :n] [:n 1]]
+               [[0 :n] [:n :n]])
 
-(filter #(not (empty? (isomorphisms [[0 :n] [:n :n]] %)))
+
+(filter #(not (empty? (homomorphisms % [[0 :n] [:n :n]])))
         (all-composition-tables 2))
 
 (composition-relation [[0 :n] [:n :n]])
