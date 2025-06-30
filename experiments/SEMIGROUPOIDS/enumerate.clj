@@ -1,23 +1,42 @@
 ;; constructing abstract semigroupoids
 ;; v25.06.xx
-(require '[kigen.semigroupoid.enumeration :refer [semigroupoids-order-n]])
-(require '[kigen.semigroupoid.homomorphism :refer [comptabs-up-to-morphisms]])
+(require '[kigen.semigroupoid.enumeration
+           :refer [semigroupoids-order-n
+                   all-composition-tables
+                   associativity?
+                   type-degree
+                   find-minimal-type-structure]])
+(require '[kigen.semigroupoid.homomorphism
+           :refer [composition-relation
+                   isomorphisms
+                   comptabs-up-to-morphisms]])
 
-;; without endoarrows
-(def S '[3 - -
-         - 3 -
-         - - 3])
+(defn stats
+  [n]
+  (let [assoc-comptabs (filter
+                        associativity?
+                        (all-composition-tables n))
+        assoc-comptabs-iso (comptabs-up-to-morphisms assoc-comptabs)]
+    (println
+     "Associative composition tables:" (count assoc-comptabs)
+     "\nup to (anti)isomoprhism:" (count assoc-comptabs-iso))))
+
+(stats 3)
+
+(comptabs-up-to-morphisms (filter
+                           associativity?
+                           (all-composition-tables 2)))
+
+(isomorphisms [[0 :n] [:n :n]]
+              [[:n :n] [:n 1]])
+
+(isomorphisms [[:n :n] [:n 1]]
+              [[0 :n] [:n :n]])
 
 
-;(doseq [sgpoid (comptabs-up-to-morphisms (semigroupoids-order-n 3))]
-;  (println sgpoid))
+(filter #(not (empty? (isomorphisms [[0 :n] [:n :n]] %)))
+        (all-composition-tables 2))
 
-;(println (count (semigroupoids-order-n 3)))
+(composition-relation [[0 :n] [:n :n]])
 
-(def T '[4 - - -
-         - 0 - -
-         - - 1 -
-         - - - 2])
-
-(doseq [sgpoid (semigroupoids-order-n 4 T)]
-  (println sgpoid))
+(type-degree [[:n :n :n] [:n :n :n] [:n :n :n]])

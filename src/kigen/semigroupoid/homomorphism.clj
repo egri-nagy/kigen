@@ -30,24 +30,24 @@
    (ntho S a row) ;the row of a
    (ntho row b ab))) ;the bth entry in that row should be ab
 
+(defn composition-relation
+  "A hash-map with keys as the elements of S, and the values are pairs that
+   compose to that key value. Composition turned backwards.
+   It includes undefined value :n as a key."
+  [S]
+  (group-by (fn [[a b]]
+              (compose S a b))
+            (let [n (count S)]
+              (for [a (range n) ;all a b pairs
+                    b (range n)]
+                [a b]))))
+
 (defn composable-pairs
   "All the composable pairs of elements of semigroupoid S given as a composition
    table. In the abstract setting we do not have domains and codomains, we
    reason backwards, arrows are composable if the composite in the table."
   [S]
-  (let [n (count S)]
-    (for [a (range n)
-          b (range n)
-          :when (not= :n (compose S a b))] ;when composition gives something not nil
-      [a b])))
-
-(defn composition-relation
-  "A hash-map with keys as the elements of S, and the values are pairs that
-   compose to that key value. Composition turned backwards."
-  [S]
-  (group-by (fn [[a b]]
-              (compose S a b))
-            (composable-pairs S)))
+  (apply concat (vals (dissoc (composition-relation S) :n))))
 
 (defn substitute
   "Transfer the composition relation through a morphism phi, i.e., converting
@@ -93,8 +93,9 @@
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
-        elts (concat (range (count T)) [:n])
-        constraints (substitute (composition-relation S) phi)]
+        elts (range (count T));(concat (range (count T)) [:n])
+        constraints (substitute (composition-relation S) ;phi)]
+                                (fn [x] (if (= x :n) :n (phi x))))]
     (l/run*
      [q]
      (l/everyg (fn [elt] (l/membero elt elts)) phi)
@@ -144,3 +145,5 @@
    [:n :n :n :n :n 2]
    [:n :n :n :n :n 2]
    [:n :n :n :n :n 5]])
+
+(isomorphisms S S)

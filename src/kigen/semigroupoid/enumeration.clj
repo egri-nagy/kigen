@@ -214,11 +214,10 @@
    table `S`. It returns nil if no such structure is found with 2n types.
    If inferencing is possible, it returns one such minimal construction."
   [S]
-  (typestruct2arrows
-   (first (remove empty? ; nil is empty
-                  (map
-                   (fn [i] (first (type-inference S i)))
-                   (range 1 (inc (* 2 (count S))))))))) ; 1..2n
+  (first (remove empty? ; nil is empty
+                 (map
+                  (fn [i] (first (type-inference S i)))
+                  (range 1 (inc (* 2 (count S)))))))) ; 1..2n
 
 (defn type-degree
   "Based on the result from [[find-minimal-type-structure]] this gives the
