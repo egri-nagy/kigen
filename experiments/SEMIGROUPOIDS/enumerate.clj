@@ -16,31 +16,23 @@
   (let [assoc-comptabs (filter
                         associativity?
                         (all-composition-tables n))
-        assoc-comptabs-iso (comptabs-up-to-morphisms assoc-comptabs)]
+        assoc-comptabs-iso (comptabs-up-to-morphisms assoc-comptabs)
+        typed-comptabs (filter
+                        (fn [S]
+                          (not (empty? (find-minimal-type-structure S))))
+                        (all-composition-tables n))
+        typed-comptabs-iso (comptabs-up-to-morphisms typed-comptabs)
+        assoc-typed (filter (set assoc-comptabs) typed-comptabs)
+        assoc-typed-iso (comptabs-up-to-morphisms assoc-typed)]
     (println
-     "Associative composition tables:" (count assoc-comptabs)
-     "\nup to (anti)isomoprhism:" (count assoc-comptabs-iso))))
+     "All composition tables: " (count (all-composition-tables n))
+     "\nAssociative composition tables:" (count assoc-comptabs)
+     "\nup to (anti)isomorphism:" (count assoc-comptabs-iso)
+     "\nTyped:" (count typed-comptabs)
+     "\nup to (anti)isomorphism:" (count typed-comptabs-iso)
+     "\nAssoc-Typed:" (count assoc-typed)
+     "\nup to (anti)isomorphism:" (count assoc-typed-iso))))
 
-(stats 3)
-
-(comptabs-up-to-morphisms (filter
-                           associativity?
-                           (all-composition-tables 2)))
-
-(isomorphisms [[0 :n] [:n :n]]
-              [[:n :n] [:n 1]])
-
-
-(isomorphisms [[:n :n] [:n 1]]
-              [[0 :n] [:n :n]])
-
-(homomorphisms [[:n :n] [:n 1]]
-               [[0 :n] [:n :n]])
-
-
-(filter #(not (empty? (homomorphisms % [[0 :n] [:n :n]])))
-        (all-composition-tables 2))
-
-(composition-relation [[0 :n] [:n :n]])
-
-(type-degree [[:n :n :n] [:n :n :n] [:n :n :n]])
+(stats 1)
+(stats 2)
+(stats 3) ;; this is slow, maybe the type inference?
