@@ -31,8 +31,8 @@
      "\nTyped:" (count typed-comptabs)
      "\nup to (anti)isomorphism:" (count typed-comptabs-iso)
      "\nAssoc-Typed:" (count assoc-typed)
-     "\nup to (anti)isomorphism:" (count assoc-typed-iso))))
+     "\nup to (anti)isomorphism:" (count assoc-typed-iso) "\n")))
 
 (stats 1)
 (stats 2)
-(stats 3) ;; this is slow, maybe the type inference?
+(stats 3) ;; this is slow, maybe the type inference, or the morphisms?
