@@ -55,9 +55,10 @@
   "Transfer the composition relation through a morphism phi, i.e., converting
    all keys and values by phi."
   [comprel phi]
-  (-> comprel
-      (update-keys phi)
-      (update-vals (partial map (partial map phi)))))
+  (let [phi' (fn [x] (if (= x :n) :n (phi x)))] ;avoid indexing by :n
+    (-> comprel
+        (update-keys phi')
+        (update-vals (partial map (partial map phi'))))))
 
 (defn comprel?
   "Checks composition relation for the given element and the pairs:
@@ -95,11 +96,11 @@
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
-        elts (range (count T));(concat (range (count T)) [:n])
-        constraints (substitute (composition-relation S) ;phi)]
-                                (fn [x] (if (= x :n) :n (phi x))))]
+        elts (range (count T))
+        constraints (substitute (composition-relation S) phi)]
     (l/run*
      [q]
+     (l/== q phi)
      (l/everyg (fn [elt] (l/membero elt elts)) phi)
      (if bijective?
        (l/distincto phi)
@@ -108,8 +109,7 @@
                  (l/everyg (fn [[a b]]
                              (composo T a b ab))
                            pairs))
-               constraints)
-     (l/== q phi))))
+               constraints))))
 
 (defn isomorphisms
   "Logic search for all isomorphisms from semigroupoid S to T given as
