@@ -2,7 +2,6 @@
   "Enumerating all semigroup(oid)s using relational programming.
    Semigroupoids are represented as composition tables, a vector of vectors."
   (:require [clojure.core.logic :as l]
-            [clojure.core.logic.fd :as fd]
             [clojure.math.combinatorics :refer [selections]]
             [kigen.semigroupoid.homomorphism :refer [composo compose]]
             [kigen.logic :refer [lvar-table lvar-vector]]))
