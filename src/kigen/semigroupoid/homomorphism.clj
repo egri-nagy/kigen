@@ -123,6 +123,17 @@
   [S T] ;given as composition tables
   (morphism-search S T false))
 
+(defn subtable
+  "Extracts the subtable defined by `elts` from `T` and recodes it as a
+   composition table. The subtable is assumed to be closed."
+  [T elts]
+  (let [v (vec (sort (distinct elts)))
+        m (conj (zipmap v (range)) [:n :n])]
+    (mapv
+     (fn [a]
+       (mapv (fn [b] (compose T a b)) v))
+     v)))
+
 (defn comptabs-up-to-morphisms
   "Given a collection of composition tables, it returns the isomorphism
    anti-isomorphism class representatives. Representative is the first one
