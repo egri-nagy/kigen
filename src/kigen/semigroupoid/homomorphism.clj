@@ -92,7 +92,7 @@
 (defn morphism-search
   "Logic search for all homomorphisms of semigroupoid S to T given as
    composition tables.
-   If bijective? then only isomorphisms are enuemrated."
+   If bijective? then only isomorphisms are enumerated."
   [S T bijective?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
