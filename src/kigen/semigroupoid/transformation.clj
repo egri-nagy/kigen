@@ -83,14 +83,14 @@
   [S]
   (map vector symbols (sort-by-type S)))
 
-(defn symbol-comptab
+(defn symbol-comptab ;todo move this to enumeration
   "Sequence of strings representing the composition table of the semigroupoid
-   sorted by type and transformation. nils replaced by dots"
+   sorted by type and transformation. :n replaced by dot"
   [S]
-  (let [converter (conj (zipmap (range) symbols) [nil \.])]
+  (let [converter (conj (zipmap (range) symbols) [:n \.] [nil \.])]
     (map (comp (partial apply str)
                (partial map converter))
-         (comptab S))))
+         S)))
 
 ;; todo move this graph algorithms, when there will a namespace like that
 (defn transitive-closure

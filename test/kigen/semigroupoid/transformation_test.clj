@@ -4,6 +4,7 @@
              :refer [sgpoid-by-gens
                      arrows-by-type
                      symbols-for-elts
+                     comptab
                      symbol-comptab
                      graph
                      transitive-closure
@@ -42,7 +43,7 @@
                                    [\d {:s 0, :t 1, :m [0 1]}]
                                    [\e {:s 0, :t 1, :m [1 0]}]
                                    [\f {:s 1, :t 1, :m [0 0]}]]))
-      (is (= (symbol-comptab S)
+      (is (= (symbol-comptab (comptab S))
              ["abcde."
               "baced."
               ".....c"
