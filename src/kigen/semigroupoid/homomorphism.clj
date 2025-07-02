@@ -131,7 +131,7 @@
         m (conj (zipmap v (range)) [:n :n])]
     (mapv
      (fn [a]
-       (mapv (fn [b] (compose T a b)) v))
+       (mapv (fn [b] (m (compose T a b))) v))
      v)))
 
 (defn comptabs-up-to-morphisms

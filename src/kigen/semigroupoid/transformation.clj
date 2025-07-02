@@ -94,7 +94,7 @@
 
 ;; todo move this graph algorithms, when there will a namespace like that
 (defn transitive-closure
-  "Computes the transitive closure of the give graph."
+  "Computes the transitive closure of the given graph."
   [graph]
   (let [sources (group-by first graph)
         targets (group-by second graph)
