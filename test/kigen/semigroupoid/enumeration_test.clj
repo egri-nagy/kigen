@@ -6,7 +6,8 @@
                      all-composition-tables
                      semigroupoids-order-n
                      find-minimal-type-structure
-                     type-degree]]
+                     type-degree
+                     typestruct2arrows]]
             [kigen.semigroupoid.homomorphism
              :refer [comptabs-up-to-morphisms]]))
 
@@ -41,6 +42,14 @@
               [[:n :n :n]
                [:n :n :n]
                [:n :n :n]])))))
+
+(deftest type-structure-to-arrows-test
+  (testing "Testing inferred type structure to graph conversion"
+    (is (= [[0 0] [0 1] [2 1]]
+           (typestruct2arrows (find-minimal-type-structure
+                               [[0 1 :n]
+                                [:n :n :n]
+                                [:n :n :n]]))))))
 
 (def comptab '[0 1 2 3
                1 1 - -
