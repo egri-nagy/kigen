@@ -1,4 +1,4 @@
-(defproject org.clojars.egri-nagy/kigen "25.06.xx"
+(defproject org.clojars.egri-nagy/kigen "25.07.02"
   :description "Computational semigroup theory software system shadowing several semigroup packages of the GAP computer algebra system."
   :url "https://github.com/egri-nagy/kigen"
   :license {:name "GNU GENERAL PUBLIC LICENSE"
@@ -21,7 +21,7 @@
             [lein-ancient "0.7.0"]
             [lein-bikeshed "0.5.2"]
             [jonase/eastwood "1.4.3"]
-            [cider/cider-nrepl "0.56.0"]]
+            [cider/cider-nrepl "0.57.0"]]
   :jvm-opts ["-Djdk.attach.allowAttachSelf"]
   :main ^:skip-aot kigen.core
   :target-path "target/%s"
