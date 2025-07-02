@@ -98,6 +98,7 @@
         phi (lvar-vector n)
         elts (range (count T))
         constraints (substitute (composition-relation S) phi)]
+        ;constraints (substitute (dissoc (composition-relation S) :n) phi)]
     (l/run*
      [q]
      (l/== q phi)
