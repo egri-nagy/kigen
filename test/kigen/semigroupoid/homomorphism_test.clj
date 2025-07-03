@@ -7,6 +7,8 @@
                                                      homomorphism?
                                                      homomorphism?-by-comprel
                                                      isomorphisms
+                                                     strict-isomorphisms
+                                                     strict-homomorphisms
                                                      homomorphisms]]
             [kigen.semigroupoid.enumeration
              :refer [all-composition-tables]]))
@@ -54,17 +56,17 @@
   (testing "Testing isomorphisms")
   ;; being isomorphic to should be a symmetric relation
   (is (= (set (filter
-               (fn [T]
-                 (not (empty? (isomorphisms T [[0 :n] [:n :n]]))))
+               (fn [T] ;; not true for isomorphisms - isomorphism is not symmetric?!?!
+                 (not (empty? (strict-isomorphisms T [[0 :n] [:n :n]]))))
                (all-composition-tables 2)))
          (set (filter
                (fn [T]
-                 (not (empty? (isomorphisms [[0 :n] [:n :n]] T))))
+                 (not (empty? (strict-isomorphisms [[0 :n] [:n :n]] T))))
                (all-composition-tables 2)))))
   (is (= (set (isomorphisms S S))
          #{[0 1 2 3 4 5] [0 1 2 4 3 5]})))
 
 (deftest homomorphism-test
   (testing "Semigroupoid homomorphisms"
-    (is (= (set (homomorphisms S S))
+    (is (= (set (strict-homomorphisms S S))
            #{[0 0 2 2 2 5] [0 0 2 3 3 5] [0 0 2 4 4 5] [0 1 2 2 2 5] [0 1 2 3 4 5] [0 1 2 4 3 5]}))))

@@ -93,12 +93,13 @@
   "Logic search for all homomorphisms of semigroupoid S to T given as
    composition tables.
    If bijective? then only isomorphisms are enumerated."
-  [S T bijective?] ;given as composition tables
+  [S T bijective? strict?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)
         elts (range (count T))
-        constraints (substitute (composition-relation S) phi)]
-        ;constraints (substitute (dissoc (composition-relation S) :n) phi)]
+        constraints (if strict?
+                      (substitute (composition-relation S) phi) 
+                      (substitute (dissoc (composition-relation S) :n) phi))]
     (l/run*
      [q]
      (l/== q phi)
@@ -116,13 +117,26 @@
   "Logic search for all isomorphisms from semigroupoid S to T given as
    composition tables."
   [S T]
-  (morphism-search S T true))
+  (morphism-search S T true false))
+
+(defn strict-isomorphisms
+  "Logic search for all isomorphisms from semigroupoid S to T given as
+   composition tables."
+  [S T]
+  (morphism-search S T true true))
 
 (defn homomorphisms
   "Logic search for all homomorphisms from semigroupoid S to T given as
    composition tables."
   [S T] ;given as composition tables
-  (morphism-search S T false))
+  (morphism-search S T false false))
+
+(defn strict-homomorphisms
+  "Logic search for all homomorphisms from semigroupoid S to T given as
+   composition tables."
+  [S T] ;given as composition tables
+  (morphism-search S T false true))
+
 
 (defn subtable
   "Extracts the subtable defined by `elts` from `T` and recodes it as a
