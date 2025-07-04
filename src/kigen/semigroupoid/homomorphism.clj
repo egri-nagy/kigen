@@ -90,9 +90,9 @@
 
 
 (defn morphism-search
-  "Logic search for all homomorphisms of semigroupoid S to T given as
-   composition tables.
-   If bijective? then only isomorphisms are enumerated."
+  "Logic search for all homomorphisms of semigroupoid `S` to `T` given as
+   composition tables. If `bijective?`, then only isomorphisms are enumerated.
+   When `strict?`, non-composable arrow pairs cannot become composable."
   [S T bijective? strict?] ;given as composition tables
   (let [n (count S)
         phi (lvar-vector n)

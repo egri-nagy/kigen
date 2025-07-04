@@ -15,17 +15,17 @@
 
 ;; two objects with two states fully connected
 (def T (comptab (full-semigroupoid [[0 0] [0 1] [1 1] [1 0]] [2 2])))
-(count (isomorphisms S T))
+(println (count (isomorphisms S T)))
 
 ;;connected one way
 (def T2 (comptab (full-semigroupoid [[0 0] [0 1] [1 1]] [2 2])))
-(count (isomorphisms S T2))
+(println (count (isomorphisms S T2)))
 
 ;; not connected, no embeddings
 (def T3 (comptab (full-semigroupoid [[0 0] [1 1]] [2 2])))
-(count (isomorphisms S T3))
+(println (count (isomorphisms S T3)))
 
 ;; with the strict moprhism, it is not expected to have embeddings here
 (def T4 (comptab (full-semigroupoid [[0 0]] [3])))
-(count (isomorphisms S T4))
+(println (count (isomorphisms S T4)))
 
