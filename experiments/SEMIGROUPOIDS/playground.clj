@@ -6,6 +6,10 @@
 (require '[kigen.semigroupoid.viz :refer [DotSemigroupoid
                                           Dot2PDF]])
 (require '[kigen.logic :refer [lvar-table]])
+(require '[kigen.semigroup.conjugacy :refer :all])
+(require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
+(require '[kigen.diagram.transf :refer [symmetric-gens mul]])
+
 
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
@@ -50,6 +54,11 @@
 (count (set (types 3 1)))
 (count (set (types 3 3)))
 
+(defn conjugate
+  "The conjugate of a transformation by direct relabeling according to p."
+  [t p] 
+  (mapv p t))
+
 (defn enum
   [n m]
   (let [candidates ;all distinct sets of n distinct arrows
@@ -58,23 +67,28 @@
           (comp (partial apply sorted-set) (partial mapv vec) (partial partition 2))
           (filter
            (comp (partial = m) count set)
-           (selections (range m) (* 2 n)))))]
-    (filter
-     (fn [arrows]
-       (= m (count (set (apply concat arrows)))))
-     (filter
-      (fn [arrows]
-        (let [pairs (for [a arrows, b arrows] [a b])]
-          (every?
-           (fn [[[doma coda] [domb codb]]]
-             (or (not= coda domb)
-                 (contains? arrows [doma codb])))
-           pairs)))
-      candidates))))
+           (selections (range m) (* 2 n)))))
+        typed
+        (filter
+         (fn [arrows]
+           (= m (count (set (apply concat arrows)))))
+         (filter
+          (fn [arrows]
+            (let [pairs (for [a arrows, b arrows] [a b])]
+              (every?
+               (fn [[[doma coda] [domb codb]]]
+                 (or (not= coda domb)
+                     (contains? arrows [doma codb])))
+               pairs)))
+          candidates))
+        S (sgp-by-gens (symmetric-gens m) mul)]
+        (set (map (fn [t] (setconjrep conjugate t S)) typed))))
 
 (doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
+
+(enum 1 2)
 
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
