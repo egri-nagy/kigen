@@ -52,12 +52,29 @@
 
 (defn enum
   [n m]
-  (distinct
-   (filter
-    (fn [arrows] (= n (count arrows)))
-    (map 
-     (comp (partial apply sorted-set) (partial mapv vec) (partial partition 2))
-     (selections (range m) (* 2 n))))))
+  (let [candidates ;all distinct sets of n distinct arrows
+        (distinct 
+         (map 
+          (comp (partial apply sorted-set) (partial mapv vec) (partial partition 2))
+          (filter
+           (comp (partial = m) count set)
+           (selections (range m) (* 2 n)))))]
+    (filter
+     (fn [arrows]
+       (= m (count (set (apply concat arrows)))))
+     (filter
+      (fn [arrows]
+        (let [pairs (for [a arrows, b arrows] [a b])]
+          (every?
+           (fn [[[doma coda] [domb codb]]]
+             (or (not= coda domb)
+                 (contains? arrows [doma codb])))
+           pairs)))
+      candidates))))
+
+(doseq [n (range 1 5)]
+  (doseq [m (range 1 (inc (* 2 n)))]
+    (println n " arrows " m "objects: " (count (enum n m)))))
 
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
