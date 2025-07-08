@@ -71,7 +71,7 @@
         typed
         (filter
          (fn [arrows]
-           (= m (count (set (apply concat arrows)))))
+           (= n (count arrows)))
          (filter
           (fn [arrows]
             (let [pairs (for [a arrows, b arrows] [a b])]
