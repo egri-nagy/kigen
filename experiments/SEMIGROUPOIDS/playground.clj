@@ -56,35 +56,35 @@
 
 (defn conjugate
   "The conjugate of a transformation by direct relabeling according to p."
-  [t p] 
+  [t p]
   (mapv p t))
+
+(defn transitively-closed?
+  [arrows]
+  (let [pairs (for [a arrows, b arrows] [a b])]
+    (every?
+     (fn [[[doma coda] [domb codb]]]
+       (or (not= coda domb)
+           (contains? arrows [doma codb])))
+     pairs)))
 
 (defn enum
   [n m]
-  (let [candidates ;all distinct sets of n distinct arrows
-        (distinct 
-         (map 
-          (comp (partial apply sorted-set) (partial mapv vec) (partial partition 2))
-          (filter
-           (comp (partial = m) count set)
-           (selections (range m) (* 2 n)))))
-        typed
-        (filter
-         (fn [arrows]
-           (= n (count arrows)))
-         (filter
-          (fn [arrows]
-            (let [pairs (for [a arrows, b arrows] [a b])]
-              (every?
-               (fn [[[doma coda] [domb codb]]]
-                 (or (not= coda domb)
-                     (contains? arrows [doma codb])))
-               pairs)))
-          candidates))
-        S (sgp-by-gens (symmetric-gens m) mul)]
-        (set (map (fn [t] (setconjrep conjugate t S)) typed))))
+  (let [S (sgp-by-gens (symmetric-gens m) mul)]
+    (->>
+     (selections (range m) (* 2 n)) ;n arrows, 2n entries
+     (filter (comp (partial = m) count set)) ;has to mention all m objects
+     (map (comp (partial apply sorted-set) ; into sets of arrows
+                (partial mapv vec) ; convert to vectors
+                (partial partition 2))) ;form the arrows
+     (filter (comp (partial = n) ;exactly n arrows
+                   count))
+     (distinct) ;as sets they might be the same
+     (filter transitively-closed?)
+     (map (fn [t] (setconjrep conjugate t S)))
+     (distinct)))) ;conjugacy class representatives might be the same
 
-(doseq [n (range 1 5)]
+(doseq [n (range 1 4)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
 
