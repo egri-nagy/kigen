@@ -55,6 +55,35 @@
 ;(count (set (types 3 1)))
 ;(count (set (types 3 3)))
 
+(l/run* [q]
+        (l/fresh [a b]
+                 (l/== q [a b])
+                 (l/membero a [0 1 ])
+                 (l/membero b [:a :b 1 2]) 
+                 (l/distincto  (conj [[0 1] [1 2]] [a b]))))
+
+
+
+
+(defn one-more-arrow
+  ""
+  [arrows]
+  (let [[arrows lvars] (lvar-table n 2)
+        pairs (for [a arrows, b arrows] [a b])
+        objects (range m)]
+    (l/run*
+     [q]
+     (l/== q arrows)
+     ;;arrows have valid doms/cods
+     (l/everyg #(fd/in % (fd/interval 0 (dec m))) lvars)
+     ;;every type is used
+     (l/everyg #(l/membero % lvars) objects)
+     (l/everyg (fn [[[da ca] [db cb]]]
+                 (l/conde
+                  [(l/distincto [ca db])]
+                  [(l/membero [da cb] arrows)]))
+               pairs))))
+
 (defn transitively-closed-arrow-set-BF?
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
    they are transitively closed under composition. This is brute force, it
@@ -107,7 +136,7 @@
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
 
-(count (enum 2 3))
+(count (enum 2 5))
 ;(count (enum 8 4))
 
 (setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
