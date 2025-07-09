@@ -109,6 +109,36 @@
 (enum 1 2)
 (enum 7 3)
 
+; KIGEN 25.07.02 Clojure 1.12.1 Java 24.0.1 Mac OS X 15.5 aarch64
+;; 1  arrows  1 objects:  1
+;; 1  arrows  2 objects:  1
+;; 2  arrows  1 objects:  0
+;; 2  arrows  2 objects:  3
+;; 2  arrows  3 objects:  3
+;; 2  arrows  4 objects:  1
+;; 3  arrows  1 objects:  0
+;; 3  arrows  2 objects:  1
+;; 3  arrows  3 objects:  8
+;; 3  arrows  4 objects:  8
+;; 3  arrows  5 objects:  3
+;; 3  arrows  6 objects:  1
+;; 4  arrows  1 objects:  0
+;; 4  arrows  2 objects:  1
+;; 4  arrows  3 objects:  8
+;; 4  arrows  4 objects:  23
+;; 4  arrows  5 objects:  23
+;; 4  arrows  6 objects:  11
+;; 4  arrows  7 objects:  3
+;; 4  arrows  8 objects:  1
+;; 5  arrows  1 objects:  0
+;; 5  arrows  2 objects:  0
+;; 5  arrows  3 objects:  6
+;; 5  arrows  4 objects:  34
+;; 5  arrows  5 objects:  67
+;; 5  arrows  6 objects:  64
+;; 5  arrows  7 objects:  32
+;; 5  arrows  8 objects:  11
+
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
   [[0 1 2 3 4 :n]
