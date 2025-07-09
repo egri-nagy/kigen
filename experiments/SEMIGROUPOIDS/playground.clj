@@ -42,15 +42,16 @@
      (l/== q arrows)
      ;;arrows have valid doms/cods
      (l/everyg #(fd/in % (fd/interval 0 (dec m))) lvars)
-     ;;every type is used 
-     ;;(l/everyg #(l/membero % lvars) objects)
+     ;;every type is used
+     (l/everyg #(l/membero % lvars) objects)
      (l/everyg (fn [[[da ca] [db cb]]]
                  (l/conde
                   [(l/distincto [ca db])]
                   [(l/membero [da cb] arrows)]))
                pairs))))
-;(types 1 1)
-;(count (set (types 2 2)))
+(types 1 1)
+(distinct (types 1 2))
+(count (set (types 2 2)))
 ;(count (set (types 3 1)))
 ;(count (set (types 3 3)))
 
@@ -90,7 +91,7 @@
   [n m]
   (let [S (sgp-by-gens (transf/symmetric-gens m) transf/mul)]
     (->>
-     (selections (range m) (* 2 n)) ;n arrows, 2n entries
+     (map (partial concat '(0)) (selections (range m) (dec (* 2 n)))) ;n arrows, 2n entries, starting with 0
      (filter (comp (partial = m) count set)) ;has to mention all m objects
      (map (comp (partial apply sorted-set) ; into sets of arrows
                 (partial mapv vec) ; convert to vectors
@@ -106,8 +107,10 @@
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
 
-(enum 1 2)
-(enum 7 3)
+(count (enum 2 3))
+;(count (enum 8 4))
+
+(setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
 
 ; KIGEN 25.07.02 Clojure 1.12.1 Java 24.0.1 Mac OS X 15.5 aarch64
 ;; 1  arrows  1 objects:  1
