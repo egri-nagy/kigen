@@ -55,15 +55,13 @@
 ;(count (set (types 3 1)))
 ;(count (set (types 3 3)))
 
+;; testing out distincto, this would work well for the arrow-type semigroupoid
 (l/run* [q]
         (l/fresh [a b]
                  (l/== q [a b])
                  (l/membero a [0 1 ])
                  (l/membero b [:a :b 1 2]) 
                  (l/distincto  (conj [[0 1] [1 2]] [a b]))))
-
-
-
 
 (defn one-more-arrow
   ""
