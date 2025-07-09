@@ -8,7 +8,7 @@
 (require '[kigen.logic :refer [lvar-table]])
 (require '[kigen.semigroup.conjugacy :refer :all])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
-(require '[kigen.diagram.transf :refer [symmetric-gens mul]])
+(require '[kigen.diagram.transf :as transf])
 
 
 (require '[clojure.core.logic :as l])
@@ -49,15 +49,10 @@
                   [(l/distincto [ca db])]
                   [(l/membero [da cb] arrows)]))
                pairs))))
-(types 1 1)
-(count (set (types 2 2)))
-(count (set (types 3 1)))
-(count (set (types 3 3)))
-
-(defn permute
-  "The faux-conjugate of a transformation by direct relabeling according to p."
-  [t p]
-  (mapv p t))
+;(types 1 1)
+;(count (set (types 2 2)))
+;(count (set (types 3 1)))
+;(count (set (types 3 3)))
 
 (defn transitively-closed-arrow-set-BF?
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
@@ -93,7 +88,7 @@
 
 (defn enum
   [n m]
-  (let [S (sgp-by-gens (symmetric-gens m) mul)]
+  (let [S (sgp-by-gens (transf/symmetric-gens m) transf/mul)]
     (->>
      (selections (range m) (* 2 n)) ;n arrows, 2n entries
      (filter (comp (partial = m) count set)) ;has to mention all m objects
@@ -104,7 +99,7 @@
                    count))
      (distinct) ;as sets they might be the same
      (filter transitively-closed-arrow-set?)
-     (map (fn [t] (setconjrep permute t S)))
+     (map (fn [t] (setconjrep transf/mul t S))) ;it is enough to permute
      (distinct)))) ;conjugacy class representatives might be the same
 
 (doseq [n (range 1 5)]
@@ -112,6 +107,7 @@
     (println n " arrows " m "objects: " (count (enum n m)))))
 
 (enum 1 2)
+(enum 7 3)
 
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
