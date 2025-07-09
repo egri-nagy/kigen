@@ -59,14 +59,36 @@
   [t p]
   (mapv p t))
 
-(defn transitively-closed?
-  [arrows]
-  (let [pairs (for [a arrows, b arrows] [a b])]
+(defn transitively-closed-bf?
+  "`arrowset` should be a set of arrows as we use contains? for set membership"
+  [arrowset]
+  (let [pairs (for [a arrowset, b arrowset] [a b])]
     (every?
      (fn [[[doma coda] [domb codb]]]
        (or (not= coda domb)
-           (contains? arrows [doma codb])))
+           (contains? arrowset [doma codb])))
      pairs)))
+
+(defn transitively-closed?
+  "`arrowset` should be a set of arrows as we use contains? for set membership"
+  [arrowset]
+  (let [sources (group-by first arrowset)
+        targets (group-by second arrowset)
+        objects (set (concat (keys sources) (keys targets)))
+        composable-pairs
+        (mapcat (fn [o] (for [a (targets o)
+                           b (sources o)
+                           :when (and a b)]
+                       [a b]))
+             objects)]
+    ;(println "cps: " composable-pairs)
+    (every?
+     (fn [[[doma _] [_ codb]]]
+       ;(println [doma codb])
+       (contains? arrowset [doma codb]))
+     composable-pairs)))
+
+(enum 1 2)
 
 (defn enum
   [n m]
@@ -84,7 +106,7 @@
      (map (fn [t] (setconjrep conjugate t S)))
      (distinct)))) ;conjugacy class representatives might be the same
 
-(doseq [n (range 1 4)]
+(doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
 
