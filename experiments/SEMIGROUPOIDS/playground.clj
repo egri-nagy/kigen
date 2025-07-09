@@ -54,13 +54,16 @@
 (count (set (types 3 1)))
 (count (set (types 3 3)))
 
-(defn conjugate
-  "The conjugate of a transformation by direct relabeling according to p."
+(defn permute
+  "The faux-conjugate of a transformation by direct relabeling according to p."
   [t p]
   (mapv p t))
 
-(defn transitively-closed-bf?
-  "`arrowset` should be a set of arrows as we use contains? for set membership"
+(defn transitively-closed-arrow-set-BF?
+  "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
+   they are transitively closed under composition. This is brute force, it
+   enumerates all pairs, and checks for closure when they are composable.
+   `arrowset` should be a set of arrows as we use contains? for set membership"
   [arrowset]
   (let [pairs (for [a arrowset, b arrowset] [a b])]
     (every?
@@ -69,26 +72,24 @@
            (contains? arrowset [doma codb])))
      pairs)))
 
-(defn transitively-closed?
-  "`arrowset` should be a set of arrows as we use contains? for set membership"
+(defn transitively-closed-arrow-set?
+  "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
+   they are transitively closed under composition. First finds all composable
+   pairs.
+   `arrowset` should be a set of arrows as we use contains? for set membership"
   [arrowset]
-  (let [sources (group-by first arrowset)
-        targets (group-by second arrowset)
-        objects (set (concat (keys sources) (keys targets)))
-        composable-pairs
-        (mapcat (fn [o] (for [a (targets o)
-                           b (sources o)
-                           :when (and a b)]
-                       [a b]))
-             objects)]
-    ;(println "cps: " composable-pairs)
-    (every?
-     (fn [[[doma _] [_ codb]]]
-       ;(println [doma codb])
-       (contains? arrowset [doma codb]))
+  (let [src2arrows (group-by first arrowset)
+        trg2arrows (group-by second arrowset)
+        objects (set (concat (keys src2arrows) (keys trg2arrows)))
+        ;use objects to pin down composable pairs
+        composable-pairs (mapcat (fn [o] (for [a (trg2arrows o)
+                                               b (src2arrows o)
+                                               :when (and a b)]
+                                           [a b]))
+                                 objects)]
+    (every? (fn [[[doma _] [_ codb]]]
+              (contains? arrowset [doma codb]))
      composable-pairs)))
-
-(enum 1 2)
 
 (defn enum
   [n m]
@@ -102,8 +103,8 @@
      (filter (comp (partial = n) ;exactly n arrows
                    count))
      (distinct) ;as sets they might be the same
-     (filter transitively-closed?)
-     (map (fn [t] (setconjrep conjugate t S)))
+     (filter transitively-closed-arrow-set?)
+     (map (fn [t] (setconjrep permute t S)))
      (distinct)))) ;conjugacy class representatives might be the same
 
 (doseq [n (range 1 5)]
