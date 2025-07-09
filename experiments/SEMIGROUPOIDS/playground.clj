@@ -43,7 +43,8 @@
      ;;arrows have valid doms/cods
      (l/everyg #(fd/in % (fd/interval 0 (dec m))) lvars)
      ;;every type is used
-     (l/everyg #(l/membero % lvars) objects)
+     ;;(l/everyg #(l/membero % lvars) objects)
+     (l/distincto arrows) ;no parralel arrows
      (l/everyg (fn [[[da ca] [db cb]]]
                  (l/conde
                   [(l/distincto [ca db])]
@@ -53,7 +54,7 @@
 (distinct (types 1 2))
 (count (set (types 2 2)))
 ;(count (set (types 3 1)))
-;(count (set (types 3 3)))
+(count (set (types 3 3)))
 
 ;; testing out distincto, this would work well for the arrow-type semigroupoid
 (l/run* [q]
@@ -130,12 +131,12 @@
      (map (fn [t] (setconjrep transf/mul t S))) ;it is enough to permute
      (distinct)))) ;conjugacy class representatives might be the same
 
-(doseq [n (range 1 5)]
+(doseq [n (range 1 4)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
 
-(count (enum 2 5))
-;(count (enum 8 4))
+(count (enum 7 5))
+(count (enum 8 4))
 
 (setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
 
