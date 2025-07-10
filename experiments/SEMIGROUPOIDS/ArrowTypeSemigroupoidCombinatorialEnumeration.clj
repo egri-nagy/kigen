@@ -1,20 +1,11 @@
-;; finding endomorphisms of an abstract semigroupoid
-;; v25.06.xx
-(require '[kigen.semigroupoid.homomorphism :as hom])
-(require '[kigen.semigroupoid.transformation :as t])
-(require '[kigen.semigroupoid.enumeration :as enum])
-(require '[kigen.semigroupoid.viz :refer [DotSemigroupoid
-                                          Dot2PDF]])
-(require '[kigen.logic :refer [lvar-table]])
-(require '[kigen.semigroup.conjugacy :refer :all])
+;; Enumerating all arrow-type semigroupoids by a combinatorial brute force
+;; method.
+;; v25.07.xx
+(require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 (require '[kigen.diagram.transf :as transf])
 
-
-(require '[clojure.core.logic :as l])
-(require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
-
 
 (defn transitively-closed-arrow-set-BF?
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
@@ -64,14 +55,18 @@
      (map (fn [t] (setconjrep transf/mul t S))) ;it is enough to permute
      (distinct)))) ;conjugacy class representatives might be the same
 
-(doseq [n (range 1 4)]
+(enum 1 1)
+
+;(count (enum 7 5))
+;(count (enum 8 4))
+
+;;(setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
+
+;; the quick calculations
+(doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: " (count (enum n m)))))
 
-(count (enum 7 5))
-(count (enum 8 4))
-
-(setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
 
 ; KIGEN 25.07.02 Clojure 1.12.1 Java 24.0.1 Mac OS X 15.5 aarch64
 ;; 1  arrows  1 objects:  1
