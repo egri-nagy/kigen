@@ -65,24 +65,29 @@
                  (l/distincto  (conj [[0 1] [1 2]] [a b]))))
 
 (defn one-more-arrow
-  ""
-  [arrows]
-  (let [[arrows lvars] (lvar-table n 2)
-        pairs (for [a arrows, b arrows] [a b])
-        objects (range m)]
-    (l/run*
-     [q]
-     (l/== q arrows)
-     ;;arrows have valid doms/cods
-     (l/everyg #(fd/in % (fd/interval 0 (dec m))) lvars)
-     ;;every type is used
-     (l/everyg #(l/membero % lvars) objects)
-     (l/everyg (fn [[[da ca] [db cb]]]
-                 (l/conde
-                  [(l/distincto [ca db])]
-                  [(l/membero [da cb] arrows)]))
-               pairs))))
+  "adding one more arrow"
+  [arrows m] 
+  (l/run*
+   [q]
+   (l/fresh
+    [d c]
+    (l/== q [d c])
+    ;;arrows have valid doms/cods
+    (l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c])
+    ;;(l/everyg #(l/membero % lvars) objects)
+    (l/distincto (into [[d c]] arrows)) 
+    (l/everyg (fn [[dom cod]]
+                ;;postcompose 
+                (l/conda
+                 [(l/distincto [cod d])]
+                 [(l/membero [dom c] arrows)]))
+              arrows)
+    ;; (l/everyg (fn [[dom cod]]
+    ;;             ;;precompose 
+    ;;             (l/conda [(l/distincto [c dom])] [(l/membero [d cod] arrows)])) arrows)
+    )))
 
+(one-more-arrow [[0 1] [1 1] ] 3)
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
   [[0 1 2 3 4 :n]
