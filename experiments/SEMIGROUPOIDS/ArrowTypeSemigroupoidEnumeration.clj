@@ -4,6 +4,7 @@
 (require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 (require '[kigen.diagram.transf :as transf])
+(require '[kigen.logic :refer [lvar-vector]])
 
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
