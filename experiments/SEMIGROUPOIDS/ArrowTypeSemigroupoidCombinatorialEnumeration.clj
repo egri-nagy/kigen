@@ -78,14 +78,16 @@
 ;; THE LOGIC PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn one-more-arrow
-  "adding one more arrow for arrows when we have m objects available"
+  "Finds all the arrows that can be added without violating composition to
+   the `arrows` when we have `m` objects available. When `added-object`,
+   we need to connect the arrow to the last object."
   [arrows m added-object?]
   (let [[d c] (lvar-vector 2)
         extended (conj arrows [d c])]
     (l/run*
      [q]
      (l/== q [d c])
-     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) ;this does not work 
+     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) ;this does not work
      (l/membero d (range m))
      (l/membero c (range m))
      (if added-object?
@@ -94,7 +96,7 @@
        l/succeed)
      (l/distincto extended)
      (l/everyg (fn [[dom cod]]
-                 (l/conda ;;postcompose 
+                 (l/conda ;;postcompose
                   [(l/distincto [cod d])]
                   [(l/membero [dom c] extended)]))
                extended)
