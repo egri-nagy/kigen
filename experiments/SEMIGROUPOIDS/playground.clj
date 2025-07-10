@@ -64,35 +64,35 @@
                  (l/membero b [:a :b 1 2]) 
                  (l/distincto  (conj [[0 1] [1 2]] [a b]))))
 
-(defn one-more-arrow
-  "adding one more arrow for arrows when we have m objects avaialble"
-  [arrows m]
-  (let [lvars (lvar-vector 2)
-        [d c] lvars
-        narrows (conj arrows lvars)]
-    (print narrows)
-    (l/run*
-     [q]
-     (l/== q [d c])
-     ;;arrows have valid doms/cods
-     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) 
-     (l/membero d (range m))
-     (l/membero c (range m))
-     (l/distincto narrows)
-      (l/everyg (fn [[dom cod]]
-                  ;;postcompose 
-                  (l/conda
-                   [(l/distincto [cod d])]
-                   [(l/membero [dom c] narrows)]))
-                narrows)
-      (l/everyg (fn [[dom cod]]
-                  ;;precompose 
-                  (l/conda
-                   [(l/distincto [c dom])]
-                   [(l/membero [d cod] narrows)])) narrows)
-     )))
+
 
 (one-more-arrow [[0 0] [1 1] ] 2)
+
+(def sol4-5 [[[0 0] [0 1] [0 2] [3 4]]
+             [[0 0] [0 1] [2 1] [3 4]]
+             [[0 0] [0 1] [2 2] [3 4]]
+             [[0 0] [0 1] [2 3] [2 4]]
+             [[0 0] [0 1] [2 3] [4 3]]
+             [[0 0] [1 0] [1 2] [3 4]]
+             [[0 0] [1 0] [2 0] [3 4]]
+             [[0 0] [1 0] [2 2] [3 4]]
+             [[0 0] [1 0] [2 3] [2 4]]
+             [[0 0] [1 0] [2 3] [4 3]]
+             [[0 0] [1 1] [2 2] [3 4]]
+             [[0 0] [1 1] [2 3] [2 4]]
+             [[0 0] [1 1] [2 3] [4 3]]
+             [[0 0] [1 2] [1 3] [1 4]]
+             [[0 0] [1 2] [1 3] [4 2]]
+             [[0 0] [1 2] [3 2] [4 2]]
+             [[0 1] [0 2] [0 3] [0 4]]
+             [[0 1] [0 2] [0 3] [4 1]]
+             [[0 1] [0 2] [1 2] [3 4]]
+             [[0 1] [0 2] [3 1] [3 4]]
+             [[0 1] [0 2] [3 1] [4 1]]
+             [[0 1] [0 2] [3 1] [4 2]]
+             [[0 1] [2 1] [3 1] [4 1]]])
+
+
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
   [[0 1 2 3 4 :n]

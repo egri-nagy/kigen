@@ -1,12 +1,15 @@
 ;; Enumerating all arrow-type semigroupoids by a combinatorial brute force
-;; method.
+;; method and then recursively adding one arrow by logic search.
 ;; v25.07.xx
 (require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 (require '[kigen.diagram.transf :as transf])
 
+(require '[clojure.core.logic :as l])
+(require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
 
+;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn transitively-closed-arrow-set-BF?
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
    they are transitively closed under composition. This is brute force, it
@@ -37,9 +40,17 @@
                                  objects)]
     (every? (fn [[[doma _] [_ codb]]]
               (contains? arrowset [doma codb]))
-     composable-pairs)))
+            composable-pairs)))
 
-(defn enum
+(defn  reps
+  "m - number of objects, arrows"
+  [m arrowsets]
+  (let [S (sgp-by-gens (transf/symmetric-gens m) transf/mul)]
+    (distinct
+     (map (fn [t] (setconjrep transf/mul t S)) ;it is enough to permute
+          arrowsets))))
+
+(defn combinatorial-enumeration
   [n m]
   (let [S (sgp-by-gens (transf/symmetric-gens m) transf/mul)]
     (->>
@@ -52,51 +63,87 @@
                    count))
      (distinct) ;as sets they might be the same
      (filter transitively-closed-arrow-set?)
-     (map (fn [t] (setconjrep transf/mul t S))) ;it is enough to permute
-     (distinct)))) ;conjugacy class representatives might be the same
-
-(enum 2 2)
-(enum 3 2)
+     (reps m))))
 
 ;(count (enum 7 5))
-(doseq [[n m] [[4 4] [8 4] [6 7] [6 8] [6 9] [6 10] [7 6] [7 7]]]
-  (println n "-" m ": " (count (enum n m))))
-
-
-;;(setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
+;; (doseq [[n m] [[4 4] [8 4] [6 7] [6 8] [6 9] [6 10] [7 6] [7 7]]]
+;;   (println n "-" m ": " (count (enum n m))))
 
 ;; the quick calculations
 (doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
-    (println n " arrows " m "objects: " (count (enum n m)))))
+     (println n " arrows " m "objects: "
+              (count (combinatorial-enumeration n m)))))
+
+;; THE LOGIC PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn one-more-arrow
+  "adding one more arrow for arrows when we have m objects available"
+  [arrows m added-object?]
+  (let [lvars (lvar-vector 2)
+        [d c] lvars
+        narrows (conj arrows lvars)]
+    ;(print narrows)
+    (l/run*
+     [q]
+     (l/== q [d c])
+     ;;arrows have valid doms/cods
+     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) 
+     (l/membero d (range m))
+     (l/membero c (range m))
+     (if added-object?
+       (l/conda [(l/== (dec m) d)]
+                [(l/== (dec m) c)])
+       l/succeed)
+     (l/distincto narrows)
+     (l/everyg (fn [[dom cod]]
+                 ;;postcompose 
+                 (l/conda
+                  [(l/distincto [cod d])]
+                  [(l/membero [dom c] narrows)]))
+               narrows)
+     (l/everyg (fn [[dom cod]]
+                 ;;precompose 
+                 (l/conda
+                  [(l/distincto [c dom])]
+                  [(l/membero [d cod] narrows)])) narrows))))
+
+(one-more-arrow [[0 0] [1 1]] 3 true)
+(one-more-arrow [[0 1] [1 1]] 3 true)
 
 
-; KIGEN 25.07.02 Clojure 1.12.1 Java 24.0.1 Mac OS X 15.5 aarch64
-;; 1  arrows  1 objects:  1
-;; 1  arrows  2 objects:  1
-;; 2  arrows  1 objects:  0
-;; 2  arrows  2 objects:  3
-;; 2  arrows  3 objects:  3
-;; 2  arrows  4 objects:  1
-;; 3  arrows  1 objects:  0
-;; 3  arrows  2 objects:  1
-;; 3  arrows  3 objects:  8
-;; 3  arrows  4 objects:  8
-;; 3  arrows  5 objects:  3
-;; 3  arrows  6 objects:  1
-;; 4  arrows  1 objects:  0
-;; 4  arrows  2 objects:  1
-;; 4  arrows  3 objects:  8
-;; 4  arrows  4 objects:  23
-;; 4  arrows  5 objects:  23
-;; 4  arrows  6 objects:  11
-;; 4  arrows  7 objects:  3
-;; 4  arrows  8 objects:  1
-;; 5  arrows  1 objects:  0
-;; 5  arrows  2 objects:  0
-;; 5  arrows  3 objects:  6
-;; 5  arrows  4 objects:  34
-;; 5  arrows  5 objects:  67
-;; 5  arrows  6 objects:  64
-;; 5  arrows  7 objects:  32
-;; 5  arrows  8 objects:  11
+(defn check
+  [n m]
+  (let [
+        sols1 (combinatorial-enumeration (dec n) m)
+        sols2 (combinatorial-enumeration (dec n) (dec m))
+        nres1 (->>
+              (mapcat
+               (fn [sol]
+                 (map (partial conj sol) (one-more-arrow sol m false)))
+               sols1)
+              (reps m))
+        nres2 (->>
+               (mapcat
+                (fn [sol]
+                  (map (partial conj sol)
+                       (one-more-arrow sol m true)))
+                sols2)
+               (reps m))
+        nres (into nres1 nres2)
+        combinatorial-sols (combinatorial-enumeration n m)] 
+    (= (set (map set combinatorial-sols))
+            (set (map set nres)))))
+
+(for [n [2 3 4 5]
+      m [2 3 4 5]]
+  [n m (check n m)])
+(check 2 4)
+(enum 2 2)
+
+(count (enum 3 3))
+
+(one-more-arrow [[0 0] [1 1] [2 2]] 4)
+
+(combinatorial-enumeration 3 4)
+
