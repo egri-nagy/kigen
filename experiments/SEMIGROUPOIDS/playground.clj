@@ -5,7 +5,7 @@
 (require '[kigen.semigroupoid.enumeration :as enum])
 (require '[kigen.semigroupoid.viz :refer [DotSemigroupoid
                                           Dot2PDF]])
-(require '[kigen.logic :refer [lvar-table]])
+(require '[kigen.logic :refer [lvar-table lvar-vector]])
 (require '[kigen.semigroup.conjugacy :refer :all])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 (require '[kigen.diagram.transf :as transf])
@@ -65,29 +65,34 @@
                  (l/distincto  (conj [[0 1] [1 2]] [a b]))))
 
 (defn one-more-arrow
-  "adding one more arrow"
-  [arrows m] 
-  (l/run*
-   [q]
-   (l/fresh
-    [d c]
-    (l/== q [d c])
-    ;;arrows have valid doms/cods
-    (l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c])
-    ;;(l/everyg #(l/membero % lvars) objects)
-    (l/distincto (into [[d c]] arrows)) 
-    (l/everyg (fn [[dom cod]]
-                ;;postcompose 
-                (l/conda
-                 [(l/distincto [cod d])]
-                 [(l/membero [dom c] arrows)]))
-              arrows)
-    ;; (l/everyg (fn [[dom cod]]
-    ;;             ;;precompose 
-    ;;             (l/conda [(l/distincto [c dom])] [(l/membero [d cod] arrows)])) arrows)
-    )))
+  "adding one more arrow for arrows when we have m objects avaialble"
+  [arrows m]
+  (let [lvars (lvar-vector 2)
+        [d c] lvars
+        narrows (conj arrows lvars)]
+    (print narrows)
+    (l/run*
+     [q]
+     (l/== q [d c])
+     ;;arrows have valid doms/cods
+     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) 
+     (l/membero d (range m))
+     (l/membero c (range m))
+     (l/distincto narrows)
+      (l/everyg (fn [[dom cod]]
+                  ;;postcompose 
+                  (l/conda
+                   [(l/distincto [cod d])]
+                   [(l/membero [dom c] narrows)]))
+                narrows)
+      (l/everyg (fn [[dom cod]]
+                  ;;precompose 
+                  (l/conda
+                   [(l/distincto [c dom])]
+                   [(l/membero [d cod] narrows)])) narrows)
+     )))
 
-(one-more-arrow [[0 1] [1 1] ] 3)
+(one-more-arrow [[0 0] [1 1] ] 2)
 ;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
 (def S
   [[0 1 2 3 4 :n]

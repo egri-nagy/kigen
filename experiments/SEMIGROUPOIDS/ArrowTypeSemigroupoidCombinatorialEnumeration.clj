@@ -55,7 +55,8 @@
      (map (fn [t] (setconjrep transf/mul t S))) ;it is enough to permute
      (distinct)))) ;conjugacy class representatives might be the same
 
-;(enum 1 1)
+(enum 2 2)
+(enum 3 2)
 
 ;(count (enum 7 5))
 (doseq [[n m] [[4 4] [8 4] [6 7] [6 8] [6 9] [6 10] [7 6] [7 7]]]
