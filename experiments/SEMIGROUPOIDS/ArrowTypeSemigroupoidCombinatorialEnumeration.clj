@@ -55,10 +55,12 @@
      (map (fn [t] (setconjrep transf/mul t S))) ;it is enough to permute
      (distinct)))) ;conjugacy class representatives might be the same
 
-(enum 1 1)
+;(enum 1 1)
 
 ;(count (enum 7 5))
-;(count (enum 8 4))
+(doseq [[n m] [[4 4] [8 4] [6 7] [6 8] [6 9] [6 10] [7 6] [7 7]]]
+  (println n "-" m ": " (count (enum n m))))
+
 
 ;;(setconjrep transf/mul [[0 0] [0 1] [3 4]] (sgp-by-gens (transf/symmetric-gens 5) transf/mul))
 
