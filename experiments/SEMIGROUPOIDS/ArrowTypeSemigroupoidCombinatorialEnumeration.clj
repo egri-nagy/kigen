@@ -72,57 +72,53 @@
 ;; the quick calculations
 (doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
-     (println n " arrows " m "objects: "
-              (count (combinatorial-enumeration n m)))))
+    (println n " arrows " m "objects: "
+             (count (combinatorial-enumeration n m)))))
 
 ;; THE LOGIC PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn one-more-arrow
   "adding one more arrow for arrows when we have m objects available"
   [arrows m added-object?]
-  (let [lvars (lvar-vector 2)
-        [d c] lvars
-        narrows (conj arrows lvars)]
-    ;(print narrows)
+  (let [[d c] (lvar-vector 2)
+        extended (conj arrows [d c])]
     (l/run*
      [q]
      (l/== q [d c])
-     ;;arrows have valid doms/cods
-     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) 
+     ;(l/everyg #(fd/in % (fd/interval 0 (dec m))) [d c]) ;this does not work 
      (l/membero d (range m))
      (l/membero c (range m))
      (if added-object?
        (l/conda [(l/== (dec m) d)]
                 [(l/== (dec m) c)])
        l/succeed)
-     (l/distincto narrows)
+     (l/distincto extended)
      (l/everyg (fn [[dom cod]]
-                 ;;postcompose 
-                 (l/conda
+                 (l/conda ;;postcompose 
                   [(l/distincto [cod d])]
-                  [(l/membero [dom c] narrows)]))
-               narrows)
+                  [(l/membero [dom c] extended)]))
+               extended)
      (l/everyg (fn [[dom cod]]
-                 ;;precompose 
-                 (l/conda
+                 (l/conda ;;precompose
                   [(l/distincto [c dom])]
-                  [(l/membero [d cod] narrows)])) narrows))))
+                  [(l/membero [d cod] extended)]))
+               extended))))
 
 (one-more-arrow [[0 0] [1 1]] 3 true)
 (one-more-arrow [[0 1] [1 1]] 3 true)
 
 
 (defn check
+  "Comparing the combinatorial result with the recursive one."
   [n m]
-  (let [
-        sols1 (combinatorial-enumeration (dec n) m)
+  (let [sols1 (combinatorial-enumeration (dec n) m)
         sols2 (combinatorial-enumeration (dec n) (dec m))
         nres1 (->>
-              (mapcat
-               (fn [sol]
-                 (map (partial conj sol) (one-more-arrow sol m false)))
-               sols1)
-              (reps m))
+               (mapcat
+                (fn [sol]
+                  (map (partial conj sol) (one-more-arrow sol m false)))
+                sols1)
+               (reps m))
         nres2 (->>
                (mapcat
                 (fn [sol]
@@ -131,19 +127,10 @@
                 sols2)
                (reps m))
         nres (into nres1 nres2)
-        combinatorial-sols (combinatorial-enumeration n m)] 
+        combinatorial-sols (combinatorial-enumeration n m)]
     (= (set (map set combinatorial-sols))
-            (set (map set nres)))))
+       (set (map set nres)))))
 
 (for [n [2 3 4 5]
       m [2 3 4 5]]
   [n m (check n m)])
-(check 2 4)
-(enum 2 2)
-
-(count (enum 3 3))
-
-(one-more-arrow [[0 0] [1 1] [2 2]] 4)
-
-(combinatorial-enumeration 3 4)
-
