@@ -8,6 +8,7 @@
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
+(require '[clojure.java.io :refer [writer]])
 
 ;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn transitively-closed-arrow-set-BF?
@@ -66,8 +67,17 @@
      (reps m))))
 
 ;(count (enum 7 5))
-;; (doseq [[n m] [[4 4] [8 4] [6 7] [6 8] [6 9] [6 10] [7 6] [7 7]]]
-;;   (println n "-" m ": " (count (enum n m))))
+ (doseq [[n m] (for [n [1 2 3 4 5]
+                     m [1 2 3 4 5]]
+                 [n m])]
+   (let [result (sort (combinatorial-enumeration n m))]
+     (println n "-" m ": " (count result))
+     (when (not (zero? (count result)))
+       (with-open [w (clojure.java.io/writer (str "a" n "o" m))]
+         (doseq [arrows result]
+           (.write w (prn-str arrows)))))))
+
+ (sort (combinatorial-enumeration 4 5))
 
 ;; the quick calculations
 (doseq [n (range 1 5)]
