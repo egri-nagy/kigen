@@ -69,7 +69,7 @@
 
 ;(count (enum 7 5))
  (doseq [[n m] (for [n [1 2 3 4 5]
-                     m [1 2 3 4 5]]
+                     m [1 2 3 4 5 6 7 8]]
                  [n m])]
    (let [result (sort (combinatorial-enumeration n m))]
      (println n "-" m ": " (count result))
@@ -78,7 +78,7 @@
          (doseq [arrows result]
            (.write w (prn-str arrows)))))))
 
- (sort (combinatorial-enumeration 4 5))
+; (sort (combinatorial-enumeration 4 5))
 
 ;; the quick calculations
 (doseq [n (range 1 5)]
