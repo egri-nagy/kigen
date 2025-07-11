@@ -47,6 +47,21 @@
             (contains? arrowset [doma codb]))
           (composable-arrow-pairs arrowset)))
 
+(defn arrows2comptab
+  [arrows]
+  (let [arrow2index (zipmap arrows (range))
+        index2arrow (zipmap (range) arrows)
+        n (count arrows)
+        index-pairs (for [a (range n) b (range n)] [a b])]
+    (mapv
+     (fn [[a b]]
+       (let [[doma coda] (index2arrow a)
+             [domb codb] (index2arrow b)]
+         (if (= coda domb)
+           (arrow2index [doma codb])
+           :n)))
+     index-pairs)))
+
 (defn  reps
   "m - number of objects, arrows"
   [m arrowsets]
