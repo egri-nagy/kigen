@@ -61,7 +61,7 @@
         (l/fresh [a b]
                  (l/== q [a b])
                  (l/membero a [0 1 ])
-                 (l/membero b [:a :b 1 2]) 
+                 (l/membero b [:a :b 1 2])
                  (l/distincto  (conj [[0 1] [1 2]] [a b]))))
 
 
