@@ -25,24 +25,27 @@
            (contains? arrowset [doma codb])))
      pairs)))
 
+(defn composable-arrow-pairs
+  [arrowset]
+  (let [src2arrows (group-by first arrowset)
+        trg2arrows (group-by second arrowset)
+        objects (set (concat (keys src2arrows) (keys trg2arrows)))]
+          ;use objects to pin down composable pairs
+    (mapcat (fn [o] (for [a (trg2arrows o)
+                          b (src2arrows o)
+                          :when (and a b)]
+                      [a b]))
+            objects)))
+
 (defn transitively-closed-arrow-set?
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
    they are transitively closed under composition. First finds all composable
    pairs.
    `arrowset` should be a set of arrows as we use contains? for set membership"
   [arrowset]
-  (let [src2arrows (group-by first arrowset)
-        trg2arrows (group-by second arrowset)
-        objects (set (concat (keys src2arrows) (keys trg2arrows)))
-        ;use objects to pin down composable pairs
-        composable-pairs (mapcat (fn [o] (for [a (trg2arrows o)
-                                               b (src2arrows o)
-                                               :when (and a b)]
-                                           [a b]))
-                                 objects)]
-    (every? (fn [[[doma _] [_ codb]]]
-              (contains? arrowset [doma codb]))
-            composable-pairs)))
+  (every? (fn [[[doma _] [_ codb]]]
+            (contains? arrowset [doma codb]))
+          (composable-arrow-pairs arrowset)))
 
 (defn  reps
   "m - number of objects, arrows"
@@ -69,7 +72,7 @@
 
 ;(count (enum 7 5))
  (doseq [[n m] (for [n [1 2 3 4 5]
-                     m [1 2 3 4 5 6 7 8]]
+                     m [1 2 3 4 5]]
                  [n m])]
    (let [result (sort (combinatorial-enumeration n m))]
      (println n "-" m ": " (count result))
@@ -81,7 +84,7 @@
 ; (sort (combinatorial-enumeration 4 5))
 
 ;; the quick calculations
-(doseq [n (range 1 5)]
+(doseq [n (range 1 4)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: "
              (count (combinatorial-enumeration n m)))))
