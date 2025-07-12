@@ -12,15 +12,17 @@
 (require '[clojure.java.io :refer [writer]])
 
 (defn digraph-isomorphisms
-  "Logic search for all homomorphisms of semigroupoid `S` to `T` given as
-   composition tables. "
-  [G H] ;given as composition tables
+  "Logic search for all isomorphisms of directed graph `G` to `H` given as
+   a collection of arrows (ordered pair of integers). "
+  [G H]
   (let [G (vec G) ;; quick hack
         H (vec H)
-        n (count (set (apply concat G)))
-        phi (lvar-vector n)
-        elts (range n)
-        constraints (mapv (fn [[a b]] [(phi a) (phi b)]) G)]
+        n (count (set (apply concat G))) ;the number of vertices
+        phi (lvar-vector n) ;the morphism
+        elts (range n) ;assuming H has the same number of vertices
+        constraints (mapv (fn [[a b]]
+                            [(phi a) (phi b)]) ;substituting lvars into G
+                          G)]
     (l/run*
      [q]
      (l/== q phi)
