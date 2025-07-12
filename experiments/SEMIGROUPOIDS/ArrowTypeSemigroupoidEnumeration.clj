@@ -119,9 +119,13 @@
                    count))
      (distinct) ;as sets they might be the same
      (filter transitively-closed-arrow-set?)
-     ;(reps m)
-     (digraphs-up-to-morphisms)
+     (reps m)
+     ;(digraphs-up-to-morphisms)
      )))
+
+(combinatorial-enumeration 8 3)
+
+[[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]]
 
 ;(count (enum 7 5))
  (doseq [[n m] (for [n [1 2 3 4 5]
