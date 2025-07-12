@@ -15,21 +15,14 @@
 (require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
 
-(l/run*
- [q r]
- (l/membero q ["linux" "windows" "mac" "android" ""])
- (l/conda
-  [(l/membero q ["linux" "windows"]) (l/== r 1)]
-  [(l/== q "mac") (l/== r 2)]
-  [l/succeed (l/== q "") (l/== r 3)]))
 
-(l/run*
- [q r]
- (l/conda
-  [(l/membero q ["linux" "windows"]) (l/== r 1)]
-  [(l/== q "mac") (l/== r 2)]
-  [l/succeed (l/== q "") (l/== r 3)])
- (l/membero q ["linux" "windows" "mac" "android" ""]))
+;; testing X's counterexample of (ab)c defined, but bc not
+(def comptab '[0 0 0
+               0 0 - 
+               0 0 0])
+
+(enum/semigroupoids-order-n 3 comptab)
+(enum/associativity? [ [0 0 0] [0 :n 0] [0 0 0]])
 
 (defn types
   "`n` arrows, `m` types"
@@ -63,61 +56,3 @@
                  (l/membero a [0 1 ])
                  (l/membero b [:a :b 1 2])
                  (l/distincto  (conj [[0 1] [1 2]] [a b]))))
-
-
-
-(one-more-arrow [[0 0] [1 1] ] 2)
-
-(def sol4-5 [[[0 0] [0 1] [0 2] [3 4]]
-             [[0 0] [0 1] [2 1] [3 4]]
-             [[0 0] [0 1] [2 2] [3 4]]
-             [[0 0] [0 1] [2 3] [2 4]]
-             [[0 0] [0 1] [2 3] [4 3]]
-             [[0 0] [1 0] [1 2] [3 4]]
-             [[0 0] [1 0] [2 0] [3 4]]
-             [[0 0] [1 0] [2 2] [3 4]]
-             [[0 0] [1 0] [2 3] [2 4]]
-             [[0 0] [1 0] [2 3] [4 3]]
-             [[0 0] [1 1] [2 2] [3 4]]
-             [[0 0] [1 1] [2 3] [2 4]]
-             [[0 0] [1 1] [2 3] [4 3]]
-             [[0 0] [1 2] [1 3] [1 4]]
-             [[0 0] [1 2] [1 3] [4 2]]
-             [[0 0] [1 2] [3 2] [4 2]]
-             [[0 1] [0 2] [0 3] [0 4]]
-             [[0 1] [0 2] [0 3] [4 1]]
-             [[0 1] [0 2] [1 2] [3 4]]
-             [[0 1] [0 2] [3 1] [3 4]]
-             [[0 1] [0 2] [3 1] [4 1]]
-             [[0 1] [0 2] [3 1] [4 2]]
-             [[0 1] [2 1] [3 1] [4 1]]])
-
-
-;; Example 3.2 from Representation Independent Decompositions of Computation https://arxiv.org/abs/2504.04660
-(def S
-  [[0 1 2 3 4 :n]
-   [1 0 2 4 3 :n]
-   [:n :n :n :n :n 2]
-   [:n :n :n :n :n 2]
-   [:n :n :n :n :n 2]
-   [:n :n :n :n :n 5]])
-
-;; weak isomorphism not symmetric
-(hom/isomorphisms [[0 :n] [:n :n]]  [[0 1] [1 0]])
-(hom/isomorphisms [[0 1] [1 0]] [[0 :n] [:n :n]])
-
-(def non-symmetric-iso
-  (filter (fn [T]
-            (and
-             (not (empty? (hom/isomorphisms T S)))
-             (empty? (hom/isomorphisms S T))))
-          (enum/all-composition-tables 2)))
-
-;weak isomorphism not even producing semigroupoids
-(count non-symmetric-iso)
-(count (filter enum/associativity? non-symmetric-iso))
-
-(count (hom/homomorphisms S S))
-(count (hom/strict-homomorphisms S S))
-
-
