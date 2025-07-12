@@ -11,6 +11,42 @@
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[clojure.java.io :refer [writer]])
 
+(defn digraph-isomorphisms
+  "Logic search for all homomorphisms of semigroupoid `S` to `T` given as
+   composition tables. "
+  [G H] ;given as composition tables
+  (let [G (vec G) ;; quick hack
+        H (vec H)
+        n (count (set (apply concat G)))
+        phi (lvar-vector n)
+        elts (range n)
+        constraints (mapv (fn [[a b]] [(phi a) (phi b)]) G)]
+    (l/run*
+     [q]
+     (l/== q phi)
+     (l/everyg (fn [elt] (l/membero elt elts)) phi)
+     (l/distincto phi)
+     (l/everyg (fn [edge]
+                 (l/membero edge H))
+               constraints))))
+
+(digraph-isomorphisms [[0 1] [1 2] [2 3] [3 0]] [[0 1] [1 2] [2 3] [3 0]])
+
+(defn digraphs-up-to-morphisms
+  "Given a collection of directed graphs, it returns the isomorphism
+   class representatives."
+  [digraphs]
+  (reduce
+   (fn [reps G] ;representatives so far and the next semigroup
+     (if (some (fn [H]
+                 (first (digraph-isomorphisms G H)))
+               reps)
+       reps ;if G isomorphic to something in reps already
+       (conj reps G))) ;otherwise keep it
+   #{}
+   digraphs))
+
+
 ;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn transitively-closed-arrow-set-BF?
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
@@ -83,7 +119,9 @@
                    count))
      (distinct) ;as sets they might be the same
      (filter transitively-closed-arrow-set?)
-     (reps m))))
+     ;(reps m)
+     (digraphs-up-to-morphisms)
+     )))
 
 ;(count (enum 7 5))
  (doseq [[n m] (for [n [1 2 3 4 5]
@@ -99,10 +137,12 @@
 ; (sort (combinatorial-enumeration 4 5))
 
 ;; the quick calculations
-(doseq [n (range 1 4)]
+(doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: "
              (count (combinatorial-enumeration n m)))))
+
+(combinatorial-enumeration 2 2)
 
 ;; THE LOGIC PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
