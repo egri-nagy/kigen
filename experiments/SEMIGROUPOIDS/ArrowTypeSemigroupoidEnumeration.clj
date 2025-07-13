@@ -3,6 +3,7 @@
 ;; kigen v25.07.11
 (require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
+(require '[kigen.semigroupoid.transformation :refer [transitive-closure]])
 (require '[kigen.diagram.transf :as transf])
 (require '[kigen.logic :refer [lvar-vector]])
 
@@ -47,6 +48,12 @@
        (conj reps G))) ;otherwise keep it
    #{}
    digraphs))
+
+;; yet another method
+(defn all-type-arrow-semigroupoids
+  [m]
+  (let [arrows (map vec (selections (range m) 2))]
+    (map (fn [arr] (transitive-closure [arr]))arrows)))
 
 
 ;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -130,15 +137,15 @@
 [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]]
 
 ;(count (enum 7 5))
- (doseq [[n m] (for [n [1 2 3 4 5]
-                     m [1 2 3 4 5]]
-                 [n m])]
-   (let [result (sort (combinatorial-enumeration n m))]
-     (println n "-" m ": " (count result))
-     (when (not (zero? (count result)))
-       (with-open [w (clojure.java.io/writer (str "a" n "o" m))]
-         (doseq [arrows result]
-           (.write w (prn-str arrows)))))))
+(doseq [[n m] (for [n [1 2 3 4 5]
+                    m [1 2 3 4 5]]
+                [n m])]
+  (let [result (sort (combinatorial-enumeration n m))]
+    (println n "-" m ": " (count result))
+    (when (not (zero? (count result)))
+      (with-open [w (clojure.java.io/writer (str "a" n "o" m))]
+        (doseq [arrows result]
+          (.write w (prn-str arrows)))))))
 
 ; (sort (combinatorial-enumeration 4 5))
 
