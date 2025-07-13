@@ -26,6 +26,16 @@
                   (l/membero arrow (vec H)))
                 constraints)))))
 
+(defn squash
+  "If the graph has unused vertices, then this compactifies to a zero-starting
+   no gap isomorphic representation."
+  [G]
+  (let [vertices (set (apply concat G))]
+    (if (= (count vertices) (dec (apply max vertices)))
+      G
+      (let [zm (zipmap vertices (range))]
+        (mapv (fn [arrow] (mapv zm arrow)) G)))))
+
 (defn signature
   "just a quick isomorphism invariant"
   [G]

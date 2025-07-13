@@ -9,6 +9,7 @@
 (require '[kigen.digraph.transitivity :refer [transitive-closure]])
 (require '[kigen.digraph.isomorphism :refer [digraph-isomorphisms
                                              iso-conj
+                                             squash
                                              digraphs-up-to-morphisms]])
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
@@ -20,7 +21,7 @@
    the transitive closure, returns only distinct ones"
   [graph arrows]
   (let [narrows (remove (set graph) arrows)] ;; only add arrows that are new
-    (distinct (map (fn [arr] (transitive-closure (conj graph arr)))
+    (distinct (map (fn [arr] (squash (transitive-closure (conj graph arr))))
                    narrows))))
 
 (defn n-arrow-graphs
@@ -80,7 +81,7 @@
 
 
 (time
- (let [m 3
+ (let [m 16
        db (all-type-arrow-semigroupoids m)]
    (doseq [n (range 1 (inc (* m m)))]
      (println n "arrows" (count (n-arrow-graphs db n))))
