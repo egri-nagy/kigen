@@ -6,50 +6,17 @@
 (require '[kigen.semigroupoid.transformation :refer [transitive-closure]])
 (require '[kigen.diagram.transf :as transf])
 (require '[kigen.logic :refer [lvar-vector]])
-
+(require '[kigen.digraph.transitivity :refer [transitive-closure]])
+(require '[kigen.digraph.isomorphism :refer [digraph-isomorphisms
+                                             digraphs-up-to-morphisms]])
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[clojure.java.io :refer [writer]])
 
-(defn digraph-isomorphisms
-  "Logic search for all isomorphisms of directed graph `G` to `H` given as
-   a collection of arrows (ordered pair of integers). "
-  [G H]
-  ;(println G H)
-  (let [G (vec G) ;; quick hack
-        H (vec H)
-        n (inc (apply max (concat (apply concat G) (apply concat H)))) ;the number of vertices
-        phi (lvar-vector n) ;the morphism
-        elts (range n) ;assuming H has the same number of vertices
-        constraints (mapv (fn [[a b]]
-                            [(phi a) (phi b)]) ;substituting lvars into G
-                          G)]
-    (l/run*
-     [q]
-     (l/== q phi)
-     (l/everyg (fn [elt] (l/membero elt elts)) phi)
-     (l/distincto phi)
-     (l/everyg (fn [edge]
-                 (l/membero edge H))
-               constraints))))
 
 (digraph-isomorphisms [[0 1] [1 2] [2 3] [3 0]] [[0 1] [1 2] [2 3] [3 0]])
 
-(defn digraphs-up-to-morphisms
-  "Given a collection of directed graphs, it returns the isomorphism
-   class representatives."
-  ([digraphs] (digraphs-up-to-morphisms #{}))
-  ([digraphs representatives]
-   (reduce
-    (fn [reps G] ;representatives so far and the next semigroup
-      (if (some (fn [H]
-                  (first (digraph-isomorphisms G H)))
-                reps)
-        reps ;if G isomorphic to something in reps already
-        (conj reps G))) ;otherwise keep it
-    representatives
-    digraphs)))
 
 (defn add-on-and-close
   [graph arrows]
