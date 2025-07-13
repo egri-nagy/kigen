@@ -7,8 +7,9 @@
                      comptab
                      symbol-comptab
                      graph
-                     transitive-closure
-                     full-semigroupoid]]))
+                     full-semigroupoid]]
+            [kigen.digraph.transitivity
+             :refer [transitive-closure]]))
 
 ; example transformation semigroupoid
 ; Example A.1 in https://arxiv.org/abs/2504.04660
