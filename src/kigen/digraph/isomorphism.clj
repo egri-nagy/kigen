@@ -26,13 +26,21 @@
                   (l/membero arrow (vec H)))
                 constraints)))))
 
+(defn signature
+  "just a quick isomorphism invariant"
+  [G]
+  (sort (vals (frequencies (apply concat G)))))
+
+(defn isomorphic?
+  [G H]
+  (and (= (signature G) (signature H))
+       (first (digraph-isomorphisms G H))))
+
 (defn iso-conj
   "Conjoining `G` in case it is not isomorphic to any of the graphs in `reps`,
    otherwise returning `reps`."
   [reps G]
-  (if (some (fn [H]
-               (first (digraph-isomorphisms G H)))
-             reps)
+  (if (some (partial isomorphic? G) reps)
      reps ;if G isomorphic to something in reps already
      (conj reps G))) ;otherwise keep it
 

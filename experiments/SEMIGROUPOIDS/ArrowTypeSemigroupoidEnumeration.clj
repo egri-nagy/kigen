@@ -63,15 +63,16 @@
                  (mapcat (fn [G] (add-arrow-and-close G arrows))
                          all-n-arrow-graphs))))
      {[0 0] #{[]}};; we need to start somewhere
-     (range (* maxm maxm)))))
+     (range (inc (* maxm maxm))))))
 
 
-(let [m 5
-      db (all-type-arrow-semigroupoids m)]
-  (doseq [n (range 1 (inc (* m m)))]
-    (println n "arrows" (count (n-arrow-graphs db n))))
-  (doseq [m' (range 1 (inc m))]
-    (println m' "objects" (count (m-vertex-graphs db m')))))
+(time
+ (let [m 4
+       db (all-type-arrow-semigroupoids m)]
+   (doseq [n (range 1 (inc (* m m)))]
+     (println n "arrows" (count (n-arrow-graphs db n))))
+   (doseq [m' (range 1 (inc m))]
+     (println m' "objects" (count (m-vertex-graphs db m'))))))
 
 ;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn transitively-closed-arrow-set-BF?
