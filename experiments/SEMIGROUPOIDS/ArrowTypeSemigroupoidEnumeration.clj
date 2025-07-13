@@ -16,9 +16,10 @@
   "Logic search for all isomorphisms of directed graph `G` to `H` given as
    a collection of arrows (ordered pair of integers). "
   [G H]
+  ;(println G H)
   (let [G (vec G) ;; quick hack
         H (vec H)
-        n (count (set (apply concat G))) ;the number of vertices
+        n (inc (apply max (concat (apply concat G) (apply concat H)))) ;the number of vertices
         phi (lvar-vector n) ;the morphism
         elts (range n) ;assuming H has the same number of vertices
         constraints (mapv (fn [[a b]]
@@ -38,22 +39,51 @@
 (defn digraphs-up-to-morphisms
   "Given a collection of directed graphs, it returns the isomorphism
    class representatives."
-  [digraphs]
-  (reduce
-   (fn [reps G] ;representatives so far and the next semigroup
-     (if (some (fn [H]
-                 (first (digraph-isomorphisms G H)))
-               reps)
-       reps ;if G isomorphic to something in reps already
-       (conj reps G))) ;otherwise keep it
-   #{}
-   digraphs))
+  ([digraphs] (digraphs-up-to-morphisms #{}))
+  ([digraphs representatives]
+   (reduce
+    (fn [reps G] ;representatives so far and the next semigroup
+      (if (some (fn [H]
+                  (first (digraph-isomorphisms G H)))
+                reps)
+        reps ;if G isomorphic to something in reps already
+        (conj reps G))) ;otherwise keep it
+    representatives
+    digraphs)))
+
+(defn add-on-and-close
+  [graph arrows]
+  (let [narrows (remove (set graph) arrows)]
+    (distinct (map (fn [arr] (transitive-closure (conj graph arr))) narrows))))
 
 ;; yet another method
 (defn all-type-arrow-semigroupoids
-  [m]
-  (let [arrows (map vec (selections (range m) 2))]
-    (map (fn [arr] (transitive-closure [arr]))arrows)))
+  [maxm]
+  (let [arrows (map vec (selections (range maxm) 2))
+        register (fn [db graph]
+                   (let [n (count graph)
+                         m (count (set (apply concat graph)))]
+                     (if (contains? db [n m])
+                       (update db [n m]
+                               (fn [reps]
+                                 (digraphs-up-to-morphisms [graph] reps)))
+                       (conj db [[n m] #{graph}]))))]
+    (reduce
+     (fn [db n]
+       (println n)
+       (let [all-n-arrow-graphs
+             (apply concat (map
+                            db
+                            (filter (fn [[narrs _]] (= n narrs))
+                                    (keys db))))]
+         (reduce register db
+                 (mapcat (fn [G] ( add-on-and-close G arrows))
+                         all-n-arrow-graphs))))
+     { [0 0 ] #{[]}};; we need to start somewhere
+     (range (* maxm maxm)))))
+
+(sort (for [[k v] (all-type-arrow-semigroupoids 5)]
+        [k (count v)]))
 
 
 ;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -137,8 +167,8 @@
 [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]]
 
 ;(count (enum 7 5))
-(doseq [[n m] (for [n [1 2 3 4 5]
-                    m [1 2 3 4 5]]
+(doseq [[n m] (for [n [1 2 3 4 ]
+                    m [1 2 3 4 ]]
                 [n m])]
   (let [result (sort (combinatorial-enumeration n m))]
     (println n "-" m ": " (count result))
