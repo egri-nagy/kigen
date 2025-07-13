@@ -1,7 +1,7 @@
 (ns kigen.semigroupoid.transformation
   "Transformation semigroupoids.
    :s - source, domain, integer 0..n-1
-   :t - target, codomain, integer 0..n-1 
+   :t - target, codomain, integer 0..n-1
    :m - morphism, map"
   (:require [clojure.set :refer [union]]
             [orbit.core :refer [full-orbit]]
@@ -13,7 +13,7 @@
 (defn compose
   "Composition of typed transformations. Given `a` and `b`, the composite arrow
    `a` then `b` is returned.
-   Note the automata theoretic composition notation, from left to right! 
+   Note the automata theoretic composition notation, from left to right!
    Returns `nil` when the arrows are not composable."
   [a b]
   (when (= (:t a) (:s b)) ;checking composability
@@ -91,24 +91,6 @@
     (map (comp (partial apply str)
                (partial map converter))
          S)))
-
-;; todo move this graph algorithms, when there will a namespace like that
-(defn transitive-closure
-  "Computes the transitive closure of the given graph."
-  [graph]
-  (let [sources (group-by first graph)
-        targets (group-by second graph)
-        generator-fn (fn [[s t]]
-                       (union (set (map
-                                    (fn [[s' _]]
-                                      [s' t])
-                                    (targets s)))
-                              (set (map
-                                    (fn [[_ t']]
-                                      [s t'])
-                                    (sources t)))
-                              ))]
-    (full-orbit graph generator-fn)))
 
 (defn full-semigroupoid
   "Simply generating all transformation combinatorially based on the size
