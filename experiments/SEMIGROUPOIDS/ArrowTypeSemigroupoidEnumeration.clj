@@ -49,10 +49,11 @@
 
 (defn write-anom-files
   [db n M]
-  (for [i (range 1 (inc M))]
-    (with-open [w (clojure.java.io/writer (str "a" n "o" i))]
-      (doseq [arrows (db [n i])]
-        (.write w (prn-str arrows))))))
+  (doseq [i (range 1 (inc M))]
+    (when (contains? db [n i])
+      (with-open [w (clojure.java.io/writer (str "a" n "o" i))]
+        (doseq [arrows (db [n i])]
+          (.write w (prn-str (vec (sort arrows)))))))))
 
 ;; yet another method - just throwing in new arrows and close
 ;; this prints the LaTeX table for the sgpoidsynth paper
