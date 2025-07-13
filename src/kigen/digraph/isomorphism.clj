@@ -26,17 +26,22 @@
                   (l/membero arrow (vec H)))
                 constraints)))))
 
+(defn iso-conj
+  "Conjoining `G` in case it is not isomorphic to any of the graphs in `reps`,
+   otherwise returning `reps`."
+  [reps G]
+  (if (some (fn [H]
+               (first (digraph-isomorphisms G H)))
+             reps)
+     reps ;if G isomorphic to something in reps already
+     (conj reps G))) ;otherwise keep it
+
 (defn digraphs-up-to-morphisms
   "Given a collection of directed graphs, it returns the isomorphism
    class representatives."
   ([digraphs] (digraphs-up-to-morphisms #{}))
   ([digraphs representatives]
    (reduce
-    (fn [reps G] ;representatives so far and the next semigroup
-      (if (some (fn [H]
-                  (first (digraph-isomorphisms G H)))
-                reps)
-        reps ;if G isomorphic to something in reps already
-        (conj reps G))) ;otherwise keep it
+    iso-conj
     representatives
     digraphs)))

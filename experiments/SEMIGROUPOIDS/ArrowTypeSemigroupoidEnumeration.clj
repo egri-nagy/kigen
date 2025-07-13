@@ -3,27 +3,42 @@
 ;; kigen v25.07.11
 (require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
-(require '[kigen.semigroupoid.transformation :refer [transitive-closure]])
+
 (require '[kigen.diagram.transf :as transf])
 (require '[kigen.logic :refer [lvar-vector]])
 (require '[kigen.digraph.transitivity :refer [transitive-closure]])
 (require '[kigen.digraph.isomorphism :refer [digraph-isomorphisms
+                                             iso-conj
                                              digraphs-up-to-morphisms]])
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[clojure.java.io :refer [writer]])
 
-
-(digraph-isomorphisms [[0 1] [1 2] [2 3] [3 0]] [[0 1] [1 2] [2 3] [3 0]])
-
-
-(defn add-on-and-close
+(defn add-arrow-and-close
+  "adds an arrow from `arrows` that is not already in `graph` and computes
+   the transitive closure, returns only distinct ones"
   [graph arrows]
-  (let [narrows (remove (set graph) arrows)]
-    (distinct (map (fn [arr] (transitive-closure (conj graph arr))) narrows))))
+  (let [narrows (remove (set graph) arrows)] ;; only add arrows that are new
+    (distinct (map (fn [arr] (transitive-closure (conj graph arr)))
+                   narrows))))
 
-;; yet another method
+(defn n-arrow-graphs
+  [db n]
+  (apply concat (map
+                 db
+                 (filter (comp (partial = n) first)
+                         (keys db)))))
+
+(defn m-vertex-graphs
+  [db m]
+  (apply concat (map
+                 db
+                 (filter (comp (partial = m) second)
+                         (keys db)))))
+
+;; yet another method - just throwing in new arrows and close
+;; this prints the LaTeX table for the sgpoidsynth paper
 (defn all-type-arrow-semigroupoids
   [maxm]
   (let [arrows (map vec (selections (range maxm) 2))
@@ -31,27 +46,32 @@
                    (let [n (count graph)
                          m (count (set (apply concat graph)))]
                      (if (contains? db [n m])
-                       (update db [n m]
-                               (fn [reps]
-                                 (digraphs-up-to-morphisms [graph] reps)))
+                       (update db [n m] (fn [reps] (iso-conj reps graph)))
                        (conj db [[n m] #{graph}]))))]
     (reduce
      (fn [db n]
-       (println n)
-       (let [all-n-arrow-graphs
-             (apply concat (map
-                            db
-                            (filter (fn [[narrs _]] (= n narrs))
-                                    (keys db))))]
+       (when (not (zero? n)) ;; logging starts here (printing LaTeX table)
+         (print n)
+         (doseq [i (range (inc maxm))]
+           (print " &" (if (contains? db [n i])
+                         (count (db [n i]))
+                         "")))
+         (println)) ;; logging finishes
+       (let [all-n-arrow-graphs ;just searching in the database
+             (n-arrow-graphs db n)]
          (reduce register db
-                 (mapcat (fn [G] ( add-on-and-close G arrows))
+                 (mapcat (fn [G] (add-arrow-and-close G arrows))
                          all-n-arrow-graphs))))
-     { [0 0 ] #{[]}};; we need to start somewhere
+     {[0 0] #{[]}};; we need to start somewhere
      (range (* maxm maxm)))))
 
-(sort (for [[k v] (all-type-arrow-semigroupoids 5)]
-        [k (count v)]))
 
+(let [m 5
+      db (all-type-arrow-semigroupoids m)]
+  (doseq [n (range 1 (inc (* m m)))]
+    (println n "arrows" (count (n-arrow-graphs db n))))
+  (doseq [m' (range 1 (inc m))]
+    (println m' "objects" (count (m-vertex-graphs db m')))))
 
 ;; THE COMBINATORIAL PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn transitively-closed-arrow-set-BF?
@@ -134,8 +154,8 @@
 [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]]
 
 ;(count (enum 7 5))
-(doseq [[n m] (for [n [1 2 3 4 ]
-                    m [1 2 3 4 ]]
+(doseq [[n m] (for [n [1 2 3 4]
+                    m [1 2 3 4]]
                 [n m])]
   (let [result (sort (combinatorial-enumeration n m))]
     (println n "-" m ": " (count result))
