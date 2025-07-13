@@ -37,11 +37,28 @@
                  (filter (comp (partial = m) second)
                          (keys db)))))
 
+(defn print-LaTeX-table
+  [db n M]
+  (when (not (zero? n)) ;; logging starts here (printing LaTeX table)
+    (print n)
+    (doseq [i (range 1 (inc M))]
+      (print " &" (if (contains? db [n i])
+                    (count (db [n i]))
+                    "")))
+    (println))) ;; logging finishes
+
+(defn write-anom-files
+  [db n M]
+  (for [i (range 1 (inc M))]
+    (with-open [w (clojure.java.io/writer (str "a" n "o" i))]
+      (doseq [arrows (db [n i])]
+        (.write w (prn-str arrows))))))
+
 ;; yet another method - just throwing in new arrows and close
 ;; this prints the LaTeX table for the sgpoidsynth paper
 (defn all-type-arrow-semigroupoids
-  [maxm]
-  (let [arrows (map vec (selections (range maxm) 2))
+  [M]
+  (let [arrows (map vec (selections (range M) 2))
         register (fn [db graph]
                    (let [n (count graph)
                          m (count (set (apply concat graph)))]
@@ -50,24 +67,19 @@
                        (conj db [[n m] #{graph}]))))]
     (reduce
      (fn [db n]
-       (when (not (zero? n)) ;; logging starts here (printing LaTeX table)
-         (print n)
-         (doseq [i (range (inc maxm))]
-           (print " &" (if (contains? db [n i])
-                         (count (db [n i]))
-                         "")))
-         (println)) ;; logging finishes
+       (print-LaTeX-table db n M)
+       (write-anom-files db n M)
        (let [all-n-arrow-graphs ;just searching in the database
              (n-arrow-graphs db n)]
          (reduce register db
                  (mapcat (fn [G] (add-arrow-and-close G arrows))
                          all-n-arrow-graphs))))
      {[0 0] #{[]}};; we need to start somewhere
-     (range (inc (* maxm maxm))))))
+     (range (inc (* M M))))))
 
 
 (time
- (let [m 4
+ (let [m 3
        db (all-type-arrow-semigroupoids m)]
    (doseq [n (range 1 (inc (* m m)))]
      (println n "arrows" (count (n-arrow-graphs db n))))
