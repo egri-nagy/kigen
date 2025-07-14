@@ -1,6 +1,6 @@
 ;; Enumerating all arrow-type semigroupoids by a combinatorial brute force
 ;; method and then recursively adding one arrow by logic search.
-;; kigen v25.07.13
+;; kigen v25.07.14
 (require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 
@@ -90,7 +90,7 @@
 ;;timing runs and printing extra information about the totals
 ;; takes 6 seconds for m=4, half an hour for m=5 on an M1 Pro MacBook
 (time
- (let [m 5
+ (let [m 4
        db (all-type-arrow-semigroupoids m)]
    (doseq [n (range 1 (inc (* m m)))]
      (println n "arrows" (count (n-arrow-graphs db n))))
@@ -102,7 +102,7 @@
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
    they are transitively closed under composition. This is brute force, it
    enumerates all pairs, and checks for closure when they are composable.
-   `arrowset` should be a set of arrows as we use contains? for set membership"
+   `arrowset` should be a set of arrows as we use contains? for set membership."
   [arrowset]
   (let [pairs (for [a arrowset, b arrowset] [a b])]
     (every?
@@ -112,6 +112,7 @@
      pairs)))
 
 (defn composable-arrow-pairs
+  "Returns the set of composable arrow pairs."
   [arrowset]
   (let [src2arrows (group-by first arrowset)
         trg2arrows (group-by second arrowset)
@@ -127,13 +128,14 @@
   "Checks the given set of arrows (arrow types, domain-codomain pairs) whether
    they are transitively closed under composition. First finds all composable
    pairs.
-   `arrowset` should be a set of arrows as we use contains? for set membership"
+   `arrowset` should be a set of arrows as we use contains? for set membership."
   [arrowset]
   (every? (fn [[[doma _] [_ codb]]]
             (contains? arrowset [doma codb]))
           (composable-arrow-pairs arrowset)))
 
 (defn arrows2comptab
+  "Converts a set of arrows to a composition table."
   [arrows]
   (let [arrow2index (zipmap arrows (range))
         index2arrow (zipmap (range) arrows)
@@ -148,7 +150,7 @@
            :n)))
      index-pairs)))
 
-(defn  reps
+(defn minimal-class-representatives
   "m - number of objects, arrows"
   [m arrowsets]
   (let [S (sgp-by-gens (transf/symmetric-gens m) transf/mul)]
@@ -169,15 +171,11 @@
                    count))
      (distinct) ;as sets they might be the same
      (filter transitively-closed-arrow-set?)
-     (reps m)
-     ;(digraphs-up-to-morphisms)
+     (minimal-class-representatives m)
+     ;(digraphs-up-to-morphisms) ;an alternative way to get representatives
      )))
 
-(combinatorial-enumeration 8 3)
-
-[[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]]
-
-;(count (enum 7 5))
+;; the enumeration call for generating files
 (doseq [[n m] (for [n [1 2 3 4]
                     m [1 2 3 4]]
                 [n m])]
@@ -188,15 +186,11 @@
         (doseq [arrows result]
           (.write w (prn-str arrows)))))))
 
-; (sort (combinatorial-enumeration 4 5))
-
 ;; the quick calculations
 (doseq [n (range 1 5)]
   (doseq [m (range 1 (inc (* 2 n)))]
     (println n " arrows " m "objects: "
              (count (combinatorial-enumeration n m)))))
-
-(combinatorial-enumeration 2 2)
 
 ;; THE LOGIC PART ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -232,9 +226,8 @@
 (one-more-arrow [[0 0] [1 1]] 3 true)
 (one-more-arrow [[0 1] [1 1]] 3 true)
 
-
 (defn check
-  "Comparing the combinatorial result with the recursive one."
+  "Comparing the combinatorial result with the logic-based one."
   [n m]
   (let [sols1 (combinatorial-enumeration (dec n) m)
         sols2 (combinatorial-enumeration (dec n) (dec m))
@@ -243,19 +236,20 @@
                 (fn [sol]
                   (map (partial conj sol) (one-more-arrow sol m false)))
                 sols1)
-               (reps m))
+               (minimal-class-representatives m))
         nres2 (->>
                (mapcat
                 (fn [sol]
                   (map (partial conj sol)
                        (one-more-arrow sol m true)))
                 sols2)
-               (reps m))
+               (minimal-class-representatives m))
         nres (into nres1 nres2)
         combinatorial-sols (combinatorial-enumeration n m)]
     (= (set (map set combinatorial-sols))
        (set (map set nres)))))
 
+;;case 2,4 will fail
 (for [n [2 3 4 5]
       m [2 3 4 5]]
   [n m (check n m)])
