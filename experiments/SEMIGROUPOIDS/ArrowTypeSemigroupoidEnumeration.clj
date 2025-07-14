@@ -16,15 +16,14 @@
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[clojure.java.io :refer [writer]])
 
-(defn add-arrow-and-close
-  "adds an arrow from `arrows` that is not already in `graph` and computes
-   the transitive closure, returns only distinct ones"
-  [graph arrows]
-  (let [narrows (remove (set graph) arrows)] ;; only add arrows that are new
-    (distinct (map (fn [arr] (squash (transitive-closure (conj graph arr))))
-                   narrows))))
-
+;;;;;;;;;; RECURSIVE ENUMERATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; the winning formula: just adding an arrow and transitively close the graph
+;; very much like SubSemi for subsemigroup enumeration
+;; db - database (hash-map)
+;;  keys: [a,o] pairs
+;;  vals: isomorphism class representatives
 (defn n-arrow-graphs
+  "Collects all graphs with `n` arrows from the database."
   [db n]
   (apply concat (map
                  db
@@ -32,12 +31,14 @@
                          (keys db)))))
 
 (defn m-vertex-graphs
+  "Collects all graphs with `m` vertices (objects)."
   [db m]
   (apply concat (map
                  db
                  (filter (comp (partial = m) second)
                          (keys db)))))
 
+;; this prints the LaTeX table for the sgpoidsynth paper
 (defn print-LaTeX-table
   [db n M]
   (when (not (zero? n)) ;; logging starts here (printing LaTeX table)
@@ -48,6 +49,7 @@
                     "")))
     (println))) ;; logging finishes
 
+;; writes files to disc a<num of arrows>o<num of objects>
 (defn write-anom-files
   [db n M]
   (doseq [i (range 1 (inc M))]
@@ -56,32 +58,39 @@
         (doseq [arrows (db [n i])]
           (.write w (prn-str (vec (sort arrows)))))))))
 
-;; yet another method - just throwing in new arrows and close
-;; this prints the LaTeX table for the sgpoidsynth paper
+(defn add-arrow-and-close
+  "adds an arrow from `arrows` that is not already in `graph` and computes
+   the transitive closure, returns only distinct ones"
+  [graph arrows]
+  (let [narrows (remove (set graph) arrows)] ;; only add arrows that are new
+    (distinct (map (fn [arr] (squash (transitive-closure (conj graph arr))))
+                   narrows))))
+
 (defn all-type-arrow-semigroupoids
+  "Enumerates all arrow-type semigroupoids with maximum `M` number of objects."
   [M]
-  (let [arrows (map vec (selections (range M) 2))
+  (let [arrows (map vec (selections (range M) 2)) ;we have M^2 arrows
         register (fn [db graph]
-                   (let [n (count graph)
-                         m (count (set (apply concat graph)))]
+                   (let [n (count graph) ;num of arrows
+                         m (count (set (apply concat graph)))] ;num of objects
                      (if (contains? db [n m])
-                       (update db [n m] (fn [reps] (iso-conj reps graph)))
+                       (update db [n m] (fn [class] (iso-conj class graph)))
                        (conj db [[n m] #{graph}]))))]
     (reduce
      (fn [db n]
-       (print-LaTeX-table db n M)
-       (write-anom-files db n M)
-       (let [all-n-arrow-graphs ;just searching in the database
-             (n-arrow-graphs db n)]
+       (print-LaTeX-table db n M) ;side-effecting stuff!
+       (write-anom-files db n M) ;side-effecting stuff!
+       (let [all-n-arrow-graphs (n-arrow-graphs db n)] ;extending n-arrow graphs
          (reduce register db
                  (mapcat (fn [G] (add-arrow-and-close G arrows))
                          all-n-arrow-graphs))))
-     {[0 0] #{[]}};; we need to start somewhere
+     {[0 0] #{[]}};; we need to start somewhere, though not a valid example
      (range (inc (* M M))))))
 
-
+;;timing runs and printing extra information about the totals
+;; takes 6 seconds for m=4, half an hour for m=5 on an M1 Pro MacBook
 (time
- (let [m 16
+ (let [m 5
        db (all-type-arrow-semigroupoids m)]
    (doseq [n (range 1 (inc (* m m)))]
      (println n "arrows" (count (n-arrow-graphs db n))))
