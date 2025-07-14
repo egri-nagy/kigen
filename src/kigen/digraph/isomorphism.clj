@@ -37,9 +37,12 @@
         (mapv (fn [arrow] (mapv zm arrow)) G)))))
 
 (defn signature
-  "just a quick isomorphism invariant"
+  "Just a quick graph isomorphism invariant: in-degrees sorted concatenated
+   with out-degress sorted."
   [G]
-  (sort (vals (frequencies (apply concat G)))))
+  (concat (sort (vals (frequencies (map first G))))
+          (sort (vals (frequencies (map second G))))))
+
 
 (defn isomorphic?
   [G H]
