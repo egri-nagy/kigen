@@ -1,5 +1,6 @@
 (ns kigen.digraph.isomorphism
-  "Deciding directed graph isomorphism."
+  "Deciding directed graph isomorphism. Directed graphs (digraphs) are sequences
+   of source-target pairs. Vertices are non-negative integers."
   (:require [clojure.core.logic :as l]
             [kigen.logic :refer [lvar-vector]]))
 
@@ -38,20 +39,21 @@
 
 (defn signature
   "Just a quick graph isomorphism invariant: in-degrees sorted concatenated
-   with out-degress sorted."
+   with out-degrees sorted."
   [G]
   (concat (sort (vals (frequencies (map first G))))
           (sort (vals (frequencies (map second G))))))
 
-
 (defn isomorphic?
+  "Computes [[signature]] first for both graphs, if they match, it calls the
+   heavier [[digraph-isomorphisms]]."
   [G H]
   (and (= (signature G) (signature H))
        (first (digraph-isomorphisms G H))))
 
 (defn iso-conj
-  "Conjoining `G` in case it is not isomorphic to any of the graphs in `reps`,
-   otherwise returning `reps`."
+  "Conjoining `G` in case it is not isomorphic to any of the digraphs in `reps`,
+   otherwise returning `reps` unchanged."
   [reps G]
   (if (some (partial isomorphic? G) reps)
      reps ;if G isomorphic to something in reps already
