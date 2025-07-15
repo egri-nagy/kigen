@@ -9,6 +9,12 @@
   [G]
   (count (distinct (apply concat G))))
 
+(defn out-in-degrees
+  [G m]
+  (let [outs (frequencies (map first G))
+        ins (frequencies (map second G))]
+    (mapv (fn [i] [(outs i 0) (ins i 0)]) (range m))))
+
 (defn digraph-isomorphisms
   "Logic search for all isomorphisms of directed graph `G` to `H` given as
    a collection of arrows (ordered pair of integers). `m` is the number of
@@ -20,13 +26,17 @@
   ([G H m]
    (let [phi (lvar-vector m) ;the morphism
          vertices (range m)
+         Gdegrees (out-in-degrees G m)
+         Hlookup (group-by (out-in-degrees H m) (range m))
+         targets (mapv Hlookup Gdegrees)
          constraints
          (mapv (fn [[a b]] [(phi a) (phi b)]) ;substituting lvars into G arrows
                G)]
      (l/run*
       [q]
       (l/== q phi)
-      (l/everyg (fn [v] (l/membero v vertices)) phi) ;phi maps to vertices
+      ;(l/everyg (fn [v] (l/membero v vertices)) phi) ;phi maps to vertices
+      (l/everyg (fn [v] (l/membero (phi v) (targets v))) vertices)
       (l/distincto phi) ;different vertices go to different vertices
       (l/everyg (fn [arrow] ;G-arrow mapped to H should be an arrow there
                   (l/membero arrow (vec H)))
@@ -78,6 +88,7 @@
   [G]
   (concat (sort (vals (frequencies (map first G))))
           (sort (vals (frequencies (map second G))))))
+
 
 (defn signature2
   [G m]
