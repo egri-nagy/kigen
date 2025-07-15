@@ -38,6 +38,11 @@
                  (filter (comp (partial = m) second)
                          (keys db)))))
 
+(defn db-size
+  "returns the number of entries in the database"
+  [db]
+  (reduce + (map (comp count db) (keys db))))
+
 ;; this prints the LaTeX table for the sgpoidsynth paper
 (defn print-LaTeX-table
   [db n M]
@@ -47,7 +52,7 @@
       (print " &" (if (contains? db [n i])
                     (count (db [n i]))
                     "")))
-    (println))) ;; logging finishes
+    (println "  db size" (db-size db)))) ;; logging finishes
 
 ;; writes files to disc a<num of arrows>o<num of objects>
 (defn write-anom-files
