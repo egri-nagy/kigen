@@ -97,7 +97,7 @@
 ;;timing runs and printing extra information about the totals
 ;; takes 6 seconds for m=4, half an hour for m=5 on an M1 Pro MacBook
 (time
- (let [m 4
+ (let [m 5
        db (all-type-arrow-semigroupoids m)]
    (doseq [n (range 1 (inc (* m m)))]
      (println n "arrows" (count (n-arrow-graphs db n))))

@@ -4,6 +4,11 @@
   (:require [clojure.core.logic :as l]
             [kigen.logic :refer [lvar-vector]]))
 
+(defn num-of-nodes
+  "Returns the number of nodes - can be unsquashed."
+  [G]
+  (count (distinct (apply concat G))))
+
 (defn digraph-isomorphisms
   "Logic search for all isomorphisms of directed graph `G` to `H` given as
    a collection of arrows (ordered pair of integers). `m` is the number of
@@ -37,6 +42,36 @@
       (let [zm (zipmap vertices (range))]
         (mapv (fn [arrow] (mapv zm arrow)) G)))))
 
+(defn vec-mul
+  [v1 v2]
+  (reduce + (map * v1 v2)))
+
+(defn nxn-mat-mul
+  [A B]
+  (let [coords (range (count A))]
+    (mapv
+     (fn [i]
+       (mapv (fn [j] (vec-mul (nth A i)
+                              (map (fn [v] (nth v j)) B)))
+             coords))
+     coords)))
+
+(defn nxn-mat-square
+  [A]
+  (nxn-mat-mul A A))
+
+(defn adjacency-matrix
+  "returns the adjacency matrix of digraph G, G should be squashed"
+  [G m]
+  (let [arrows (set G)
+        nodes (range m)]
+    (mapv
+     (fn [src] (mapv (fn [trg] (if ( contains? arrows [src trg])
+                                 1
+                                 0))
+                     nodes))
+     nodes)))
+
 (defn signature
   "Just a quick graph isomorphism invariant: in-degrees sorted concatenated
    with out-degrees sorted."
@@ -44,11 +79,18 @@
   (concat (sort (vals (frequencies (map first G))))
           (sort (vals (frequencies (map second G))))))
 
+(defn signature2
+  [G m]
+  (sort (vals (frequencies (apply concat
+                                  (nxn-mat-square (adjacency-matrix G m)))))))
+
 (defn isomorphic?
   "Computes [[signature]] first for both graphs, if they match, it calls the
    heavier [[digraph-isomorphisms]]."
   [G H]
   (and (= (signature G) (signature H))
+       (let [m (inc (apply max (concat (apply concat G) (apply concat H))))]
+        (= (signature2 G m) (signature2 H m)))
        (first (digraph-isomorphisms G H))))
 
 (defn iso-conj
