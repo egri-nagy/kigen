@@ -85,10 +85,12 @@
      (fn [db n]
        (print-LaTeX-table db n M) ;side-effecting stuff!
        (write-anom-files db n M) ;side-effecting stuff!
-       (let [all-n-arrow-graphs (n-arrow-graphs db n)] ;extending n-arrow graphs
-         (reduce register db
-                 (mapcat (fn [G] (add-arrow-and-close G arrows))
-                         all-n-arrow-graphs))))
+       (let [all-n-arrow-graphs (n-arrow-graphs db n) ;extending n-arrow graphs
+             new-graphs (mapcat (fn [G] (add-arrow-and-close G arrows))
+                                all-n-arrow-graphs)]
+         (println "Extending" (count all-n-arrow-graphs) "graphs yielded"
+                  (count new-graphs))
+         (reduce register db new-graphs)))
      {[0 0] #{[]}};; we need to start somewhere, though not a valid example
      (range (inc (* M M))))))
 
