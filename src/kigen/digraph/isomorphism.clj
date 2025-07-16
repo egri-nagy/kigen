@@ -3,14 +3,9 @@
    of source-target pairs. Vertices are non-negative integers."
   (:require [clojure.core.logic :as l]
             [kigen.logic :refer [lvar-vector]]
-            [kigen.digraph.properties :refer [out-in-degrees]]))
-
-(defn num-of-nodes
-  "Returns the number of nodes - can be unsquashed."
-  [G]
-  (count (distinct (apply concat G))))
-
-
+            [kigen.digraph.properties :refer [adjacency-matrix
+                                              out-in-degrees]]
+            [kigen.matrix :refer [mat-square]]))
 
 (defn digraph-isomorphisms
   "Logic search for all isomorphisms of directed graph `G` to `H` given as
@@ -39,46 +34,6 @@
                   (l/membero arrow (vec H)))
                 constraints)))))
 
-(defn squash
-  "If the graph has unused vertices, then this compactifies to a zero-starting
-   no gap isomorphic representation."
-  [G]
-  (let [vertices (set (apply concat G))]
-    (if (= (count vertices) (dec (apply max vertices)))
-      G
-      (let [zm (zipmap vertices (range))]
-        (mapv (fn [arrow] (mapv zm arrow)) G)))))
-
-(defn vec-mul
-  [v1 v2]
-  (reduce + (map * v1 v2)))
-
-(defn nxn-mat-mul
-  [A B]
-  (let [coords (range (count A))]
-    (mapv
-     (fn [i]
-       (mapv (fn [j] (vec-mul (nth A i)
-                              (map (fn [v] (nth v j)) B)))
-             coords))
-     coords)))
-
-(defn nxn-mat-square
-  [A]
-  (nxn-mat-mul A A))
-
-(defn adjacency-matrix
-  "returns the adjacency matrix of digraph G, G should be squashed"
-  [G m]
-  (let [arrows (set G)
-        nodes (range m)]
-    (mapv
-     (fn [src] (mapv (fn [trg] (if ( contains? arrows [src trg])
-                                 1
-                                 0))
-                     nodes))
-     nodes)))
-
 (defn signature
   "Just a quick graph isomorphism invariant: in-degrees sorted concatenated
    with out-degrees sorted."
@@ -90,7 +45,7 @@
 (defn signature2
   [G m]
   (sort (vals (frequencies (apply concat
-                                  (nxn-mat-square (adjacency-matrix G m)))))))
+                                  (mat-square (adjacency-matrix G m)))))))
 
 (defn isomorphic?
   "Computes [[signature]] first for both graphs, if they match, it calls the
@@ -98,7 +53,7 @@
   [G H]
   (and (= (signature G) (signature H))
        (let [m (inc (apply max (concat (apply concat G) (apply concat H))))]
-        (= (signature2 G m) (signature2 H m)))
+         (= (signature2 G m) (signature2 H m)))
        (first (digraph-isomorphisms G H))))
 
 (defn iso-conj
@@ -106,8 +61,8 @@
    otherwise returning `reps` unchanged."
   [reps G]
   (if (some (partial isomorphic? G) reps)
-     reps ;if G isomorphic to something in reps already
-     (conj reps G))) ;otherwise keep it
+    reps ;if G isomorphic to something in reps already
+    (conj reps G))) ;otherwise keep it
 
 (defn digraphs-up-to-morphisms
   "Given a collection of directed graphs, it returns the isomorphism
