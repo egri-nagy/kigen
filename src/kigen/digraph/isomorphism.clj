@@ -2,18 +2,15 @@
   "Deciding directed graph isomorphism. Directed graphs (digraphs) are sequences
    of source-target pairs. Vertices are non-negative integers."
   (:require [clojure.core.logic :as l]
-            [kigen.logic :refer [lvar-vector]]))
+            [kigen.logic :refer [lvar-vector]]
+            [kigen.digraph.properties :refer [out-in-degrees]]))
 
 (defn num-of-nodes
   "Returns the number of nodes - can be unsquashed."
   [G]
   (count (distinct (apply concat G))))
 
-(defn out-in-degrees
-  [G m]
-  (let [outs (frequencies (map first G))
-        ins (frequencies (map second G))]
-    (mapv (fn [i] [(outs i 0) (ins i 0)]) (range m))))
+
 
 (defn digraph-isomorphisms
   "Logic search for all isomorphisms of directed graph `G` to `H` given as
