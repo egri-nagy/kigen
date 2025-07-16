@@ -43,6 +43,7 @@
 
 
 (defn signature2
+  "Frequencies of #paths of length 2 between nodes."
   [G m]
   (sort (vals (frequencies (apply concat
                                   (mat-square (adjacency-matrix G m)))))))
@@ -52,6 +53,7 @@
    heavier [[digraph-isomorphisms]]."
   [G H]
   (and (= (signature G) (signature H))
+       ;todo get m from signature
        (let [m (inc (apply max (concat (apply concat G) (apply concat H))))]
          (= (signature2 G m) (signature2 H m)))
        (first (digraph-isomorphisms G H))))
