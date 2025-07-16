@@ -1,6 +1,6 @@
 ;; Enumerating all arrow-type semigroupoids by a combinatorial brute force
 ;; method and then recursively adding one arrow by logic search.
-;; kigen v25.07.14
+;; kigen v25.07.16
 (require '[kigen.semigroup.conjugacy :refer [setconjrep]])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 

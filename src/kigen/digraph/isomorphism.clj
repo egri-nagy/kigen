@@ -16,22 +16,20 @@
           H
           (inc (apply max (concat (apply concat G) (apply concat H))))))
   ([G H m]
-   (let [phi (lvar-vector m) ;the morphism
-         vertices (range m)
-         Gdegrees (out-in-degrees G m)
-         Hlookup (group-by (out-in-degrees H m) (range m))
-         targets (mapv Hlookup Gdegrees)
-         constraints
-         (mapv (fn [[a b]] [(phi a) (phi b)]) ;substituting lvars into G arrows
-               G)]
+   (let
+    [vertices (range m)
+     Gdegrees (out-in-degrees G m) ; in- and out degree pairs for each vertex
+     Hdegree-lookup (group-by (out-in-degrees H m) vertices)
+     targets (mapv Hdegree-lookup Gdegrees) ;G vertex -> matching H vertices
+     phi (lvar-vector m) ;the morphism
+     constraints (mapv (fn [[a b]] [(phi a) (phi b)]) G)] ;substitution
      (l/run*
       [q]
       (l/== q phi)
-      ;(l/everyg (fn [v] (l/membero v vertices)) phi) ;phi maps to vertices
       (l/everyg (fn [v] (l/membero (phi v) (targets v))) vertices)
       (l/distincto phi) ;different vertices go to different vertices
-      (l/everyg (fn [arrow] ;G-arrow mapped to H should be an arrow there
-                  (l/membero arrow (vec H)))
+      (l/everyg (fn [arrow]
+                  (l/membero arrow (vec H))) ;phi(arrow) should be an arrow in H
                 constraints)))))
 
 (defn signature
