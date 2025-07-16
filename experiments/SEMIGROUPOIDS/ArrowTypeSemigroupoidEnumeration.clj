@@ -9,8 +9,9 @@
 (require '[kigen.digraph.transitivity :refer [transitive-closure]])
 (require '[kigen.digraph.isomorphism :refer [digraph-isomorphisms
                                              iso-conj
-                                             squash
                                              digraphs-up-to-morphisms]])
+(require '[kigen.digraph.properties :refer [out-in-degrees
+                                            compact]])
 (require '[clojure.core.logic :as l])
 (require '[clojure.core.logic.fd :as fd])
 (require '[clojure.math.combinatorics :refer [selections]])
@@ -68,7 +69,7 @@
    the transitive closure, returns only distinct ones"
   [graph arrows]
   (let [narrows (remove (set graph) arrows)] ;; only add arrows that are new
-    (distinct (map (fn [arr] (squash (transitive-closure (conj graph arr))))
+    (distinct (map (fn [arr] (compact (transitive-closure (conj graph arr))))
                    narrows))))
 
 (defn all-type-arrow-semigroupoids
@@ -88,8 +89,8 @@
        (let [all-n-arrow-graphs (n-arrow-graphs db n) ;extending n-arrow graphs
              new-graphs (mapcat (fn [G] (add-arrow-and-close G arrows))
                                 all-n-arrow-graphs)]
-         (println "Extending" (count all-n-arrow-graphs) "graphs yielded"
-                  (count new-graphs))
+         ;(println "Extending" (count all-n-arrow-graphs) "graphs yielded"
+         ;         (count new-graphs)) ;this could make map non-lazy
          (reduce register db new-graphs)))
      {[0 0] #{[]}};; we need to start somewhere, though not a valid example
      (range (inc (* M M))))))
@@ -97,7 +98,7 @@
 ;;timing runs and printing extra information about the totals
 ;; takes 6 seconds for m=4, half an hour for m=5 on an M1 Pro MacBook
 (time
- (let [m 6
+ (let [m 4
        db (all-type-arrow-semigroupoids m)]
    (doseq [n (range 1 (inc (* m m)))]
      (println n "arrows" (count (n-arrow-graphs db n))))
