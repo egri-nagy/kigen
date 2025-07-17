@@ -25,7 +25,7 @@
         (nth row b)))))
 
 (defn composo
-  "This goal succeeds if a composed with b is ab in the composition table S."
+  "Succeeds if `a` composed with `b` is `ab` in the composition table `S`."
   [S a b ab]
   (l/fresh
    [row]
