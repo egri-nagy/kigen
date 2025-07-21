@@ -38,6 +38,10 @@
    [:n :n :n :n :n :n :n 7 8 9 13 11 10 12 14]
    [:n :n :n :n :n :n :n 7 8 9 14 11 9 11 14]])
 
+(def FF [[0 1 2] ;the flip-flop semigroup, famous in automata theory
+         [1 1 2]
+         [2 1 2]])
+
 (deftest composo-test
   (testing "Testing the goal composo"
      ;what pairs produce 3?
