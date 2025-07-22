@@ -21,12 +21,9 @@
   "Returns the multiplication table of the elements `xs` by the function `mul`.
   The order of elements in xs is preserved and used to define indices."
   [xs mul]
-  (let [indx (zipmap xs (range (count xs)))]
+  (let [indx (zipmap xs (range (count xs)))] ;elt -> index
     (mapv
-     (fn [x] (->> xs
-                  (map #(mul % x)) ;left multiplication by x
-                  (map indx) ;elt -> index
-                  (vec)))
+     (fn [x] (mapv (comp indx (partial mul x)) xs))
      xs)))
 
 (defn elts
