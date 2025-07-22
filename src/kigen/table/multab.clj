@@ -5,7 +5,7 @@
   so multiplication is just a constant-time look up.
   Functionality for multiplying subsets of elements and computing closures
   and thus enumerating subsemigroups. The subsemigroups can be stored in
-  efficient int-sets."
+  efficient int-sets." ;todo: maybe semigroup is too specific here
   (:require [clojure.set :refer [union subset?]]
             [orbit.core :refer [partial-orbit full-orbit pfull-orbit]]
             [kigen.semigroup.sgp :as sgp]
@@ -18,11 +18,10 @@
   `((~mt ~i) ~j))
 
 (defn multab
-  "Returns the multiplication table of the elements xs by the function mul.
+  "Returns the multiplication table of the elements `xs` by the function `mul`.
   The order of elements in xs is preserved and used to define indices."
   [xs mul]
-  (let [vxs (vec xs)
-        indx (zipmap vxs (range (count vxs)))]
+  (let [indx (zipmap xs (range (count xs)))]
     (mapv
      (fn [x] (->> xs
                   (map #(mul % x)) ;left multiplication by x
@@ -35,8 +34,6 @@
   The elements are just the set of indices from 0 to n-1 in an int-set."
   [mt]
     (i-m/dense-int-set (range (count mt))))
-
-(def elts-cached (memoize elts))
 
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."

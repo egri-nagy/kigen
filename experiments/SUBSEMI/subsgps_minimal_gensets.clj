@@ -42,6 +42,8 @@
     (doseq [pair (seq m)]
       (.write w (prn-str pair)))))
 
+(def elts-cached (memoize mt/elts))
+
 (defn extend-sub
   "Takes a subsemigroup-generator set pair and finds all the distinct subsemigroups
   obtained by throwing in one new element.
@@ -54,7 +56,7 @@
            [(crf (mt/closure mtS subsgp (i-m/dense-int-set [e]))) ;we compute conjrep
             (conj gens e)])) ;the gens may not generate the conjrep
    {} ;a map from subsgp to generating set
-   (i-m/difference (mt/elts-cached mtS) subsgp)))
+   (i-m/difference (elts-cached mtS) subsgp)))
 
 (defn layer
   "Takes a queue and a database, and returns an updated db and the newly
