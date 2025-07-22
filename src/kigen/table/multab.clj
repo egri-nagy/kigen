@@ -30,12 +30,12 @@
   "Returns the elements of the given multiplication table.
   The elements are just the set of indices from 0 to n-1 in an int-set."
   [mt]
-    (i-m/dense-int-set (range (count mt))))
+  (i-m/dense-int-set (range (count mt))))
 
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."
   [mt x]
-  (sgp/index-period x (fn [x y] (at mt x y))))
+  (sgp/index-period x (fn [x y] (at mt x y)))) ;can't use partial with macro
 
 (defn set-mul
   "Set-wise multiplication of subsets of a multab. For A and B it returns AB."
@@ -49,18 +49,19 @@
   (if (subset? X S)
     (i-m/dense-int-set)
     (let [T (i-m/union S X)]
-      (i-m/difference  (i-m/union (set-mul mt T X)
-                              (set-mul mt X T))
-                     T))))
+      (i-m/difference
+       (i-m/union (set-mul mt T X)
+                  (set-mul mt X T))
+       T))))
 
 (defn closure
   "It calculates the closure of base with elements in the set exts."
   ([mt exts] (closure mt (i-m/dense-int-set) exts))
   ([mt base exts]
    (letfn
-       [(finished? [[_ exts]] (empty? exts))
-        (extend [[base exts]]
-          #{[(i-m/union base exts) (newelements mt base exts)]})]
+    [(finished? [[_ exts]] (empty? exts))
+     (extend [[base exts]]
+       #{[(i-m/union base exts) (newelements mt base exts)]})]
      (first
       (partial-orbit [base exts] extend (constantly true) finished?)))))
 
@@ -69,10 +70,10 @@
   ([mt gens x] (in-closure? mt (i-m/dense-int-set) gens x))
   ([mt sgp gens x]
    (letfn
-       [(finished? [[sgp gens]]
-          (or (contains? sgp x) (contains? gens x)))
-        (extend [[sgp gens]]
-          #{[(union sgp gens) (newelements mt sgp gens)]})]
+    [(finished? [[sgp gens]]
+       (or (contains? sgp x) (contains? gens x)))
+     (extend [[sgp gens]]
+       #{[(union sgp gens) (newelements mt sgp gens)]})]
      (some?
       (partial-orbit [sgp gens] extend (constantly true) finished?)))))
 
