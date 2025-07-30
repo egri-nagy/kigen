@@ -46,8 +46,8 @@
   "For a subsemigroup S and a subset X in mt this returns the elements
   ((S U X)X U X(S U X)) setminus (S U X)."
   [mt S X]
-  (if (subset? X S)
-    (i-m/dense-int-set)
+  (if (subset? X S) ;here we use the fact S is closed
+    (i-m/dense-int-set) ;no new elements if all X in S
     (let [T (i-m/union S X)]
       (i-m/difference
        (i-m/union (set-mul mt T X)
@@ -55,17 +55,20 @@
        T))))
 
 (defn closure
-  "It calculates the closure of base with elements in the set exts."
+  "It calculates the closure of base with elements in the set exts.
+   When base is not given, empty set is used.
+   Closure is done by creating an orbit of [base newelements] pairs."
+  ;todo: verify behaviour when some of exts is already in base
   ([mt exts] (closure mt (i-m/dense-int-set) exts))
   ([mt base exts]
    (letfn
-    [(finished? [[_ exts]] (empty? exts))
+    [(finished? [[_ exts]] (empty? exts)) ;stop when there are no new elements
      (extend [[base exts]]
        #{[(i-m/union base exts) (newelements mt base exts)]})]
      (first
       (partial-orbit [base exts] extend (constantly true) finished?)))))
 
-(defn in-closure?
+(defn in-closure? ;todo used by igs.clj, so it belongs there
   "Returns true if an element x is in the closure of sgp by gens"
   ([mt gens x] (in-closure? mt (i-m/dense-int-set) gens x))
   ([mt sgp gens x]
@@ -78,7 +81,7 @@
       (partial-orbit [sgp gens] extend (constantly true) finished?)))))
 
 (defn min-extensions
-  "Returns the minimal extensions (by new element) of closed subarray of
+  "Returns the minimal extensions (by a new element) of a closed subarray of
   multiplication table mt."
   [mt elts closedsub]
   (let [reducef (fn
