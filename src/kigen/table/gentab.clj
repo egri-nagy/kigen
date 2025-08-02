@@ -14,8 +14,7 @@
         gt (vec (pmap ; targeting big semigroups
                  (fn [x] (->> gens
                               (map (partial mul x))
-                              (map indices)
-                              (vec)))
+                              (mapv indices)))
                  elts))]
     (->Sgp (range (count gens)) ;generators
            (fn [x y] ((gt x) y))))) ;multiplication
