@@ -105,7 +105,9 @@
         (let [n (dec (count coords))
               prevmorphs (pop morphs)
               coordval (coords n)]
-          (if (< coordval (dec (count (tgs n))))
+          (if-not (< coordval (dec (count (tgs n))))
+            (recur prevmorphs ;backtrack
+                   (pop coords))
             (let [g (nth Sgens n)
                   ncoord (inc coordval)
                   G ((tgs n) ncoord)
@@ -122,9 +124,7 @@
                 (= (count coords) N) nphi
                 ;not a solution, but good, so add a new generator
                 :else (recur (conj (conj prevmorphs nphi) nil)
-                             (conj (conj (pop coords) ncoord) -1))))
-            (recur prevmorphs
-                   (pop coords))))))))
+                             (conj (conj (pop coords) ncoord) -1))))))))))
 
 (defn call-embedding
   [Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
