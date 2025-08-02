@@ -26,13 +26,13 @@
                       x
                       (range (dec n))))
         check (fn [x]
-                (let [[i p] (sgp/index-period x t/mul)]
+                (let [[i p] (sgp/index-period t/mul x)]
                   (and (= (pow x i) (pow x (+ i p)))
                        (= (dec (+ i p))
                           (count (sgp/sgp-by-gens [x] t/mul))))))]
       (testing "Testing index-period."
-        (is (= [4 1] (sgp/index-period [1 1 3 0 2] t/mul)))
-        (is (= [1 1] (sgp/index-period [0 1 2 3 4 5 6 7] t/mul)))
+        (is (= [4 1] (sgp/index-period t/mul [1 1 3 0 2])))
+        (is (= [1 1] (sgp/index-period t/mul [0 1 2 3 4 5 6 7])))
         (is (every? check [[0 0 0]
                            [2 1 3 0]
                            [2 1 2 1 2 1 2]

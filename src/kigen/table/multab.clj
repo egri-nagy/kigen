@@ -35,7 +35,7 @@
 (defn index-period
   "The index-period pair of integers in a vector in a multiplication table."
   [mt x]
-  (sgp/index-period x (fn [x y] (at mt x y)))) ;can't use partial with macro
+  (sgp/index-period (fn [x y] (at mt x y)) x)) ;can't use partial with macro
 
 (defn set-mul
   "Set-wise multiplication of subsets of a multab. For A and B it returns AB."

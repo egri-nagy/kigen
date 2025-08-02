@@ -42,8 +42,8 @@
 
 (defn index-period
   "The index-period pair of integers in a vector for a given semigroup
-  element x with multiplication mul."
-  [x mul]
+   with multiplication `mul` and for a given element `x`. "
+  [mul x]
   (let [xmul (right-action mul x)]
     (loop [elt->idx {x 1} ;map semigroup elements to their indices
            k 2            ;the index of the next element
