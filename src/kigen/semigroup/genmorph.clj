@@ -97,34 +97,35 @@
   [Sgens Smul tgs Tmul]
   (trace (str "Number of targets:" (vec (map count tgs))))
   (let [N (count Sgens)] ;; the max number of levels
-    (loop [morphs [{} nil]
+    (loop [n 0 ;the number of generators mapped so far
+           morphs [{}] ;the partial morphisms up to this, so (morphs n) is the map after n generators mapped
            coords [-1]]
       (println coords)
-      (when-not (empty? coords) ;when empty, we just return nil
+      (when-not (< n 0) ;when bactracked too far, we just return nil
         ;; we try the next coordinate value if available, if not back one level
-        (let [n (dec (count coords))
-              prevmorphs (pop morphs)
-              coordval (coords n)]
-          (if-not (< coordval (dec (count (tgs n))))
-            (recur prevmorphs ;backtrack
-                   (pop coords))
-            (let [g (nth Sgens n)
-                  ncoord (inc coordval)
-                  G ((tgs n) ncoord)
-                  ngens (take (inc n) Sgens)
-                  phi (peek prevmorphs)
-                  nphi (add-gen-and-close phi g G ngens Smul Tmul)]
+        (if-not (< (coords n) (dec (count (tgs n))))
+          (recur (dec n) ;backtrack
+                 (pop morphs)
+                 (pop coords))
+          (let [g (nth Sgens n)
+                ncoord (inc (coords n))
+                G ((tgs n) ncoord)
+                ngens (take (inc n) Sgens)
+                phi (peek morphs)
+                nphi (add-gen-and-close phi g G ngens Smul Tmul)]
               ;(println nphi)
-              (cond
+            (cond
                 ;when we don't have a a good new phi
-                (or (nil? nphi)
-                    (not (bijective? nphi))) (recur (conj prevmorphs nil)
-                                                    (conj (pop coords) ncoord))
+              (or (nil? nphi)
+                  (not (bijective? nphi))) (recur n
+                                                  morphs
+                                                  (conj (pop coords) ncoord))
                 ;if it is a solution, just return it
-                (= (count coords) N) nphi
+              (= (count coords) N) nphi
                 ;not a solution, but good, so add a new generator
-                :else (recur (conj (conj prevmorphs nphi) nil)
-                             (conj (conj (pop coords) ncoord) -1))))))))))
+              :else (recur (inc n) 
+                           (conj morphs nphi)
+                           (conj (conj (pop coords) ncoord) -1)))))))))
 
 (defn call-embedding
   [Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
