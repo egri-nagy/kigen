@@ -6,7 +6,8 @@
   table containing all the images of right multiplication by generators).
   The elements of target semigroups are classified by their index-periods in
   order to find possible targets for generators."
-  (:require [kigen.semigroup.sgp :refer [sgp-by-gens index-period ->Sgp]]
+  (:require [kigen.semigroup.sgp :refer [sgp-by-gens index-period]]
+            [kigen.table.gentab :refer [gentab]]
             [orbit.core :refer [ptree-search-depth-first]] ;tree-search for single-threaded execution
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]
@@ -18,25 +19,7 @@
          embeddings ;; high-level function for finding embeddings
          embeddings-distinct
          sgp-embeddings-by-gens ;;main entry point
-         index-period-matched
-         gentab) ;;preparation
-
-(defn gentab
-  "Right generation table for semigroup given by generator elements and
-  multiplication. Returns the generators (integers 0,..,n-1) and the
-   multiplication by generators function."
-  [gens mul]
-  (let [S (sgp-by-gens gens mul)
-        elts (vec (concat gens (remove (set gens) S))) ;generators first
-        indices (zipmap elts (range (count elts))) ;elts -> indices 
-        gt (vec (pmap ; targeting big semigroups
-                 (fn [x] (->> gens
-                              (map (partial mul x))
-                              (map indices)
-                              (vec)))
-                 elts))]
-    (->Sgp (range (count gens)) ;generators
-           (fn [x y] ((gt x) y))))) ;multiplication
+         index-period-matched) ;;preparation
 
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
