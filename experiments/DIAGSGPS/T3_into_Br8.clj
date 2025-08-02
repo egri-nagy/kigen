@@ -1,9 +1,9 @@
 ;; counting the embeddings of T3 into Br8
-(require '[kigen.transf :as t]
-         '[kigen.pbr :as pbr]
+(require '[kigen.diagram.transf :as t]
+         '[kigen.diagram.pbr :as pbr]
          '[kigen.diagram.brauer :as br]
-         '[kigen.sgp :as sgp]
-         '[kigen.genmorph :as gmorph]
+         '[kigen.semigroup.sgp :as sgp]
+         '[kigen.semigroup.genmorph :as gmorph]
          '[clojure.pprint :refer [pprint]]
          '[taoensso.timbre :as timbre])
 
@@ -23,4 +23,4 @@
 (binding [orbit.extension/*task-size* 64]
   (println (first
             (gmorph/call-embedding [[1 2 0] [0 0 2]] t/mul
-                                   (br/brauer-gens 8) br/mul))))
+                                   (br/brauer-gens 5) br/mul))))
