@@ -28,7 +28,7 @@
   (let [S-index-period (partial index-period Smul)
         T-index-period (partial index-period Tmul)
         T (sgp-by-gens Tgens Tmul)
-        Tip->Tset (group-by T-index-period T)]
+        Tip->Tset (group-by T-index-period T)] ;todo: wasteful collection!
     (mapv Tip->Tset (map  S-index-period Sgens))))
 
 (defn sgp-embeddings-by-gens
@@ -62,29 +62,29 @@
 (defn embeddings
   "All embeddings of source semigroup into target induced by the possible
   images of the generators."
-  [Sgens Smul tgs Tmul]
-  (trace (str "Number of targets:" (vec (map count tgs))))
+  [Sgens Smul targets Tmul]
+  (trace (str "Number of targets:" (vec (map count targets))))
   (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, phi - morph
         generator (fn [[n phi :as v]]
                     (if (solution? v)
                       []
                       (let [g (nth Sgens n)
                             ngens (take (inc n) Sgens)
-                            f (fn [G] ; G is the candidate generator in G
-                                (when-not (some #{G} (vals phi)) ;no dups!
-                                  (add-gen-and-close phi g G
-                                                     ngens
-                                                     Smul Tmul)))
+                            addgen (fn [G] ; G is the candidate generator in G
+                                     (when-not (some #{G} (vals phi)) ;no dups!
+                                       (add-gen-and-close phi g G
+                                                          ngens
+                                                          Smul Tmul)))
                             result (r/reduce
-                                    (fn [coll phi]
-                                      (conj coll [(inc n) phi]))
+                                    (fn [coll phi] (conj coll [(inc n) phi]))
                                     []
-                                    (r/filter bijective? ; we may get dups!
-                                              (r/remove nil?
-                                                        (r/map f (nth tgs n)))))]
+                                    (->>
+                                     (r/map addgen (nth targets n))
+                                     (r/remove nil?)
+                                     (r/filter bijective?)))]
                         (trace (str "#gens:" n
                                     " #phi:" (count phi)
-                                    " #targets:" (count (nth tgs n))
+                                    " #targets:" (count (nth targets n))
                                     " #extensions:" (count result)))
                         result)))]
     (map second ; get the phi's
