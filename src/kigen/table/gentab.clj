@@ -10,7 +10,7 @@
   [gens mul]
   (let [S (sgp-by-gens gens mul)
         elts (vec (concat gens (remove (set gens) S))) ;generators first
-        indices (zipmap elts (range (count elts))) ;elts -> indices 
+        indices (zipmap elts (range)) ;elts -> indices
         gt (vec (pmap ; targeting big semigroups
                  (fn [x] (->> gens
                               (map (partial mul x))
