@@ -204,7 +204,9 @@
     (morphisms-up-to-conjugation morphs (:setconjrep conj-fn-bundle))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Cayley graph morph matching                                                ;;
+;; Cayley graph morphic matching                                              ;;
+;; input: a new mapping of a generator [g G]
+;; output: the extended induced homomorphism, if possible 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn add-gen-and-close
@@ -216,12 +218,14 @@
   (let [ephi (conj phi [g G])
         res (sys-mul ephi (keys ephi) [g] Smul Tmul)] ;phase 1
     (when-not (nil? res)
-      (loop [ephi (:phi res) newelts (conj (:new res) g)]
+      (loop [ephi (:phi res) ;the extended phi
+             newelts (conj (:new res) g)] ;the new elements to be extended
         (if (empty? newelts)
           ephi
           (let [res (sys-mul ephi newelts ngens Smul Tmul)]
             (when-not (nil? res)
-              (recur (:phi res) (:new res)))))))))
+              (recur (:phi res)
+                     (:new res)))))))))
 
 (defn sys-mul
   "Systematic right multiplication of elts by gens and collecting new elements.
@@ -243,19 +247,16 @@
                            (rest pairs)))))))
 
 (defn new-mapping
-  "Attempt to extends the morphism phi for the product of element a by generator
-  g and finding phi(ag). The product ag may be known or a new one.
-  If phi(ag) is already known and it is morphic, then an empty vector is
-  returned. 
-  If it is newly found, it gives a vector [ag phi(ag)],
-  that can be conjoined to phi.
+  "Attempt to extends the morphism `phi` for the product of element `a` by
+   generator `g` (both known by phi). The product ag may be known or a new one.
+  If phi(ag) is already known and morphic, then an empty vector is returned. 
+  If it is newly found, it gives a vector [ag phi(ag)], to conjoin to phi.
   If it is not homomorphic, nil is returned.
-  phi - morphism represented as a map
-  a,g - elements of S  already in phi, g is a generator
-  mulS, mulT - multiplication in S and T"
+  In short, outputs can be nil, [], or [ag phi(ag)].
+  `mulS`, `mulT` - multiplication in source S and  in target T"
   [phi [a g] mulS mulT]
-  (let [ag (mulS a g)
-        AG (mulT (phi a) (phi g))]
-    (if (contains? phi ag)
-      (when (= AG (phi ag)) [])
-      [ag AG])))
+  (let [ag (mulS a g) ;the product in S
+        AG (mulT (phi a) (phi g))] ;the product in T
+    (if (contains? phi ag) ;does phi know this product in S? i.e., has it as a key
+      (when (= AG (phi ag)) []) ;morphic? i.e. compatible, nil otherwise
+      [ag AG]))) ;to be added to phi
