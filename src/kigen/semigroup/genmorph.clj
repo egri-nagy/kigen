@@ -210,41 +210,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn add-gen-and-close
-  "Add a new generator and close the Cayley-graph.
-  There are two phases for adding a new generator
-  1. we multiply everything (including itself) by the new generator only
-  2. for any new elements generated we go through with all generators so far"
+  "Add a new generator and close the Cayley-graph."
   [phi g G ngens Smul Tmul]
-  (let [ephi (conj phi [g G])
-        res (sys-mul ephi (keys ephi) [g] Smul Tmul)] ;phase 1
-    (when-not (nil? res)
-      (loop [ephi (:phi res) ;the extended phi
-             newelts (conj (:new res) g)] ;the new elements to be extended
-        (if (empty? newelts)
-          ephi
-          (let [res (sys-mul ephi newelts ngens Smul Tmul)]
-            (when-not (nil? res)
-              (recur (:phi res)
-                     (:new res)))))))))
-
-(defn sys-mul
-  "Systematic right multiplication of elts by gens and collecting new elements.
-  Elts and gens are all in phi already. Phi is being built along the way
-  but new elements need proper extension later, that's why they are collected."
-  [phi elts gens Smul Tmul]
-  (loop [phi phi
-         newelts [] ;newly generated elements
-         pairs (for [a elts g gens] [a g])] ;possible a,g pairs for products
-    (if (empty? pairs)
-      {:phi phi :new newelts}
-      (let [p (new-mapping phi (first pairs) Smul Tmul)]
-        (cond (nil? p) nil ;not morphic
-              (empty? p) (recur phi ;we know the product, it is morphic
-                                newelts
-                                (rest pairs))
-              :else (recur (conj phi p) ;we extended phi
-                           (conj newelts (first p))
-                           (rest pairs)))))))
+  (let [new-mapping-fn (partial new-mapping Smul Tmul)]
+    (loop [ephi (conj phi [g G]) ;todo clarify what is in ngens
+           pairs (into (mapv (fn [a] [a g]) (keys phi))
+                       (mapv (fn [h] [g h]) ngens))] ;includes [g g]
+      (if (empty? pairs)
+        ephi
+        (let [p (new-mapping-fn ephi (peek pairs))]
+          (cond (nil? p) nil ;not morphic
+                (empty? p) (recur ephi ;we know the product and it is morphic
+                                  (pop pairs))
+                :else (recur (conj ephi p) ;we extended phi 
+                             (into (pop pairs)
+                                   (for [g ngens] [(first p) g])))))))))
 
 (defn new-mapping
   "Attempt to extends the morphism `phi` for the product of element `a` by
@@ -254,7 +234,7 @@
   If it is not homomorphic, nil is returned.
   In short, outputs can be nil, [], or [ag phi(ag)].
   `mulS`, `mulT` - multiplication in source S and  in target T"
-  [phi [a g] mulS mulT]
+  [mulS mulT phi [a g]]
   (let [ag (mulS a g) ;the product in S
         AG (mulT (phi a) (phi g))] ;the product in T
     (if (contains? phi ag) ;does phi know this product in S? i.e., has it as a key
