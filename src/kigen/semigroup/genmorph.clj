@@ -167,8 +167,8 @@
   of the image set, then by its conjugacy class representative."
   [morphs setconjrep]
   (->> morphs
-       (class-reps (comp set vals))
-       (class-reps (comp setconjrep vals))))
+       (class-reps (comp set vals :phi))
+       (class-reps (comp setconjrep vals :phi))))
 
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation. For the very first
@@ -193,33 +193,31 @@
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul conj-fn-bundle]
-  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n #generators, phi morphs
-        generator (fn [[n phi :as v]]
-                    (if (solution? v)
+  (let [solution? (fn [M] (= (count (:Sgens M)) (count Sgens)))
+        generator (fn [{phi :phi :as M}]
+                    (if (solution? M)
                       []
-                      (let [ngens (new-generator-conjreps phi n Sgens tgs
+                      (let [n (count (:Sgens M))
+                            ngens (new-generator-conjreps phi n Sgens tgs
                                                           conj-fn-bundle)
                             check-gen (fn [newmorphs ngen]
-                                        (let [gens (take (inc n) Sgens)
-                                              nmorph (add-gen-and-close
-                                                      phi
-                                                      (nth Sgens n)
-                                                      ngen
-                                                      gens
-                                                      Smul
-                                                      Tmul)]
-                                          (if (and (coll? nmorph)
-                                                   (bijective? nmorph)) ;iso?
-                                            (conj newmorphs [(inc n) nmorph])
+                                        (let [nM (add-gen-and-close
+                                                  M
+                                                  (nth Sgens n)
+                                                  ngen)]
+                                          (if (and (coll? nM)
+                                                   (bijective? (:phi nM))) ;iso?
+                                            (conj newmorphs nM)
                                             newmorphs)))
                             result (reduce check-gen [] ngens)]
                         (trace (count phi) "elts in phi,"
                                (count ngens) "targets for gen" n ","
                                (count result) "realized" (mem-info))
                         result)))
-        morphs (map second (ptree-search-depth-first [[0 {}]]
-                                                     generator
-                                                     solution?))]
+        morphs (ptree-search-depth-first
+                [{:phi {} :Sgens [] :Smul Smul :Tmul Tmul}]
+                generator
+                solution?)]
     (trace (count morphs) "morphisms found." (mem-info))
     (morphisms-up-to-conjugation morphs (:setconjrep conj-fn-bundle))))
 
