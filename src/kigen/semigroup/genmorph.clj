@@ -73,31 +73,32 @@
   images of the generators."
   [Sgens Smul targets Tmul]
   (trace (str "Number of targets:" (vec (map count targets))))
-  (let [solution? (fn [[n _]] (= n (count Sgens))) ;n - #generators, phi - morph
-        generator (fn [[n phi :as v]]
-                    (if (solution? v)
+  (let [solution? (fn [M] (= (count (:Sgens M)) (count Sgens)))
+        generator (fn [{phi :phi :as M}]
+                    (if (solution? M)
                       []
-                      (let [g (nth Sgens n)
-                            ngens (take (inc n) Sgens)
+                      (let [n (count (:Sgens M))
+                            g (nth Sgens n)
                             addgen (fn [G] ; G is the candidate generator in G
                                      (when-not (some #{G} (vals phi)) ;no dups!
-                                       (add-gen-and-close phi g G
-                                                          ngens
-                                                          Smul Tmul)))
+                                       (add-gen-and-close M g G)))
                             result (r/reduce
-                                    (fn [coll phi] (conj coll [(inc n) phi]))
+                                    conj
                                     []
                                     (->>
                                      (r/map addgen (nth targets n))
                                      (r/remove nil?)
-                                     (r/filter bijective?)))]
+                                     (r/filter (comp bijective? :phi))))]
                         (trace (str "#gens:" n
                                     " #phi:" (count phi)
                                     " #targets:" (count (nth targets n))
                                     " #extensions:" (count result)))
                         result)))]
-    (map second ; get the phi's
-         (ptree-search-depth-first [[0 {}]] generator solution?))))
+    (map gen-map
+     (ptree-search-depth-first
+      [{:phi {} :Sgens [] :Smul Smul :Tmul Tmul}] ;empty M
+      generator
+      solution?))))
 
 
 (defn embedding-backtrack
