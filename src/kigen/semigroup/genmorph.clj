@@ -24,6 +24,12 @@
          sgp-embeddings-by-gens ;;main entry point
          index-period-matched) ;;preparation
 
+(defn gen-map
+  "Extracts the mappings of the S generators to T generators from a Cayley
+   graph morphic match."
+  [{phi :phi gens :Sgens}]
+  (zipmap gens (map phi gens)))
+
 (defn index-period-matched
   "Returns for each generator in S, the elements of T with matching index-period
   values. WARNING: It fully enumerates T."
@@ -94,50 +100,60 @@
          (ptree-search-depth-first [[0 {}]] generator solution?))))
 
 
-(defn embedding
+(defn embedding-backtrack
   "Finding an embedding of source semigroup into target induced by the possible
-  images of the generators by a backtrack algorithm."
-  [Sgens Smul tgs Tmul]
+  images of the generators by a backtrack algorithm.
+  If `all?` is set, it returns the collection of solutions, otherwise just a
+  single solution found first."
+  [Sgens Smul tgs Tmul all?]
   (trace (str "Number of targets:" (vec (map count tgs))))
   (let [N (count Sgens)] ;; the max number of levels
     (loop [n 0 ;the number of generators mapped so far
-           morphs [{}] ;the partial morphisms up to this, so (morphs n) is the map after n generators mapped
-           coords [-1]]
-      (println coords)
-      (when-not (< n 0) ;when bactracked too far, we just return nil
-        ;; we try the next coordinate value if available, if not back one level
+           morphs [{:phi {} :Sgens [] :Smul Smul :Tmul Tmul}] ;empty morph match
+           coords [-1] ;placeholder value, when inc-ed, it points to valid 0th
+           solutions []]
+      (if (< n 0) ;when bactracked too far, return the solutions
+        solutions
+        ;; we try the next coordinate value if available
         (if-not (< (coords n) (dec (count (tgs n))))
-          (recur (dec n) ;backtrack
+          (recur (dec n) ;backtrack when no more coordinate values available
                  (pop morphs)
-                 (pop coords))
+                 (pop coords)
+                 solutions)
           (let [g (nth Sgens n)
                 ncoord (inc (coords n))
                 G ((tgs n) ncoord)
-                ngens (take (inc n) Sgens)
-                phi (peek morphs)
-                nphi (add-gen-and-close phi g G ngens Smul Tmul)]
-              ;(println nphi)
+                M (peek morphs)
+                nM (add-gen-and-close M g G)]
             (cond
-                ;when we don't have a a good new phi
-              (or (nil? nphi)
-                  (not (bijective? nphi))) (recur n
-                                                  morphs
-                                                  (conj (pop coords) ncoord))
-                ;if it is a solution, just return it
-              (= (count coords) N) nphi
+                ;when we don't have a a good new phi, just go next coordval
+              (or (nil? nM) (not (bijective? (:phi nM))))
+              (recur n
+                     morphs
+                     (conj (pop coords) ncoord)
+                     solutions)
+                ;if it is a solution, just return it or collect it
+              (= (count coords) N)
+              (if all?
+                (recur n ;collecting all solutions, so move on
+                       morphs
+                       (conj (pop coords) ncoord)
+                       (conj solutions (gen-map nM)))
+                (gen-map nM)) ;the first solution
                 ;not a solution, but good, so add a new generator
               :else (recur (inc n)
-                           (conj morphs nphi)
-                           (conj (conj (pop coords) ncoord) -1)))))))))
+                           (conj morphs nM)
+                           (conj (conj (pop coords) ncoord) -1)
+                           solutions))))))))
 
 (defn call-embedding
   [Sgens Smul Tgens Tmul] ; ALL EMBEDDINGS
   (let [{mSgens :gens mSmul :mul} (gentab Sgens Smul)]
     (map (fn [m] (zipmap Sgens (map m mSgens))) ; mappings of the generators
-         (embedding mSgens
-                    mSmul
-                    (index-period-matched mSgens mSmul Tgens Tmul)
-                    Tmul))))
+         (:phi (embedding-backtrack mSgens
+                                    mSmul
+                                    (index-period-matched mSgens mSmul Tgens Tmul)
+                                    Tmul)))))
 
 (defn class-reps
   "Classifies the elements of coll by function f and keeps only
@@ -214,13 +230,14 @@
 
 (defn add-gen-and-close
   "Add a new generator and close the Cayley-graph."
-  [phi g G ngens Smul Tmul] ;todo just to have a map and the g G pair as input
-  (let [new-mapping-fn (partial new-mapping Smul Tmul)]
-    (loop [ephi (conj phi [g G]) ;todo clarify what is in ngens
+  [{phi :phi gens :Sgens :as M} g G] ;todo just to have a map and the g G pair as input
+  (let [new-mapping-fn (partial new-mapping (:Smul M) (:Tmul M))
+        ngens (conj gens g)]
+    (loop [ephi (conj phi [g G])
            pairs (into (mapv (fn [a] [a g]) (keys phi))
                        (mapv (fn [h] [g h]) ngens))] ;includes [g g]
       (if (empty? pairs)
-        ephi
+        (-> M (assoc :phi ephi) (assoc :Sgens ngens)) ;the updated M
         (let [p (new-mapping-fn ephi (peek pairs))]
           (cond (nil? p) nil ;not morphic
                 (empty? p) (recur ephi ;we know the product and it is morphic
