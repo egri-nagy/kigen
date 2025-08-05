@@ -54,24 +54,29 @@
 
 ;;;;; New canonical labeling algorithms ;;;;;;;;;;;;;;;;;;;;;;;
 (defn canonical-labeling
-  "Canonical labeling of a sequence `t`."
+  "Canonical labeling of a sequence `t`. The elements of the sequence get
+   converted to non-negative integers in ascending order. A hash-map is
+   constructed to map elements to integers bijectively.
+   `PL`, a data structure for representing a partial labeling can be given in
+   the form [mappings next-available-integer]. It can be used for canonical
+   labeling of several sequences."
   ([t] (canonical-labeling [{} 0] t))
-  ([CL t] ; canonical labeleing data can be given
+  ([PL t] ; canonical labeling data can be given
    (reduce
-    (fn [[perm available] point]
-      (if (contains? perm point)
-        [perm available]
-        [(conj perm [point available]) (inc available)]))
-    CL
+    (fn [[mappings available] element]
+      (if (contains? mappings element)
+        [mappings available]
+        [(conj mappings [element available]) (inc available)]))
+    PL
     t)))
 
 (defn seq-canonical-labeling
   "Canonical labeling of a sequence of sequences."
-  [ts]
+  [tseq]
   (let [[p _] (reduce canonical-labeling
-                      (canonical-labeling (first ts))
-                      (rest ts))]
-    [(mapv (partial mapv p) ts)
+                      (canonical-labeling (first tseq))
+                      (rest tseq))]
+    [(mapv (partial mapv p) tseq)
      p]))
 
 
@@ -92,8 +97,8 @@
 (boo [[] ts [{} 0]])
 
 (defn set-canonical-labeling
-  [ts]
-  (loop [labelings [[[] ts [{} 0]]]]
+  [tset]
+  (loop [labelings [[[] tset [{} 0]]]]
     (if (empty? (second (first labelings)))
       (map (fn [[rep _ p]] [rep p]) labelings)
       (let [nlabelings (mapcat boo labelings)
