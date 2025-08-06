@@ -1,6 +1,8 @@
 (ns kigen.canonical-labeling
-  "For direct computations of canonical labelings of sequences.")
+  "For direct computations of canonical labelings of sequences.
+   Functions can be continued from partial labelings.")
 
+;; Canonical labeling of a sequence
 (defn can-lab-seq
   "Canonical labeling of a sequence `s`. The elements of the sequence get
    converted to non-negative integers in ascending order. A hash-map is
@@ -18,10 +20,14 @@
     PL
     s)))
 
+;; Canonical form of a sequence
 (defn can-seq
-  [s]
-  (let [[m _] (can-lab-seq s)]
-    (mapv m s)))
+  "Returns the canonical form of a sequence `s`. It can be continued from a
+   partial labeling `PL`."
+  ([s] (can-seq [{} 0] s))
+  ([PL s]
+   (let [[m _] (can-lab-seq PL s)]
+     (mapv m s))))
 
 (defn can-lab-seq-seq
   "Canonical labeling of a sequence of sequences. It simply threads partial
