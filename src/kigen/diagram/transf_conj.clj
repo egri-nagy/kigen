@@ -22,6 +22,7 @@
   a single point to two images.
   An extended hashmap is returned if it is possible, otherwise nil."
   [m d p]
+  ;(print "m" m "d" d "p" p)
   (let [nmappings (distinct (map vector m d))]
     (when (and
            (apply distinct? (map second nmappings)) ;any contradicting maps?
@@ -37,6 +38,7 @@
   "All realizations of a desired map d using available mappings, compatible with
   partial permutation p. Just systematically trying to realize all mappings."
   [mappings p d]
+  (println "mappings" mappings "p" p "d" d)
   (reduce
    (fn [psols m]
      (let [res (realize-a-mapping m d p)]

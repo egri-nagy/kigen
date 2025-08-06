@@ -1,6 +1,6 @@
 (ns kigen.canonical-labeling
   "For direct computations of canonical labelings of sequences. A transformation
-   is a sequence, for example.
+   is a sequence, for example. Non-morphic!
    Functions can be continued from partial labelings.")
 
 ;; Canonical labeling of a sequence

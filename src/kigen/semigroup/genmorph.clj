@@ -12,6 +12,7 @@
    :Sgens."
   (:require [kigen.semigroup.sgp :refer [sgp-by-gens index-period]]
             [kigen.table.gentab :refer [gentab]]
+            [kigen.canonical-labeling :refer [can-set-seq can-seq-seq can-lab-seq-seq can-seq]]
             [orbit.core :refer [ptree-search-depth-first]] ;tree-search for single-threaded execution
             [clojure.core.reducers :as r]
             [kigen.memory-info :refer [mem-info]]
@@ -170,6 +171,14 @@
        (class-reps (comp set vals :phi))
        (class-reps (comp setconjrep vals :phi))))
 
+(defn morphisms-up-to-conjugation2
+  "Returns the distinct morphs up to conjugation. First checking by the equality
+  of the image set, then by its conjugacy class representative."
+  [morphs setconjrep]
+  (->> morphs
+       (class-reps (comp set vals :phi))
+       (class-reps (comp can-set-seq vals :phi))))
+
 (defn new-generator-conjreps
   "Finds the possible target generators up to conjugation. For the very first
   generator it chooses conjugacy class representatives.
@@ -177,6 +186,7 @@
    but filter them with setwise conjugacy."
   [phi n Sgens tgs
    {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
+  (println "newgens!")
   (if (zero? n)
     (set (map repconj (first tgs)))
     (let [gens (mapv phi (take n Sgens))
@@ -190,9 +200,30 @@
           selected_seqs (class-reps setconjrep conjed_seqs)]
       (into #{} (r/map last selected_seqs))))) ;set does not work here
 
+(defn new-generator-conjreps2
+  "Finds the possible target generators up to conjugation. For the very first
+  generator it chooses conjugacy class representatives.
+   Strategy: compute conjugacy class reps for sequences,
+   but filter them with setwise conjugacy."
+  [phi n Sgens tgs
+   {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
+  (println "newgens2!")
+  (if (zero? n)
+    (set (map can-seq (first tgs)))
+    (let [gens (mapv phi (take n Sgens))
+          PL (can-lab-seq-seq gens)
+          conjed_seqs (r/map (partial can-seq-seq PL)
+                             (nth tgs n))
+          ;we need to keep distinct generator sets
+          grouped (group-by can-set-seq conjed_seqs)
+          selected_seqs (map first (vals grouped))]
+      (println "hey!" selected_seqs)
+      (into #{} (r/map last selected_seqs))))) ;set does not work here
+
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul conj-fn-bundle]
+  (println "start!")
   (let [solution? (fn [M] (= (count (:Sgens M)) (count Sgens)))
         generator (fn [{phi :phi :as M}]
                     (if (solution? M)
@@ -210,6 +241,7 @@
                                             (conj newmorphs nM)
                                             newmorphs)))
                             result (reduce check-gen [] ngens)]
+                        (println "" ngens)
                         (trace (count phi) "elts in phi,"
                                (count ngens) "targets for gen" n ","
                                (count result) "realized" (mem-info))
