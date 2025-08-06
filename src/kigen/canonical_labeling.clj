@@ -1,5 +1,6 @@
 (ns kigen.canonical-labeling
-  "For direct computations of canonical labelings of sequences.
+  "For direct computations of canonical labelings of sequences. A transformation
+   is a sequence, for example.
    Functions can be continued from partial labelings.")
 
 ;; Canonical labeling of a sequence
@@ -29,20 +30,24 @@
    (let [[m _] (can-lab-seq PL s)]
      (mapv m s))))
 
+;; Canonical labeling for a sequence of sequences
 (defn can-lab-seq-seq
   "Canonical labeling of a sequence of sequences. It simply threads partial
    labelings through the sequence by calling [[can-lab-seq]].
    It returns the labeling."
-  [sseq]
-  (let [[m _] (reduce can-lab-seq
-                      (can-lab-seq (first sseq))
-                      (rest sseq))]
-    m))
+  ([sseq] (can-lab-seq-seq [{} 0] sseq))
+  ([PL sseq]
+   (reduce can-lab-seq
+           PL
+           sseq)))
 
+;; Canonical form of a sequence of sequences
 (defn can-seq-seq
   "The canonical representation of a sequence of sequences."
-  [sseq]
-  (mapv (partial mapv (can-lab-seq-seq sseq)) sseq))
+  ([sseq] (can-seq-seq [{} 0] sseq))
+  ([PL sseq]
+   (mapv (partial mapv (first (can-lab-seq-seq PL sseq))) ;extract the hash-map
+         sseq)))
 
 (defn can-lab-set-seq
   "Canonical labeling of a set of sequences."
