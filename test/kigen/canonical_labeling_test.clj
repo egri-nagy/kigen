@@ -29,3 +29,20 @@
            [{1 31, 0 42, 2 43, 3 44} 45]))
     (is (= (can-seq-seq [{1 42} 100] [[1 1 0] [2 0 3]])
            [[42 42 100] [101 100 102]]))))
+
+(deftest can-set-seq-test
+  (testing "Testing canonical labeling and from for set of sequences."
+    ;can-lab- gives labeling info and the form, there can be many labelings
+    (is (can-lab-set-seq [[1 0 1] [2 1 1] [1 2 2]])
+        '(([{1 0, 0 1, 2 2} 3] [[0 1 0] [0 2 2] [2 0 0]])))
+    ;can- gives the form, and there is only one
+    (is (= (can-set-seq [[1 0 1] [2 1 1] [1 2 2]])
+           [[0 1 0] [0 2 2] [2 0 0]]))
+    ;worse case scenario, we get the symmetric group! 
+    (is (= (can-lab-set-seq [[2 2 2] [1 1 1] [0 0 0]])
+           '(([{2 0, 1 1, 0 2} 3] [[0 0 0] [1 1 1] [2 2 2]])
+             ([{2 0, 0 1, 1 2} 3] [[0 0 0] [1 1 1] [2 2 2]])
+             ([{1 0, 2 1, 0 2} 3] [[0 0 0] [1 1 1] [2 2 2]])
+             ([{1 0, 0 1, 2 2} 3] [[0 0 0] [1 1 1] [2 2 2]])
+             ([{0 0, 2 1, 1 2} 3] [[0 0 0] [1 1 1] [2 2 2]])
+             ([{0 0, 1 1, 2 2} 3] [[0 0 0] [1 1 1] [2 2 2]]))))))

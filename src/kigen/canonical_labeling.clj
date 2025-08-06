@@ -49,28 +49,30 @@
    (mapv (partial mapv (first (can-lab-seq-seq PL sseq))) ;extract the hash-map
          sseq)))
 
+;; Canonical labeling of a set of sequences
 (defn can-lab-set-seq
   "Canonical labeling of a set of sequences."
   [sset]
-  (let [boo (fn [[done waiting PL]]
+  (let [boo (fn [[waiting PL done]]
               (let [s2PL (zipmap waiting
                                  (map (partial can-lab-seq PL) waiting))
                     canon-form (fn [s] (mapv (first (s2PL s)) s))
                     cans2s (group-by canon-form waiting)
                     minrep (first (sort compare (keys cans2s)))]
                 (for [t (cans2s minrep)]
-                  [(conj done minrep)
-                   (remove #{t} waiting)
-                   (s2PL t)])))]
-    (loop [labelings [[[] sset [{} 0]]]] ;starting with the empty labeling
-      (if (empty? (second (first labelings))) ;i.e., done is empty
-        (map (fn [[rep _ p]] [rep p]) labelings) ;the output
+                  [(remove #{t} waiting)
+                   (s2PL t)
+                   (conj done minrep)])))]
+    (loop [labelings [[sset [{} 0] []]]] ;starting with the empty labeling
+      (if (empty? (first (first labelings))) ;i.e., waiting is empty
+        (map rest labelings) ;the output
         (let [nlabelings (mapcat boo labelings)
-              latest2labs (group-by (comp peek first) ;only the last can differ
+              latest2labs (group-by (comp peek peek) ;only the last can differ
                                     nlabelings)
               minrep (first (sort compare (keys latest2labs)))]
           (recur (latest2labs minrep)))))))
 
+;; Canonical form of a set of sequences
 (defn can-set-seq
   [sset]
-  (first (first (can-lab-set-seq sset))))
+  (second (first (can-lab-set-seq sset))))
