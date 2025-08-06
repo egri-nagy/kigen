@@ -9,11 +9,15 @@
               [clojure.set :refer [map-invert]]
               [clojure.data.int-map :refer [dense-int-set]]))
 
+(defn hash-map2perm
+  [m]
+  (mapv m (range (count m))))
+
 (defn single-maps
   "All mappings of a transformation in the form of [src img] extracted
   from a transformation t."
   [t]
-  (map vector (range (count t)) t))
+  (mapv vector (range (count t)) t))
 
 (defn realize-a-mapping
   "Given a mapping m and a desired mapping d, we try to turn the mapping m
@@ -22,23 +26,26 @@
   a single point to two images.
   An extended hashmap is returned if it is possible, otherwise nil."
   [m d p]
-  ;(print "m" m "d" d "p" p)
-  (let [nmappings (distinct (map vector m d))]
+  (print "" m "|->" d "p" p)
+  (let [nmappings (distinct (map vector m d))] ;[a b],[c d] |-> [a c] [b d]
+    ;(println "nmappings" nmappings)
     (when (and
            (apply distinct? (map second nmappings)) ;any contradicting maps?
            (every? (fn [[a b]]
+                     ;(println a b)
                      (if (contains? p a)
                        (= (p a) b) ;if we have it, it should match
                        (empty? (filter (partial = b) ;or none should map to it
                                        (vals p)))))
                    nmappings))
-      (into p nmappings))))
+      (do (println "yields" (into p nmappings))
+        (into p nmappings)))))
 
 (defn all-realizations
   "All realizations of a desired map d using available mappings, compatible with
   partial permutation p. Just systematically trying to realize all mappings."
   [mappings p d]
-  (println "mappings" mappings "p" p "d" d)
+  ;(println "mappings" mappings "p" p "d" d)
   (reduce
    (fn [psols m]
      (let [res (realize-a-mapping m d p)]
@@ -46,13 +53,13 @@
          psols
          (conj psols [(disj mappings m) res]))))
    []
-   mappings))
+   (sort mappings)))
 
 (defn conjrep
   "Direct construction of conjugacy class representative of transformation t."
   [t]
   (let [n (count t)
-        pts (reverse (range n)) ;we look for the minimal one and use stack
+        pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
         mappings (set (single-maps t))
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
@@ -72,7 +79,9 @@
                                           psols)
                            ntasks (when (not-empty npsols)
                                     (for [np pts] [(conj rep pt) npsols np]))]
+                       ;(println "ntasks" ntasks)
                        (recur (into (pop stack) ntasks))))))]
+    (println "initial stack" initial_stack)
     (search initial_stack)))
 
 (defn conjugators
@@ -88,11 +97,10 @@
                           [(rest tmaps) (disj rmaps rm) res]))))
         solutions (tree-search [ [tmaps rmaps {}] ]
                                extend
-                               #(empty? (first %)))]
-    (map (fn [perm]
-           (mapv perm (range (count t)))) ;creating the permutation vector
-         (map (fn [[_ _ perm]] perm) ;extracting the permutation (as hashmap)
-              solutions))))
+                               (comp empty? first))]
+    (map hash-map2perm ;creating the permutation vector
+     (map (fn [[_ _ perm]] perm) ;extracting the permutation (as hashmap)
+          solutions))))
 
 (defn setconjrep
   "Setwise conjugacy class representative of T.
