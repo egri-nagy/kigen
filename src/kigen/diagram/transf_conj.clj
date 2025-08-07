@@ -45,7 +45,8 @@
 
 (defn all-realizations
   "All realizations of a desired map `target` using available mappings in
-   `sources`, compatible with the partial permutation p. Just systematically trying to realize all mappings. It returns a vector of remaining sources -
+   `sources`, compatible with the partial permutation p. Just systematically
+   trying to realize all mappings. It returns a vector of remaining sources -
    extended permutation pairs."
   [sources p target]
   ;(println "mappings" mappings "p" p "d" d)
@@ -63,20 +64,20 @@
   [t]
   (let [n (count t)
         pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
-        mappings (set (single-maps t))
+        sources (set (single-maps t))
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
         ;;corresponding partial permutation
         initial_stack (mapv
-                       (fn [i]  [ [] [ [mappings {}] ] i])
+                       (fn [pt]  [ [] [ [sources {}] ] pt])
                        pts)
         search (fn [stack]
                  (let [[rep psols pt] (peek stack)
                        k (count rep)]
                    (if (= k n)
                      rep
-                     (let [npsols (mapcat (fn [[mappings pperm]]
-                                            (all-realizations mappings
+                     (let [npsols (mapcat (fn [[sources pperm]]
+                                            (all-realizations sources
                                                               pperm
                                                               [k pt]))
                                           psols)

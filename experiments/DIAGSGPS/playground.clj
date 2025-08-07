@@ -55,24 +55,26 @@
   "e"
   [s all?]
   (let [N (count s) ;; te number of points
-        mappings (set (t-c/single-maps s))]
+        ]
     ;(println "mappings" mappings)
     (loop [n 0 ;the number of mappings matched so far
            pperms [ {} ]
-           tgs [(targets N 0)]
+           sources [ (set (t-c/single-maps s))]
+           next-targets [[0 0]]
            solutions []]
       (println "n" n "pperms" pperms "tgs" tgs)
       (if (empty? pperms) ;when bactracked too far, return the solutions
         solutions
         ;; we try the next target
-        (if (empty? (peek tgs))
-          (recur (dec n) ;backtrack when no more targets
-                 (pop pperms)
-                 (pop tgs)
-                 solutions)
+        (if-not (< (first (peek next-targets)) N)
+          (recur (dec n) ;backtrack when no more targets, decrease n,
+                 (pop pperms) ;popping vectors
+                 (pop next-targets)
+                 (pop next-targets)
+                 solutions) ;solution just carried over
           (let [pperm (peek pperms)
                 ntg (first (peek tgs))
-                np (t-c/realize-a-mapping (mappings n) ntg pperm)]
+                np (t-c/realize-a-mapping (sources n) ntg pperm)]
             (println "got" np)
             (cond
               (nil? np) (recur n
@@ -143,7 +145,7 @@
       n (count m)]
   (mapv m (range n)))
 
-(t-c/conjrep [2 2 2])
+(t-c/conjrep [2 2 2 2])
 (count (t-c/conjugators [5 5 5 5 5 5] [0 0 0 0 0 0 ]))
 (t-c/conjugators [2 2 2] [0 1 0])
 
