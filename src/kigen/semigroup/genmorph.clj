@@ -186,7 +186,7 @@
    but filter them with setwise conjugacy."
   [phi n Sgens tgs
    {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
-  (println "newgens!")
+  ;(println "newgens!")
   (if (zero? n)
     (set (map repconj (first tgs)))
     (let [gens (mapv phi (take n Sgens))
@@ -207,7 +207,7 @@
    but filter them with setwise conjugacy."
   [phi n Sgens tgs
    {repconj :conjrep setconjrep :setconjrep conj-conj :conjconj}]
-  (println "newgens2!")
+  ;(println "newgens2!")
   (if (zero? n)
     (set (map can-seq (first tgs)))
     (let [gens (mapv phi (take n Sgens))
@@ -223,7 +223,7 @@
 (defn embeddings-distinct
   "All morphisms from embedding seeds, but lossy ones filtered out."
   [Sgens Smul tgs Tmul conj-fn-bundle]
-  (println "start!")
+  ;(println "start!")
   (let [solution? (fn [M] (= (count (:Sgens M)) (count Sgens)))
         generator (fn [{phi :phi :as M}]
                     (if (solution? M)
@@ -241,7 +241,7 @@
                                             (conj newmorphs nM)
                                             newmorphs)))
                             result (reduce check-gen [] ngens)]
-                        (println "" ngens)
+                        ;(println "" ngens)
                         (trace (count phi) "elts in phi,"
                                (count ngens) "targets for gen" n ","
                                (count result) "realized" (mem-info))

@@ -28,7 +28,7 @@
   a single point to two images.
   An extended hashmap is returned if it is possible, otherwise nil."
   [m d p]
-  (print "" m "|->" d "p" p)
+  ;(print "" m "|->" d "p" p)
   (let [nmappings (distinct (map vector m d))] ;[a b],[c d] |-> [a c] [b d]
     ;(println "nmappings" nmappings)
     (when (and
@@ -40,8 +40,10 @@
                        (empty? (filter (partial = b) ;or none should map to it
                                        (vals p)))))
                    nmappings))
-      (do (println "yields" (into p nmappings))
-        (into p nmappings)))))
+      ;(do (println "yields" (into p nmappings))
+        (into p nmappings)
+          ;)
+      )))
 
 (defn all-realizations
   "All realizations of a desired map `target` using available mappings in
@@ -68,10 +70,9 @@
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
         ;;corresponding partial permutation
-        initial_stack (mapv
-                       (fn [pt]  [ [] [ [sources {}] ] pt])
-                       pts)
+        initial_stack (mapv (fn [pt]  [ [] [ [sources {}] ] pt]) pts)
         search (fn [stack]
+                 (println (count stack) " ")
                  (let [[rep psols pt] (peek stack)
                        k (count rep)]
                    (if (= k n)
@@ -82,11 +83,13 @@
                                                               [k pt]))
                                           psols)
                            ntasks (when (not-empty npsols)
-                                    (for [np pts] [(conj rep pt) npsols np]))]
+                                    (for [np pts]
+                                      [(conj rep pt) npsols np]))]
                        ;(println "ntasks" ntasks)
                        (recur (into (pop stack) ntasks))))))]
-    (println "initial stack" initial_stack)
+    ;(println "initial stack" initial_stack)
     (search initial_stack)))
+
 
 (defn conjugators
   "All permutations that take t to r by conjugation."

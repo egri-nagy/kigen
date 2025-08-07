@@ -151,7 +151,7 @@
 
 (t-c/conjrep [1 1 0])
 
-(t-c/conjrep [9 9 9 9 9 9 9 9 9 9])
+(t-c/conjrep [7 9 9 6 9 9 9 9 9 9 9 9 9])
 
 (calc-maps (set (t-c/single-maps [1 2 0])) {} (targets 3 0))
 
