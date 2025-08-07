@@ -47,7 +47,41 @@
 (t-c/conjrep [1 0 0])
 (c/conjrep-by-minimum t/conjugate [1 0 0] S3)
 
-
+;; rewritten conjrep - but not working
+(defn conjrep
+  "Direct construction of conjugacy class representative of transformation t."
+  [t]
+  (let [n (count t)
+        pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
+        sources (set (single-maps t))
+        ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
+        ;;a partial solution is a pair of available mappings and the
+        ;;corresponding partial permutation
+        ;;initial_stack (mapv (fn [pt]  [ [] [ [sources {}] ] pt]) pts)
+        initial_stack (vec (for [pt pts
+                                 src sources]
+                             [0 (disj sources src) {} src [pt 0]]))
+        search (fn [stack]
+                 ;(println (count stack) " ")
+                 (let [[k waiting perm source target] (peek stack)
+                       nperm (realize-a-mapping source target perm)]
+                   (println "k" k "waiting" waiting "p" perm  source "to" target "nperm" nperm)
+                   (if nperm
+                     (if (and (= n (count nperm))
+                              (empty? waiting))
+                       (t/conjugate t (hash-map2perm nperm))
+                       (recur (into (pop stack)
+                                    (for [pt pts
+                                          src waiting]
+                                      [(inc k)
+                                       (disj waiting src)
+                                       nperm
+                                       src
+                                       [pt (inc k)]]))))
+                     (recur (pop stack)))))]
+    ;(println "sources" sources)
+    ;(println "initial stack" initial_stack)
+    (search initial_stack)))
 
 (defn calc-maps
   ""
