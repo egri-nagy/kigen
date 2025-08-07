@@ -10,12 +10,14 @@
               [clojure.data.int-map :refer [dense-int-set]]))
 
 (defn hash-map2perm
+  "Turning a permuation represented as a hash-map into a vector, the
+   canonical transformation representation."
   [m]
   (mapv m (range (count m))))
 
 (defn single-maps
   "All mappings of a transformation in the form of [src img] extracted
-  from a transformation t."
+  from a transformation t. Similar to `seq` of a hash-map."
   [t]
   (mapv vector (range (count t)) t))
 
@@ -42,18 +44,19 @@
         (into p nmappings)))))
 
 (defn all-realizations
-  "All realizations of a desired map d using available mappings, compatible with
-  partial permutation p. Just systematically trying to realize all mappings."
-  [mappings p d]
+  "All realizations of a desired map `target` using available mappings in
+   `sources`, compatible with the partial permutation p. Just systematically trying to realize all mappings. It returns a vector of remaining sources -
+   extended permutation pairs."
+  [sources p target]
   ;(println "mappings" mappings "p" p "d" d)
   (reduce
    (fn [psols m]
-     (let [res (realize-a-mapping m d p)]
+     (let [res (realize-a-mapping m target p)]
        (if (nil? res)
          psols
-         (conj psols [(disj mappings m) res]))))
+         (conj psols [(disj sources m) res]))))
    []
-   (sort mappings)))
+   (sort sources))) ;sorting just for the display
 
 (defn conjrep
   "Direct construction of conjugacy class representative of transformation t."
