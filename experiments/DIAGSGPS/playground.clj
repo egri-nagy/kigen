@@ -44,57 +44,10 @@
 (c/setconjrep t/mul (nth sets 0) S5)
 (can-set-seq (nth sets 0))
 
-(t-c/conjrep [1 0])
-(c/conjrep-by-minimum t/conjugate [1 0] S2)
+(t-c/conjrep [1 0 0])
+(c/conjrep-by-minimum t/conjugate [1 0 0] S3)
 
-(defn targets
-  [n i]
-  (map (fn [j] [j i]) (range n)))
 
-(defn conjrep-backtrack
-  "e"
-  [s all?]
-  (let [N (count s) ;; te number of points
-        ]
-    ;(println "mappings" mappings)
-    (loop [n 0 ;the number of mappings matched so far
-           pperms [ {} ]
-           sources [ (set (t-c/single-maps s))]
-           next-targets [[0 0]]
-           solutions []]
-      (println "n" n "pperms" pperms "tgs" tgs)
-      (if (empty? pperms) ;when bactracked too far, return the solutions
-        solutions
-        ;; we try the next target
-        (if-not (< (first (peek next-targets)) N)
-          (recur (dec n) ;backtrack when no more targets, decrease n,
-                 (pop pperms) ;popping vectors
-                 (pop next-targets)
-                 (pop next-targets)
-                 solutions) ;solution just carried over
-          (let [pperm (peek pperms)
-                ntg (first (peek tgs))
-                np (t-c/realize-a-mapping (sources n) ntg pperm)]
-            (println "got" np)
-            (cond
-              (nil? np) (recur n
-                               pperms
-                               (conj (pop tgs) (rest (peek tgs)))
-                               solutions)
-                ;if it is a solution, just return it or collect it
-              (= n N)
-              (if all?
-                (recur n ;collecting all solutions, so move on
-                       pperms
-                       (conj (pop tgs) (rest (peek tgs)))
-                       (conj solutions np))
-                [ np ]) ;the first solution
-                ;not a solution, but good, so add a new generator
-              :else (recur (inc n)
-                           (conj pperms np)
-                           (conj (conj (pop tgs) (rest (peek tgs))) (targets N (inc n)))
-                           solutions))))))))
-(conjrep-backtrack [2 2 2] true)
 
 (defn calc-maps
   ""
@@ -151,7 +104,7 @@
 
 (t-c/conjrep [1 1 0])
 
-(t-c/conjrep [7 9 9 6 9 9 9 9 9 9 9 9 9])
+(t-c/conjrep [7 8 8 6 8 8 8 8 8])
 
 (calc-maps (set (t-c/single-maps [1 2 0])) {} (targets 3 0))
 
@@ -162,3 +115,51 @@
 (targets 3 1)
 
 (t-c/conjrep [2 2 2])
+(defn targets
+  [n i]
+  (map (fn [j] [j i]) (range n)))
+
+(defn conjrep-backtrack
+  "e"
+  [s all?]
+  (let [N (count s) ;; te number of points
+        ]
+    ;(println "mappings" mappings)
+    (loop [n 0 ;the number of mappings matched so far
+           pperms [{}]
+           sources [(set (t-c/single-maps s))]
+           next-targets [[0 0]]
+           solutions []]
+      (println "n" n "pperms" pperms "tgs" tgs)
+      (if (empty? pperms) ;when bactracked too far, return the solutions
+        solutions
+        ;; we try the next target
+        (if-not (< (first (peek next-targets)) N)
+          (recur (dec n) ;backtrack when no more targets, decrease n,
+                 (pop pperms) ;popping vectors
+                 (pop next-targets)
+                 (pop next-targets)
+                 solutions) ;solution just carried over
+          (let [pperm (peek pperms)
+                ntg (first (peek tgs))
+                np (t-c/realize-a-mapping (sources n) ntg pperm)]
+            (println "got" np)
+            (cond
+              (nil? np) (recur n
+                               pperms
+                               (conj (pop tgs) (rest (peek tgs)))
+                               solutions)
+                ;if it is a solution, just return it or collect it
+              (= n N)
+              (if all?
+                (recur n ;collecting all solutions, so move on
+                       pperms
+                       (conj (pop tgs) (rest (peek tgs)))
+                       (conj solutions np))
+                [np]) ;the first solution
+                ;not a solution, but good, so add a new generator
+              :else (recur (inc n)
+                           (conj pperms np)
+                           (conj (conj (pop tgs) (rest (peek tgs))) (targets N (inc n)))
+                           solutions))))))))
+(conjrep-backtrack [2 2 2] true)
