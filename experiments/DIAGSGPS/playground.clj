@@ -24,16 +24,7 @@
 ;; (def S6 (sgp-by-gens (t/symmetric-gens 6) t/mul))
 ;; (def T6 (sgp-by-gens (t/full-ts-gens 6) t/mul))
 
-(= (count (map can-seq T3))
-   (count (map t-c/conjrep T3)))
 
-(let
- [tmul t/mul
-  tconj t/conjugate]
-
-  (sgp-embeddings-by-gens (t/full-ts-gens 2) tmul
-                          (t/full-ts-gens 3) tmul
-                          (c/conjugation-fn-bundle tmul S3)))
 
 (def sets [[[1 2 1 2 1] [3 3 1 2 0] [4 1 3 0 2]]
            [[3 3 1 2 0] [4 1 3 0 2]]
@@ -47,41 +38,24 @@
 (t-c/conjrep [1 0 0])
 (c/conjrep-by-minimum t/conjugate [1 0 0] S3)
 
-;; rewritten conjrep - but not working
-(defn conjrep
-  "Direct construction of conjugacy class representative of transformation t."
-  [t]
-  (let [n (count t)
-        pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
-        sources (set (single-maps t))
-        ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
-        ;;a partial solution is a pair of available mappings and the
-        ;;corresponding partial permutation
-        ;;initial_stack (mapv (fn [pt]  [ [] [ [sources {}] ] pt]) pts)
-        initial_stack (vec (for [pt pts
-                                 src sources]
-                             [0 (disj sources src) {} src [pt 0]]))
-        search (fn [stack]
-                 ;(println (count stack) " ")
-                 (let [[k waiting perm source target] (peek stack)
-                       nperm (realize-a-mapping source target perm)]
-                   (println "k" k "waiting" waiting "p" perm  source "to" target "nperm" nperm)
-                   (if nperm
-                     (if (and (= n (count nperm))
-                              (empty? waiting))
-                       (t/conjugate t (hash-map2perm nperm))
-                       (recur (into (pop stack)
-                                    (for [pt pts
-                                          src waiting]
-                                      [(inc k)
-                                       (disj waiting src)
-                                       nperm
-                                       src
-                                       [pt (inc k)]]))))
-                     (recur (pop stack)))))]
-    ;(println "sources" sources)
-    ;(println "initial stack" initial_stack)
-    (search initial_stack)))
+
+(t-c/conjrep [1 0 1])
+(t-c/conjrep_old [1 0 1])
+(t-c/conjrep [1 0 1 1])
+(t-c/conjrep_old [1 0 1 1])
+
+(filter #(not= (t-c/conjrep %) (t-c/conjrep_old %)) T3)
+
+
+(conjrep [1 0 0])
+(conjrep [2 2 2])
+(conjrep [3 3 3 3])
+(conjrep [4 4 4 4 4])
+(conjrep [5 5 5 5 4 5])
+(conjrep [6 1 6 6 6 6 6 6 6 6 2 5 3 4 2 6 1])
+(conjrep [4 3 2 1 0])
+(t-c/conjrep [4 3 2 1 0])
+(c/conjrep-by-minimum t/conjugate [4 3 2 1 0] S5)
 
 (defn calc-maps
   ""
@@ -102,7 +76,7 @@
  (fn [coll [sources pperm]]
    (into coll (calc-maps sources pperm (targets 3 0))))
  []
- [ [(set (t-c/single-maps [1 2 0])) {}] ])
+ [[(set (t-c/single-maps [1 2 0])) {}]])
 
 (reduce
  (fn [coll [sources pperm]]
@@ -116,24 +90,24 @@
   [#{[2 0] [1 2]} {0 2, 1 0}]])
 
 (map #(map % [1 2 0])
- (map second
-      (reduce
-       (fn [coll [sources pperm]]
-         (into coll (calc-maps sources pperm (targets 3 2))))
-       []
-       [[#{[0 1]} {2 1, 0 0, 1 2}]
-        [#{[2 0]} {1 1, 2 0, 0 2}]
-        [#{[1 2]} {0 1, 1 0, 2 2}]
-        [#{[1 2]} {2 2, 0 0, 1 1}]
-        [#{[0 1]} {1 2, 2 0, 0 1}]
-        [#{[2 0]} {0 2, 1 0, 2 1}]] )))
+     (map second
+          (reduce
+           (fn [coll [sources pperm]]
+             (into coll (calc-maps sources pperm (targets 3 2))))
+           []
+           [[#{[0 1]} {2 1, 0 0, 1 2}]
+            [#{[2 0]} {1 1, 2 0, 0 2}]
+            [#{[1 2]} {0 1, 1 0, 2 2}]
+            [#{[1 2]} {2 2, 0 0, 1 1}]
+            [#{[0 1]} {1 2, 2 0, 0 1}]
+            [#{[2 0]} {0 2, 1 0, 2 1}]])))
 
 (let [m {0 2, 1 0, 2 1}
       n (count m)]
   (mapv m (range n)))
 
 (t-c/conjrep [2 2 2 2])
-(count (t-c/conjugators [5 5 5 5 5 5] [0 0 0 0 0 0 ]))
+(count (t-c/conjugators [5 5 5 5 5 5] [0 0 0 0 0 0]))
 (t-c/conjugators [2 2 2] [0 1 0])
 
 (t-c/conjrep [1 1 0])
