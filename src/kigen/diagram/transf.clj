@@ -77,11 +77,17 @@
 
 (defn single-maps
   "All mappings of a transformation in the form of [src img] extracted
-  from a transformation t. Similar to `seq` of a hash-map."
+  from a transformation t. Similar to `seq` of a hash-map.
+   It works both for vector and hash-map representations."
   [t]
-  (mapv vector (range (count t)) t))
+  (let [imgs (if (map? t)
+               (map second t)
+               t)]
+   (mapv vector (range (count t)) imgs)))
 
 (defn pre-images
+  "Returns the point to set of pre-images map.
+   It works both for vector and hash-map representations."
   [t]
   (update-vals
    (group-by second (single-maps t))
