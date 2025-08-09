@@ -15,12 +15,6 @@
   [m]
   (mapv m (range (count m))))
 
-(defn single-maps
-  "All mappings of a transformation in the form of [src img] extracted
-  from a transformation t. Similar to `seq` of a hash-map."
-  [t]
-  (mapv vector (range (count t)) t))
-
 (defn realize-a-mapping
   "Given a mapping m and a desired mapping d, we try to turn the mapping m
   into d by extending a partial permutation p represented as a hashmap.
@@ -64,35 +58,39 @@
 
 (defn repconjugators
   [t]
-  (map (comp hash-map2perm second)
-       (reduce
-        (fn [psols k]
-          ;(println "k" k "#psols" (count psols) "vs")
-          ;; we try to match partial solutions to [k 0], [k 1], ...
-          (loop [targets (for [i (range (count t))] [k i])]
-            (let [target (first targets)
-                  results (mapcat (fn [[sources p]]
-                                    (all-realizations sources p target))
-                                  psols)]
-              (if (empty? results)
-                (recur (rest targets))
-                results))))
-        [[(set (single-maps t)) {}]]
-        (range (count t)))))
+  (let [results (reduce
+                 (fn [psols k]
+                          ;(println "k" k "#psols" (count psols) "vs")
+                  ;;  (let [hm (group-by first  psols)]
+                  ;;    (doseq [key (keys hm)]
+                  ;;      (println key ":" (map second (hm key)))))
+                   ;; we try to match partial solutions to [k 0], [k 1], ...
+                   (loop [targets (for [i (range (count t))] [k i])]
+                     (let [target (first targets)
+                           results (mapcat (fn [[sources p]]
+                                             (all-realizations sources p target))
+                                           psols)]
+                       (if (empty? results)
+                         (recur (rest targets))
+                         results))))
+                 [[(set (t/single-maps t)) {}]]
+                 (range (count t)))]
+    ;; (let [hm (group-by first  results)]
+    ;;   (doseq [key (keys hm)]
+    ;;     (println key ":" (map second (hm key)))))
+    (map (comp hash-map2perm second)
+         results)))
 
 (defn conjrep
   [t]
   (t/conjugate t (hash-map2perm (first (repconjugators t)))))
-
-(conjrep [9 0 9 9 9 9 1 9 8 9])
-
 
 (defn conjrep2
   "Direct construction of conjugacy class representative of transformation t."
   [t]
   (let [n (count t)
         pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
-        sources (set (single-maps t))
+        sources (set (t/single-maps t))
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
         ;;corresponding partial permutation
@@ -127,7 +125,7 @@
   [t]
   (let [n (count t)
         pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
-        sources (set (single-maps t))
+        sources (set (t/single-maps t))
         ;;a task is a vector: [partial_rep seq_of_partial_solutions pt]
         ;;a partial solution is a pair of available mappings and the
         ;;corresponding partial permutation
@@ -155,8 +153,8 @@
 (defn conjugators
   "All permutations that take t to r by conjugation."
   [t r]
-  (let [tmaps (set (single-maps t))
-        rmaps (set (single-maps r))
+  (let [tmaps (set (t/single-maps t))
+        rmaps (set (t/single-maps r))
         extend (fn [[tmaps rmaps perm]] ; extending a partial solution
                  (let [tm (first tmaps)]
                    (set (for [rm rmaps

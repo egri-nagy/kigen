@@ -74,3 +74,15 @@
   [t p]
   (let [pts (range (count t))]
     (mapv (zipmap (map p pts) (map p t)) pts)))
+
+(defn single-maps
+  "All mappings of a transformation in the form of [src img] extracted
+  from a transformation t. Similar to `seq` of a hash-map."
+  [t]
+  (mapv vector (range (count t)) t))
+
+(defn pre-images
+  [t]
+  (update-vals
+   (group-by second (single-maps t))
+   (comp set (partial map first))))

@@ -5,7 +5,6 @@
             [kigen.holonomy.chain :as chain]
             [kigen.holonomy.poset :as poset]
             [kigen.diagram.transf :as t]
-            [kigen.diagram.transf-conj :as t-conj]
             [kigen.holonomy.skeleton :as sk]
             [clojure.math.combinatorics :refer [selections]]))
 
@@ -79,7 +78,7 @@
   [{X :stateset} chains c-t]
   (let [v (mapv (comp first first) chains)
         m (zipmap (range) v)
-        maps (t-conj/single-maps c-t)
+        maps (t/single-maps c-t)
         r (set (for [[a b] maps] [(m a) (m b)]))]
     (when (= (count r) (count X))
       (mapv second (sort r)))))
