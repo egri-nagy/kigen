@@ -63,7 +63,7 @@
   "Trying to match the mapping from a `t-arrow` to a 'r-arrow' consistent with
    the existent mapping `m`."
   [post-arrow pre-arrow t-arrow r-arrow m]
-  (println "Matching " t-arrow "with" r-arrow)
+  ;(timbre/trace "Matching " t-arrow "with" r-arrow)
   (let [mm (conj m [t-arrow r-arrow])]
     (when (and
            ;post composition easier to check
@@ -85,17 +85,25 @@
 
 ;compress
 (defn compress
+  "Input: a coll of partial solutions with :last indicating last match
+   Output: a collection of compressed ones"
   [psols]
-  (let [base (first psols)
-        basepoint (:last base)
-        imgs (mapv :last (rest psols))]
-    (-> base
-        (conj base [:gens {basepoint imgs}])
-        (dissoc :last))))
+  ;(timbre/trace "psols in compress" psols)
+  (cond
+    (empty? psols) ()
+    (= 1 (count psols))  [(-> (first psols)
+                              (dissoc :last)
+                              (dissoc :gens))]
+    :else (let [base (first psols) ;the first one will be the base
+                basepoint (:last base)
+                imgs (mapv :last (rest psols))]
+            (-> base
+                (conj base [:gens {basepoint imgs}])
+                (dissoc :last)))))
 
 ;decompressing
 (defn decompress
-  ([compressed] ; no baspoint given, we do all
+  ([compressed] ; no basepoint given, we do all
    (let [basepoints (keys (:gens compressed))]
      (mapcat
       (partial decompress compressed)
@@ -112,112 +120,122 @@
 
 (defn match-all-sources
   [post-arrow pre-arrow {sources :sources m :p :as psol} target]
-  (remove nil?
-          (map
-           (fn [src]
-             (let [nm (match post-arrow pre-arrow src target m)]
-               (println "nm" nm)
-               (when nm
-                 (-> psol
-                     (conj [:p nm])
-                     (conj [:sources (disj sources src)])
-                     (conj [:last src])))))
-           sources)))
+  [(compress (remove nil?
+                     (map
+                      (fn [src]
+                        (let [nm (match post-arrow pre-arrow src target m)]
+               ;(timbre/trace "nm" nm)
+                          (when nm
+                            (-> psol
+                                (conj [:p nm])
+                                (conj [:sources (disj sources src)])
+                                (conj [:last src])))))
+                      sources)))])
 
 (defn match-all
-  "j"
+  "tba"
   [post-arrow pre-arrow psols target]
-  ;(println "target" target)
-  (mapcat (fn [psol]
-            (match-all-sources post-arrow pre-arrow psol target))
-          psols))
+  (apply concat
+         (remove empty? (mapcat
+                         (fn [psol]
+                           (match-all-sources post-arrow pre-arrow psol target))
+                         psols))))
 
 (defn match-compressed
-  "takes a compressed partial solution and retruns compressed extended
-   solutions"
-  [post-arrow pre-arrow
-   {gens :gens :as compressed-psol}
-   target]
-  (let [basepoints (keys gens)]
-    (mapcat
-     (fn [basepoint]
-       (println "basepoint" basepoint)
-       (let [all (decompress compressed-psol basepoint)]
-         (println "decompressed" all)
-         (mapcat (fn [{sources :sources m :p :as psol}]
-                               ;(println "sources" sources "m" m)
-                   (remove nil?
-                           ))
-                 all)))
-     basepoints)))
+  "takes a single compressed partial solution and returns a collection of
+   extended compressed solutions, when no :gens present, no need to decompress"
+  [post-arrow pre-arrow {gens :gens :as psol} target]
+  (timbre/trace "Gens" gens)
+  (if gens
+    (let [basepoints (keys gens)]
+      (mapcat
+       (fn [basepoint]
+         (timbre/trace "basepoint" basepoint)
+         (let [all (decompress psol basepoint)]
+           (timbre/trace "decompressed" all)
+           (match-all post-arrow pre-arrow all target)))
+       basepoints))
+    (match-all-sources post-arrow pre-arrow psol target)))
 
 
 (defn kickstart
   [t target]
-  (match-all (post-arrow t)
-             (pre-arrow t)
-             [{:sources (set (t/single-maps t))
-               :p {}
-               :gens {}}]
-             target))
+  (match-all-sources (post-arrow t)
+                     (pre-arrow t)
+                     {:sources (set (t/single-maps t))
+                      :p {}}
+                     target))
 
 ;; do one in detail
 (def t [0 1 0])
 (def compressed (compress (kickstart [0 1 0] [0 0])))
 (def r (match-compressed (post-arrow t) (pre-arrow t) compressed [1 0]))
-(match-all (post-arrow t) (pre-arrow t) [ {:sources #{[1 1]}, :p {[0 0] [0 0], [2 0] [1 0]}, :last [2 0]}] [2 2])
+(match-compressed (post-arrow t) (pre-arrow t)
+                  ({:sources #{[1 1]}, :p {[0 0] [0 0], [2 0] [1 0]}} [2 2])
 
 
-(def t [3 3 3 3])
-(def compressed (compress (kickstart t [0 0])))
-(match-compressed (post-arrow t) (pre-arrow t) compressed [1 0])
+
+                  (def t [3 3 3 3])
+                  (def compressed (compress (kickstart t [1 0])))
+                  (match-compressed (post-arrow t) (pre-arrow t) (first compressed) [1 0])
 
 
 ;compressed form
-(def compressed {:sources #{[1 1] [2 0]}
-                 :p {[0 0] [0 0]}
-                 :gens {[0 0] [[1 1]]}})
+                  (def compressed {:sources #{[1 1] [2 0]}
+                                   :p {[0 0] [0 0]}
+                                   :gens {[0 0] [[1 1]]}})
 
-(decompress compressed)
+                  (decompress compressed)
+
+                  (defn conjugators
+                    "Direct construction of conjugacy class representative of transformation t."
+                    [t]
+                    (let [n (count t)
+                          pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
+                          sources (set (t/single-maps t))
+                          posts (post-arrow t)
+                          pres (pre-arrow t)
+                          match-compressed-fn (partial match-compressed posts pres)
+                          initial_stack (vec (for [pt pts]
+                                               [0
+                                                [{:sources sources :p {}}]
+                                                [0 pt]]))
+                          search (fn [stack]
+                 ;(timbre/trace "stack!"  (reverse stack) "\n")
+                                   (let [[k psols target] (peek stack)
+                                         npsols (mapcat
+                                                 (fn [psol]
+                                                   (match-compressed-fn psol target))
+                                                 psols)]
+                                     (println "old" psols "\nnew " npsols)
+                                     (if (empty? npsols)
+                                       (recur (pop stack))
+                                       (if (= k (dec n))
+                                         npsols
+                                         (recur (into (pop stack)
+                                                      (for [pt pts]
+                                                        [(inc k)
+                                                         npsols
+                                                         [(inc k) pt]])))))))]
+                      (search initial_stack)))
+
+                  (conjugators [0 1 0])
+                  (def m-c-fn (partial match-compressed
+                                       (post-arrow [0 1 0])
+                                       (pre-arrow [0 1 0])))
+
+                  (m-c-fn {:sources #{[1 1] [2 0]}, :p {[0 0] [0 0]}, :gens {[0 0] [[1 1]]}} [1 0])
+
+                  (m-c-fn {:sources #{[1 1]}, :p {[0 0] [0 0], [2 0] [1 0]}} [2 2])
+
+                  (defn conjrep
+                    [t]
+                    (mapv second (sort  (vals (second (first (conjugators t)))))))
 
 
-(defn conjugators
-  "Direct construction of conjugacy class representative of transformation t."
-  [t]
-  (let [n (count t)
-        pts (reverse (range n)) ;to make sure we start with zero (we use stack) so we get minimum
-        sources (set (t/single-maps t))
-        posts (post-arrow t)
-        pres (pre-arrow t)
-        matchallfn (partial matchall posts pres)
-        initial_stack (vec (for [pt pts]
-                             [0 [[sources  {}]] [0 pt]]))
-        search (fn [stack]
-                 ;(println "stack!" (apply str (map (fn [[k psols tg]] (str k " psols" psols " tg")) (reverse stack))))
-                 (let [[k psols target] (peek stack)
-                       npsols (matchallfn psols target)]
-                   ;(println "new" npsols)
-                   ;(println "k" k)
-                   (if (empty? npsols)
-                     (recur (pop stack))
-                     (if (= k (dec n))
-                       npsols
-                       (recur (into (pop stack)
-                                    (for [pt pts]
-                                      [(inc k)
-                                       npsols
-                                       [(inc k) pt]])))))))]
-    ;(println "initial stack" initial_stack)
-    (search initial_stack)))
-
-(defn conjrep
-  [t]
-  (mapv second (sort  (vals (second (first (conjugators t)))))))
-
-(conjrep [0 1 0])
 
 ;checking against the library
-(filter
- #(not (= (t-c/conjrep %)
-          (conjrep %)))
- (selections (range 3) 3))
+                  (filter
+                   #(not (= (t-c/conjrep %)
+                            (conjrep %)))
+                   (selections (range 3) 3))
