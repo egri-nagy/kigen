@@ -8,6 +8,7 @@
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[taoensso.timbre :as timbre])
 (require '[clojure.set :refer [union]])
+(require '[clojure.pprint :refer [pprint]])
 
 (timbre/set-min-level! :trace)
 
@@ -22,12 +23,12 @@
 ;; (def T6 (sgp-by-gens (t/full-ts-gens 6) t/mul))
 
 ;; checking number of conjreps
-(map
- #(count (into #{} (map conjrep (selections (range %) %))))
- (range 1 8))
+;(map #(count (into #{} (map conjrep (selections (range %) %)))) (range 1 8))
 
 
 (defn post-arrow
+  "Lookup for the single arrow post-composing with a give arrow in a functional
+   digraph."
   [t]
   (let [pts (range (count t))
         point2arrow (zipmap pts (t/single-maps t))]
@@ -38,6 +39,8 @@
      (vals point2arrow))))
 
 (defn pre-arrow
+  "Lookup for the set of arrows pre-composing with a give arrow in a functional
+   digraph."
   [t]
   (let [maps (t/single-maps t)
         image2arrow (group-by second maps)]
@@ -57,6 +60,8 @@
 
 
 (defn match
+  "Trying to match the mapping from a `t-arrow` to a 'r-arrow' consistent with
+   the existent mapping `m`."
   [post-arrow pre-arrow t-arrow r-arrow m]
   (let [mm (conj m [t-arrow r-arrow])]
     (when (and
@@ -77,38 +82,72 @@
                  (not (empty? (filter pre-in-rs arrs))))))
       mm)))
 
-(def t [2 0 0 3])
-(match (post-arrow t)
-  (pre-arrow t)
-  [3 3] [1 0] {})
-
-(def t2 [1 2 3 0])
-(match (post-arrow t2)
-  (pre-arrow t2)
-  [1 2] [3 0] {[0 1] [1 2]})
-
 (defn matchall
   "j"
   [post-arrow pre-arrow psols target]
   ;(println "target" target)
   (remove nil? (mapcat (fn [[sources m]]
                       ;(println "sources" sources "m" m)
-                      (map
-                       (fn [src]
+                         (map
+                          (fn [src]
                          ;(println "src" src)
-                         (let [nm (match post-arrow pre-arrow src target m)]
-                           (when nm
-                             [(disj sources src) nm])))
-                       sources))
-                    psols)))
+                            (let [nm (match post-arrow pre-arrow src target m)]
+                              (when nm
+                                [(disj sources src) nm])))
+                          sources))
+                       psols)))
 
-(def t3 [0 1 0])
-(def r (matchall (post-arrow t3)
-                 (pre-arrow t3)
-                 [[(set (t/single-maps t3)) {}]]
-                 [0 0]))
+(defn matchall-compressed
+  "j"
+  [post-arrow pre-arrow psols target]
+  ;(println "target" target)
+  (remove nil? (mapcat (fn [{sources :sources m :p}]
+                      ;(println "sources" sources "m" m)
+                         (map
+                          (fn [src]
+                         ;(println "src" src)
+                            (let [nm (match post-arrow pre-arrow src target m)]
+                              (when nm
+                                [(disj sources src) nm])))
+                          sources))
+                       psols)))
 
-r
+
+(defn kickstart
+  [t target]
+  (map (fn [m] (conj m [:last target]))
+       (matchall (post-arrow t)
+                 (pre-arrow t)
+                 [[(set (t/single-maps t)) {}]]
+                 target)))
+(kickstart [0 1 0] [0 0])
+
+
+(pprint (kickstart [3 3 3 3] [0 1]))
+
+;compressed form
+(def compressed {:sources #{[1 1] [2 0]}
+                 :p {[0 0] [0 0]}
+                 :gens {[0 0] [[1 1]]}})
+
+;compress
+
+
+;decompressing
+(defn decompress
+  [{sources :sources p :p gens :gens}]
+  ;(println sources p (keys gens))
+  (map
+   (fn [k]
+     ;(println "k" k)
+     (map (fn [img]
+            (let [hm {k img, img k}]
+              ;(println hm)
+              [(set (map (fn [arr] (hm arr arr)) sources))
+               (update-vals p hm)]))
+          (gens k)))
+   (keys gens)))
+
 
 (defn conjugators
   "Direct construction of conjugacy class representative of transformation t."
@@ -120,7 +159,7 @@ r
         pres (pre-arrow t)
         matchallfn (partial matchall posts pres)
         initial_stack (vec (for [pt pts]
-                             [0 [[sources  {} ]] [0 pt]]))
+                             [0 [[sources  {}]] [0 pt]]))
         search (fn [stack]
                  ;(println "stack!" (apply str (map (fn [[k psols tg]] (str k " psols" psols " tg")) (reverse stack))))
                  (let [[k psols target] (peek stack)
@@ -134,7 +173,7 @@ r
                        (recur (into (pop stack)
                                     (for [pt pts]
                                       [(inc k)
-                                       npsols 
+                                       npsols
                                        [(inc k) pt]])))))))]
     ;(println "initial stack" initial_stack)
     (search initial_stack)))
@@ -143,15 +182,10 @@ r
   [t]
   (mapv second (sort  (vals (second (first (conjugators t)))))))
 
-(count (conjrep [1 1 1 1 1 1 1 1 1 1]))
+(conjrep [0 1 0])
 
-(def s [0 1 0]) (t/single-maps s)
-(mapv second (sort  ( vals (second (first (conjrep s))))))
-(conjrep s)
-(t-c/conjrep s)
-
-
+;checking against the library
 (filter
  #(not (= (t-c/conjrep %)
-          (mapv second (sort (vals (conjrep %))))))
+          (conjrep %)))
  (selections (range 3) 3))
