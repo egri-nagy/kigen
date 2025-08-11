@@ -78,6 +78,7 @@
 (defn single-maps
   "All mappings of a transformation in the form of [src img] extracted
   from a transformation t. Similar to `seq` of a hash-map.
+   The order is kept.
    It works both for vector and hash-map representations."
   [t]
   (let [imgs (if (map? t)

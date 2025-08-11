@@ -39,12 +39,13 @@
     ;      )
       )))
 
+
 (defn all-realizations
   "All realizations of a desired map `target` using available mappings in
    `sources`, compatible with the partial permutation p. Just systematically
    trying to realize all mappings. It returns a vector of remaining sources -
    extended permutation pairs."
-  [sources p target]
+  [ sources p target]
   ;(println "aiming" target)
   (reduce
    (fn [psols m]
@@ -61,9 +62,9 @@
   (let [results (reduce
                  (fn [psols k]
                           ;(println "k" k "#psols" (count psols) "vs")
-                  ;;  (let [hm (group-by first  psols)]
-                  ;;    (doseq [key (keys hm)]
-                  ;;      (println key ":" (map second (hm key)))))
+                    ;; (let [hm (group-by first  psols)]
+                    ;;   (doseq [key (keys hm)]
+                    ;;     (println key ":" (map second (hm key)))))
                    ;; we try to match partial solutions to [k 0], [k 1], ...
                    (loop [targets (for [i (range (count t))] [k i])]
                      (let [target (first targets)
@@ -80,6 +81,8 @@
     ;;     (println key ":" (map second (hm key)))))
     (map (comp hash-map2perm second)
          results)))
+
+;(conjrep [2 0 1])
 
 (defn conjrep
   [t]
