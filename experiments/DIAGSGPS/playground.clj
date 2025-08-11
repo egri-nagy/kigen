@@ -63,6 +63,7 @@
   "Trying to match the mapping from a `t-arrow` to a 'r-arrow' consistent with
    the existent mapping `m`."
   [post-arrow pre-arrow t-arrow r-arrow m]
+  (println "Matching " t-arrow "with" r-arrow)
   (let [mm (conj m [t-arrow r-arrow])]
     (when (and
            ;post composition easier to check
@@ -82,71 +83,102 @@
                  (not (empty? (filter pre-in-rs arrs))))))
       mm)))
 
-(defn matchall
-  "j"
-  [post-arrow pre-arrow psols target]
-  ;(println "target" target)
-  (remove nil? (mapcat (fn [[sources m]]
-                      ;(println "sources" sources "m" m)
-                         (map
-                          (fn [src]
-                         ;(println "src" src)
-                            (let [nm (match post-arrow pre-arrow src target m)]
-                              (when nm
-                                [(disj sources src) nm])))
-                          sources))
-                       psols)))
+;compress
+(defn compress
+  [psols]
+  (let [base (first psols)
+        basepoint (:last base)
+        imgs (mapv :last (rest psols))]
+    (-> base
+        (conj base [:gens {basepoint imgs}])
+        (dissoc :last))))
 
-(defn matchall-compressed
+;decompressing
+(defn decompress
+  ([compressed] ; no baspoint given, we do all
+   (let [basepoints (keys (:gens compressed))]
+     (mapcat
+      (partial decompress compressed)
+      basepoints)))
+  ([{sources :sources p :p gens :gens} basepoint]
+  ;(println sources p (keys gens))  
+   (into [{:sources sources :p p}] ;the one kept in the compressed format 
+         (map (fn [img]
+                (let [hm {basepoint img, img basepoint}
+                      hm+id (fn [arr] (hm arr arr))]
+                  {:sources (set (map  hm+id sources))
+                   :p (update-vals p hm+id)}))
+              (gens basepoint)))))
+
+(defn match-all-sources
+  [post-arrow pre-arrow {sources :sources m :p :as psol} target]
+  (remove nil?
+          (map
+           (fn [src]
+             (let [nm (match post-arrow pre-arrow src target m)]
+               (println "nm" nm)
+               (when nm
+                 (-> psol
+                     (conj [:p nm])
+                     (conj [:sources (disj sources src)])
+                     (conj [:last src])))))
+           sources)))
+
+(defn match-all
   "j"
   [post-arrow pre-arrow psols target]
   ;(println "target" target)
-  (remove nil? (mapcat (fn [{sources :sources m :p}]
-                      ;(println "sources" sources "m" m)
-                         (map
-                          (fn [src]
-                         ;(println "src" src)
-                            (let [nm (match post-arrow pre-arrow src target m)]
-                              (when nm
-                                [(disj sources src) nm])))
-                          sources))
-                       psols)))
+  (mapcat (fn [psol]
+            (match-all-sources post-arrow pre-arrow psol target))
+          psols))
+
+(defn match-compressed
+  "takes a compressed partial solution and retruns compressed extended
+   solutions"
+  [post-arrow pre-arrow
+   {gens :gens :as compressed-psol}
+   target]
+  (let [basepoints (keys gens)]
+    (mapcat
+     (fn [basepoint]
+       (println "basepoint" basepoint)
+       (let [all (decompress compressed-psol basepoint)]
+         (println "decompressed" all)
+         (mapcat (fn [{sources :sources m :p :as psol}]
+                               ;(println "sources" sources "m" m)
+                   (remove nil?
+                           ))
+                 all)))
+     basepoints)))
 
 
 (defn kickstart
   [t target]
-  (map (fn [m] (conj m [:last target]))
-       (matchall (post-arrow t)
-                 (pre-arrow t)
-                 [[(set (t/single-maps t)) {}]]
-                 target)))
-(kickstart [0 1 0] [0 0])
+  (match-all (post-arrow t)
+             (pre-arrow t)
+             [{:sources (set (t/single-maps t))
+               :p {}
+               :gens {}}]
+             target))
+
+;; do one in detail
+(def t [0 1 0])
+(def compressed (compress (kickstart [0 1 0] [0 0])))
+(def r (match-compressed (post-arrow t) (pre-arrow t) compressed [1 0]))
+(match-all (post-arrow t) (pre-arrow t) [ {:sources #{[1 1]}, :p {[0 0] [0 0], [2 0] [1 0]}, :last [2 0]}] [2 2])
 
 
-(pprint (kickstart [3 3 3 3] [0 1]))
+(def t [3 3 3 3])
+(def compressed (compress (kickstart t [0 0])))
+(match-compressed (post-arrow t) (pre-arrow t) compressed [1 0])
+
 
 ;compressed form
 (def compressed {:sources #{[1 1] [2 0]}
                  :p {[0 0] [0 0]}
                  :gens {[0 0] [[1 1]]}})
 
-;compress
-
-
-;decompressing
-(defn decompress
-  [{sources :sources p :p gens :gens}]
-  ;(println sources p (keys gens))
-  (map
-   (fn [k]
-     ;(println "k" k)
-     (map (fn [img]
-            (let [hm {k img, img k}]
-              ;(println hm)
-              [(set (map (fn [arr] (hm arr arr)) sources))
-               (update-vals p hm)]))
-          (gens k)))
-   (keys gens)))
+(decompress compressed)
 
 
 (defn conjugators
