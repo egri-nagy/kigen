@@ -11,7 +11,7 @@
 (require '[clojure.pprint :refer [pprint]])
 
 (set-min-level! :trace)
-;(set-min-level! :debug)
+(set-min-level! :debug)
 
 
 (def S5 (sgp-by-gens (t/symmetric-gens 5) t/mul))
@@ -131,7 +131,7 @@
 ;decompressing
 (defn decompress
   ([compressed] ; no basepoint given, we do all
-   (if (contains? compressed :gens)
+   (if (contains? compressed :gens) 
      (let [basepoints (keys (:gens compressed))]
        (mapcat
         (partial decompress compressed)
@@ -144,7 +144,7 @@
                 (let [hm {basepoint img, img basepoint}
                       hm+id (fn [arr] (hm arr arr))]
                   {:sources (set (map  hm+id sources))
-                   :p (update-vals p hm+id)}))
+                   :p (update-keys p hm+id)}))
               (gens basepoint)))))
 
 (decompress {:sources #{[1 1] [2 0]}, :p {[0 0] [0 0]}, :gens {[0 0] [[1 1]]}})
@@ -280,7 +280,7 @@
 (conjrep [2 2 2])
 
 (conjugators [1 1 1 2])
-(conjugators [2 2 2 2 2 2])
+(count (conjugators [2 2 2 2 2 2]))
 (t-c/conjrep [1 1 1 2])
 
 
@@ -296,4 +296,4 @@
 (filter
  #(not (= (t-c/conjrep %)
           (conjrep %)))
- (selections (range 3) 3))
+ (selections (range 6) 6))
