@@ -10,7 +10,7 @@
 (require '[clojure.set :refer [union]])
 (require '[clojure.pprint :refer [pprint]])
 
-(timbre/set-min-level! :trace)
+(timbre/set-min-level! :debug)
 
 (def S5 (sgp-by-gens (t/symmetric-gens 5) t/mul))
 ;; (def T5 (sgp-by-gens (t/full-ts-gens 5) t/mul))
@@ -50,14 +50,21 @@
      {}
      maps)))
 
+(post-arrow [1 1 1 1])
+(pre-arrow [1 1 1 1])
+(t/single-maps [1 1 1 1])
+
 (post-arrow [2 0 0 3])
 (pre-arrow [2 0 0 3])
 (t/single-maps [2 0 0 3])
+
 (pre-arrow [0 0 0 0 0])
 
+;hash-maps work when they are fully defined
+(pre-arrow [0])
 (pre-arrow {0 0})
-(pre-arrow {4 4}) ; not working
-
+(post-arrow {0 0})
+(post-arrow [0])
 
 (defn match
   "Trying to match the mapping from a `t-arrow` to a 'r-arrow' consistent with
@@ -83,6 +90,19 @@
                  (not (empty? (filter pre-in-rs arrs))))))
       mm)))
 
+(defn testmatch
+  [t source target m]
+  (match (post-arrow t) (pre-arrow t) source target m))
+
+;when it's there, just returns
+(testmatch [0 0 0] [0 0] [2 2] {[0 0] [2 2]})
+(testmatch [1 2 0] [0 1] [2 2] {}) ;should not work due to self-loop
+;test a square, reversing the direction of the cycle
+(testmatch [1 2 3 0]  [2 3] [2 1] {[0 1] [0 3]})
+(testmatch [1 2 3 0] [1 2] [0 1] {[0 1] [0 3], [2 3] [2 1]}) ;[0 1] bad direction
+(testmatch [1 2 3 0] [1 2] [1 0] {[0 1] [0 3], [2 3] [2 1]}) ;not conjugation?
+(testmatch [1 2 3 0] [1 2] [3 2] {[0 1] [0 3], [2 3] [2 1]}) ;works!
+
 ;compress
 (defn compress
   "Input: a coll of partial solutions with :last indicating last match
@@ -100,6 +120,9 @@
           (conj base [:gens {basepoint imgs}])
           (dissoc :last)))))
 
+(compress [{:sources #{[1 1] [2 0]}, :p {[0 0] [0 0]}, :last [0 0]}
+           {:sources #{[0 0] [2 0]}, :p {[1 1] [0 0]}, :last [1 1]}])
+
 ;decompressing
 (defn decompress
   ([compressed] ; no basepoint given, we do all
@@ -110,17 +133,19 @@
   ([{sources :sources p :p gens :gens} basepoint]
   ;(println sources p (keys gens))
    (into [{:sources sources :p p}] ;the one kept in the compressed format
-         (mapcat (fn [img]
+         (map (fn [img]
                 (let [hm {basepoint img, img basepoint}
                       hm+id (fn [arr] (hm arr arr))]
                   {:sources (set (map  hm+id sources))
                    :p (update-vals p hm+id)}))
               (gens basepoint)))))
 
+(decompress {:sources #{[1 1] [2 0]}, :p {[0 0] [0 0]}, :gens {[0 0] [[1 1]]}})
+
 (defn match-all-sources
   [post-arrow pre-arrow {sources :sources m :p :as psol} target]
   (let [results (remove nil?
-                        (map
+                        (mapv
                          (fn [src]
                            (let [nm (match post-arrow pre-arrow src target m)]
                              ;(timbre/trace src target "nm" nm)
@@ -130,19 +155,29 @@
                                    (conj [:sources (disj sources src)])
                                    (conj [:last src])))))
                          sources))]
-    (timbre/trace results)
-    (if (empty? results)
-      results
-      [(compress results)])))
+    ;(timbre/trace results)
+    results))
+
+(defn test-match-all-source
+  [t psol target]
+  (match-all-sources
+   (post-arrow t)
+   (pre-arrow t)
+   psol
+   target))
+
+(test-match-all-source [0 1 0]
+                       {:sources (set (t/single-maps [0 1 0])) :p {}}
+                       [0 0])
 
 (defn match-all
   "tba"
   [post-arrow pre-arrow psols target]
   (apply concat
          (remove empty?
-                 (mapcat
+                 (map
                   (fn [psol]
-                    (match-all-sources post-arrow pre-arrow psol target))
+                    (compress (match-all-sources post-arrow pre-arrow psol target)))
                   psols))))
 
 (defn match-compressed
@@ -227,6 +262,10 @@
 (conjugators [0 1 0])
 (conjugators [1 1])
 
+(conjugators [1 1 1 2])
+(conjugators [2 2 2 2 2 2])
+(t-c/conjrep [1 1 1 2])
+
 (def m-c-fn (partial match-compressed
                      (post-arrow [0 1 0])
                      (pre-arrow [0 1 0])))
@@ -237,7 +276,7 @@
 
 
 ;;doing [1 1] manually
-(def m-c-fn (partial match-compressed
+(def m-c-fn (partial match-all
                      (post-arrow [1 1])
                      (pre-arrow [1 1])))
 (kickstart [1 1] [0 0])
@@ -249,7 +288,10 @@
 
 (defn conjrep
   [t]
-  (mapv second (sort  (vals (second (first (conjugators t)))))))
+  (mapv second (sort  (vals (:p (first (conjugators t)))))))
+
+(conjrep [1 2 3 4 0])
+(t-c/conjrep [1 2 3 4 0])
 
 
 
@@ -257,4 +299,4 @@
 (filter
  #(not (= (t-c/conjrep %)
           (conjrep %)))
- (selections (range 3) 3))
+ (selections (range 6) 6))
