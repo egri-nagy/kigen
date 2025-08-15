@@ -14,7 +14,7 @@
 (defn Dn-into-Dm [gf n m]
   (let [Dngens (gf n)
         Dmgens (gf m)
-        targets (gmorph/index-period-matched (->Sgp Dngens t/mul)
+        targets (gmorph/index-period-matched Dngens t/mul
                                              Dmgens t/mul)]
     (gmorph/embeddings-distinct
      Dngens
@@ -36,7 +36,7 @@
          pairs)))
 
 ;(binding [orbit.extension/*task-size* 1]
-  (def result (Dn-into-Dm t/full-ts-gens 3 7))
+  (def result (Dn-into-Dm t/full-ts-gens 3 4))
  ; )
 
 (defn involved
