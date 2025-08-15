@@ -3,7 +3,7 @@
 (require '[kigen.diagram.transf :as t])
 (require '[kigen.diagram.transf-conj :as t-c])
 (require '[kigen.semigroup.conjugacy :as c])
-(require '[kigen.semigroup.genmorph :refer [sgp-embeddings-by-gens]])
+(require '[kigen.semigroup.genmorph :refer [sgp-embeddings-by-gens class-reps]])
 (require '[kigen.canonical-labeling :refer [can-set-seq can-seq]])
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[taoensso.timbre :refer [trace set-min-level!]])
@@ -11,7 +11,7 @@
 (require '[clojure.pprint :refer [pprint]])
 
 (set-min-level! :trace)
-(set-min-level! :debug)
+;(set-min-level! :debug)
 
 
 (def S5 (sgp-by-gens (t/symmetric-gens 5) t/mul))
@@ -192,7 +192,7 @@
                    (match-all-sources post-arrow pre-arrow psol target))
                  psols))]
     ;(trace "MATCHINGS " (count matching-groups) (map count matching-groups))
-    ;(trace "RAWMATCHINGS" matching-groups)
+    ;(trace "RAWMATCHINGS" matching-groups "LASTGROUPED" (group-by :last (apply concat matching-groups)))
     (map compress matching-groups)))
 
 (defn test-match-all
@@ -232,9 +232,22 @@
                 [2 0])
 
 (test-match-all-sources [1 0 0] {:sources #{[2 0]}, :p {[1 0] [0 1], [0 1] [1 0]}} [2 0] )
-(test-match-all-sources [1 0 0]  {:sources #{[1 0]}, :p {[1 0] [0 1]}} [2 0])
+(test-match-all-sources [1 0 0] {:sources #{[1 0]}, :p {[1 0] [0 1]}} [2 0])
 
-
+(defn info
+  [t [k psols target]]
+  (let []
+    (println "Level " k "matched"
+             ;(sort (vals p))
+             "we have" (count psols) "partial solutions, trying" target)
+    ;(pprint psols)
+    (println "num of source sets" (count (set (map :sources (mapcat decompress psols)))))
+    (pprint (group-by :sources (mapcat decompress psols)))
+    ;(print "we get") 
+    ;(pprint (match-all (post-arrow t) (pre-arrow t) (mapcat decompress psols) target))
+    ;(println "We matched " (sort (vals (:p (first psols))))
+    ;         "Compressed" (count (filter (comp identity :gens) psols)) "All same?" (= 1 (count (set (map (comp set vals :p) psols)))))
+    ))
 
 
 (defn conjugators
@@ -251,11 +264,14 @@
                               [{:sources sources :p {}}]
                               [0 pt]]))
         search (fn [stack]
+                 (info t (peek stack))
                  ;(timbre/trace "stack!"  (reverse stack) "\n")
                  ;(trace "PEEK STACK" (peek stack))
                  (let [[k psols target] (peek stack)
-                       npsols (match-all-fn (mapcat decompress psols) target)]
-                   (trace "MATCHING" (mapcat decompress psols) "to" target "GIVES" npsols "X")
+                       allpsols (mapcat decompress psols)
+
+                       npsols (match-all-fn allpsols target)]
+                   ;(trace "MATCHING" (mapcat decompress psols) "to" target "GIVES" npsols "X")
                    (if (empty? npsols)
                      (recur (pop stack))
                      (if (empty? (:sources (first npsols)))
@@ -273,11 +289,14 @@
 
 
 (conjugators [0 1 0])
+(conjrep [0 1 0])
 (conjugators [1 1])
 (conjugators [0 0 0])
 
 (conjugators [2 2 2])
 (conjrep [2 2 2])
+
+(conjugators [3 3 3 3])
 
 (conjugators [1 1 1 2])
 (count (conjugators [2 2 2 2 2 2]))
@@ -296,4 +315,8 @@
 (filter
  #(not (= (t-c/conjrep %)
           (conjrep %)))
- (selections (range 6) 6))
+ (selections (range 5) 5))
+
+(conjrep [1 2 1])
+(t-c/conjrep [1 2 1])
+(conjrep [2 2 0])
