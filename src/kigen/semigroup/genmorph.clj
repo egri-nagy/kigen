@@ -155,7 +155,8 @@
          (:phi (embedding-backtrack mSgens
                                     mSmul
                                     (index-period-matched mSgens mSmul Tgens Tmul)
-                                    Tmul)))))
+                                    Tmul
+                                    false)))))
 
 (defn class-reps
   "Classifies the elements of coll by function f and keeps only
