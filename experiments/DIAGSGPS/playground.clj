@@ -1,17 +1,19 @@
 (require '[kigen.semigroup.genmorph :refer :all])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens]])
 (require '[kigen.diagram.transf :as t])
+(require '[kigen.diagram.pbr :as pbr])
 (require '[kigen.diagram.transf-conj :as t-c])
 (require '[kigen.semigroup.conjugacy :as c])
 (require '[kigen.semigroup.genmorph :refer [sgp-embeddings-by-gens class-reps]])
 (require '[kigen.canonical-labeling :refer [can-set-seq can-seq]])
+(require '[kigen.table.multab :as mt])
 (require '[clojure.math.combinatorics :refer [selections]])
 (require '[taoensso.timbre :refer [trace set-min-level!]])
 (require '[clojure.set :refer [union]])
 (require '[clojure.pprint :refer [pprint]])
 
 (set-min-level! :trace)
-;(set-min-level! :debug)
+(set-min-level! :debug)
 
 
 (def S5 (sgp-by-gens (t/symmetric-gens 5) t/mul))
@@ -24,7 +26,8 @@
 ;; (def S6 (sgp-by-gens (t/symmetric-gens 6) t/mul))
 ;; (def T6 (sgp-by-gens (t/full-ts-gens 6) t/mul))
 
-;; checking number of conjreps
+
+;; checking number of conjrepts
 ;(map #(count (into #{} (map conjrep (selections (range %) %)))) (range 1 8))
 
 
