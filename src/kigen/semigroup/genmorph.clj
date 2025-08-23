@@ -101,7 +101,6 @@
       generator
       solution?))))
 
-
 (defn embedding-backtrack
   "Finding an embedding of source semigroup into target induced by the possible
   images of the generators by a backtrack algorithm.
@@ -117,7 +116,7 @@
       (if (< n 0) ;when bactracked too far, return the solutions
         solutions
         ;; we try the next coordinate value if available
-        (if-not (< (coords n) (dec (count (tgs n))))
+        (if (= (coords n) (dec (count (tgs n))))
           (recur (dec n) ;backtrack when no more coordinate values available
                  (pop morphs)
                  (pop coords)

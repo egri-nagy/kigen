@@ -26,7 +26,6 @@
 ;; (def S6 (sgp-by-gens (t/symmetric-gens 6) t/mul))
 ;; (def T6 (sgp-by-gens (t/full-ts-gens 6) t/mul))
 
-
 ;; checking number of conjrepts
 ;(map #(count (into #{} (map conjrep (selections (range %) %)))) (range 1 8))
 
