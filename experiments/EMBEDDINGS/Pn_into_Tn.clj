@@ -1,20 +1,16 @@
-(require '[kigen.semigroup.genmorph :refer :all])
 (require '[kigen.semigroup.sgp :refer [sgp-by-gens index-period]])
 (require '[kigen.diagram.transf :as t])
 (require '[kigen.diagram.pbr :as pbr])
 (require '[kigen.diagram.transf-conj :as t-c])
 (require '[kigen.semigroup.conjugacy :as c])
 (require '[kigen.semigroup.genmorph :refer [sgp-embeddings-by-gens class-reps call-embedding index-period-matched embedding-backtrack]])
-(require '[kigen.canonical-labeling :refer [can-set-seq can-seq]])
 (require '[kigen.table.multab :as mt])
 (require '[kigen.table.multab-morphism :as mtm])
-(require '[clojure.math.combinatorics :refer [selections]])
 (require '[taoensso.timbre :refer [trace set-min-level!]])
-(require '[clojure.set :refer [union]])
 (require '[clojure.pprint :refer [pprint]])
 
 (set-min-level! :trace)
-;(set-min-level! :debug)
+(set-min-level! :debug)
 
 ;from GAP: Rows(MulTab(PartitionMonoid(2)));
 (def P2multaborig
@@ -43,10 +39,6 @@
   [a b]
   (nth (nth P2multab a) b))
 
-(def TP2gensorig [[1,2,3,5,4,6,7],
-                  [2,2,4,4,6,6,6],
-                  [3,2,3,3,3,7,7]])
-(def TP2gens (mapv (partial mapv dec) TP2gensorig))
 
 ;this should be 7 according to https://arxiv.org/abs/2411.14693
 (embedding-backtrack
@@ -55,34 +47,10 @@
   (range 15) P2mul
   (t/full-ts-gens 7) t/mul) t/mul false)
 
-(println
- (call-embedding
-  (range 15) P2mul
-  TP2gens t/mul))
-
- (call-embedding
- (range 15) P2mul
- (range 15) P2mul)
-
-(count (let [Tgens (t/full-ts-gens 4)]
-         (embedding-backtrack
-          Tgens t/mul
-          (index-period-matched
-           Tgens t/mul
-           Tgens t/mul) t/mul true)))
-
-(let [Tgens (t/full-ts-gens 2)]
-  (index-period-matched
-   Tgens t/mul
-   Tgens t/mul))
-
-(map count
-     (index-period-matched
-      (range 15) P2mul
-      TP2gens t/mul))
-
-(group-by (partial index-period P2mul) (range 15))
-
-(group-by (partial index-period t/mul) (sgp-by-gens TP2gens t/mul))
+;; the embedding image for testing
+(def TP2gensorig [[1,2,3,5,4,6,7],
+                  [2,2,4,4,6,6,6],
+                  [3,2,3,3,3,7,7]])
+(def TP2gens (mapv (partial mapv dec) TP2gensorig))
 
 (mtm/isomorphisms P2multab (mt/multab (sgp-by-gens TP2gens t/mul) t/mul))
