@@ -24,6 +24,38 @@
 (enum/semigroupoids-order-n 3 comptab)
 (enum/associativity? [ [0 0 0] [0 :n 0] [0 0 0]])
 
+;;really not allowing the stack use
+(enum/associativity-failures
+ [
+  [3 4 5 :n :n 0 :n :n 1 :n :n :n]
+  [6 7 8 :n :n 1 :n :n 0 :n :n :n]
+  [9 10 11 :n :n :n :n :n :n :n :n :n]
+  [:n :n 0 :n :n :n :n :n :n 3 4 5]
+  [:n :n 1 :n :n :n :n :n :n 6 7 8]
+  [:n :n :n :n :n :n :n :n :n :n :n :n]
+  [:n :n 1 :n :n :n :n :n :n 6 7 8]
+  [:n :n 0 :n :n :n :n :n :n 3 4 5]
+  [:n :n :n :n :n :n :n :n :n :n :n :n]
+  [:n :n :n :n :n :n :n :n :n :n :n :n]
+  [:n :n :n :n :n :n :n :n :n :n :n :n]
+  [:n :n :n :n :n :n :n :n :n :n :n :n] ])
+;;fixing but not working
+(count
+ (enum/associativity-failures
+  [[3 4 5 :n :n 0 :n :n 1 :n :n :n]
+   [6 7 8 :n :n 1 :n :n 0 :n :n :n]
+   [9 10 11 :n :n :n :n :n :n :n :n :n]
+   [:n :n 0 :n :n 3 :n :n 4 3 4 5]
+   [:n :n 1 :n :n 4 :n :n 3 6 7 8]
+   [:n :n :n :n :n :n :n :n :n :n :n :n]
+   [:n :n 1 :n :n 6 :n :n 7 6 7 8]
+   [:n :n 0 :n :n 7 :n :n 6 3 4 5]
+   [:n :n :n :n :n :n :n :n :n :n :n :n]
+   [:n :n :n :n :n 9 :n :n 10 :n :n :n]
+   [:n :n :n :n :n 10 :n :n 9 :n :n :n]
+   [:n :n :n :n :n :n :n :n :n :n :n :n]]))
+
+
 (defn types
   "`n` arrows, `m` types"
   [n m]
