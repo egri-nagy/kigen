@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/egri-nagy/kigen.svg?branch=master)](https://travis-ci.org/egri-nagy/kigen)
+Archived on Sept 7, 2025. Development continues on [https://codeberg.org/egri-nagy/kigen](https://codeberg.org/egri-nagy/kigen). 
+
 # kigen
 
 Computational Semigroup Theory Software System written in [Clojure](https://clojure.org/)
